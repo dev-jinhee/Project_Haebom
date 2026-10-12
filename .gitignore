@@ -1,0 +1,61 @@
+# ==========================================
+# HaeBom - Git Ignore
+# ==========================================
+
+# Maven build
+/target/
+**/target/
+*.class
+
+# Eclipse / eGovFrame IDE
+.metadata/
+.settings/
+.classpath
+.project
+.factorypath
+.springBeans
+.sts4-cache/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Local environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Local configuration
+application-local.properties
+application-local.yml
+application-local.yaml
+application-secret.properties
+application-secret.yml
+application-secret.yaml
+
+# Credentials / Keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
