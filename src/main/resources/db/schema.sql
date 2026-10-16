@@ -1,5 +1,5 @@
 -- ========================================================
--- [해봄(HAEBOM) 프로젝트 DB 스크립트 - ERD 4차 (v4.0) 총 14개 테이블]
+-- [해봄(HAEBOM) 프로젝트 DB 스크립트 - v5.0 최종 설계 반영 (총 14개 테이블)]
 -- ========================================================
 
 -- 1. 외래키 제약조건 역순으로 기존 테이블 일괄 삭제
@@ -17,6 +17,7 @@ DROP TABLE IF EXISTS simulation_answer;
 DROP TABLE IF EXISTS simulation_progress;
 DROP TABLE IF EXISTS scenario_step;
 DROP TABLE IF EXISTS scenario;
+DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS scenario_category;
 
 DROP TABLE IF EXISTS member;
@@ -28,6 +29,7 @@ CREATE TABLE member (
     member_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '회원 고유 번호',
     login_id VARCHAR(50) UNIQUE COMMENT '로그인 아이디',
     password VARCHAR(255) COMMENT '비밀번호',
+    email VARCHAR(50) UNIQUE COMMENT '이메일',
     member_name VARCHAR(50) COMMENT '회원 이름',
     birth_date DATE COMMENT '생년월일',
     gender CHAR(1) COMMENT '성별 (M/F)',
@@ -38,11 +40,11 @@ CREATE TABLE member (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='회원';
 
 -- ========================================================
--- ⑦ 시나리오 카테고리 (scenario_category)
+-- ⑦ 시나리오 카테고리 (category)
 -- ========================================================
-CREATE TABLE scenario_category (
-    scenario_category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오카테고리 고유번호',
-    scenario_category_name VARCHAR(50) NOT NULL COMMENT '시나리오 카테고리 이름'
+CREATE TABLE category (
+    category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오카테고리 고유번호',
+    category_name VARCHAR(50) NOT NULL COMMENT '시나리오 카테고리 이름'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 카테고리';
 
 -- ========================================================
@@ -56,7 +58,7 @@ CREATE TABLE scenario (
     is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '공개 여부',
     category_id INT NOT NULL COMMENT '시나리오 카테고리 고유번호',
     CONSTRAINT fk_scenario_category
-        FOREIGN KEY (category_id) REFERENCES scenario_category(scenario_category_id)
+        FOREIGN KEY (category_id) REFERENCES category(category_id)
         ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오';
 
@@ -76,7 +78,7 @@ CREATE TABLE scenario_step (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 단계';
 
 -- ========================================================
--- ④ 시뮬레이션 진행 정보 (simulation_progress)
+-- ④ 시뮬레이션 진행 이력 (simulation_progress)
 -- ========================================================
 CREATE TABLE simulation_progress (
     progress_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '진행 고유 번호',
@@ -96,7 +98,7 @@ CREATE TABLE simulation_progress (
     CONSTRAINT fk_progress_step
         FOREIGN KEY (step_id) REFERENCES scenario_step(step_id)
         ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 진행 정보';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 진행 이력';
 
 -- ========================================================
 -- ⑤ 시뮬레이션 입력정보 (simulation_answer)
@@ -117,21 +119,21 @@ CREATE TABLE simulation_answer (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 입력정보';
 
 -- ========================================================
--- ⑥ 시뮬레이션 가족정보 (simulation_family) - [신규]
+-- ⑥ 시뮬레이션 가족정보 (simulation_family)
 -- ========================================================
 CREATE TABLE simulation_family (
-    family_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '가족 정보 고유 번호',
+    family_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '가족 고유 번호',
     progress_id INT NOT NULL COMMENT '진행 고유 번호',
     family_name VARCHAR(50) COMMENT '가족 이름',
-    birth_date DATE COMMENT '생년월일',
-    gender CHAR(1) COMMENT '성별 (M/F)',
-    phone VARCHAR(20) COMMENT '전화번호',
+    birth_date DATE COMMENT '가족 생일',
+    gender CHAR(1) COMMENT '가족 성별',
+    phone_num VARCHAR(20) COMMENT '가족 전화번호',
     is_applicant BOOLEAN NOT NULL DEFAULT FALSE COMMENT '신청인 본인 여부',
     is_original_head BOOLEAN NOT NULL DEFAULT FALSE COMMENT '최초 세대주 여부',
-    original_relationship VARCHAR(30) COMMENT '최초 세대주와의 관계',
+    original_relationship VARCHAR(20) COMMENT '최초 세대주와의 관계',
     is_household_head BOOLEAN NOT NULL DEFAULT FALSE COMMENT '현재 세대주 여부',
-    relationship VARCHAR(30) COMMENT '현재 세대주와의 관계',
-    move_status VARCHAR(10) DEFAULT NULL COMMENT '가족의 이사 여부 (MOVE/REMAIN)',
+    relationship VARCHAR(20) COMMENT '현재 세대주와의 관계',
+    move_status VARCHAR(20) DEFAULT NULL COMMENT '가족의 이사 여부 (MOVE/REMAIN)',
     CONSTRAINT fk_family_progress
         FOREIGN KEY (progress_id) REFERENCES simulation_progress(progress_id)
         ON DELETE CASCADE
@@ -146,7 +148,7 @@ CREATE TABLE qna_category (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의 카테고리';
 
 -- ========================================================
--- ⑧ 문의게시판 (qna)
+-- ⑧ 문의게시판 (qna) - [논리적 삭제 is_deleted 반영]
 -- ========================================================
 CREATE TABLE qna (
     qna_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '문의 고유 번호',
@@ -155,6 +157,7 @@ CREATE TABLE qna (
     qna_title VARCHAR(200) NOT NULL COMMENT '문의 제목',
     qna_content TEXT NOT NULL COMMENT '문의 내용',
     qna_status VARCHAR(20) NOT NULL DEFAULT 'WAITING' COMMENT '문의 답변 상태 (WAITING/ANSWERING/ANSWERED)',
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE COMMENT '삭제 여부 (논리적 삭제)',
     qna_created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '문의 작성일',
     qna_updated_at DATETIME COMMENT '문의 수정일',
     CONSTRAINT fk_qna_member
@@ -166,7 +169,7 @@ CREATE TABLE qna (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의게시판';
 
 -- ========================================================
--- ⑩ 관리자 답변 (qna_answer)
+-- ⑩ 문의 답변 (qna_answer)
 -- ========================================================
 CREATE TABLE qna_answer (
     qna_answer_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '문의 답변 고유번호',
@@ -180,17 +183,16 @@ CREATE TABLE qna_answer (
     CONSTRAINT fk_qna_answer_admin
         FOREIGN KEY (member_id) REFERENCES member(member_id)
         ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='관리자 답변';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의 답변';
 
 -- ========================================================
--- ⑪ 관리자 공통 로그 (admin_log) - [신규]
+-- ⑪ 관리자 공통 로그 (admin_log) - [BIGINT / action_type(30) 반영]
 -- ========================================================
 CREATE TABLE admin_log (
     log_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '로그 고유 번호',
     admin_id INT COMMENT '작업 수행 관리자 고유 번호',
     log_type VARCHAR(20) NOT NULL COMMENT '로그 유형 (MEMBER/SCENARIO/QNA)',
     action_type VARCHAR(30) NOT NULL COMMENT '작업 유형 (CREATE/UPDATE 등)',
-    log_description VARCHAR(500) COMMENT '작업 설명',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '로그 생성 일시',
     CONSTRAINT fk_admin_log_member
         FOREIGN KEY (admin_id) REFERENCES member(member_id)
@@ -198,7 +200,7 @@ CREATE TABLE admin_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='관리자 공통 로그';
 
 -- ========================================================
--- ⑫ 회원 관리 로그 상세 (admin_log_member) - [신규]
+-- ⑫ 회원 관리 로그 상세 (admin_log_member)
 -- ========================================================
 CREATE TABLE admin_log_member (
     log_id BIGINT PRIMARY KEY COMMENT '로그 고유 번호',
@@ -212,7 +214,7 @@ CREATE TABLE admin_log_member (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='회원 관리 로그 상세';
 
 -- ========================================================
--- ⑬ 시나리오 관리 로그 상세 (admin_log_scenario) - [신규]
+-- ⑬ 시나리오 관리 로그 상세 (admin_log_scenario)
 -- ========================================================
 CREATE TABLE admin_log_scenario (
     log_id BIGINT PRIMARY KEY COMMENT '로그 고유 번호',
@@ -226,7 +228,7 @@ CREATE TABLE admin_log_scenario (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 관리 로그 상세';
 
 -- ========================================================
--- ⑭ 문의 관리 로그 상세 (admin_log_qna) - [신규]
+-- ⑭ 문의 관리 로그 상세 (admin_log_qna) - [qna_id FK 반영]
 -- ========================================================
 CREATE TABLE admin_log_qna (
     log_id BIGINT PRIMARY KEY COMMENT '로그 고유 번호',
