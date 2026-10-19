@@ -1,130 +1,221 @@
 /**
  * ========================================================
- * [해봄(HaeBom) 공통 자바스크립트 - common.js]
- * Bootstrap 5.3 기반 통합 유틸리티 및 모달 함수
+ * [해봄(HaeBom) 통합 공통 스크립트 - common.js]
+ * 1. 피그마 app.js 기능 (토스트 팝업, 글자 크기 설정, 시뮬레이션 세션 관리)
+ * 2. 해봄 Bootstrap 5.3 모달 (haebomAlert, haebomWarn, haebomConfirm)
  * ========================================================
  */
 
-/**
- * 1. 공통 알림 모달 (haebomAlert)
- * Bootstrap 5.3 Modal API를 사용하여 알림 모달을 띄웁니다.
- * 
- * @param {string} message 알림 내용 (줄바꿈 \n 지원)
- * @param {string} [title="알림"] 모달 제목
- * @param {function} [callback] 모달이 닫힌 후 실행할 함수
- * @param {string} [type="info"] 아이콘 유형 ('warn' | 'info' | 'success')
- */
-function haebomAlert(message, title, callback, type) {
-    const modalEl = document.getElementById("hbAlertModal");
-    if (!modalEl || typeof bootstrap === "undefined") {
+(() => {
+  // ----------------------------------------------------
+  // 1. 시뮬레이션 임시 저장 데이터 보존 기간(30일) 관리
+  // ----------------------------------------------------
+  const savedSimulationKey = 'ongyeol-sim-saved';
+  const simulationRetentionMs = 30 * 24 * 60 * 60 * 1000;
+  try {
+    const savedSimulation = JSON.parse(localStorage.getItem(savedSimulationKey) || 'null');
+    if (savedSimulation) {
+      if (Number.isFinite(savedSimulation.savedAt) && Date.now() - savedSimulation.savedAt >= simulationRetentionMs) {
+        localStorage.removeItem(savedSimulationKey);
+        localStorage.removeItem('ongyeol-last-scenario-progress');
+      } else if (!Number.isFinite(savedSimulation.savedAt)) {
+        savedSimulation.savedAt = Date.now();
+        localStorage.setItem(savedSimulationKey, JSON.stringify(savedSimulation));
+      }
+    }
+  } catch (_) {
+    localStorage.removeItem(savedSimulationKey);
+    localStorage.removeItem('ongyeol-last-scenario-progress');
+  }
+
+  // ----------------------------------------------------
+  // 2. 전역 토스트(Toast) 팝업 알림 (window.Haebom.toast)
+  // ----------------------------------------------------
+  const toast = (message) => {
+    const node = document.getElementById('siteToast');
+    const label = document.getElementById('toastMessage');
+    if (!node || !window.bootstrap) {
+      if (typeof haebomAlert === 'function') {
+        haebomAlert(message);
+      } else {
         alert(message);
-        if (typeof callback === "function") callback();
-        return;
+      }
+      return;
     }
+    if (label) label.textContent = message;
+    bootstrap.Toast.getOrCreateInstance(node, { delay: 2800 }).show();
+  };
 
-    const titleEl = document.getElementById("hbAlertTitle");
-    const messageEl = document.getElementById("hbAlertMessage");
-    const iconEl = document.getElementById("hbAlertIcon");
+  window.Haebom = window.Haebom || {};
+  window.Haebom.toast = toast;
 
-    const iconType = type || (title && (title.includes("경고") || title.includes("확인") || title.includes("오류") || title.includes("누락")) ? "warn" : "info");
+  // ----------------------------------------------------
+  // 3. 전역 글자 크기 조절 (보통 / 크게 / 가장 크게)
+  // ----------------------------------------------------
+  const initTextSize = () => {
+    const savedTextSize = localStorage.getItem('ongyeol-text-size');
+    let textSize = ['normal', 'large', 'largest'].includes(savedTextSize)
+      ? savedTextSize
+      : (localStorage.getItem('ongyeol-access-mode') === 'on' || localStorage.getItem('ongyeol-mode') === 'easy' || savedTextSize === 'large')
+        ? 'large'
+        : 'normal';
 
-    if (titleEl) titleEl.textContent = title || "알림";
-    if (messageEl) messageEl.textContent = message || "";
-
-    if (iconEl) {
-        if (iconType === "warn") {
-            iconEl.className = "bi bi-exclamation-triangle-fill text-warning fs-3";
-        } else if (iconType === "success") {
-            iconEl.className = "bi bi-check-circle-fill text-success fs-3";
-        } else {
-            iconEl.className = "bi bi-info-circle-fill text-primary fs-3";
-        }
-    }
-
-    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
-
-    // 모달이 완전히 닫힌 후 콜백 실행
-    const handleHidden = function () {
-        modalEl.removeEventListener("hidden.bs.modal", handleHidden);
-        if (typeof callback === "function") {
-            callback();
-        }
+    const renderTextSize = () => {
+      document.documentElement.dataset.textSize = textSize;
+      if (document.body) {
+        document.body.classList.toggle('large-text-mode', textSize !== 'normal');
+      }
+      document.querySelectorAll('[data-mode-label]').forEach((label) => {
+        label.textContent = textSize === 'largest' ? '가장 크게' : textSize === 'large' ? '크게' : '보통';
+      });
+      document.querySelectorAll('[data-text-size]').forEach((option) => {
+        const selected = option.dataset.textSize === textSize;
+        option.classList.toggle('active', selected);
+        option.setAttribute('aria-pressed', String(selected));
+      });
     };
 
-    modalEl.addEventListener("hidden.bs.modal", handleHidden);
-    bsModal.show();
+    renderTextSize();
+
+    document.querySelectorAll('[data-text-size]').forEach((button) => {
+      button.addEventListener('click', () => {
+        textSize = button.dataset.textSize;
+        localStorage.setItem('ongyeol-text-size', textSize);
+        localStorage.removeItem('ongyeol-access-mode');
+        localStorage.removeItem('ongyeol-mode');
+        renderTextSize();
+      });
+    });
+  };
+
+  // ----------------------------------------------------
+  // 4. 데모 세션 & 이메일 프로필 바인딩
+  // ----------------------------------------------------
+  const initDemoProfiles = () => {
+    const isAdmin = localStorage.getItem('ongyeol-demo-role') === 'admin';
+    document.querySelectorAll('[data-admin-entry]').forEach((entry) => entry.classList.toggle('d-none', !isAdmin));
+    const savedSignupEmail = localStorage.getItem('ongyeol-demo-email');
+    if (savedSignupEmail) {
+      document.querySelectorAll('[data-profile-email]').forEach((node) => { node.textContent = savedSignupEmail; });
+    }
+    const currentEmailInput = document.getElementById('currentEmail');
+    if (currentEmailInput) {
+      currentEmailInput.value = savedSignupEmail || document.querySelector('[data-profile-email]')?.textContent.trim() || '';
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initTextSize();
+      initDemoProfiles();
+    });
+  } else {
+    initTextSize();
+    initDemoProfiles();
+  }
+})();
+
+// --------------------------------------------------------
+// 5. 공통 알림 모달 (haebomAlert) - Bootstrap 5.3
+// --------------------------------------------------------
+function haebomAlert(message, title, callback, type) {
+  const modalEl = document.getElementById("hbAlertModal");
+  if (!modalEl || typeof bootstrap === "undefined") {
+    alert(message);
+    if (typeof callback === "function") callback();
+    return;
+  }
+
+  const titleEl = document.getElementById("hbAlertTitle");
+  const messageEl = document.getElementById("hbAlertMessage");
+  const iconEl = document.getElementById("hbAlertIcon");
+
+  const iconType = type || (title && (title.includes("경고") || title.includes("확인") || title.includes("오류") || title.includes("누락")) ? "warn" : "info");
+
+  if (titleEl) titleEl.textContent = title || "알림";
+  if (messageEl) messageEl.textContent = message || "";
+
+  if (iconEl) {
+    if (iconType === "warn") {
+      iconEl.className = "bi bi-exclamation-triangle-fill text-warning fs-3";
+    } else if (iconType === "success") {
+      iconEl.className = "bi bi-check-circle-fill text-success fs-3";
+    } else {
+      iconEl.className = "bi bi-info-circle-fill text-primary fs-3";
+    }
+  }
+
+  const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+  const handleHidden = function () {
+    modalEl.removeEventListener("hidden.bs.modal", handleHidden);
+    if (typeof callback === "function") {
+      callback();
+    }
+  };
+
+  modalEl.addEventListener("hidden.bs.modal", handleHidden);
+  bsModal.show();
 }
 
-/**
- * 2. 공통 경고 모달 (haebomWarn - 입력 누락, 유효성 검사 실패 시 사용)
- * 모달 확인 후 해당 입력 필드로 자동 포커스 이동 및 강조 효과 적용
- * 
- * @param {string} message 경고 내용
- * @param {string|HTMLElement} [targetSelector] 포커스할 입력 요소 (#inputId 또는 element)
- * @param {string} [title="입력 확인"] 모달 제목
- */
+// --------------------------------------------------------
+// 6. 공통 경고 모달 (haebomWarn - 유효성 검사 실패 시 포커스 이동)
+// --------------------------------------------------------
 function haebomWarn(message, targetSelector, title) {
-    haebomAlert(message, title || "입력 확인", function () {
-        if (targetSelector) {
-            const el = typeof targetSelector === "string" ? document.querySelector(targetSelector) : targetSelector;
-            if (el && typeof el.focus === "function") {
-                el.focus();
-                // 일시적인 포커스 강조 효과
-                el.classList.add("is-invalid");
-                setTimeout(() => {
-                    el.classList.remove("is-invalid");
-                }, 2000);
-            }
-        }
-    }, "warn");
+  haebomAlert(message, title || "입력 확인", function () {
+    if (targetSelector) {
+      const el = typeof targetSelector === "string" ? document.querySelector(targetSelector) : targetSelector;
+      if (el && typeof el.focus === "function") {
+        el.focus();
+        el.classList.add("is-invalid");
+        setTimeout(() => {
+          el.classList.remove("is-invalid");
+        }, 2000);
+      }
+    }
+  }, "warn");
 }
 
-/**
- * 3. 공통 확인 모달 (haebomConfirm)
- * [확인]을 누르면 onConfirm, [취소/닫기]를 누르면 onCancel 실행
- * 
- * @param {string} message 질문 내용
- * @param {function} onConfirm [확인] 클릭 시 실행할 함수
- * @param {function} [onCancel] [취소/닫기] 시 실행할 함수
- * @param {string} [title="확인"] 모달 제목
- */
+// --------------------------------------------------------
+// 7. 공통 확인 모달 (haebomConfirm)
+// --------------------------------------------------------
 function haebomConfirm(message, onConfirm, onCancel, title) {
-    const modalEl = document.getElementById("hbConfirmModal");
-    if (!modalEl || typeof bootstrap === "undefined") {
-        if (confirm(message)) {
-            if (typeof onConfirm === "function") onConfirm();
-        } else {
-            if (typeof onCancel === "function") onCancel();
-        }
-        return;
+  const modalEl = document.getElementById("hbConfirmModal");
+  if (!modalEl || typeof bootstrap === "undefined") {
+    if (confirm(message)) {
+      if (typeof onConfirm === "function") onConfirm();
+    } else {
+      if (typeof onCancel === "function") onCancel();
     }
+    return;
+  }
 
-    const titleEl = document.getElementById("hbConfirmTitle");
-    const messageEl = document.getElementById("hbConfirmMessage");
-    const okBtn = document.getElementById("hbConfirmOkBtn");
+  const titleEl = document.getElementById("hbConfirmTitle");
+  const messageEl = document.getElementById("hbConfirmMessage");
+  const okBtn = document.getElementById("hbConfirmOkBtn");
 
-    if (titleEl) titleEl.textContent = title || "확인";
-    if (messageEl) messageEl.textContent = message || "";
+  if (titleEl) titleEl.textContent = title || "확인";
+  if (messageEl) messageEl.textContent = message || "";
 
-    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
-    let isConfirmed = false;
+  const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  let isConfirmed = false;
 
-    const handleOk = function () {
-        isConfirmed = true;
-    };
+  const handleOk = function () {
+    isConfirmed = true;
+  };
 
-    const handleHidden = function () {
-        okBtn.removeEventListener("click", handleOk);
-        modalEl.removeEventListener("hidden.bs.modal", handleHidden);
+  const handleHidden = function () {
+    okBtn.removeEventListener("click", handleOk);
+    modalEl.removeEventListener("hidden.bs.modal", handleHidden);
 
-        if (isConfirmed) {
-            if (typeof onConfirm === "function") onConfirm();
-        } else {
-            if (typeof onCancel === "function") onCancel();
-        }
-    };
+    if (isConfirmed) {
+      if (typeof onConfirm === "function") onConfirm();
+    } else {
+      if (typeof onCancel === "function") onCancel();
+    }
+  };
 
-    okBtn.addEventListener("click", handleOk);
-    modalEl.addEventListener("hidden.bs.modal", handleHidden);
-    bsModal.show();
+  okBtn.addEventListener("click", handleOk);
+  modalEl.addEventListener("hidden.bs.modal", handleHidden);
+  bsModal.show();
 }

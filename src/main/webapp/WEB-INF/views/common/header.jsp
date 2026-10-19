@@ -1,7 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<!-- [해봄 공통 헤더 (header.jsp)] -->
+<!-- [해봄 공통 서브 헤더 (header.jsp)] -->
+<!-- 문의게시판, 시나리오, 마이페이지 등 모든 일반 서브 페이지용 표준 헤더 -->
 <header class="site-header sticky-top">
     <nav class="navbar container py-3">
         <!-- 브랜드 로고 -->
@@ -13,15 +15,8 @@
             </span>
         </a>
 
-        <!-- 우측 액션 메뉴 -->
+        <!-- 우측 액션 메뉴 (피그마 서브 공통 규격: 글씨 크기 + 홈으로) -->
         <div class="d-flex align-items-center gap-2 ms-auto">
-            <!-- 관리자(ADMIN) 권한이 있는 경우에만 관리자 페이지 버튼 노출 (개발 테스트용 ?role=admin 허용) -->
-            <c:if test="${sessionScope.loginMember.role eq 'ADMIN' or param.role eq 'admin'}">
-                <a class="btn btn-outline-secondary rounded-pill" href="${pageContext.request.contextPath}/admin">
-                    <i class="bi bi-speedometer2 me-1"></i>관리자 페이지
-                </a>
-            </c:if>
-
             <!-- 글씨 크기 조절 드롭다운 (피그마 '보통') -->
             <div class="dropdown">
                 <button class="btn btn-access dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정" title="글씨 크기 설정">
@@ -34,25 +29,10 @@
                 </ul>
             </div>
 
-            <!-- 로그인 여부에 따른 버튼 분기 -->
-            <c:choose>
-                <c:when test="${not empty sessionScope.loginMember}">
-                    <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
-                        <i class="bi bi-person-circle me-1"></i>마이페이지
-                    </a>
-                    <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/logout">
-                        <i class="bi bi-box-arrow-right me-1"></i>로그아웃
-                    </a>
-                </c:when>
-                <c:otherwise>
-                    <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
-                        <i class="bi bi-person-circle me-1"></i>마이페이지
-                    </a>
-                    <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/login">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>로그인
-                    </a>
-                </c:otherwise>
-            </c:choose>
+            <!-- 홈으로 이동 버튼 (집 모양 아이콘) -->
+            <a href="${pageContext.request.contextPath}/" class="btn btn-outline-secondary rounded-pill">
+                <i class="bi bi-house me-1"></i>홈으로
+            </a>
         </div>
     </nav>
 </header>
