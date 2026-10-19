@@ -1,0 +1,197 @@
+/* Simulation flow */
+.simulation-page { min-height: 100vh; background: #f6f8fb; }
+.sim-container { max-width: 1120px; padding-top: 28px; padding-bottom: 70px; }
+.sim-breadcrumb { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; color: #7c8998; font-size: .78rem; }
+.sim-breadcrumb a { color: #567087; text-decoration: none; }
+.sim-breadcrumb i { font-size: .65rem; }
+.sim-title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.sim-title-row h1 { margin: 4px 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -.045em; }
+.sim-title-row p { margin: 0; color: var(--muted); font-size: .9rem; }
+.sim-title-actions { display: flex; align-items: center; gap: 12px; }
+.learning-badge { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 999px; color: #3f647b; background: #e7f0f5; font-size: .75rem; font-weight: 700; }
+.sim-progress-card { padding: 20px 24px 15px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 4px 14px rgba(34,55,76,.035); }
+.sim-progress-card .progress { height: 9px; }
+.step-labels { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; color: #8490a0; font-size: .7rem; }
+.step-labels .active { color: #1769aa; font-weight: 700; }
+.sim-layout { margin-top: 20px; }
+.sim-card, .guide-card, .privacy-card, .support-note { border: 1px solid var(--line); border-radius: 20px; background: #fff; box-shadow: 0 7px 20px rgba(31,58,84,.035); }
+.sim-card { padding: 28px 30px 0; }
+.sim-card-head { display: flex; align-items: center; gap: 14px; }
+.question-icon { display: grid; flex: 0 0 48px; place-items: center; width: 48px; height: 48px; border-radius: 15px; color: #1769aa; background: #e8f2f8; font-size: 1.3rem; }
+.sim-card-head .eyebrow { font-size: .72rem; }
+.sim-card-head h2 { margin: 2px 0 0; font-size: 1.25rem; font-weight: 800; }
+.question-help { margin: 20px 0 23px; color: #647387; font-size: .88rem; }
+.sim-step-content { min-height: 245px; }
+.sim-step-content .form-control { max-width: 560px; }
+.gov24-sim-card .question-help { margin-bottom: 18px; }
+.gov24-notices { min-height: 0; color: #3f4b58; font-size: .88rem; line-height: 1.85; }
+.gov24-before { margin: 0 0 30px; padding: 22px 25px; border: 1px solid #d6d6d6; border-radius: 12px; background: #f7f7f7; }
+.gov24-before h3 { margin: 0 0 20px; color: #202b36; font-size: 1.16rem; font-weight: 800; }
+.gov24-before h3 i, .gov24-before p i { color: #2874c7; }
+.gov24-before p { margin: 0; }
+.gov24-before strong { color: #285f9c; font-weight: 600; }
+.gov24-before hr { margin: 19px 0; border-color: #cbd0d5; }
+.gov24-section-title { margin: 0 0 20px; color: #202b36; font-size: 1.3rem; font-weight: 800; }
+.gov24-text-section { margin: 0 0 24px; }
+.gov24-text-section h4, .gov24-confirm-box h4 { margin: 0 0 11px; color: #25384b; font-size: .94rem; font-weight: 800; }
+.gov24-text-section ul, .gov24-text-section ol, .gov24-confirm-box ul { margin: 0; padding-left: 1.25rem; }
+.gov24-text-section li + li, .gov24-confirm-box li + li { margin-top: 10px; }
+.gov24-text-section .gov24-warning, .gov24-confirm-box .gov24-warning { color: #6d5d45; }
+.gov24-confirm-box { margin: 22px 0 27px; padding: 18px 20px; border: 1px solid #e3e5e7; border-radius: 12px; background: #f8f8f8; }
+.gov24-confirm-box p { margin: 0; }
+.gov24-form-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; max-width: 850px; }
+.gov24-form-grid .form-control { max-width: none; }
+.gov24-form-panel { margin: 22px 0; padding: 34px 40px 40px; border: 1px solid #c9c9c9; border-radius: 12px; }
+.gov24-form-panel h3, .gov24-data-consent > h3 { margin: 0 0 40px; color: #1c2733; font-size: 1.25rem; font-weight: 800; }
+.gov24-form-field { max-width: 850px; margin: 0 0 46px; padding: 0; border: 0; }
+.gov24-form-field:last-child { margin-bottom: 0; }
+.gov24-form-field > label, .gov24-form-field > legend { display: block; float: none; width: auto; margin: 0 0 19px; color: #25384b; font-size: .98rem; font-weight: 700; }
+.gov24-form-field legend span, .gov24-movers h4 span, .gov24-data-consent summary span { color: #58718a; font-size: .85rem; font-weight: 400; }
+.gov24-readonly-field { max-width: 590px !important; min-height: 56px; border-color: #c9c9c9; background: #dedede !important; }
+.gov24-phone-fields { display: flex; align-items: center; gap: 18px; max-width: 590px; }
+.gov24-phone-fields .form-control { width: 160px; max-width: 160px; min-height: 56px; border-color: #858585; border-radius: 8px; }
+.gov24-phone-fields > span { color: #526174; }
+.gov24-form-field > small { display: block; margin-top: 8px; color: #718096; font-size: .76rem; }
+.gov24-reason-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 28px; }
+.gov24-reason-grid label { display: flex; align-items: center; gap: 10px; min-height: 27px; color: #25384b; cursor: pointer; }
+.gov24-reason-grid input, .gov24-consent-options input, .gov24-notice-check input { width: 19px; height: 19px; flex: 0 0 auto; accent-color: #1769ff; }
+.gov24-other-reason { max-width: 590px !important; min-height: 52px; margin-top: 20px; }
+.gov24-other-reason:disabled { background: #dedede; }
+.gov24-address-panel .gov24-form-field { max-width: none; margin: 0; }
+.gov24-address-controls { display: flex; align-items: center; gap: 14px; }
+.gov24-address-controls .form-select { width: min(230px, 28%); min-height: 56px; border-color: #858585; border-radius: 8px; }
+.gov24-address-controls .btn { min-height: 56px; padding-inline: 18px; border-radius: 8px; }
+.gov24-current-address-panel .gov24-form-field { max-width: none; margin-bottom: 24px; }
+.gov24-current-address-panel .gov24-form-field > label { margin-bottom: 12px; }
+.gov24-current-address-field { width: min(590px, 100%); }
+.gov24-current-address-field .form-label { margin-bottom: 7px; color: #4b5d70; font-size: .82rem; }
+.gov24-address-controls .gov24-current-address-field + .btn { flex: 0 0 auto; align-self: flex-end; }
+.gov24-field-help { display: block; margin-top: 7px; color: #718096; font-size: .76rem; }
+.gov24-building-fields { display: grid; grid-template-columns: minmax(160px, 290px) minmax(100px, 140px) minmax(100px, 140px) auto; align-items: end; gap: 10px; max-width: 720px; margin: 0 0 27px; }
+.gov24-building-fields > label { display: grid; gap: 7px; color: #4b5d70; font-size: .82rem; }
+.gov24-building-fields .form-control, .gov24-building-fields .form-select { min-height: 48px; border-color: #858585; border-radius: 8px; }
+.gov24-building-help { justify-self: end; padding: 5px 0; color: #526174; font-size: .8rem; text-decoration: underline; }
+.gov24-detail-address { margin-bottom: 27px; }
+.gov24-detail-address .form-control { max-width: 590px; min-height: 52px; border-color: #858585; border-radius: 8px; }
+.gov24-detail-address p { max-width: 800px; margin: 12px 0 0; color: #526174; font-size: .82rem; line-height: 1.65; }
+.gov24-detail-address p b { color: #d83b36; }
+.gov24-household-field { display: grid; gap: 13px; margin-bottom: 0; }
+.gov24-household-field > label { display: flex; align-items: flex-start; gap: 10px; margin: 0; color: #25384b; font-weight: 500; cursor: pointer; }
+.gov24-household-field input, .gov24-service-heading input { width: 19px; height: 19px; flex: 0 0 auto; accent-color: #1769ff; }
+.gov24-extra-services { margin: 28px 0 8px; }
+.gov24-extra-services h3 { margin: 0 0 17px; color: #1c2733; font-size: 1.2rem; font-weight: 800; }
+.gov24-service-item { margin-bottom: 12px; border-top: 1px solid #cfd4d9; background: #edf2f7; }
+.gov24-service-item:last-child { border-bottom: 1px solid #cfd4d9; }
+.gov24-service-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 58px; padding: 9px 14px; }
+.gov24-service-heading label { display: flex; align-items: center; gap: 10px; margin: 0; color: #25384b; font-size: .88rem; cursor: pointer; }
+.gov24-service-heading label small { color: #526174; font-size: .82rem; }
+.gov24-service-heading .btn { color: #25384b; }
+.gov24-service-description { padding: 0 43px 14px; color: #647387; font-size: .8rem; }
+.gov24-address-result { margin-top: 25px; }
+.gov24-result-table, .gov24-people-table { width: 100%; border-collapse: collapse; color: #26384b; }
+.gov24-result-table { border-top: 1px solid #a9bfd5; }
+.gov24-result-table th, .gov24-result-table td { height: 62px; padding: 13px 18px; border-bottom: 1px solid #d8dde2; text-align: left; }
+.gov24-result-table th { width: 265px; border-right: 1px solid #d8dde2; background: #edf2f7; font-size: .83rem; font-weight: 700; }
+.gov24-result-table td { font-size: .9rem; }
+.gov24-movers { margin-top: 44px; }
+.gov24-movers h4 { margin: 0 0 17px; color: #25384b; font-size: .98rem; font-weight: 700; }
+.gov24-people-table { min-width: 820px; font-size: .84rem; }
+.gov24-people-table th, .gov24-people-table td { padding: 14px 15px; border: 1px solid #d7dce1; text-align: left; }
+.gov24-people-table thead th { background: #edf2f7; font-size: .78rem; }
+.gov24-people-table th:first-child, .gov24-people-table td:first-child { width: 58px; text-align: center; }
+.gov24-household-head-panel .gov24-people-table th:first-child, .gov24-household-head-panel .gov24-people-table td:first-child { width: 125px; text-align: center; }
+.gov24-household-head-panel .gov24-people-table th:nth-child(2), .gov24-household-head-panel .gov24-people-table td:nth-child(2) { width: 74px; text-align: center; }
+.gov24-household-head-panel .gov24-people-table { min-width: 940px; }
+.gov24-household-head-panel .gov24-people-table th:nth-child(3), .gov24-household-head-panel .gov24-people-table td:nth-child(3) { min-width: 160px; }
+.gov24-household-head-panel .gov24-people-table td:nth-child(4), .gov24-household-head-panel .gov24-people-table td:nth-child(5) { min-width: 180px; }
+.gov24-household-head-panel .gov24-people-table td:nth-child(6) { min-width: 120px; }
+.gov24-household-head-panel .gov24-people-table .form-control, .gov24-household-head-panel .gov24-people-table .form-select { min-height: 42px; font-size: .84rem; }
+.gov24-people-table td span { color: #1769ff; }
+.gov24-household-head-panel h3 span { color:#58718a; font-size:.85rem; font-weight:400; }
+.gov24-household-head-panel > p { margin:0 0 18px; color:#69788a; font-size:.84rem; }
+.gov24-household-head-summary { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 0 22px; padding:13px 16px; border:1px solid #dce5ec; border-radius:9px; color:#53677c; background:#f7fafc; font-size:.82rem; }
+.gov24-household-head-summary strong { color:#263d52; font-weight:600; }
+.gov24-data-consent { margin-top: 28px; }
+.gov24-data-consent > h3 { margin-bottom: 28px; }
+.gov24-data-consent details { border-top: 1px solid #cfd6dd; }
+.gov24-data-consent summary { padding: 16px 18px; background: #edf2f7; color: #25384b; font-weight: 700; cursor: pointer; }
+.gov24-consent-copy { padding: 22px 18px; color: #5d6c7d; font-size: .84rem; line-height: 1.75; }
+.gov24-consent-copy p { margin: 0 0 17px; }
+.gov24-consent-copy strong { color: #30475f; }
+.gov24-consent-copy ul { margin: 0; padding-left: 1.2rem; }
+.gov24-consent-options { display: flex; justify-content: flex-end; gap: 24px; margin: 0; padding: 18px; border-top: 1px solid #d7dce1; }
+.gov24-consent-options label, .gov24-notice-check { display: flex; align-items: center; gap: 8px; color: #30475f; }
+.gov24-consent-options label { cursor: pointer; }
+.gov24-notice-check { margin-top: 20px; padding: 15px 18px; border: 1px solid #d7dce1; background: #edf2f7; font-size: .84rem; cursor: pointer; }
+.gov24-notice-items { padding: 18px 18px 0; color: #5d6c7d; font-size: .84rem; line-height: 1.7; }
+.gov24-notice-items ul { margin: 12px 0 0; padding-left: 1.2rem; }
+.gov24-sim-card .alert a { color: #145da0; font-weight: 700; }
+.gov24-official-note { margin-top: 18px; }
+.gov24-sim-card .sim-card-footer { position: static; background: #fff; }
+.sim-progress-card .step-labels span { line-height: 1.55; }
+.sim-progress-card .step-labels b { color: #263b51; font-weight: 700; }
+.option-card { display: flex; align-items: center; gap: 13px; width: 100%; margin-bottom: 12px; padding: 16px; border: 1px solid #dfe6ec; border-radius: 14px; cursor: pointer; transition: border .15s,background .15s; }
+.option-card:hover, .option-card:focus-within { border-color: #82b2d1; background: #f7fbfd; }
+.option-card:has(input:checked) { border-color: #2d7fb2; background: #f1f8fc; box-shadow: inset 0 0 0 1px #2d7fb2; }
+.option-card .form-check-input { flex: 0 0 19px; margin: 0; }
+.option-card-icon { display: grid; flex: 0 0 42px; place-items: center; width: 42px; height: 42px; border-radius: 13px; color: #1d6b9d; background: #e7f1f7; font-size: 1.15rem; }
+.option-card strong, .option-card small { display: block; }
+.option-card strong { font-size: .88rem; }
+.option-card small { margin-top: 3px; color: var(--muted); font-size: .75rem; }
+.option-end { margin-left: auto; color: #96a3b0; }
+.address-result { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid #cfe3d9; border-radius: 13px; background: #f5fbf7; }
+.address-result > i { color: #278457; font-size: 1.2rem; }
+.address-result strong, .address-result small { display: block; }
+.address-result strong { font-size: .82rem; }
+.address-result small { color: var(--muted); font-size: .72rem; }
+.review-list { margin: 0; border-top: 1px solid var(--line); }
+.review-list > div { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 13px 4px; border-bottom: 1px solid var(--line); }
+.review-list dt { color: #647387; font-size: .82rem; font-weight: 500; }
+.review-list dd { margin: 0; font-size: .86rem; font-weight: 600; }
+.sim-validation { margin-top: 14px; padding: 10px 13px; border-radius: 10px; color: #9c2c22; background: #fff1ef; font-size: .82rem; }
+.sim-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin: 22px -30px 0; padding: 17px 30px; border-top: 1px solid #edf0f3; }
+.sim-card-footer .btn-link { padding-left: 0; font-size: .82rem; }
+.sim-save-area { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.sim-save-area small { max-width: 430px; font-size: .72rem; line-height: 1.5; }
+.guide-card { padding: 21px; }
+.guide-heading { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+.guide-heading > span { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 13px; color: #1769aa; background: #e8f2f8; }
+.guide-heading strong, .guide-heading small { display: block; }
+.guide-heading strong { font-size: .9rem; }
+.guide-heading small { color: #8a96a4; font-size: .7rem; }
+.guide-card p { color: #5f6e81; font-size: .82rem; line-height: 1.8; }
+.privacy-card { display: flex; align-items: flex-start; gap: 12px; padding: 18px; background: #f7fbf8; }
+.privacy-card > i { color: #397d59; font-size: 1.1rem; }
+.privacy-card strong { font-size: .82rem; }
+.privacy-card p { margin: 4px 0 0; color: #647387; font-size: .73rem; }
+.sim-retention-note { align-items: center; margin-top: 22px; padding: 13px 17px; border-radius: 13px; box-shadow: none; }
+.sim-retention-note > i { flex: 0 0 auto; }
+.sim-retention-note p { font-size: .78rem; line-height: 1.6; }
+.support-note { display: flex; gap: 10px; padding: 15px; color: #5f6e81; background: #f2f6fa; font-size: .75rem; }
+.support-note i { color: #1769aa; font-size: 1.2rem; }
+.completion-panel { padding: 10px 0 20px; }
+.complete-mark { display: grid; place-items: center; width: 62px; height: 62px; margin: 0 auto 13px; border-radius: 50%; color: #fff; background: #27845b; font-size: 1.9rem; }
+.completion-panel h3 { margin: 5px 0; font-size: 1.35rem; font-weight: 800; }
+.completion-panel p { margin: 0; color: var(--muted); font-size: .84rem; }
+.checklist-box { margin: 10px 0 17px; padding: 17px; border-radius: 14px; background: #f5f8fb; }
+.checklist-box h4 { font-size: .9rem; font-weight: 800; }
+.checklist-box ul { padding-left: 1.2rem; margin: 12px 0 0; color: #58697c; font-size: .8rem; }
+.checklist-box li + li { margin-top: 5px; }
+
+@media print {
+  @page { size: A4; margin: 14mm; }
+  body.simulation-page { min-height: 0; color: #172b4d !important; background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sim-topbar, .sim-breadcrumb, .sim-title-row, .sim-progress-card, .sim-card-footer, .toast-container, .skip-link { display: none !important; }
+  body.simulation-page .sim-container { width: 100%; max-width: none; padding: 0; margin: 0; }
+  body.simulation-page .sim-layout { display: block; margin: 0; }
+  body.simulation-page .sim-layout > div { width: 100%; padding: 0; }
+  body.simulation-page .sim-card { padding: 0; border: 0; border-radius: 0; box-shadow: none; }
+  .gov24-sim-card .sim-card-head { margin-bottom: 8px; }
+  .gov24-sim-card .question-help { margin: 0 0 18px; }
+  .gov24-sim-card .sim-step-content { min-height: 0; }
+  .sim-step-content.d-none { display: none !important; }
+  .sim-step-content:not(.d-none) { display: block !important; }
+  .gov24-before, .gov24-confirm-box, .sim-retention-note, .address-result { break-inside: avoid; }
+  .sim-retention-note { margin-top: 18px; }
+  #validationMessage, #completionMessage { display: none !important; }
+}
