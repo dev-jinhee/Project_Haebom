@@ -1,0 +1,42 @@
+/* Page-specific styles */
+/* Entry, account, and service screens for the Figma-ready prototype */
+.entry-page,.login-page { min-height:100vh; background:radial-gradient(ellipse at 15% 10%,#eaf3fa,transparent 34%),linear-gradient(145deg,#f4f7fa,#fff 55%,#f1f7f8); }
+.entry-shell,.login-shell { display:flex; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:36px 20px; }
+.entry-brand { display:flex; align-items:center; gap:12px; margin-bottom:30px; color:var(--ink); text-decoration:none; }
+.entry-brand b { display:block; font-size:1.35rem; letter-spacing:-.04em; }
+.entry-brand small { display:block; color:#718096; font-size:.75rem; }
+.entry-card,.login-card { width:min(100%,550px); padding:38px; border:1px solid #e3eaf0; border-radius:26px; background:#fff; box-shadow:0 24px 70px rgba(25,54,83,.1); }
+.entry-card h1,.login-card h1 { margin:9px 0 8px; font-size:1.8rem; font-weight:800; letter-spacing:-.05em; }
+.entry-card > p { margin-bottom:26px; }
+.mode-options { display:grid; gap:12px; margin-top:24px; }
+.mode-option { display:flex; width:100%; align-items:center; gap:14px; padding:17px; border:1px solid #e1e7ee; border-radius:16px; color:var(--ink); background:#fff; text-align:left; }
+.mode-option.selected { border:2px solid #2879b5; background:#f2f8fc; }
+.mode-option .mode-icon { display:grid; flex:0 0 44px; width:44px; height:44px; place-items:center; border-radius:13px; color:#1769aa; background:#e7f1f8; font-size:1.25rem; }
+.mode-option strong,.mode-option small { display:block; }.mode-option small { margin-top:2px; color:#718096; font-size:.78rem; }
+.mode-check { margin-left:auto; color:#1769aa; font-size:1.2rem; }
+.entry-note { display:flex; justify-content:center; gap:8px; margin-top:20px; color:#68798a; font-size:.76rem; }.entry-note i { color:#37917a; }
+.entry-footer { margin:24px 0 0; color:#8591a0; font-size:.8rem; }
+.login-card { width:min(100%,470px); }.login-heading { margin-bottom:26px; text-align:center; }.login-heading h1 { margin-top:3px; }.login-heading p { margin:0; color:#728093; }
+.login-symbol { display:grid; width:62px; height:62px; margin:0 auto 14px; place-items:center; border-radius:20px; color:#1769aa; background:#eaf3f9; font-size:1.65rem; }
+.login-divider { display:flex; align-items:center; gap:12px; margin:21px 0; color:#95a0ad; font-size:.8rem; }.login-divider::before,.login-divider::after { height:1px; flex:1; background:#e7ebef; content:''; }
+.prototype-note { color:#718096; font-size:.76rem; line-height:1.6; }.prototype-note i { margin-right:5px; color:#5584aa; }
+.back-link { margin-top:24px; color:#607287; text-decoration:none; font-size:.86rem; }
+.account-screen-tools { position:absolute; top:22px; right:24px; }
+.account-find-links { display:flex; align-items:center; gap:10px; color:#a0aab4; font-size:.82rem; }
+.account-find-links a { color:#276a9c; text-decoration:none; }
+.account-find-links a:hover { text-decoration:underline; }
+.account-find-card { position:relative; }
+.account-find-heading { margin-bottom:24px; text-align:center; }
+.account-find-heading .login-symbol { margin-bottom:12px; }
+.account-find-heading h1 { margin-top:4px; }
+.account-find-heading p { margin:0; color:#718096; font-size:.9rem; }
+.account-find-form .form-control { min-height:52px; }
+.account-find-result { margin-top:24px; padding:22px; border:1px solid #dce9f0; border-radius:16px; background:#f7fbfd; text-align:center; }
+.account-result-icon { display:grid; width:44px; height:44px; margin:0 auto 10px; place-items:center; border-radius:50%; color:#fff; background:#32836a; font-size:1.25rem; }
+.account-find-result h2 { margin:0 0 5px; font-size:1.12rem; font-weight:800; }
+.account-find-result p { margin:0; color:#718096; font-size:.86rem; }
+.account-found-value { display:flex; align-items:center; justify-content:space-between; margin-top:16px; padding:13px 15px; border:1px solid #e1e8ed; border-radius:11px; background:#fff; text-align:left; }
+.account-found-value span { color:#718096; font-size:.82rem; }
+.account-found-value strong { color:#173b70; font-size:1rem; letter-spacing:.04em; }
+body.large-text-mode .account-find-heading p,body.large-text-mode .account-find-form .form-label,body.large-text-mode .account-found-value span { font-size:1.08rem; }
+@media(max-width:575.98px) { .account-screen-tools { top:12px; right:12px; }.login-shell { padding-top:70px; }.account-find-card { padding:24px 18px; } }
