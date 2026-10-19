@@ -1,0 +1,348 @@
+@charset "UTF-8";
+
+/* ========================================================
+   [해봄(HaeBom) 공통 스타일시트 - common.css]
+   - 메인 컬러: #164166 (RGB: 22, 65, 102)
+   ======================================================== */
+
+/* Pretendard 웹폰트 */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+:root {
+    --main-color: #164166;
+    --main-hover: #1e5585;
+    --main-light: #eef4f9;
+    --accent-blue: #0284c7;
+    --accent-blue-light: #e0f2fe;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    --bg-page: #ffffff;
+    --bg-card: #f8fafc;
+    --font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+/* 기본 리셋 및 글로벌 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--text-primary);
+    background-color: var(--bg-page);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* 본문이 남은 높이를 채워 푸터를 브라우저 최하단에 항상 밀착 고정 (Sticky Footer) */
+main {
+    flex: 1 0 auto;
+}
+
+.site-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+/* 공통 컨테이너 */
+.haebom-container {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* 메인 컨텐츠 래퍼 (푸터를 화면 최하단으로 밀기 위함) */
+.haebom-content-wrapper {
+    flex: 1;
+    width: 100%;
+}
+
+/* ========================================================
+   [사용자 공통 헤더]
+   ======================================================== */
+.haebom-header {
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.haebom-header .header-inner {
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* 로고 영역 */
+.header-logo-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+}
+
+.header-logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #164166 0%, #0284c7 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(22, 65, 102, 0.2);
+}
+
+.header-logo-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: #ffffff;
+}
+
+.header-logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-logo-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--main-color);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+.header-logo-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* 헤더 우측 메뉴 버튼들 */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ========================================================
+   [공통 버튼 스타일]
+   ======================================================== */
+.hb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px;
+    border-radius: 9999px; /* 완전 둥근 캡슐형 */
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background: transparent;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* 회색 테두리 버튼 (기본형) */
+.hb-btn-outline {
+    border-color: #cbd5e1;
+    color: #475569;
+    background-color: #ffffff;
+}
+.hb-btn-outline:hover {
+    border-color: #94a3b8;
+    background-color: #f8fafc;
+    color: #1e293b;
+}
+
+/* 파란색 테두리 버튼 (마이페이지용) */
+.hb-btn-outline-blue {
+    border-color: #38bdf8;
+    color: #0284c7;
+    background-color: #ffffff;
+}
+.hb-btn-outline-blue:hover {
+    background-color: #f0f9ff;
+    border-color: #0284c7;
+}
+
+/* 메인 솔리드 버튼 */
+.hb-btn-primary {
+    background-color: var(--main-color);
+    color: #ffffff;
+}
+.hb-btn-primary:hover {
+    background-color: var(--main-hover);
+}
+
+/* ========================================================
+   [공통 카드 & 폼 컨트롤 스타일]
+   ======================================================== */
+/* 1. 화이트 카드 박스 */
+.hb-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+}
+
+/* 2. 폼 그룹 및 라벨 */
+.hb-form-group {
+    margin-bottom: 20px;
+}
+
+.hb-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.hb-label .required {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+/* 3. 공통 인풋 / 셀렉트 / 텍스트에어리어 */
+.hb-input, .hb-select, .hb-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    color: var(--text-primary);
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.hb-input:focus, .hb-select:focus, .hb-textarea:focus {
+    border-color: var(--main-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(22, 65, 102, 0.12);
+}
+
+.hb-input::placeholder, .hb-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.hb-input:disabled, .hb-select:disabled, .hb-textarea:disabled {
+    background-color: #f8fafc;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+/* 4. 공통 상태 뱃지 (.hb-badge) */
+.hb-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.hb-badge-success { /* 정상 / 운영중 / 답변완료 */
+    background-color: #ecfdf5;
+    color: #059669;
+}
+
+.hb-badge-warning { /* 답변대기 */
+    background-color: #fffbeb;
+    color: #d97706;
+}
+
+.hb-badge-secondary { /* 이용정지 / 일반 */
+    background-color: #f1f5f9;
+    color: #64748b;
+}
+
+/* 5. 브레드크럼 (상단 경로 안내) */
+.hb-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.hb-breadcrumb a:hover {
+    color: var(--main-color);
+}
+
+.hb-breadcrumb-sep {
+    color: #cbd5e1;
+}
+
+/* ========================================================
+   [사용자 공통 푸터]
+   ======================================================== */
+.haebom-footer {
+    width: 100%;
+    background-color: var(--main-color);
+    color: #ffffff;
+    padding: 36px 0;
+    margin-top: auto;
+}
+
+.haebom-footer .footer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.footer-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.footer-sub {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 400;
+}
+
+/* ========================================================
+   [공통 모달(Modal) 스타일 - Bootstrap 5.3 보정]
+   ======================================================== */
+.modal-content.rounded-4 {
+    border-radius: 20px !important;
+}
+
+#hbAlertModal .modal-title,
+#hbConfirmModal .modal-title {
+    font-size: 18px;
+    letter-spacing: -0.3px;
+}
