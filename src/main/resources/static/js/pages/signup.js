@@ -1,41 +1,96 @@
 (() => {
-  const toast = window.Haebom.toast;
-// Signup prototype: validate the visible flow without retaining identity data.
-  const signupSteps = [...document.querySelectorAll('[id^="signupStep"]')];
-  const showSignupStep = (index) => {
-    signupSteps.forEach((step, i) => step.classList.toggle('d-none', i !== index));
-    document.querySelectorAll('[data-signup-step-label]').forEach((label) => {
-      const n = Number(label.dataset.signupStepLabel);
-      label.classList.toggle('active', n === index);
-      label.classList.toggle('complete', n < index);
-    });
-    document.getElementById(`signupStep${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const page = document.querySelector('.member-signup-page');
+  if (!page) return;
+
+  const steps = [...document.querySelectorAll('[id^="signupStep"]')];
+  const stepLabels = [...document.querySelectorAll('[data-signup-step-label]')];
+  const consent = document.getElementById('signupRequiredConsent');
+  const consentError = document.getElementById('signupConsentError');
+  const accountError = document.getElementById('signupAccountError');
+  const form = document.getElementById('signupAccountForm');
+
+  const setError = (node, message) => {
+    if (!node) return;
+    node.textContent = message;
+    node.hidden = !message;
   };
-  document.getElementById('termsAll')?.addEventListener('change', (event) => {
-    document.querySelectorAll('.term-required, .term-optional').forEach((checkbox) => { checkbox.checked = event.currentTarget.checked; });
+
+  const showStep = (activeIndex) => {
+    steps.forEach((step, index) => {
+      const isActive = index === activeIndex;
+      step.classList.toggle('d-none', !isActive);
+      step.setAttribute('aria-hidden', String(!isActive));
+    });
+
+    stepLabels.forEach((label) => {
+      const index = Number(label.dataset.signupStepLabel);
+      label.classList.toggle('is-active', index === activeIndex);
+      label.classList.toggle('is-complete', index < activeIndex);
+      if (index === activeIndex) label.setAttribute('aria-current', 'step');
+      else label.removeAttribute('aria-current');
+    });
+
+    const activeStep = steps[activeIndex];
+    activeStep?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    activeStep?.querySelector('h2')?.focus({ preventScroll: true });
+  };
+
+  document.querySelector('[data-signup-next="1"]')?.addEventListener('click', () => {
+    if (!consent?.checked) {
+      setError(consentError, page.dataset.consentError);
+      consent?.focus();
+      return;
+    }
+    setError(consentError, '');
+    showStep(1);
   });
-  document.querySelectorAll('.term-required, .term-optional').forEach((checkbox) => checkbox.addEventListener('change', () => {
-    const all = [...document.querySelectorAll('.term-required, .term-optional')];
-    const termsAll = document.getElementById('termsAll');
-    if (termsAll) termsAll.checked = all.every((item) => item.checked);
-  }));
-  document.querySelectorAll('[data-signup-next]').forEach((button) => button.addEventListener('click', () => {
-    const next = Number(button.dataset.signupNext);
-    if (next === 1 && [...document.querySelectorAll('.term-required')].some((item) => !item.checked)) { toast('필수 약관에 동의해 주세요.'); return; }
-    showSignupStep(next);
-  }));
-  document.querySelectorAll('[data-signup-back]').forEach((button) => button.addEventListener('click', () => showSignupStep(Number(button.dataset.signupBack))));
-  ['rrnFront', 'rrnFirst'].forEach((id) => document.getElementById(id)?.addEventListener('input', (event) => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, ''); }));
-  document.getElementById('signupAccountForm')?.addEventListener('submit', (event) => {
+
+  consent?.addEventListener('change', () => {
+    if (consent.checked) setError(consentError, '');
+  });
+
+  document.querySelectorAll('[data-signup-back="0"]').forEach((button) => {
+    button.addEventListener('click', () => showStep(0));
+  });
+
+  ['rrnFront', 'rrnFirst'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('input', (event) => {
+      event.currentTarget.value = event.currentTarget.value.replace(/\D/g, '');
+    });
+  });
+
+  document.querySelector('[data-check-id]')?.addEventListener('click', () => {
+    const idField = document.getElementById('signupId');
+    const status = document.getElementById('signupIdCheckStatus');
+    if (!idField?.value.trim()) {
+      idField?.focus();
+      return;
+    }
+    if (status) status.textContent = page.dataset.idCheckMessage || '';
+  });
+
+  form?.addEventListener('submit', (event) => {
     event.preventDefault();
+    setError(accountError, '');
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     const password = document.getElementById('signupPassword');
-    const confirm = document.getElementById('signupPasswordConfirm');
-    const email = document.getElementById('signupEmail')?.value.trim();
-    if (password?.value !== confirm?.value) { toast('비밀번호가 서로 일치하지 않습니다.'); confirm?.focus(); return; }
-    if (email) localStorage.setItem('ongyeol-demo-email', email);
-    event.currentTarget.reset();
-    ['rrnFront', 'rrnFirst'].forEach((id) => { const field = document.getElementById(id); if (field) field.value = ''; });
-    showSignupStep(2);
+    const confirmation = document.getElementById('signupPasswordConfirm');
+    if (password?.value !== confirmation?.value) {
+      setError(accountError, page.dataset.passwordError);
+      confirmation?.focus();
+      return;
+    }
+
+    // 화면 흐름만 확인하는 단계입니다. 입력값은 저장하거나 서버로 보내지 않습니다.
+    form.reset();
+    setError(accountError, '');
+    const idStatus = document.getElementById('signupIdCheckStatus');
+    if (idStatus) idStatus.textContent = '';
+    showStep(2);
   });
-  if (new URLSearchParams(window.location.search).get('step') === 'complete') showSignupStep(2);
 })();
