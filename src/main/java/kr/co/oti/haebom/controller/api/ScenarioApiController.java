@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
 import kr.co.oti.haebom.service.ScenarioService;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +16,19 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/scenario")
+@Tag(name = "시나리오", description = "시나리오 관련 API")
 public class ScenarioApiController {
 	private final ScenarioService scenarioService;
 	
+	 // 공개 시나리오 목록 조회
+    @Operation(
+        summary = "공개 시나리오 목록 조회",
+        description = "공개된 시나리오 목록과 회원별 최신 진행 이력을 조회합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "조회 성공"
+    )
 	@GetMapping
 	public List<ScenarioListItemDTO> getScenarioList() {
 	    // TODO: 로그인 구현 후 실제 회원 ID 사용
