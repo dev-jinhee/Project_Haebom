@@ -8,8 +8,11 @@ import java.util.Map;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import kr.co.oti.haebom.domain.ScenarioStep;
 import kr.co.oti.haebom.dto.ScenarioDTO;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
@@ -60,6 +63,29 @@ public class ScenarioServiceImpl implements ScenarioService {
 		}
 		// 4. ScenarioListItemDTO 목록 반환
 		return result;
+	}
+
+	@Override
+	public List<ScenarioStep> getScenarioStep(Integer scenarioId) {
+		// 1.해당 시나리오가 존재하는지 확인
+		if (!scenarioMapper.existsActiveScenarioById(scenarioId)){
+			throw new ResponseStatusException(
+		            HttpStatus.NOT_FOUND,
+		            "존재하지 않거나 비활성화된 시나리오입니다."
+		        );
+		}
+		// 전체 단계 조회
+	    List<ScenarioStep> steps =
+	        scenarioMapper.selectScenarioStep(scenarioId);
+
+	    if (steps.isEmpty()) {
+	        throw new ResponseStatusException(
+	            HttpStatus.NOT_FOUND,
+	            "등록된 단계가 없습니다."
+	        );
+	    }
+
+	    return steps;
 	}
 
 }
