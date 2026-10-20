@@ -6,32 +6,48 @@
 <mapper namespace="kr.co.oti.haebom.mapper.ScenarioMapper">
 
 	<!-- 관리자용 시나리오 목록 조회 -->
-    <select id="selectScenarioList" resultType="kr.co.oti.haebom.dto.ScenarioDTO">
-    	select 
-    		s.scenario_id,
-    		s.scenario_title,
-    		s.description,
-    		s.estimated_minutes,
-    		s.is_active
-    		(select c.category_name from category c
-    		where c.category_id = s.category_id) AS category_name
-    	from scenario s
-    </select>
-    
-    <!-- 공개 시나리오 목록 조회 -->
-    <select id="selectActiveScenarioList" resultType="kr.co.oti.haebom.dto.ScenarioDTO">
-    	select 
-    		s.scenario_id,
-    		s.scenario_title,
-    		s.description,
-    		s.estimated_minutes,
-    		(select c.category_name from category c
-    		where c.category_id = s.category_id) AS category_name,
-    		(select count(*) from scenario_step ss
-    		where step_order>0 
-    		and ss.scenario_id = s.scenario_id ) AS step_count
-    	from scenario s
-    	where s.is_active=1
-    </select>
+	<select id="selectScenarioList"
+		resultType="kr.co.oti.haebom.dto.ScenarioDTO">
+		select
+		s.scenario_id,
+		s.scenario_title,
+		s.description,
+		s.estimated_minutes,
+		s.is_active
+		(select c.category_name from category c
+		where c.category_id = s.category_id) AS category_name
+		from scenario s
+	</select>
+
+	<!-- 공개 시나리오 목록 조회 -->
+	<select id="selectActiveScenarioList"
+		resultType="kr.co.oti.haebom.dto.ScenarioDTO">
+		select
+		s.scenario_id,
+		s.scenario_title,
+		s.description,
+		s.estimated_minutes,
+		(select c.category_name from category c
+		where c.category_id = s.category_id) AS category_name,
+		(select count(*) from scenario_step ss
+		where step_order>0
+		and ss.scenario_id = s.scenario_id ) AS step_count
+		from scenario s
+		where s.is_active=1
+	</select>
+	<!-- 시나리오 전체단계 조회 -->
+	<select id="selectScenarioStep"
+		resultType="kr.co.oti.haebom.domain.ScenarioStep">
+		select *
+		from scenario_step
+		where scenario_id = #{scenarioId}
+	</select>
+	<select id="selectScenarioStepById"
+		resultType="kr.co.oti.haebom.domain.ScenarioStep">
+		select *
+		from scenario_step
+		where step_id = #{stepId}
+	</select>
+
 
 </mapper>
