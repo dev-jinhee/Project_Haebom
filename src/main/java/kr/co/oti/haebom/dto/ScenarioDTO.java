@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ScenarioDTO {
 	private Integer scenarioId;
-	private String scenario_title;
+	private String scenarioTitle;
 	private String description;
 	private Integer estimatedMinutes;
 	private Boolean isActive;

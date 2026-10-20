@@ -9,7 +9,7 @@ public class SimulationProgressDTO {
 	private Integer progressId;
 	//나중에 관리자 페이지를 위하여 생성
 	private Integer memberId;
-	private Integer scenario_id;
+	private Integer scenarioId;
 	private Integer stepId;
 	private String progressStatus;
 	private LocalDateTime startedAt;
