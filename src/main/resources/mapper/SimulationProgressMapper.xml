@@ -14,7 +14,7 @@
 				from simulation_progress sp2
 				where sp2.member_id = sp.member_id
 					and sp2.scenario_id = sp.scenario_id
-				order by sp2.started_at DESC
+				order by sp2.started_at DESC,
 					sp2.progress_id DESC
 				LIMIT 1
 		)
