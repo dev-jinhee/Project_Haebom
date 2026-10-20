@@ -35,6 +35,32 @@
 		from scenario s
 		where s.is_active=1
 	</select>
+	<!-- 시나리오 단일 조회 -->
+	<select id="selectScenarioById"
+		resultType="kr.co.oti.haebom.dto.ScenarioDTO">
+		select
+		s.scenario_id,
+		s.scenario_title,
+		s.description,
+		s.estimated_minutes,
+		s.is_active
+		(select c.category_name from category c
+		where c.category_id = s.category_id) AS category_name
+		from scenario s
+		where s.scenario_id = #{scenarioId}
+	</select>
+	
+	<!-- 시나리오 존재 여부 확인 -->
+	<select id="existsActiveScenarioById"
+		resultType="boolean">
+		SELECT EXISTS (
+        SELECT 1
+        FROM scenario
+        WHERE scenario_id = #{scenarioId}
+          AND is_active = 1
+    )
+	</select>
+	
 	<!-- 시나리오 전체단계 조회 -->
 	<select id="selectScenarioStep"
 		resultType="kr.co.oti.haebom.domain.ScenarioStep">
@@ -47,6 +73,7 @@
 		select *
 		from scenario_step
 		where step_id = #{stepId}
+		order by step_order ASC
 	</select>
 
 

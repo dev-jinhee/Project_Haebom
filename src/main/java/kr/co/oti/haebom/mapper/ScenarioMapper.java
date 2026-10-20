@@ -14,6 +14,12 @@ public interface ScenarioMapper {
 
 	// 공개 시나리오 목록 조회
 	List<ScenarioDTO> selectActiveScenarioList();
+	
+	//시나리오 단일 조회
+	ScenarioDTO selectScenarioById(Integer scenarioId);
+	
+	//시나리오 존재 여부 확인
+	boolean existsActiveScenarioById(Integer scenarioId);
 
 	// 시나리오 전체 단계 조회
 	List<ScenarioStep> selectScenarioStep(Integer scenarioId);
