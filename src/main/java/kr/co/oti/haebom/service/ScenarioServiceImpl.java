@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Service;
+
 import kr.co.oti.haebom.dto.ScenarioDTO;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
@@ -13,6 +15,7 @@ import kr.co.oti.haebom.mapper.ScenarioMapper;
 import kr.co.oti.haebom.mapper.SimulationProgressMapper;
 import lombok.RequiredArgsConstructor;
 
+@Service
 @RequiredArgsConstructor
 public class ScenarioServiceImpl implements ScenarioService {
 	private final ScenarioMapper scenarioMapper;
