@@ -37,15 +37,15 @@
         <div class="inquiry-summary">
             <div>
                 <i class="bi bi-chat-left-text"></i>
-                <span>내 문의<strong data-inquiry-total>2건</strong></span>
+                <span>내 문의<strong data-inquiry-total>-건</strong></span>
             </div>
             <div>
                 <i class="bi bi-hourglass-split"></i>
-                <span>답변 대기<strong data-inquiry-waiting>1건</strong></span>
+                <span>답변 대기<strong data-inquiry-waiting>-건</strong></span>
             </div>
             <div>
                 <i class="bi bi-check-circle"></i>
-                <span>답변 완료<strong data-inquiry-answered>1건</strong></span>
+                <span>답변 완료<strong data-inquiry-answered>-건</strong></span>
             </div>
             <button type="button" class="btn btn-primary rounded-pill" data-open-inquiry>
                 <i class="bi bi-pencil-square me-1"></i>문의 작성
@@ -86,40 +86,19 @@
                         </tr>
                     </thead>
                     <tbody id="inquiryTableBody">
-                        <!-- 백엔드 연동 전 화면용 데모 데이터 -->
-                        <tr>
-                            <td>02</td>
-                            <td>
-                                <a href="#" class="inquiry-item-link" data-inquiry-id="2" data-demo-action="문의 상세: 저장한 연습을 다시 이어가고 싶어요">
-                                    저장한 연습을 다시 이어가고 싶어요
-                                </a>
-                            </td>
-                            <td>시뮬레이션 문의</td>
-                            <td>2026.10.13</td>
-                            <td>
-                                <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis">답변 대기</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>01</td>
-                            <td>
-                                <a href="#" class="inquiry-item-link" data-inquiry-id="1" data-demo-action="문의 상세: 큰 글씨 설정에서도 화면 읽기를 사용할 수 있나요?">
-                                    큰 글씨 설정에서도 화면 읽기를 사용할 수 있나요?
-                                </a>
-                            </td>
-                            <td>기타 문의</td>
-                            <td>2026.10.09</td>
-                            <td>
-                                <span class="badge rounded-pill text-bg-success-subtle text-success">답변 완료</span>
-                            </td>
-                        </tr>
-                    </tbody>
+					    <tr>
+					        <td colspan="5" class="text-center py-5 text-secondary">
+					            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+					            문의 내역을 불러오는 중입니다...
+					        </td>
+					    </tr>
+					</tbody>
                 </table>
             </div>
 
             <!-- 테이블 하단 (총 개수 및 페이지네이션) -->
             <div class="table-footer">
-                <span>총 2건</span>
+                <span>총 -건</span>
                 <nav aria-label="문의 페이지">
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item active"><a class="page-link" href="#">1</a></li>
@@ -178,7 +157,7 @@
                 </div>
                 <div class="modal-footer px-4 pb-4 pt-2 border-top-0 d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">등록하기</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4" id="inquirySubmitBtn">등록하기</button>
                 </div>
             </form>
         </div>
@@ -223,9 +202,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer px-4 pb-4 pt-2 border-top-0">
-                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">닫기</button>
-                </div>
+                <div class="modal-footer px-4 pb-4 pt-2 border-top-0 d-flex justify-content-between">
+				    <%-- 왼쪽: 수정 및 삭제 버튼 --%>
+				    <div class="d-flex gap-2">
+				        <button type="button" class="btn btn-outline-primary rounded-pill px-3" id="btnEditInquiry">
+				            <i class="bi bi-pencil-square me-1"></i>수정
+				        </button>
+				        <button type="button" class="btn btn-outline-danger rounded-pill px-3" id="btnDeleteInquiry">
+				            <i class="bi bi-trash3 me-1"></i>삭제
+				        </button>
+				    </div>
+				    <%-- 오른쪽: 닫기 버튼 --%>
+				    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">닫기</button>
+				</div>
             </div>
         </div>
     </div>
