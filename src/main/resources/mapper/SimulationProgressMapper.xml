@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="kr.co.oti.haebom.mapper.SimulationProgressMapper">
+	<select id="selectLatestProgressListByMemberId"
+		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+		select sp.*,ss.step_order
+		from simulation_progress sp
+		LEFT JOIN scenario_step ss
+			ON sp.step_id = ss.step_id
+		where member_id = #{memberId}
+			and sp.progress_id = (
+				select sp2.progress_id
+				from simulation_progress sp2
+				where sp2.member_id = sp.member_id
+					and sp2.scenario_id = sp.scenario_id
+				order by sp2.started_at DESC
+					sp2.progress_id DESC
+				LIMIT 1
+		)
+	</select>
+</mapper>

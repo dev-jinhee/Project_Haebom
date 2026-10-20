@@ -1,0 +1,21 @@
+package kr.co.oti.haebom.dto;
+
+import java.time.LocalDateTime;
+
+import lombok.Data;
+
+@Data
+public class SimulationProgressDTO {
+	private Integer progressId;
+	//나중에 관리자 페이지를 위하여 생성
+	private Integer memberId;
+	private Integer scenario_id;
+	private Integer stepId;
+	private String progressStatus;
+	private LocalDateTime startedAt;
+	private LocalDateTime lastSavedAt;
+	private LocalDateTime completedAt;
+	
+	//JOIN을 통해 가져올 정보
+	private Integer stepOrder;
+}
