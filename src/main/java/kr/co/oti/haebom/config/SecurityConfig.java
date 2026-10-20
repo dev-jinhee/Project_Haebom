@@ -15,7 +15,13 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/admin/**", "/inquiries/**", "/css/**", "/js/**", "/images/**")
+                .requestMatchers("/", "/admin/**","/scenario","/scenario/**",
+                	    "/inquiries/**", "/css/**", "/js/**", "/images/**", "/api/**",
+                		 // Swagger UI 및 OpenAPI 문서
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs",
+                        "/v3/api-docs/**")
                 .permitAll()
                 .anyRequest().authenticated()
             )
