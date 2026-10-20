@@ -1,5 +1,5 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <!doctype html>
 <html lang="ko">
@@ -41,55 +41,9 @@
 				</label>
 			</div>
 
-			<div class="scenario-catalog" id="scenarioCatalog">
-				<article class="scenario-card scenario-item"
-					data-scenario-card="move-in" data-search="전입신고 이사 주거 주소 이전 세대">
-					<div class="scenario-card-icon">
-						<i class="bi bi-house-door" aria-hidden="true"></i>
-					</div>
-					<div class="scenario-card-content">
-						<div class="scenario-card-labels">
-							<span
-								class="badge rounded-pill text-bg-primary-subtle text-primary">이사·주거</span><span
-								class="scenario-state" data-scenario-state>이용 가능</span>
-						</div>
-						<h3>전입신고</h3>
-						<p>이사 후 주소를 옮기는 절차를 따라가며 세대 구성과 신청 내용을 확인해요.</p>
-						<div class="scenario-meta">
-							<span><i class="bi bi-list-ol me-1" aria-hidden="true"></i>5단계</span><span
-								data-scenario-estimated-minutes><i
-								class="bi bi-clock me-1" aria-hidden="true"></i>예상 5분</span><span><i
-								class="bi bi-shield-check me-1" aria-hidden="true"></i>연습용 · 실제
-								접수되지 않아요</span>
-						</div>
-						<div class="scenario-progress d-none" data-scenario-progress>
-							<div class="d-flex justify-content-between small">
-								<span data-scenario-progress-caption>진행 중인 연습</span><strong
-									data-scenario-progress-percent>0%</strong>
-							</div>
-							<div class="progress mt-2" role="progressbar"
-								aria-label="전입신고 연습 진행률">
-								<div class="progress-bar" data-scenario-progress-bar
-									style="width: 0%"></div>
-							</div>
-						</div>
-					</div>
-					<div class="scenario-actions">
-						<a href="/simulation.html"
-							class="btn btn-primary rounded-pill scenario-start"
-							data-scenario-action>연습 시작하기 <i
-							class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
-						<button class="btn btn-outline-primary rounded-pill d-none"
-							type="button" data-scenario-restart>
-							<i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>처음부터
-							하기
-						</button>
-						<button class="btn btn-outline-danger rounded-pill d-none"
-							type="button" data-scenario-delete>
-							<i class="bi bi-trash3 me-1" aria-hidden="true"></i>진행 내용 삭제
-						</button>
-					</div>
-				</article>
+			<div class="scenario-catalog" id="scenarioCatalog"
+				data-api-url="${pageContext.request.contextPath}/api/scenario">
+
 				<p class="scenario-empty d-none" id="scenarioSearchEmpty"
 					role="status">검색 결과가 없어요. 다른 이름으로 찾아보세요.</p>
 			</div>
@@ -107,6 +61,61 @@
 			<i class="bi bi-info-circle"></i><span><strong>안전한 연습</strong>해봄의
 				시뮬레이션은 학습용이며 실제 민원은 접수되지 않습니다.</span>
 		</div>
+
+		<!-- 시나리오 카드 템플릿 -->
+		<template id="scenarioCardTemplate">
+			<article class="scenario-card scenario-item">
+				<div class="scenario-card-icon">
+					<i class="bi bi-house-door" aria-hidden="true"></i>
+				</div>
+				<div class="scenario-card-content">
+					<div class="scenario-card-labels">
+						<span
+							class="badge rounded-pill text-bg-primary-subtle text-primary"
+							data-scenario-category>카테고리</span>
+						
+						<span class="scenario-state d-none" data-scenario-state></span>
+					</div>
+					<h3 data-scenario-title>시나리오 이름</h3>
+					<p data-scenario-description>시나리오 설명입니다.</p>
+					<div class="scenario-meta">
+						<span data-scenario-step-count><i
+							class="bi bi-list-ol me-1" aria-hidden="true"></i>5단계</span><span
+							data-scenario-estimated-minutes><i
+							class="bi bi-clock me-1" aria-hidden="true"></i>예상 4분</span><span><i
+							class="bi bi-shield-check me-1" aria-hidden="true"></i>연습용 · 실제
+							접수되지 않아요</span>
+					</div>
+					<div class="scenario-progress d-none" data-scenario-progress>
+						<div class="d-flex justify-content-between small">
+							<span data-scenario-progress-caption>진행 중인 연습</span><strong
+								data-scenario-progress-percent>0%</strong>
+						</div>
+						<div class="progress mt-2" role="progressbar"
+							aria-label="전입신고 연습 진행률">
+							<div class="progress-bar" data-scenario-progress-bar
+								style="width: 0%"></div>
+						</div>
+					</div>
+				</div>
+				<div class="scenario-actions">
+					<a href="/simulation.html"
+						class="btn btn-primary rounded-pill scenario-start"
+						data-scenario-action>연습 시작하기 <i class="bi bi-arrow-right ms-1"
+						aria-hidden="true"></i></a>
+					<button class="btn btn-outline-primary rounded-pill d-none"
+						type="button" data-scenario-restart>
+						<i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>처음부터
+						하기
+					</button>
+					<button class="btn btn-outline-danger rounded-pill d-none"
+						type="button" data-scenario-delete>
+						<i class="bi bi-trash3 me-1" aria-hidden="true"></i>진행 내용 삭제
+					</button>
+				</div>
+			</article>
+
+		</template>
 	</main>
 
 	<jsp:include page="/WEB-INF/views/common/footer.jsp" />
@@ -115,5 +124,10 @@
 	<script src="/js/common.js"></script>
 	<script src="/js/pages/demo-actions.js"></script>
 	<script src="/js/pages/scenario-progress.js"></script>
+
+	<!-- defer 추가 시 html 구성 완료 후 js 실행 -->
+	<script src="/js/pages/scenario-list.js" defer>
+		
+	</script>
 </body>
 </html>
