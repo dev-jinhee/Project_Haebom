@@ -31,7 +31,7 @@ public class SimulationApiController {
 	@GetMapping("/progress/{progressId}")
 	public SimulationProgressDTO postScenarioStart(@PathVariable("progressId") Integer progressId) {
     	// TODO: 로그인 구현 후 실제 회원 ID 사용
-	    return simulationService.getProgress(progressId, 2);
+	    return simulationService.getProgress(progressId, 1);
 	}
 	
 }
