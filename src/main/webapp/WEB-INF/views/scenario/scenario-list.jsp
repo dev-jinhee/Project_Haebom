@@ -99,10 +99,10 @@
 					</div>
 				</div>
 				<div class="scenario-actions">
-					<a href="/simulation.html"
+					<button
 						class="btn btn-primary rounded-pill scenario-start"
 						data-scenario-action>연습 시작하기 <i class="bi bi-arrow-right ms-1"
-						aria-hidden="true"></i></a>
+						aria-hidden="true"></i></button>
 					<button class="btn btn-outline-primary rounded-pill d-none"
 						type="button" data-scenario-restart>
 						<i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>처음부터

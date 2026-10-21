@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.domain.ScenarioStep;
+import kr.co.oti.haebom.dto.ScenarioDTO;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
 import kr.co.oti.haebom.service.ScenarioService;
@@ -39,6 +40,20 @@ public class ScenarioApiController {
 	public List<ScenarioListItemDTO> getScenarioList() {
 	    // TODO: 로그인 구현 후 실제 회원 ID 사용
 	    return scenarioService.getScenarioList(1);
+	}
+    
+    // 선택 시나리오 상세 조회
+    @Operation(
+        summary = "선택 시나리오 상세 조회",
+        description = "선택한 시나리오의 상세 정보를 조회합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "조회 성공"
+    )
+	@GetMapping("/{scenarioId}")
+	public ScenarioDTO getScenarioById(@PathVariable("scenarioId") Integer scenarioId) {
+	    return scenarioService.getScenarioById(scenarioId);
 	}
     
     // 선택 시나리오 단계 조회

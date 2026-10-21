@@ -3,6 +3,7 @@ package kr.co.oti.haebom.service;
 import java.util.List;
 
 import kr.co.oti.haebom.domain.ScenarioStep;
+import kr.co.oti.haebom.dto.ScenarioDTO;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
 
 public interface ScenarioService {
@@ -11,4 +12,7 @@ public interface ScenarioService {
     
     //시나리오 전체 단계 조회
     List<ScenarioStep> getScenarioStep(Integer scenarioId);
+    
+    //시나리오 단일 상세 조회
+    ScenarioDTO getScenarioById(Integer scenarioId);
 }

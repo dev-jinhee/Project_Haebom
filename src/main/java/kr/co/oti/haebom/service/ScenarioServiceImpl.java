@@ -56,7 +56,7 @@ public class ScenarioServiceImpl implements ScenarioService {
 					scenario.getCategoryName(), LocaleContextHolder.getLocale());
 
 			scenario.setCategoryLabel(categoryLabel);
-			
+
 			item.setScenario(scenario);
 			item.setProgress(progressByScenarioId.get(scenario.getScenarioId()));
 			result.add(item);
@@ -68,24 +68,37 @@ public class ScenarioServiceImpl implements ScenarioService {
 	@Override
 	public List<ScenarioStep> getScenarioStep(Integer scenarioId) {
 		// 해당 시나리오가 존재하는지 확인
-		if (!scenarioMapper.existsActiveScenarioById(scenarioId)){
-			throw new ResponseStatusException(
-		            HttpStatus.NOT_FOUND,
-		            "존재하지 않거나 비활성화된 시나리오입니다."
-		        );
+		if (!scenarioMapper.existsActiveScenarioById(scenarioId)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않거나 비활성화된 시나리오입니다.");
 		}
 		// 전체 단계 조회
-	    List<ScenarioStep> steps =
-	        scenarioMapper.selectScenarioStep(scenarioId);
+		List<ScenarioStep> steps = scenarioMapper.selectScenarioStep(scenarioId);
 
-	    if (steps.isEmpty()) {
-	        throw new ResponseStatusException(
-	            HttpStatus.NOT_FOUND,
-	            "등록된 단계가 없습니다."
-	        );
-	    }
+		if (steps.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "등록된 단계가 없습니다.");
+		}
 
-	    return steps;
+		return steps;
+	}
+
+	// 시나리오 상세 조회
+	@Override
+	public ScenarioDTO getScenarioById(Integer scenarioId) {
+		// 1. 시나리오 조회
+		ScenarioDTO scenario = scenarioMapper.selectScenarioById(scenarioId);
+
+		// 2. 존재하지 않는 시나리오
+		if (scenario == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "시나리오를 찾을 수 없습니다.");
+		}
+
+		// 3. 카테고리 한글 라벨 설정
+		String categoryLabel = messageSource.getMessage("category." + scenario.getCategoryName(), null,
+				LocaleContextHolder.getLocale());
+
+		scenario.setCategoryLabel(categoryLabel);
+
+		return scenario;
 	}
 
 }

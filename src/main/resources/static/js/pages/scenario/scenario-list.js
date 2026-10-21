@@ -76,7 +76,7 @@ async function loadScenarios() {
 					actionBtn.textContent = "이어하기";
 					
 					actionBtn.addEventListener("click", () => {
-						// 연습 이어하기
+						openSimulation(progress.progressId);
 					});
 				} else if (progress.progressStatus === "COMPLETED") {
 					// 완료한 시나리오
@@ -86,7 +86,7 @@ async function loadScenarios() {
 
 					actionBtn.textContent = "작성 내역 보기";
 					actionBtn.addEventListener("click", () => {
-						// 작성 내역 보기
+						openSimulation(progress.progressId);
 					});
 				}
 				restartBtn.classList.remove("d-none");
@@ -114,6 +114,14 @@ async function loadScenarios() {
 		console.error("시나리오 목록 조회 오류:", error);
 	}
 }
+
+// 시뮬레이션 이동
+function openSimulation(progressId) {
+	//progressId는 SessionStorage로 관리
+    sessionStorage.setItem("progressId", progressId);
+    window.location.href = "/simulation";
+}
+//시뮬 시작
 async function startSimulation(scenarioId) {
 	try {
 		const response = await fetch(`/api/scenario/${scenarioId}/start`, {
@@ -123,18 +131,13 @@ async function startSimulation(scenarioId) {
 			throw new Error("시나리오 시작 실패");
 		}
 		const progressId = await response.json();
-		//TODO : 나중에 로그 삭제
-		console.log("progressId :", progressId);
-		//progressId는 SessionStorage로 관리
-		sessionStorage.setItem("progressId", progressId);
 
-		//경로 연결	
-		window.location.href = "/simulation";
+		openSimulation(progressId);
+
 	} catch (error) {
 		console.error("시나리오 시작 오류:", error);
 	}
 }
-
 
 function filterScenarios() {
 	const keyword = searchInput.value.trim().toLowerCase();

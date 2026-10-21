@@ -13,7 +13,7 @@
 		s.scenario_title,
 		s.description,
 		s.estimated_minutes,
-		s.is_active
+		s.is_active,
 		(select c.category_name from category c
 		where c.category_id = s.category_id) AS category_name
 		from scenario s
@@ -38,6 +38,7 @@
 		from scenario s
 		where s.is_active=1
 	</select>
+	
 	<!-- 시나리오 단일 조회 -->
 	<select id="selectScenarioById"
 		resultType="kr.co.oti.haebom.dto.ScenarioDTO">
@@ -46,7 +47,7 @@
 		s.scenario_title,
 		s.description,
 		s.estimated_minutes,
-		s.is_active
+		s.is_active,
 		(select c.category_name from category c
 		where c.category_id = s.category_id) AS category_name
 		from scenario s
