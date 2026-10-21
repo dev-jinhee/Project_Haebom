@@ -35,8 +35,8 @@ public class MemberService {
 			throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
 		}
 		
-		int code = Integer.parseInt(request.getRrnFirst());
-		LocalDate birthDate = toBirthDate(request.getRrnFront(), code);
+		int code = Integer.parseInt(request.getRegistrationNumberBackFirstDigit());
+		LocalDate birthDate = toBirthDate(request.getRegistrationNumberFront(), code);
 		String gender = toGender(code);
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 
@@ -51,15 +51,15 @@ public class MemberService {
 		memberMapper.insertMember(member);
 	}
 	
-	private LocalDate toBirthDate(String rrnFront, int code) {
+	private LocalDate toBirthDate(String registrationNumberFront, int code) {
 		String centuryPrefix = switch (code) {
 			case 1, 2, 5, 6 -> "19";
 			case 3, 4, 7, 8 -> "20";
-			default -> throw new IllegalArgumentException("주민번호 구분 숫자가 올바르지 않습니다.");
+			default -> throw new IllegalArgumentException("주민등록번호 뒷자리가 올바르지 않습니다.");
 		};
 	
 		try {
-			return LocalDate.parse(centuryPrefix + rrnFront, DateTimeFormatter.BASIC_ISO_DATE);
+			return LocalDate.parse(centuryPrefix + registrationNumberFront, DateTimeFormatter.BASIC_ISO_DATE);
 		} catch (DateTimeException ex) {
 			throw new IllegalArgumentException("주민등록번호 앞자리가 올바르지 않습니다.");
 		}

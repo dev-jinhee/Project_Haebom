@@ -115,15 +115,15 @@
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupName">이름 <em>(필수)</em></label>
-                <input class="form-control" id="signupName" autocomplete="name" maxlength="50" placeholder="이름을 입력해 주세요" required>
+                <input class="form-control" id="signupName" autocomplete="name" maxlength="20" placeholder="이름을 20자 이내로 입력해 주세요" required>
             </div>
 
             <div class="member-signup-field">
-                <label class="form-label" for="rrnFront">주민등록번호 <em>(필수)</em></label>
+                <label class="form-label" for="registrationNumberFront">주민등록번호 <em>(필수)</em></label>
                 <div class="member-signup-rrn-fields">
-                    <input class="form-control" id="rrnFront" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="앞 6자리" aria-label="주민등록번호 앞 6자리" required>
+                    <input class="form-control" id="registrationNumberFront" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="앞 6자리" aria-label="주민등록번호 앞 6자리" required>
                     <span class="member-signup-rrn-divider" aria-hidden="true">-</span>
-                    <input class="form-control member-signup-rrn-first" id="rrnFirst" inputmode="numeric" autocomplete="off" maxlength="1" pattern="[1-8]" placeholder="뒤 첫 자리" aria-label="주민등록번호 뒤 첫 자리" required>
+                    <input class="form-control member-signup-rrn-first" id="registrationNumberBackFirstDigit" inputmode="numeric" autocomplete="off" maxlength="1" pattern="[1-8]" placeholder="뒤 첫 자리" aria-label="주민등록번호 뒤 첫 자리" required>
                     <span class="member-signup-rrn-mask" aria-hidden="true">● ● ● ● ● ●</span>
                 </div>
             </div>
@@ -131,7 +131,7 @@
             <div class="member-signup-field">
                 <label class="form-label" for="signupId">아이디 <em>(필수)</em></label>
                 <div class="input-group">
-                    <input class="form-control" id="signupId" autocomplete="username" maxlength="30" pattern="[A-Za-z0-9]+" placeholder="영문과 숫자로 입력해 주세요" required>
+                    <input class="form-control" id="signupId" autocomplete="username" minlength="7" maxlength="15" pattern="[A-Za-z0-9]+" placeholder="영문 대소문자와 숫자를 사용해 7~15자로 입력해 주세요" required>
                     <button class="btn btn-outline-primary" type="button" data-check-id>중복확인</button>
                 </div>
                 <p class="member-signup-field-help" id="signupIdCheckStatus" aria-live="polite"></p>
@@ -139,18 +139,18 @@
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupPassword">비밀번호 <em>(필수)</em></label>
-                <input class="form-control" type="password" id="signupPassword" autocomplete="new-password" minlength="8" placeholder="8자 이상 입력해 주세요" required>
-                <p class="member-signup-field-help">비밀번호는 8자 이상 입력해 주세요.</p>
+                <input class="form-control" type="password" id="signupPassword" autocomplete="new-password" minlength="8" maxlength="20" pattern="[A-Za-z0-9]+" placeholder="영문 대소문자와 숫자를 사용해 8~20자로 입력해 주세요" required>
+                <p class="member-signup-field-help">비밀번호는 영문 대소문자와 숫자만 사용해 8~20자로 입력해 주세요.</p>
             </div>
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupPasswordConfirm">비밀번호 확인 <em>(필수)</em></label>
-                <input class="form-control" type="password" id="signupPasswordConfirm" autocomplete="new-password" minlength="8" placeholder="비밀번호를 다시 입력해 주세요" required>
+                <input class="form-control" type="password" id="signupPasswordConfirm" autocomplete="new-password" minlength="8" maxlength="20" pattern="[A-Za-z0-9]+" placeholder="비밀번호를 다시 입력해 주세요" required>
             </div>
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupEmail">이메일 <em>(필수)</em></label>
-                <input class="form-control" type="email" id="signupEmail" autocomplete="email" maxlength="254" placeholder="예: name@example.com" required>
+                <input class="form-control" type="email" id="signupEmail" autocomplete="email" maxlength="50" placeholder="예: name@example.com (50자 이내)" required>
                 <p class="member-signup-field-help">아이디·비밀번호 찾기에 사용할 이메일을 입력해 주세요.</p>
             </div>
 

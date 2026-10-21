@@ -37,11 +37,11 @@ public class MemberJoinRequestDTO {
 	
 	@NotBlank
 	@Pattern(regexp = "^[0-9]{6}$", message = "주민등록번호 또는 외국인등록번호 앞 6자리를 입력해 주세요.")
-	private String rrnFront;
+	private String registrationNumberFront;
 	
 	@NotBlank
 	@Pattern(regexp = "^[1-8]$", message = "주민등록번호 또는 외국인등록번호의 뒤 첫 숫자를 확인해 주세요.")
-	private String rrnFirst;
+	private String registrationNumberBackFirstDigit;
 	
 	@NotNull
     @AssertTrue(message = "필수 약관에 동의해 주세요.")
