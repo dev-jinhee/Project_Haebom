@@ -64,7 +64,7 @@ public class ScenarioApiController {
         description = "생성 성공"
     )
 	@PostMapping("/{scenarioId}/start")
-	public SimulationProgressDTO postScenarioStart(@PathVariable("scenarioId") Integer scenarioId) {
+	public Integer postScenarioStart(@PathVariable("scenarioId") Integer scenarioId) {
     	// TODO: 로그인 구현 후 실제 회원 ID 사용
 	    return simulationService.startSimulation(scenarioId, 1);
 	}

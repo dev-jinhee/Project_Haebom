@@ -122,11 +122,11 @@ async function startSimulation(scenarioId) {
 		if (!response.ok) {
 			throw new Error("시나리오 시작 실패");
 		}
-		const progress = await response.json();
+		const progressId = await response.json();
 		//TODO : 나중에 로그 삭제
-		console.log("progress :", progress);
+		console.log("progressId :", progressId);
 		//progressId는 SessionStorage로 관리
-		sessionStorage.setItem("progressId", progress.progressId);
+		sessionStorage.setItem("progressId", progressId);
 
 		//경로 연결	
 		window.location.href = "/simulation";

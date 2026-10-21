@@ -21,7 +21,7 @@ public class SimulationServiceImpl implements SimulationService {
 	// 시뮬레이션 시작
 	@Override
 	@Transactional
-	public SimulationProgressDTO startSimulation(Integer scenarioId, Integer memberId) {
+	public Integer startSimulation(Integer scenarioId, Integer memberId) {
 		// 활성 시나리오 검증
 		if (!scenarioMapper.existsActiveScenarioById(scenarioId)) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "시나리오를 찾을 수 없습니다.");
@@ -36,10 +36,8 @@ public class SimulationServiceImpl implements SimulationService {
 				scenarioStep.getStepId());
 		// insert
 		simulationProgressMapper.insertProgress(progressCreateDTO);
-		// progressDTO 반환 -> TODO : 나중에 굳이 반환값이 progressDTO가 아니어도 된다면 수정
-		SimulationProgressDTO progressDTO = simulationProgressMapper
-				.selectProgressByIdAndMemberId(progressCreateDTO.getProgressId(), memberId);
-		return progressDTO;
+		// 생성된 progressId 반환
+		return progressCreateDTO.getProgressId();
 	}
 
 	// 진행이력 조회
