@@ -7,34 +7,40 @@
 		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
 		select sp.*,ss.step_order
 		from simulation_progress sp
-		LEFT JOIN scenario_step ss
-			ON sp.step_id = ss.step_id
+		LEFT
+		JOIN scenario_step ss
+		ON sp.step_id = ss.step_id
 		where member_id = #{memberId}
-			and sp.progress_id = (
-				select sp2.progress_id
-				from simulation_progress sp2
-				where sp2.member_id = sp.member_id
-					and sp2.scenario_id = sp.scenario_id
-				order by sp2.started_at DESC,
-					sp2.progress_id DESC
-				LIMIT 1
+		and sp.progress_id = (
+		select sp2.progress_id
+		from simulation_progress sp2
+		where sp2.member_id = sp.member_id
+		and sp2.scenario_id = sp.scenario_id
+		order by sp2.started_at DESC,
+		sp2.progress_id DESC
+		LIMIT 1
 		)
 	</select>
 	<!-- 진행이력 단건 조회 -->
-	<select id="selectProgressByIdAndMemberId" resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+	<select id="selectProgressByIdAndMemberId"
+		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
 		select *
 		from simulation_progress
-		where progress_id = #{progressId}
-			and member_id = #{memberId}
+		where progress_id =
+		#{progressId}
+		and member_id = #{memberId}
 	</select>
-	
+
 	<!-- 진행 기록 삽입 -->
-	<insert id="insertProgress">
-		insert into simulation_progress(member_id, scenario_id, step_id)
+	<insert id="insertProgress"
+		parameterType="kr.co.oti.haebom.dto.SimulationProgressCreateDTO"
+		useGeneratedKeys="true" keyProperty="progressId">
+		insert into
+		simulation_progress(member_id, scenario_id, step_id)
 		values(
-			memberId,
-			scenarioId,
-			stepId
+		memberId,
+		scenarioId,
+		stepId
 		)
 	</insert>
 
