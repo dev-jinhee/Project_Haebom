@@ -12,7 +12,7 @@
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
 	rel="stylesheet">
 <link href="/css/common.css" rel="stylesheet">
-<link href="/css/pages/scenarios.css" rel="stylesheet">
+<link href="/css/pages/scenario/scenario-list.css" rel="stylesheet">
 </head>
 <body>
 	<jsp:include page="/WEB-INF/views/common/header.jsp" />
