@@ -18,7 +18,11 @@
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/signup.css" rel="stylesheet">
 </head>
-<body class="member-signup-page">
+<body class="member-signup-page"
+      data-context-path="${pageContext.request.contextPath}"
+      data-consent-error="${consentRequiredMessage}"
+      data-password-error="${passwordMismatchMessage}"
+      data-id-check-message="${idCheckPendingMessage}">
 <header class="member-signup-header">
     <div class="container member-signup-header-inner">
         <a class="member-signup-brand" href="${pageContext.request.contextPath}/" aria-label="해봄 홈">
@@ -43,10 +47,7 @@
     </div>
 </header>
 
-<main class="container member-signup-container"
-      data-consent-error="${consentRequiredMessage}"
-      data-password-error="${passwordMismatchMessage}"
-      data-id-check-message="${idCheckPendingMessage}">
+<main class="container member-signup-container">
     <nav class="member-signup-breadcrumb" aria-label="현재 위치">
         <a href="${pageContext.request.contextPath}/">홈</a>
         <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
@@ -111,6 +112,7 @@
         </div>
 
         <form id="signupAccountForm" class="member-signup-fields" novalidate>
+            <input type="hidden" id="csrfToken" value="${_csrf.token}">
             <h3>기본정보</h3>
 
             <div class="member-signup-field">
@@ -171,8 +173,8 @@
             <h2 id="signupCompleteTitle" tabindex="-1">회원가입완료</h2>
         </div>
         <span class="material-symbols-outlined member-signup-complete-icon" aria-hidden="true">check_circle</span>
-        <h3>입력 단계가 완료되었어요</h3>
-        <p>현재는 화면 미리보기 단계라 회원정보가 저장되지는 않습니다. 가입 API 연결 후 실제 가입 처리를 진행합니다.</p>
+        <h3>회원가입이 완료되었어요</h3>
+        <p>회원가입이 완료되었어요. 가입한 아이디로 로그인해 주세요.</p>
         <a class="btn btn-primary rounded-pill px-4" href="${pageContext.request.contextPath}/login">로그인 화면으로 이동</a>
     </section>
 </main>

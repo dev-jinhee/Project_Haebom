@@ -129,9 +129,9 @@
         });
     }
 
-    // 가입 폼 제출을 확인합니다.
+    // 입력값을 확인한 뒤 회원가입 API에 요청을 보냅니다.
     if (form !== null) {
-        form.addEventListener('submit', function (event) {
+        form.addEventListener('submit', async function (event) {
             event.preventDefault();
             setError(accountError, '');
 
@@ -140,31 +140,67 @@
                 return;
             }
 
-            const password = document.getElementById('signupPassword');
-            const confirmation = document.getElementById('signupPasswordConfirm');
+            const passwordInput = document.getElementById('signupPassword');
+            const passwordConfirmInput = document.getElementById('signupPasswordConfirm');
 
-            const passwordValue = password === null ? undefined : password.value;
-            const confirmationValue = confirmation === null ? undefined : confirmation.value;
-
-            if (passwordValue !== confirmationValue) {
-                setError(accountError, page.dataset.passwordError);
-
-                if (confirmation !== null) {
-                    confirmation.focus();
-                }
+            if (passwordInput === null || passwordConfirmInput === null) {
                 return;
             }
 
-            // 현재는 화면 흐름만 확인합니다. 아직 서버로 가입 요청을 보내지 않습니다.
-            form.reset();
-            setError(accountError, '');
+            const password = passwordInput.value;
+            const passwordConfirm = passwordConfirmInput.value;
 
-            const idStatus = document.getElementById('signupIdCheckStatus');
-            if (idStatus !== null) {
-                idStatus.textContent = '';
+            if (password !== passwordConfirm) {
+                setError(accountError, page.dataset.passwordError);
+                passwordConfirmInput.focus();
+                return;
             }
 
-            showStep(2);
+            // API가 받는 DTO 필드명과 같은 이름으로 요청 데이터를 만듭니다.
+            const requestData = {
+                memberName: document.getElementById('signupName').value.trim(),
+                loginId: document.getElementById('signupId').value.trim(),
+                password: password,
+                email: document.getElementById('signupEmail').value.trim(),
+                registrationNumberFront: document.getElementById('registrationNumberFront').value,
+                registrationNumberBackFirstDigit: document.getElementById('registrationNumberBackFirstDigit').value,
+                termsAgreed: consent !== null && consent.checked
+            };
+
+            const csrfInput = document.getElementById('csrfToken');
+            if (csrfInput === null) {
+                setError(accountError, '보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.');
+                return;
+            }
+
+            try {
+                const response = await fetch(page.dataset.contextPath + '/api/members/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfInput.value
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    setError(accountError, '회원가입에 실패했습니다. 입력 정보를 확인해 주세요.');
+                    return;
+                }
+
+                // 성공 응답은 201 Created이며 본문이 비어 있습니다.
+                form.reset();
+                setError(accountError, '');
+
+                const idStatus = document.getElementById('signupIdCheckStatus');
+                if (idStatus !== null) {
+                    idStatus.textContent = '';
+                }
+
+                showStep(2);
+            } catch (error) {
+                setError(accountError, '서버와 통신하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            }
         });
     }
 })();
