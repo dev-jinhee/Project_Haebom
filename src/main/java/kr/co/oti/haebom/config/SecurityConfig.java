@@ -18,7 +18,8 @@ public class SecurityConfig {
                 .ignoringAntMatchers("/api/**")
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/member/signup", "/api/members/join", "/admin/**", "/scenario", "/scenario/**",
+                .requestMatchers("/", "/member/signup", "/member/find-id", "/member/find-password",
+                        "/api/members/join", "/admin/**", "/scenario", "/scenario/**",
                         "/inquiries/**", "/css/**", "/js/**", "/images/**", "/api/**",
                         // Swagger UI 및 OpenAPI 문서
                         "/swagger-ui.html",
@@ -29,6 +30,12 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
+            	.loginPage("/login")
+            	.loginProcessingUrl("/login")
+            	.usernameParameter("loginId")
+            	.passwordParameter("password")
+            	.defaultSuccessUrl("/", false)
+            	.failureUrl("/login?error")
                 .permitAll()
             )
             .logout(logout -> logout

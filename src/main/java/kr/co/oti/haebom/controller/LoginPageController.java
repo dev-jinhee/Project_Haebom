@@ -11,4 +11,14 @@ public class LoginPageController {
 		return "member/login";
 	}
 	
+	@GetMapping("/member/find-id")
+    public String findId() {
+        return "member/find-id";
+    }
+
+    @GetMapping("/member/find-password")
+    public String findPassword() {
+        return "member/find-password";
+    }
+	
 }
