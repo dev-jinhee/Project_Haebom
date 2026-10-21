@@ -26,4 +26,7 @@ public interface ScenarioMapper {
 
 	// 시나리오 특정 단계 조회
 	ScenarioStep selectScenarioStepById(Integer stepId);
+	
+	//시나리오의 첫 단계 조회
+	ScenarioStep selectFirstStepByScenarioId(Integer scenarioId);
 }

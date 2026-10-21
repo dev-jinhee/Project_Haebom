@@ -67,7 +67,7 @@ public class ScenarioServiceImpl implements ScenarioService {
 
 	@Override
 	public List<ScenarioStep> getScenarioStep(Integer scenarioId) {
-		// 1.해당 시나리오가 존재하는지 확인
+		// 해당 시나리오가 존재하는지 확인
 		if (!scenarioMapper.existsActiveScenarioById(scenarioId)){
 			throw new ResponseStatusException(
 		            HttpStatus.NOT_FOUND,

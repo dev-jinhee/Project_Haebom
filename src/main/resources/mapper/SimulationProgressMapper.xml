@@ -11,6 +11,7 @@
 		JOIN scenario_step ss
 		ON sp.step_id = ss.step_id
 		where member_id = #{memberId}
+		and sp.progress_status != 'DELETED'
 		and sp.progress_id = (
 		select sp2.progress_id
 		from simulation_progress sp2
@@ -38,10 +39,19 @@
 		insert into
 		simulation_progress(member_id, scenario_id, step_id)
 		values(
-		memberId,
-		scenarioId,
-		stepId
+		#{memberId},
+		#{scenarioId},
+		#{stepId}
 		)
 	</insert>
+	<!-- 최근 이력 진행 조회 -->
+	<select id="selectLatestProgressId" resultType="Integer">
+		select progress_id
+		from simulation_progress
+		where member_id = #{memberId}
+		and scenario_id = #{scenarioId}
+		order by started_at DESC, progress_id DESC
+		limit 1
+	</select>
 
 </mapper>

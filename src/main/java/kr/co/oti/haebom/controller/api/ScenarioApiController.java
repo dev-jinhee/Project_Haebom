@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,7 +13,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.domain.ScenarioStep;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
+import kr.co.oti.haebom.dto.SimulationProgressDTO;
 import kr.co.oti.haebom.service.ScenarioService;
+import kr.co.oti.haebom.service.SimulationService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "시나리오", description = "시나리오 관련 API")
 public class ScenarioApiController {
 	private final ScenarioService scenarioService;
+	private final SimulationService simulationService;
 	
 	// 공개 시나리오 목록 조회
     @Operation(
@@ -47,7 +51,21 @@ public class ScenarioApiController {
         description = "조회 성공"
     )
 	@GetMapping("/{scenarioId}/steps")
-	public List<ScenarioStep> getScenarioSteps(@PathVariable("scenarioId") Integer ScenarioId) {
-	    return scenarioService.getScenarioStep(ScenarioId);
+	public List<ScenarioStep> getScenarioSteps(@PathVariable("scenarioId") Integer scenarioId) {
+	    return scenarioService.getScenarioStep(scenarioId);
+	}
+    // 새 진행 이력 생성
+    @Operation(
+        summary = "새 진행 이력 생성",
+        description = "시뮬레이션의 새 진행 이력을 생성합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "생성 성공"
+    )
+	@PostMapping("/{scenarioId}/start")
+	public SimulationProgressDTO postScenarioStart(@PathVariable("scenarioId") Integer scenarioId) {
+    	// TODO: 로그인 구현 후 실제 회원 ID 사용
+	    return simulationService.startSimulation(scenarioId, 1);
 	}
 }
