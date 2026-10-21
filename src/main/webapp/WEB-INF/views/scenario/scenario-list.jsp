@@ -126,7 +126,7 @@
 	<script src="/js/pages/scenario-progress.js"></script>
 
 	<!-- defer 추가 시 html 구성 완료 후 js 실행 -->
-	<script src="/js/pages/scenario-list.js" defer>
+	<script src="/js/pages/scenario/scenario-list.js" defer>
 		
 	</script>
 </body>

@@ -43,14 +43,15 @@ async function loadScenarios() {
 				scenario.categoryLabel
 			].filter(Boolean).join(" ").toLowerCase();
 
+			// 메인 버튼 가져오기
+			const actionBtn = card.querySelector("[data-scenario-action]");
+
 			// 진행 상태 적용
 			if (progress) {
 
 				const progressBox = card.querySelector("[data-scenario-progress]");
 				const progressPercent = card.querySelector("[data-scenario-progress-percent]");
 				const progressBar = card.querySelector("[data-scenario-progress-bar]");
-
-				const actionText = card.querySelector("[data-scenario-action]");
 				const restartBtn = card.querySelector("[data-scenario-restart]");
 				const deleteBtn = card.querySelector("[data-scenario-delete]");
 
@@ -72,18 +73,39 @@ async function loadScenarios() {
 					progressBar.style.width = `${percent}%`;
 
 					// 버튼 변경
-					actionText.textContent = "이어하기";
+					actionBtn.textContent = "이어하기";
+					
+					actionBtn.addEventListener("click", () => {
+						// 연습 이어하기
+					});
 				} else if (progress.progressStatus === "COMPLETED") {
 					// 완료한 시나리오
 					progressBox.classList.remove("d-none");
 					progressPercent.textContent = "100%";
 					progressBar.style.width = "100%";
 
-					actionText.textContent = "작성 내역 보기";
+					actionBtn.textContent = "작성 내역 보기";
+					actionBtn.addEventListener("click", () => {
+						// 작성 내역 보기
+					});
 				}
 				restartBtn.classList.remove("d-none");
 				deleteBtn.classList.remove("d-none");
+				restartBtn.addEventListener("click", () => {
+					// 연습 재시작 -> 나중에 수정하기 지금 확인을 위해 넣어둠		
+					startSimulation(scenario.scenarioId);		
+				});
+				deleteBtn.addEventListener("click", () => {
+					// 진행 기록 삭제		
+				});
 			}
+
+			actionBtn.addEventListener("click", () => {
+				if (!progress) {
+					// 연습 시작하기
+					startSimulation(scenario.scenarioId);
+				}
+			});
 			// 6. 카드 출력
 			catalog.insertBefore(card, scenarioSearchEmpty);
 		});
@@ -92,33 +114,54 @@ async function loadScenarios() {
 		console.error("시나리오 목록 조회 오류:", error);
 	}
 }
+async function startSimulation(scenarioId) {
+	try {
+		const response = await fetch(`/api/scenario/${scenarioId}/start`, {
+			method: "POST"
+		});
+		if (!response.ok) {
+			throw new Error("시나리오 시작 실패");
+		}
+		const progress = await response.json();
+		//TODO : 나중에 로그 삭제
+		console.log("progress :", progress);
+		//progressId는 SessionStorage로 관리
+		sessionStorage.setItem("progressId", progress.progressId);
+
+		//경로 연결	
+		window.location.href = "/simulation";
+	} catch (error) {
+		console.error("시나리오 시작 오류:", error);
+	}
+}
+
 
 function filterScenarios() {
-    const keyword = searchInput.value.trim().toLowerCase();
+	const keyword = searchInput.value.trim().toLowerCase();
 
-    // API로 생성한 카드들 조회
-    const cards = catalog.querySelectorAll(".scenario-item");
+	// API로 생성한 카드들 조회
+	const cards = catalog.querySelectorAll(".scenario-item");
 
-    let visibleCount = 0;
+	let visibleCount = 0;
 
-    cards.forEach(card => {
-        const searchText = card.dataset.search ?? "";
+	cards.forEach(card => {
+		const searchText = card.dataset.search ?? "";
 
-        const isMatch = searchText.includes(keyword);
+		const isMatch = searchText.includes(keyword);
 
-        // 검색어와 일치하면 표시, 아니면 숨김
-        card.classList.toggle("d-none", !isMatch);
+		// 검색어와 일치하면 표시, 아니면 숨김
+		card.classList.toggle("d-none", !isMatch);
 
-        if (isMatch) {
-            visibleCount++;
-        }
-    });
+		if (isMatch) {
+			visibleCount++;
+		}
+	});
 
-    // 표시되는 카드가 없으면 안내 문구 표시
-    scenarioSearchEmpty.classList.toggle(
-        "d-none",
-        visibleCount > 0
-    );
+	// 표시되는 카드가 없으면 안내 문구 표시
+	scenarioSearchEmpty.classList.toggle(
+		"d-none",
+		visibleCount > 0
+	);
 }
 
 loadScenarios();
