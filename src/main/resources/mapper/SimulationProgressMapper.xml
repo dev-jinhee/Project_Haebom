@@ -2,21 +2,56 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
 	namespace="kr.co.oti.haebom.mapper.SimulationProgressMapper">
+	<!-- 최근 진행한 시뮬레이션의 이력 조회 -->
 	<select id="selectLatestProgressListByMemberId"
 		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
 		select sp.*,ss.step_order
 		from simulation_progress sp
-		LEFT JOIN scenario_step ss
-			ON sp.step_id = ss.step_id
+		LEFT
+		JOIN scenario_step ss
+		ON sp.step_id = ss.step_id
 		where member_id = #{memberId}
-			and sp.progress_id = (
-				select sp2.progress_id
-				from simulation_progress sp2
-				where sp2.member_id = sp.member_id
-					and sp2.scenario_id = sp.scenario_id
-				order by sp2.started_at DESC,
-					sp2.progress_id DESC
-				LIMIT 1
+		and sp.progress_status != 'DELETED'
+		and sp.progress_id = (
+		select sp2.progress_id
+		from simulation_progress sp2
+		where sp2.member_id = sp.member_id
+		and sp2.scenario_id = sp.scenario_id
+		order by sp2.started_at DESC,
+		sp2.progress_id DESC
+		LIMIT 1
 		)
 	</select>
+	<!-- 진행이력 단건 조회 -->
+	<select id="selectProgressByIdAndMemberId"
+		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+		select *
+		from simulation_progress
+		where progress_id =
+		#{progressId}
+		and member_id = #{memberId}
+	</select>
+
+	<!-- 진행 기록 삽입 -->
+	<insert id="insertProgress"
+		parameterType="kr.co.oti.haebom.dto.SimulationProgressCreateDTO"
+		useGeneratedKeys="true" keyProperty="progressId">
+		insert into
+		simulation_progress(member_id, scenario_id, step_id)
+		values(
+		#{memberId},
+		#{scenarioId},
+		#{stepId}
+		)
+	</insert>
+	<!-- 최근 이력 진행 조회 -->
+	<select id="selectLatestProgressId" resultType="Integer">
+		select progress_id
+		from simulation_progress
+		where member_id = #{memberId}
+		and scenario_id = #{scenarioId}
+		order by started_at DESC, progress_id DESC
+		limit 1
+	</select>
+
 </mapper>

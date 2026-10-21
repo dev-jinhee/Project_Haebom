@@ -12,7 +12,7 @@
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
 	rel="stylesheet">
 <link href="/css/common.css" rel="stylesheet">
-<link href="/css/pages/scenarios.css" rel="stylesheet">
+<link href="/css/pages/scenario/scenario-list.css" rel="stylesheet">
 </head>
 <body>
 	<jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -99,10 +99,10 @@
 					</div>
 				</div>
 				<div class="scenario-actions">
-					<a href="/simulation.html"
+					<button
 						class="btn btn-primary rounded-pill scenario-start"
 						data-scenario-action>연습 시작하기 <i class="bi bi-arrow-right ms-1"
-						aria-hidden="true"></i></a>
+						aria-hidden="true"></i></button>
 					<button class="btn btn-outline-primary rounded-pill d-none"
 						type="button" data-scenario-restart>
 						<i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>처음부터
@@ -126,7 +126,7 @@
 	<script src="/js/pages/scenario-progress.js"></script>
 
 	<!-- defer 추가 시 html 구성 완료 후 js 실행 -->
-	<script src="/js/pages/scenario-list.js" defer>
+	<script src="/js/pages/scenario/scenario-list.js" defer>
 		
 	</script>
 </body>
