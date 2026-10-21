@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
 	namespace="kr.co.oti.haebom.mapper.SimulationProgressMapper">
+	<!-- 최근 진행한 시뮬레이션의 이력 조회 -->
 	<select id="selectLatestProgressListByMemberId"
 		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
 		select sp.*,ss.step_order
@@ -19,4 +20,22 @@
 				LIMIT 1
 		)
 	</select>
+	<!-- 진행이력 단건 조회 -->
+	<select id="selectProgressByIdAndMemberId" resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+		select *
+		from simulation_progress
+		where progress_id = #{progressId}
+			and member_id = #{memberId}
+	</select>
+	
+	<!-- 진행 기록 삽입 -->
+	<insert id="insertProgress">
+		insert into simulation_progress(member_id, scenario_id, step_id)
+		values(
+			memberId,
+			scenarioId,
+			stepId
+		)
+	</insert>
+
 </mapper>
