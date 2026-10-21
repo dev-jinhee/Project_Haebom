@@ -1,9 +1,10 @@
-
 package kr.co.oti.haebom.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -17,9 +18,9 @@ public class SecurityConfig {
                 .ignoringAntMatchers("/api/**")
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/admin/**", "/scenario", "/scenario/**",
-                	    "/inquiries/**", "/css/**", "/js/**", "/images/**", "/api/**",
-                		 // Swagger UI 및 OpenAPI 문서
+                .requestMatchers("/", "/member/signup", "/api/members/join", "/admin/**", "/scenario", "/scenario/**",
+                        "/inquiries/**", "/css/**", "/js/**", "/images/**", "/api/**",
+                        // Swagger UI 및 OpenAPI 문서
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs",
@@ -35,5 +36,10 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+    	return new BCryptPasswordEncoder();
     }
 }
