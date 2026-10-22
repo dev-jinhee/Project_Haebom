@@ -44,30 +44,94 @@ public class SimulationServiceImpl implements SimulationService {
 	@Override
 	public SimulationProgressDTO getProgress(Integer progressId, Integer memberId) {
 		// 진행 이력이 존재 검증
-		SimulationProgressDTO progressDTO = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if(progressDTO == null || "DELETED".equals(progressDTO.getProgressStatus())) {
-			throw new ResponseStatusException(//404ERROR
-	                HttpStatus.NOT_FOUND,
-	                "진행 이력을 찾을 수 없습니다."
-	        );
+		SimulationProgressDTO progressDTO = simulationProgressMapper.selectProgressByIdAndMemberId(progressId,
+				memberId);
+		if (progressDTO == null || "DELETED".equals(progressDTO.getProgressStatus())) {
+			throw new ResponseStatusException(// 404ERROR
+					HttpStatus.NOT_FOUND, "진행 이력을 찾을 수 없습니다.");
 		}
 		// 진행 단계 존재 검증 -> COMPLETED 상태일 경우 null값일 수 있어 제외
-		if ("IN_PROGRESS".equals(progressDTO.getProgressStatus())
-		        && progressDTO.getStepId() == null) {
-		    throw new ResponseStatusException( //409ERROR
-		        HttpStatus.CONFLICT,
-		        "진행 중인 단계가 존재하지 않습니다."
-		    );
+		if ("IN_PROGRESS".equals(progressDTO.getProgressStatus()) && progressDTO.getStepId() == null) {
+			throw new ResponseStatusException( // 409ERROR
+					HttpStatus.CONFLICT, "진행 중인 단계가 존재하지 않습니다.");
 		}
 		// 최근 진행 이력인지 확인
-		if(!progressDTO.getProgressId().equals(simulationProgressMapper.selectLatestProgressId(
-                memberId, progressDTO.getScenarioId()))) {
-			throw new ResponseStatusException(
-			        HttpStatus.CONFLICT,
-			        "최신 기록이 아닙니다."
-			    );
+		if (!progressDTO.getProgressId()
+				.equals(simulationProgressMapper.selectLatestProgressId(memberId, progressDTO.getScenarioId()))) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "최신 기록이 아닙니다.");
 		}
 		return progressDTO;
+	}
+
+	// 이전 단계 이동
+	@Override
+	public void moveToStep(Integer progressId, Integer memberId, Integer targetStepId) {
+		// 현재 단계 조회
+		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
+		}
+		// 이동 가능한 이전/다음 단계인지 검증
+		if (!simulationProgressMapper.isPreviousStep(progress.getScenarioId(), progress.getStepId(), targetStepId)) {
+			throw new IllegalArgumentException("이전 단계로 이동할 수 없습니다.");
+		}
+		// updateProgressStep() 호출
+		int updatedRows = simulationProgressMapper.updateProgressStep(progressId, memberId, progress.getStepId(),
+				targetStepId);
+		// UPDATE 결과 확인
+		if (updatedRows != 1) {
+			throw new IllegalStateException("진행 단계가 변경되었거나 수정할 수 없는 상태입니다.");
+		}
+	}
+
+	// 다음 단계 이동
+	@Override
+	@Transactional
+	public void saveAndMoveToStep(Integer progressId, Integer memberId, Integer targetStepId) {
+		// 현재 단계 조회
+		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
+		}
+		if (!simulationProgressMapper.isNextStep(
+		        progress.getScenarioId(),
+		        progress.getStepId(),
+		        targetStepId)) {
+		    throw new IllegalArgumentException("다음 단계로 이동할 수 없습니다.");
+		}
+		
+		// TODO : 현재 단계 입력값 검증
+		// TODO : 현재 단계 입력값 저장
+
+		// 다음 단계 이동
+		int updatedRows = simulationProgressMapper.updateProgressStep(progressId, memberId, progress.getStepId(),
+				targetStepId);
+		// UPDATE 결과 확인
+		if (updatedRows != 1) {
+			throw new IllegalStateException("진행 단계가 변경되었거나 수정할 수 없는 상태입니다.");
+		}
+	}
+
+	// 시뮬레이션 완료
+	@Override
+	@Transactional
+	public void completeSimulation(Integer progressId, Integer memberId) {
+		// 현재 단계 조회
+		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
+		}
+		// TODO : 마지막 단계 입력값 유효성 검증
+
+		// TODO : 마지막 단계 입력값 저장
+
+		// completeSimulationProgress() 호출
+		int updatedRows = simulationProgressMapper.completeSimulationProgress(progressId, memberId,
+				progress.getStepId());
+		// UPDATE 결과 확인
+		if (updatedRows != 1) {
+			throw new IllegalStateException("마지막 단계가 아니거나 완료 처리할 수 없는 상태입니다.");
+		}
 	}
 
 }

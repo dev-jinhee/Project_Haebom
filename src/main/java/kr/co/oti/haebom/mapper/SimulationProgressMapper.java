@@ -20,6 +20,22 @@ public interface SimulationProgressMapper {
 	// 진행 기록 삽입
 	int insertProgress(SimulationProgressCreateDTO simulationProgressCreateDTO);
 
-	//최신 진행 이력 조회
+	// 최신 진행 이력 조회
 	Integer selectLatestProgressId(@Param("memberId") Integer memberId, @Param("scenarioId") Integer scenarioId);
+
+	// 진행 단계 변경
+	int updateProgressStep(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId,
+			@Param("currentStepId") Integer currentStepId, @Param("nextStepId") Integer nextStepId);
+
+	// 시뮬레이션 완료 상태 변경
+	int completeSimulationProgress(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId,
+			@Param("currentStepId") Integer currentStepId);
+
+	// 이전 단계 이동 가능 여부 확인
+	boolean isPreviousStep(@Param("scenarioId") Integer scenarioId, @Param("currentStepId") Integer currentStepId,
+			@Param("targetStepId") Integer targetStepId);
+
+	// 다음 단계 이동 가능 여부 확인
+	boolean isNextStep(@Param("scenarioId") Integer scenarioId, @Param("currentStepId") Integer currentStepId,
+			@Param("targetStepId") Integer targetStepId);
 }

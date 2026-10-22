@@ -10,14 +10,17 @@
 		LEFT
 		JOIN scenario_step ss
 		ON sp.step_id = ss.step_id
-		where member_id = #{memberId}
+		where member_id =
+		#{memberId}
 		and sp.progress_status != 'DELETED'
 		and sp.progress_id = (
 		select sp2.progress_id
 		from simulation_progress sp2
-		where sp2.member_id = sp.member_id
+		where sp2.member_id
+		= sp.member_id
 		and sp2.scenario_id = sp.scenario_id
-		order by sp2.started_at DESC,
+		order by
+		sp2.started_at DESC,
 		sp2.progress_id DESC
 		LIMIT 1
 		)
@@ -46,12 +49,82 @@
 	</insert>
 	<!-- 최근 이력 진행 조회 -->
 	<select id="selectLatestProgressId" resultType="Integer">
-		select progress_id
+		select
+		progress_id
 		from simulation_progress
 		where member_id = #{memberId}
-		and scenario_id = #{scenarioId}
+		and
+		scenario_id = #{scenarioId}
 		order by started_at DESC, progress_id DESC
 		limit 1
 	</select>
+	<!-- 진행 단계 변경 -->
+	<update id="updateProgressStep">
+		update simulation_progress
+		set step_id = #{nextStepId}
+		where progress_id = #{progressId}
+		and member_id = #{memberId}
+		and
+		step_id = #{currentStepId}
+		and progress_status = 'IN_PROGRESS'
+	</update>
 
+	<!-- 시뮬레이션 완료 상태 변경 -->
+	<update id="completeSimulationProgress">
+		UPDATE simulation_progress p
+		SET p.step_id = NULL,
+		p.progress_status = 'COMPLETED'
+		WHERE p.progress_id = #{progressId}
+		AND
+		p.member_id = #{memberId}
+		AND p.step_id = #{currentStepId}
+		AND
+		p.progress_status = 'IN_PROGRESS'
+		AND p.step_id = (
+		SELECT s.step_id
+		FROM scenario_step s
+		WHERE s.scenario_id = p.scenario_id
+		AND
+		s.step_order > 0
+		ORDER BY s.step_order DESC
+		LIMIT 1
+		)
+	</update>
+
+	<!-- 이전 단계 이동 가능 여부 확인 -->
+	<select id="isPreviousStep" resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM scenario_step current_step
+		JOIN scenario_step target_step
+		ON
+		current_step.scenario_id = target_step.scenario_id
+		WHERE
+		current_step.step_id = #{currentStepId}
+		AND target_step.step_id =
+		#{targetStepId}
+		AND current_step.scenario_id = #{scenarioId}
+		AND
+		current_step.step_order > 0
+		AND target_step.step_order > 0
+		AND
+		target_step.step_order = current_step.step_order - 1
+		)
+	</select>
+
+	<!-- 다음 단계 이동 가능 여부 확인 -->
+	<select id="isNextStep" resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM scenario_step current_step
+		JOIN scenario_step target_step
+		ON current_step.scenario_id = target_step.scenario_id
+		WHERE current_step.step_id = #{currentStepId}
+		AND target_step.step_id = #{targetStepId}
+		AND current_step.scenario_id = #{scenarioId}
+		AND current_step.step_order > 0
+		AND target_step.step_order > 0
+		AND target_step.step_order = current_step.step_order + 1
+		)
+	</select>
 </mapper>

@@ -74,6 +74,7 @@
 		from scenario_step
 		where scenario_id = #{scenarioId}
 	</select>
+	
 	<select id="selectScenarioStepById"
 		resultType="kr.co.oti.haebom.domain.ScenarioStep">
 		select *
