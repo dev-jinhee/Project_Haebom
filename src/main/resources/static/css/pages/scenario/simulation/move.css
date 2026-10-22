@@ -1,18 +1,212 @@
-/* Haebom - moving registration (전입신고) only */
-/* Load AFTER simulation.css when the current scenario is moving registration. */
+/* ============================================================
+   해봄(HAEBOM) | 전입신고 시나리오 전용 스타일
+   ------------------------------------------------------------
+   - 공통 레이아웃/컴포넌트: simulation.css
+   - 전입신고 전용 폼/테이블: move.css
+   - simulation.css 이후 로드
+   - 0단계 버튼 레이아웃은 공통 .sim-card-footer 재사용
+   ============================================================ */
 
-.gov24-data-consent > h3 {
-    margin: 0 0 40px;
-    color: #1c2733;
-    font-size: 1.25rem;
-    font-weight: 800;
+
+/* ============================================================
+   01. 공통 입력 요소 및 테이블
+   전입신고의 여러 단계에서 재사용되는 선택·표 스타일
+   ============================================================ */
+
+.gov24-reason-grid input, .gov24-consent-options input, .gov24-notice-check input {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 auto;
+    accent-color: #1769ff;
 }
 
-.gov24-movers h4 span, .gov24-data-consent summary span {
+.gov24-household-field input, .gov24-service-heading input {
+    width: 19px;
+    height: 19px;
+    flex: 0 0 auto;
+    accent-color: #1769ff;
+}
+
+.gov24-result-table, .gov24-people-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #26384b;
+}
+
+.gov24-people-table {
+    min-width: 820px;
+    font-size: .84rem;
+}
+
+.gov24-people-table th, .gov24-people-table td {
+    padding: 14px 15px;
+    border: 1px solid #d7dce1;
+    text-align: left;
+}
+
+.gov24-people-table thead th {
+    background: #edf2f7;
+    font-size: .78rem;
+}
+
+.gov24-people-table th:first-child, .gov24-people-table td:first-child {
+    width: 58px;
+    text-align: center;
+}
+
+.gov24-people-table td span {
+    color: #1769ff;
+}
+
+.gov24-household-head-panel .gov24-people-table .form-control, .gov24-household-head-panel .gov24-people-table .form-select {
+    min-height: 42px;
+    font-size: .84rem;
+}
+
+
+/* ============================================================
+   02. 0단계 | 가상 세대 정보 입력
+   기존 6열 기준 nth-child 너비 규칙을 제거하고 colgroup으로 통일
+   ============================================================ */
+
+/* 열 비율: 세대주 9 / 관계 24 / 성명 30 / 생년월일 23 / 성별 14 */
+#householdPeopleTable {
+    width: 100%;
+    min-width: 820px;
+    table-layout: fixed;
+}
+
+#householdPeopleTable .household-col-head     { width: 9%; }
+#householdPeopleTable .household-col-relation { width: 24%; }
+#householdPeopleTable .household-col-name     { width: 30%; }
+#householdPeopleTable .household-col-birth    { width: 23%; }
+#householdPeopleTable .household-col-gender   { width: 14%; }
+
+#householdPeopleTable th,
+#householdPeopleTable td {
+    vertical-align: middle;
+}
+
+/* 공통 테이블의 첫 번째 열 고정폭(58px)보다 colgroup을 우선 적용 */
+#householdPeopleTable th:first-child,
+#householdPeopleTable td:first-child {
+    width: auto;
+    text-align: center;
+}
+
+#householdPeopleTable .form-control,
+#householdPeopleTable .form-select {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 신청인 표시는 관계 드롭다운 아래가 아닌 성명 입력칸 옆에 배치 */
+.move-applicant-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.move-applicant-name .form-control {
+    flex: 1 1 0;
+}
+
+.gov24-people-table .move-applicant-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #e8f2f8;
+    color: #1769aa;
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* 공통 이전/다음 버튼과 동일한 푸터를 사용하고 정렬만 변경 */
+.move-step0-actions {
+    justify-content: flex-end;
+}
+
+.move-step0-actions .btn {
+    min-height: 42px;
+}
+
+
+/* ============================================================
+   03. 세대원 및 세대 정보
+   구성원 목록/세대 정보 영역의 보조 컴포넌트
+   ============================================================ */
+
+.gov24-movers {
+    margin-top: 44px;
+}
+
+.gov24-movers h4 {
+    margin: 0 0 17px;
+    color: #25384b;
+    font-size: .98rem;
+    font-weight: 700;
+}
+
+.gov24-household-field {
+    display: grid;
+    gap: 13px;
+    margin-bottom: 0;
+}
+
+.gov24-household-field>label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    color: #25384b;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.gov24-household-head-panel h3 span {
     color: #58718a;
     font-size: .85rem;
     font-weight: 400;
 }
+
+.gov24-household-head-panel>p {
+    margin: 0 0 18px;
+    color: #69788a;
+    font-size: .84rem;
+}
+
+.gov24-household-head-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 22px;
+    padding: 13px 16px;
+    border: 1px solid #dce5ec;
+    border-radius: 9px;
+    color: #53677c;
+    background: #f7fafc;
+    font-size: .82rem;
+}
+
+.gov24-household-head-summary strong {
+    color: #263d52;
+    font-weight: 600;
+}
+
+
+/* ============================================================
+   04. 이사 사유
+   사유 선택 그리드 및 기타 입력
+   ============================================================ */
 
 .gov24-reason-grid {
     display: grid;
@@ -29,13 +223,6 @@
     cursor: pointer;
 }
 
-.gov24-reason-grid input, .gov24-consent-options input, .gov24-notice-check input {
-    width: 19px;
-    height: 19px;
-    flex: 0 0 auto;
-    accent-color: #1769ff;
-}
-
 .gov24-other-reason {
     max-width: 590px !important;
     min-height: 52px;
@@ -45,6 +232,12 @@
 .gov24-other-reason:disabled {
     background: #dedede;
 }
+
+
+/* ============================================================
+   05. 주소 입력 및 검색 결과
+   현재 주소/전입 주소/건물 정보 및 검색 결과
+   ============================================================ */
 
 .gov24-address-panel .gov24-form-field {
     max-width: none;
@@ -96,9 +289,7 @@
 
 .gov24-building-fields {
     display: grid;
-    grid-template-columns: minmax(160px, 290px) minmax(100px, 140px)
-
-		minmax(100px, 140px) auto;
+    grid-template-columns: minmax(160px, 290px) minmax(100px, 140px) minmax(100px, 140px) auto;
     align-items: end;
     gap: 10px;
     max-width: 720px;
@@ -149,28 +340,66 @@
     color: #d83b36;
 }
 
-.gov24-household-field {
-    display: grid;
-    gap: 13px;
-    margin-bottom: 0;
+.gov24-address-result {
+    margin-top: 25px;
 }
 
-.gov24-household-field>label {
+.gov24-result-table {
+    border-top: 1px solid #a9bfd5;
+}
+
+.gov24-result-table th, .gov24-result-table td {
+    height: 62px;
+    padding: 13px 18px;
+    border-bottom: 1px solid #d8dde2;
+    text-align: left;
+}
+
+.gov24-result-table th {
+    width: 265px;
+    border-right: 1px solid #d8dde2;
+    background: #edf2f7;
+    font-size: .83rem;
+    font-weight: 700;
+}
+
+.gov24-result-table td {
+    font-size: .9rem;
+}
+
+.address-result {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin: 0;
-    color: #25384b;
-    font-weight: 500;
-    cursor: pointer;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #cfe3d9;
+    border-radius: 13px;
+    background: #f5fbf7;
 }
 
-.gov24-household-field input, .gov24-service-heading input {
-    width: 19px;
-    height: 19px;
-    flex: 0 0 auto;
-    accent-color: #1769ff;
+.address-result>i {
+    color: #278457;
+    font-size: 1.2rem;
 }
+
+.address-result strong, .address-result small {
+    display: block;
+}
+
+.address-result strong {
+    font-size: .82rem;
+}
+
+.address-result small {
+    color: var(--muted);
+    font-size: .72rem;
+}
+
+
+/* ============================================================
+   06. 부가 서비스
+   부가 민원서비스 항목
+   ============================================================ */
 
 .gov24-extra-services {
     margin: 28px 0 8px;
@@ -227,143 +456,28 @@
     font-size: .8rem;
 }
 
-.gov24-address-result {
-    margin-top: 25px;
+
+/* ============================================================
+   07. 동의 및 유의사항
+   안내문, 개인정보 동의, 확인 체크박스
+   ============================================================ */
+
+.gov24-data-consent > h3 {
+    margin: 0 0 28px;
+    color: #1c2733;
+    font-size: 1.25rem;
+    font-weight: 800;
 }
 
-.gov24-result-table, .gov24-people-table {
-    width: 100%;
-    border-collapse: collapse;
-    color: #26384b;
-}
 
-.gov24-result-table {
-    border-top: 1px solid #a9bfd5;
-}
-
-.gov24-result-table th, .gov24-result-table td {
-    height: 62px;
-    padding: 13px 18px;
-    border-bottom: 1px solid #d8dde2;
-    text-align: left;
-}
-
-.gov24-result-table th {
-    width: 265px;
-    border-right: 1px solid #d8dde2;
-    background: #edf2f7;
-    font-size: .83rem;
-    font-weight: 700;
-}
-
-.gov24-result-table td {
-    font-size: .9rem;
-}
-
-.gov24-movers {
-    margin-top: 44px;
-}
-
-.gov24-movers h4 {
-    margin: 0 0 17px;
-    color: #25384b;
-    font-size: .98rem;
-    font-weight: 700;
-}
-
-.gov24-people-table {
-    min-width: 820px;
-    font-size: .84rem;
-}
-
-.gov24-people-table th, .gov24-people-table td {
-    padding: 14px 15px;
-    border: 1px solid #d7dce1;
-    text-align: left;
-}
-
-.gov24-people-table thead th {
-    background: #edf2f7;
-    font-size: .78rem;
-}
-
-.gov24-people-table th:first-child, .gov24-people-table td:first-child {
-    width: 58px;
-    text-align: center;
-}
-
-.gov24-household-head-panel .gov24-people-table th:first-child, .gov24-household-head-panel .gov24-people-table td:first-child {
-    width: 125px;
-    text-align: center;
-}
-
-.gov24-household-head-panel .gov24-people-table th:nth-child(2), .gov24-household-head-panel .gov24-people-table td:nth-child(2) {
-    width: 74px;
-    text-align: center;
-}
-
-.gov24-household-head-panel .gov24-people-table {
-    min-width: 940px;
-}
-
-.gov24-household-head-panel .gov24-people-table th:nth-child(3), .gov24-household-head-panel .gov24-people-table td:nth-child(3) {
-    min-width: 160px;
-}
-
-.gov24-household-head-panel .gov24-people-table td:nth-child(4), .gov24-household-head-panel .gov24-people-table td:nth-child(5) {
-    min-width: 180px;
-}
-
-.gov24-household-head-panel .gov24-people-table td:nth-child(6) {
-    min-width: 120px;
-}
-
-.gov24-household-head-panel .gov24-people-table .form-control, .gov24-household-head-panel .gov24-people-table .form-select {
-    min-height: 42px;
-    font-size: .84rem;
-}
-
-.gov24-people-table td span {
-    color: #1769ff;
-}
-
-.gov24-household-head-panel h3 span {
+.gov24-movers h4 span, .gov24-data-consent summary span {
     color: #58718a;
     font-size: .85rem;
     font-weight: 400;
 }
 
-.gov24-household-head-panel>p {
-    margin: 0 0 18px;
-    color: #69788a;
-    font-size: .84rem;
-}
-
-.gov24-household-head-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 0 0 22px;
-    padding: 13px 16px;
-    border: 1px solid #dce5ec;
-    border-radius: 9px;
-    color: #53677c;
-    background: #f7fafc;
-    font-size: .82rem;
-}
-
-.gov24-household-head-summary strong {
-    color: #263d52;
-    font-weight: 600;
-}
-
 .gov24-data-consent {
     margin-top: 28px;
-}
-
-.gov24-data-consent>h3 {
-    margin-bottom: 28px;
 }
 
 .gov24-data-consent details {
@@ -439,42 +553,17 @@
     padding-left: 1.2rem;
 }
 
-.address-result {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    border: 1px solid #cfe3d9;
-    border-radius: 13px;
-    background: #f5fbf7;
-}
 
-.address-result>i {
-    color: #278457;
-    font-size: 1.2rem;
-}
+/* ============================================================
+   08. 완료 후 조회 모드
+   작성 내역 조회 시 수정 버튼 숨김 / 폼 값 가독성 유지
+   ============================================================ */
 
-.address-result strong, .address-result small {
-    display: block;
-}
-
-.address-result strong {
-    font-size: .82rem;
-}
-
-.address-result small {
-    color: var(--muted);
-    font-size: .72rem;
-}
-
-/* ===== Completed moving application: presentation only ===== */
-/* Buttons for changing household members are hidden in read-only review mode. */
 .simulation-page.is-completed #addHouseholdPerson,
 .simulation-page.is-completed #removeHouseholdPerson {
     display: none;
 }
 
-/* Keep saved household data clearly legible after disabling form controls. */
 .simulation-page.is-completed .gov24-people-table :is(.form-control, .form-select):disabled {
     opacity: 1;
     color: #425466;

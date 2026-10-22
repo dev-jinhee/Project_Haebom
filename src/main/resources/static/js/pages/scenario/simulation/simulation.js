@@ -54,6 +54,26 @@ async function loadSimulation() {
 		const scenario = await scenarioResponse.json();
 
 		simulationState.scenarioCode = scenario.scenarioCode;
+		// 전입신고 전용 CSS 및 JS 로드
+		if (simulationState.scenarioCode === "MOVE") {
+
+			// CSS 중복 로드 방지
+			if (!document.querySelector('link[data-scenario="MOVE"]')) {
+				const link = document.createElement("link");
+				link.rel = "stylesheet";
+				link.href = "/css/pages/scenario/simulation/move.css";
+				link.dataset.scenario = "MOVE";
+				document.head.appendChild(link);
+			}
+
+			// JS 중복 로드 방지
+			if (!document.querySelector('script[data-scenario="MOVE"]')) {
+				const script = document.createElement("script");
+				script.src = "/js/pages/scenario/simulation/move.js";
+				script.dataset.scenario = "MOVE";
+				document.body.appendChild(script);
+			}
+		}
 
 		// 브레드 크럼
 		document.querySelector("#breadcrumbScenarioTitle").textContent =
@@ -399,7 +419,7 @@ async function handleNextStep() {
 			const currentIndex = steps.findIndex(
 				step => step.stepId === simulationState.viewingStep.stepId
 			);
-			
+
 			if (currentIndex === -1) return;
 
 			// 마지막 단계라면 완료 화면으로 이동
