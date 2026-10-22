@@ -8,7 +8,7 @@
     <nav class="navbar container py-3">
         <!-- 브랜드 로고 -->
         <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/">
-            <span class="brand-mark"><i class="bi bi-building-fill-check"></i></span>
+            <span class="brand-mark"><span class="material-symbols-outlined" aria-hidden="true">domain_verification</span></span>
             <span>
                 <strong>해봄</strong>
                 <small class="d-block">생활 행정절차 미리연습</small>
@@ -20,14 +20,14 @@
             <!-- 관리자(ADMIN) 권한이 있는 경우에만 관리자 페이지 버튼 노출 (개발 테스트용 ?role=admin 허용) -->
             <c:if test="${sessionScope.loginMember.role eq 'ADMIN' or param.role eq 'admin'}">
                 <a class="btn btn-outline-secondary rounded-pill" href="${pageContext.request.contextPath}/admin">
-                    <i class="bi bi-speedometer2 me-1"></i>관리자 페이지
+                    <span class="material-symbols-outlined me-1" aria-hidden="true">space_dashboard</span>관리자 페이지
                 </a>
             </c:if>
 
             <!-- 글씨 크기 조절 드롭다운 (피그마 '보통') -->
             <div class="dropdown">
                 <button class="btn btn-access dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정" title="글씨 크기 설정">
-                    <i class="bi bi-fonts me-1" aria-hidden="true"></i><span data-mode-label>보통</span>
+                    <span class="material-symbols-outlined me-1" aria-hidden="true">text_fields</span><span data-mode-label>보통</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
                     <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
@@ -40,18 +40,18 @@
             <c:choose>
                 <c:when test="${not empty sessionScope.loginMember}">
                     <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
-                        <i class="bi bi-person-circle me-1"></i>마이페이지
+                        <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span>마이페이지
                     </a>
                     <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/logout">
-                        <i class="bi bi-box-arrow-right me-1"></i>로그아웃
+                        <span class="material-symbols-outlined me-1" aria-hidden="true">logout</span>로그아웃
                     </a>
                 </c:when>
                 <c:otherwise>
                     <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
-                        <i class="bi bi-person-circle me-1"></i>마이페이지
+                        <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span>마이페이지
                     </a>
                     <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/login">
-                        <i class="bi bi-box-arrow-in-right me-1"></i>로그인
+                        <span class="material-symbols-outlined me-1" aria-hidden="true">login</span>로그인
                     </a>
                 </c:otherwise>
             </c:choose>
