@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.oti.haebom.mapper.QnaMapper">
+	
+    <!-- 1. 문의글 전체 목록 조회 (LEFT JOIN으로 카테고리명, 답변까지 한 번에 싹 긁어오기!) ⭐ -->
+    <select id="selectQnaList" resultType="kr.co.oti.haebom.dto.QnaDTO">
+        SELECT 
+            q.qna_id, 
+            q.member_id, 
+            q.qna_category_id, 
+            q.qna_title, 
+            q.qna_content, 
+            q.qna_status, 
+            q.is_deleted, 
+            q.qna_created_at, 
+            q.qna_updated_at,
+            qc.qna_category_name,           -- 카테고리 한글명
+            m.member_name,                  -- 작성자 이름
+            qa.qna_answer_content,          -- 관리자 답변 내용
+            qa.qna_answer_created_at        -- 관리자 답변 일시
+        FROM qna q
+        LEFT JOIN qna_category qc ON q.qna_category_id = qc.qna_category_id
+        LEFT JOIN member m ON q.member_id = m.member_id
+        LEFT JOIN qna_answer qa ON q.qna_id = qa.qna_id
+        WHERE q.is_deleted = 0 
+        ORDER BY q.qna_id DESC
+    </select>
+
+    <!-- 2. 문의글 등록 (INSERT) ⭐ -->
+    <insert id="insertQna" parameterType="kr.co.oti.haebom.dto.QnaDTO" useGeneratedKeys="true" keyProperty="qnaId">
+        INSERT INTO qna (
+            member_id,
+            qna_category_id,
+            qna_title,
+            qna_content,
+            qna_status,
+            is_deleted
+        ) VALUES (
+            #{memberId},
+            #{qnaCategoryId},
+            #{qnaTitle},
+            #{qnaContent},
+            'WAITING',
+            0
+        )
+    </insert>
+    
+    <!-- 3. 문의글 논리적 삭제 (UPDATE is_deleted = 1) -->
+    <update id="deleteQna" parameterType="int">
+        UPDATE qna 
+        SET is_deleted = 1,
+            qna_updated_at = NOW()
+        WHERE qna_id = #{qnaId}
+    </update>
+
+    <!-- 4. 문의글 수정 (UPDATE) ⭐ -->
+    <update id="updateQna" parameterType="kr.co.oti.haebom.dto.QnaDTO">
+        UPDATE qna 
+        SET qna_category_id = #{qnaCategoryId},
+            qna_title = #{qnaTitle},
+            qna_content = #{qnaContent},
+            qna_updated_at = NOW()
+        WHERE qna_id = #{qnaId}
+    </update>
+
+</mapper>
