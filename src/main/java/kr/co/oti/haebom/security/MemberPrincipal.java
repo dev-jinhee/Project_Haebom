@@ -14,13 +14,19 @@ public class MemberPrincipal implements UserDetails {
 	private final Integer memberId;
 	private final String username;
 	private final String password;
+	private final String memberName;
 	private final Collection<? extends GrantedAuthority> authorities;
 	
 	public MemberPrincipal(Member member) {
 		this.memberId = member.getMemberId();
 		this.username = member.getLoginId();
 		this.password = member.getPassword();
+		this.memberName = member.getMemberName();
 		this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + member.getRole()));
+	}
+	
+	public String getMemberName() {
+		return memberName;
 	}
 	
 	public Integer getMemberId() {
