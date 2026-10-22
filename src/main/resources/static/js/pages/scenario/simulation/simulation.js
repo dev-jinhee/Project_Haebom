@@ -274,6 +274,10 @@ function updateNavigation() {
 		!simulationState.isCompleted &&
 		simulationState.currentStep.stepOrder === 0;
 
+	//사전 준비 단계에서는 navigation 안 보이게 설정
+	const navigation = document.querySelector("#simulationNavigation");
+	navigation.classList.toggle("d-none", isPreparation);
+
 	// 마지막 실제 단계 번호
 	const lastStepOrder =
 		simulationState.displaySteps[simulationState.displaySteps.length - 1].stepOrder;
@@ -288,10 +292,7 @@ function updateNavigation() {
 
 	if (isPreparation) {
 		// 사전 정보 단계 = 0단계
-		prevStepBtn.classList.add("d-none");
-
-		nextStepBtn.classList.remove("d-none");
-		nextStepBtn.textContent = "시뮬레이션 시작하기";
+		return;
 
 	} else if (!simulationState.isCompleted) {
 		// 1단계부터 마지막 단계까지
@@ -308,35 +309,155 @@ function updateNavigation() {
 			: "다음 단계";
 
 	} else {
-		// 완료 화면
-		// TODO : 추후 viewingStep으로 작성 내역 탐색 구현
-		prevStepBtn.classList.remove("d-none");
-		prevStepBtn.disabled = false;
+		// 완료된 시뮬레이션 - 작성 내역 조회
+		const viewingStep = simulationState.viewingStep;
 
-		nextStepBtn.classList.remove("d-none")
-		nextStepBtn.textContent = "마치기"
+		prevStepBtn.classList.remove("d-none");
+		nextStepBtn.classList.remove("d-none");
+
+		if (viewingStep === null) {
+			// 완료 화면
+			prevStepBtn.disabled = false;
+			nextStepBtn.textContent = "마치기";
+		} else {
+			// 단계별 작성 내역 조회
+			prevStepBtn.disabled =
+				viewingStep.stepOrder ===
+				simulationState.displaySteps[0].stepOrder;
+
+			nextStepBtn.textContent =
+				viewingStep.stepOrder === lastStepOrder
+					? "완료 화면"
+					: "다음 단계";
+		}
+
 	}
+}
+// ==============================
+// 이전 버튼 클릭 처리
+// ==============================
+async function handlePrevStep() {
+	const steps = simulationState.displaySteps;
+
+	if (simulationState.isCompleted) {
+		// 완료 화면이라면 마지막 단계로 이동
+		if (simulationState.viewingStep === null) {
+			simulationState.viewingStep = steps[steps.length - 1];
+
+		} else {
+			// 현재 조회 중인 단계 위치
+			const currentIndex = steps.findIndex(
+				step => step.stepId === simulationState.viewingStep.stepId
+			);
+
+			// 첫 단계라면 이동하지 않음
+			if (currentIndex <= 0) return;
+
+			simulationState.viewingStep = steps[currentIndex - 1];
+		}
+
+	} else {
+		// 현재 조회 중인 단계 위치
+		const currentIndex = steps.findIndex(
+			step => step.stepId === simulationState.currentStep.stepId
+		);
+
+		// 첫 단계라면 이동하지 않음
+		if (currentIndex <= 0) return;
+
+		const prevStep = steps[currentIndex - 1];
+
+		// 이전 단계 이동 API 호출
+		const response = await fetch(
+			`/api/simulation/progress/${simulationState.progressId}/prevStep?targetStepId=${prevStep.stepId}`,
+			{
+				method: "PATCH"
+			}
+		);
+		if (!response.ok) {
+			throw new Error("이전 단계 이동 실패");
+		}
+		// API 성공 후 currentStep 갱신
+		simulationState.currentStep = prevStep;
+	}
+	await renderSimulation();
 }
 // ==============================
 // 다음 버튼 클릭 처리
 // ==============================
 
-function handleNextStep() {
-	// 완료 화면에서 마치기
-	if (simulationState.isCompleted &&
-		simulationState.viewingStep === null) {
+async function handleNextStep() {
+	const steps = simulationState.displaySteps;
+	// 완료 상태일 경우
+	if (simulationState.isCompleted) {
+		// 완료 화면이라면 시나리오 목록으로 이동
+		if (simulationState.viewingStep === null) {
+			window.location.href = "/scenario";
+			return;
+		} else {
+			// 현재 조회 중인 단계 위치
+			const currentIndex = steps.findIndex(
+				step => step.stepId === simulationState.viewingStep.stepId
+			);
+			
+			if (currentIndex === -1) return;
 
-		window.location.href = "/scenario";
-		return;
+			// 마지막 단계라면 완료 화면으로 이동
+			if (currentIndex >= steps.length - 1) {
+				simulationState.viewingStep = null
+			} else {
+				simulationState.viewingStep = steps[currentIndex + 1];
+			}
+		}
+	} else {
+		// 현재 조회 중인 단계 위치
+		const currentIndex = steps.findIndex(
+			step => step.stepId === simulationState.currentStep.stepId
+		);
+
+		if (currentIndex === -1) return;
+
+		// 마지막 단계라면 완료 상태 변경 후 완료 페이지 이동
+		if (currentIndex === steps.length - 1) {
+			//진행 상태 완료 변경 후 step_id null 처리
+			const completeResponse = await fetch(
+				`/api/simulation/progress/${simulationState.progressId}/complete`,
+				{
+					method: "PATCH"
+				}
+			);
+			if (!completeResponse.ok) {
+				throw new Error("시뮬레이션 완료 실패");
+			}
+			simulationState.currentStep = null
+			simulationState.isCompleted = true;
+			simulationState.viewingStep = null;
+		} else {
+
+			const nextStep = steps[currentIndex + 1];
+			// 진행 중 다음 단계 이동 API 호출
+			const nextStepResponse = await fetch(
+				`/api/simulation/progress/${simulationState.progressId}/nextStep?targetStepId=${nextStep.stepId}`,
+				{
+					method: "PATCH"
+				}
+			);
+			if (!nextStepResponse.ok) {
+				throw new Error("다음 단계 이동 실패");
+			}
+			// API 성공 후 currentStep 갱신
+			simulationState.currentStep = nextStep;
+		}
 	}
-	// TODO : 추후 다음 단계 이동 기능 구현
+	await renderSimulation();
 }
 
 // ==============================
 // 이벤트 등록
 // ==============================
-document.querySelector("#nextStep").addEventListener("click", () => {
-	handleNextStep()
-});
+document.querySelector("#prevStep")
+	.addEventListener("click", handlePrevStep);
+document.querySelector("#nextStep")
+	.addEventListener("click", handleNextStep);
 // 최초 실행
 loadSimulation();
