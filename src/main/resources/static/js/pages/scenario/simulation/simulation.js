@@ -2,6 +2,7 @@
 const simulationState = {
 	progressId: null,
 	scenarioId: null,
+	scenarioCode: null,
 	steps: [],
 	displaySteps: [],
 	isCompleted: false,
@@ -52,6 +53,8 @@ async function loadSimulation() {
 
 		const scenario = await scenarioResponse.json();
 
+		simulationState.scenarioCode = scenario.scenarioCode;
+
 		// 브레드 크럼
 		document.querySelector("#breadcrumbScenarioTitle").textContent =
 			scenario.scenarioTitle;
@@ -63,8 +66,9 @@ async function loadSimulation() {
 		document.querySelector("#scenarioTitle").textContent =
 			scenario.scenarioTitle;
 
-		/*document.querySelector("#scenarioDescription").textContent =
-			scenario.description ?? "";*/
+		// 시뮬레이션 전용 안내 문구
+		document.querySelector("#scenarioDescription").textContent =
+			scenario.simulationGuide ?? "";
 
 		// 시나리오 전체 단계 조회
 		const stepsResponse = await fetch(
@@ -224,7 +228,7 @@ async function renderSimulation() {
 
 	// 단계별 JSP 화면 로딩
 	await loadStepFragment(
-		simulationState.scenarioId,
+		simulationState.scenarioCode,
 		isCompleteScreen ? "complete" : activeStep.stepOrder,
 		simulationState.isCompleted
 	);
@@ -235,10 +239,10 @@ async function renderSimulation() {
 // ==============================
 // 단계별 JSP 화면 불러오기
 // ==============================
-async function loadStepFragment(scenarioId, stepOrder, isCompleted) {
+async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 
 	const response = await fetch(
-		`/simulation/fragment/${scenarioId}/${stepOrder}`
+		`/simulation/fragment/${scenarioCode}/${stepOrder}`
 	);
 
 	if (!response.ok) {

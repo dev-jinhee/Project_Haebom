@@ -13,10 +13,10 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/simulation")
 public class SimulationController {
 	
-	 // 시나리오 ID별 JSP 폴더
-    private static final Map<Integer, String> SCENARIO_VIEWS = Map.of(
-        1, "move"
-        // 주민등록증 재발급 추가 시 실제 ID와 "identity" 등록
+	// 시나리오 코드별 JSP 폴더
+    private static final Map<String, String> SCENARIO_VIEWS = Map.of(
+        "MOVE", "move",
+        "IDENTITY_REISSUE", "identity"
     );
     
 	@GetMapping
@@ -25,13 +25,13 @@ public class SimulationController {
     }
 
 	// 단계별 JSP 반환
-	@GetMapping("/fragment/{scenarioId}/{stepOrder}")
+	@GetMapping("/fragment/{scenarioCode}/{stepOrder}")
 	public String getStepFragment(
-	        @PathVariable Integer scenarioId,
-	        @PathVariable Integer stepOrder) {
+	        @PathVariable("scenarioCode") String scenarioCode,
+	        @PathVariable("stepOrder") Integer stepOrder) {
 
 		// 시나리오에 맞는 JSP 폴더 확인
-        String viewFolder = SCENARIO_VIEWS.get(scenarioId);
+        String viewFolder = SCENARIO_VIEWS.get(scenarioCode);
         
         if (viewFolder == null) {
             throw new ResponseStatusException(
@@ -44,11 +44,11 @@ public class SimulationController {
                 + "/step-" + stepOrder;
 	}
 	// 시뮬레이션 완료 화면 반환
-	@GetMapping("/fragment/{scenarioId}/complete")
+	@GetMapping("/fragment/{scenarioCode}/complete")
 	public String getCompleteFragment(
-	        @PathVariable("scenarioId") Integer scenarioId) {
+	        @PathVariable("scenarioCode") String scenarioCode) {
 
-	    if (!SCENARIO_VIEWS.containsKey(scenarioId)) {
+	    if (!SCENARIO_VIEWS.containsKey(scenarioCode)) {
 	        throw new ResponseStatusException(
 	            HttpStatus.NOT_FOUND,
 	            "지원하지 않는 시나리오입니다."

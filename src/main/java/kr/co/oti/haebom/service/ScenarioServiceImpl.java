@@ -84,19 +84,28 @@ public class ScenarioServiceImpl implements ScenarioService {
 	// 시나리오 상세 조회
 	@Override
 	public ScenarioDTO getScenarioById(Integer scenarioId) {
-		// 1. 시나리오 조회
+		// 시나리오 조회
 		ScenarioDTO scenario = scenarioMapper.selectScenarioById(scenarioId);
 
-		// 2. 존재하지 않는 시나리오
+		// 존재하지 않는 시나리오
 		if (scenario == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "시나리오를 찾을 수 없습니다.");
 		}
 
-		// 3. 카테고리 한글 라벨 설정
+		// 카테고리 한글 라벨 설정
 		String categoryLabel = messageSource.getMessage("category." + scenario.getCategoryName(), null,
 				LocaleContextHolder.getLocale());
 
 		scenario.setCategoryLabel(categoryLabel);
+		// 시나리오 안내 문구 설정
+		String simulationGuide = messageSource.getMessage(
+			    "simulation.guide." + scenario.getScenarioCode(),
+			    null,
+			    "",
+			    LocaleContextHolder.getLocale()
+			);
+
+			scenario.setSimulationGuide(simulationGuide);
 
 		return scenario;
 	}
