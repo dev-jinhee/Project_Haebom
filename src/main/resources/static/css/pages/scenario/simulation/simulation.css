@@ -353,6 +353,12 @@
     font-weight: 700;
 }
 
+/* 단계가 하나뿐이면 오른쪽 정렬 */
+.step-label:only-child {
+    margin-left: auto;
+    text-align: right;
+}
+
 .option-card {
     display: flex;
     align-items: center;
