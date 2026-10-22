@@ -1,6 +1,8 @@
 package kr.co.oti.haebom.service;
 
 import java.util.List;
+
+import kr.co.oti.haebom.dto.QnaAnswerDTO;
 import kr.co.oti.haebom.dto.QnaDTO;
 
 public interface QnaService {
@@ -16,4 +18,10 @@ public interface QnaService {
     
     // 4. 문의글 수정
     void updateQna(QnaDTO qnaDTO);
+    
+    void registerAnswer(Integer qnaId, QnaAnswerDTO answerDTO);
+    
+    List<QnaAnswerDTO> getAnswersByQnaId(Integer qnaId);
+    
+    void updateInquiryStatusAndCategory(Integer qnaId, Integer category, String status);
 }
