@@ -20,7 +20,7 @@
 	</insert>
 	
 	<select id="findByLoginId" resultType="kr.co.oti.haebom.domain.Member">
-		SELECT member_id, login_id, password, role, member_status
+		SELECT member_name, member_id, login_id, password, role, member_status
 		FROM member
 		WHERE login_id = #{loginId}
 	</select>
