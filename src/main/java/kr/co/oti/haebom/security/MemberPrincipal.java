@@ -11,6 +11,7 @@ import kr.co.oti.haebom.domain.Member;
 
 public class MemberPrincipal implements UserDetails {
 
+	private static final long serialVersionUID = 1L;
 	private final Integer memberId;
 	private final String username;
 	private final String password;
