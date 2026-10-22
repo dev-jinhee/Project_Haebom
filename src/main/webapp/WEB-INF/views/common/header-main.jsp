@@ -38,13 +38,16 @@
 
             <!-- 로그인 여부에 따른 버튼 분기 -->
             <c:choose>
-                <c:when test="${not empty sessionScope.loginMember}">
+                <c:when test="${not empty pageContext.request.userPrincipal}">
                     <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
                         <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span>마이페이지
                     </a>
-                    <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/logout">
-                        <span class="material-symbols-outlined me-1" aria-hidden="true">logout</span>로그아웃
-                    </a>
+                    <form class="d-inline" method="post" action="${pageContext.request.contextPath}/logout">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+                        <button class="btn btn-light rounded-pill" type="submit">
+                            <span class="material-symbols-outlined me-1" aria-hidden="true">logout</span>로그아웃
+                        </button>
+                    </form>
                 </c:when>
                 <c:otherwise>
                     <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
