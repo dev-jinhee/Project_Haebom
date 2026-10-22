@@ -52,6 +52,7 @@ CREATE TABLE category (
 -- ========================================================
 CREATE TABLE scenario (
     scenario_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오 고유번호',
+    scenario_code VARCHAR(50) NOT NULL UNIQUE COMMENT '시나리오 고정 식별 코드',
     scenario_title VARCHAR(150) NOT NULL COMMENT '시나리오 제목',
     description TEXT COMMENT '설명',
     estimated_minutes INT COMMENT '예상 소요시간',
