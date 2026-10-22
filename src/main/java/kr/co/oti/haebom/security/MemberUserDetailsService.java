@@ -1,6 +1,7 @@
-package kr.co.oti.haebom.service;
+package kr.co.oti.haebom.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class MemberUserDetailsService {
+public class MemberUserDetailsService implements UserDetailsService {
 	
 	private final MemberMapper memberMapper;
 	
