@@ -9,6 +9,9 @@ const simulationState = {
 	currentStep: null,
 	viewingStep: null
 };
+
+let activeStepModule = null;
+
 // ==============================
 // 시나리오별 단계 JS 모듈
 // ==============================
@@ -16,9 +19,9 @@ const stepModules = {
 	MOVE: {
 		0: () => import("/js/pages/scenario/simulation/move/step-0.js"),
 		1: () => import("/js/pages/scenario/simulation/move/step-1.js"),
-		2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
+		/*2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
 		3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
-		4: () => import("/js/pages/scenario/simulation/move/step-4.js"),
+		4: () => import("/js/pages/scenario/simulation/move/step-4.js"),*/
 	}
 };
 
@@ -278,6 +281,9 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 	const stepContent = document.querySelector("#stepContent");
 	stepContent.innerHTML = html;
 
+	// 현재 단계 모듈 초기화
+	activeStepModule = null;
+
 	// 1. 공통 완료 화면
 	if (stepOrder === "complete") {
 
@@ -309,12 +315,17 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 	if (loadModule) {
 		const stepModule = await loadModule();
 
-		await stepModule.init({
-			root: stepContent,
-			progressId: simulationState.progressId,
-			readOnly: isCompleted,
-			reload: loadSimulation
-		});
+		activeStepModule = stepModule;
+
+		// init이 있는 단계에서만 실행
+		if (stepModule.init) {
+			await stepModule.init({
+				root: stepContent,
+				progressId: simulationState.progressId,
+				readOnly: isCompleted,
+				reload: loadSimulation
+			});
+		}
 	}
 }
 
@@ -441,6 +452,18 @@ async function handlePrevStep() {
 // ==============================
 
 async function handleNextStep() {
+	// 진행 중인 단계의 입력값 검증
+	if (!simulationState.isCompleted && activeStepModule?.validate) {
+
+		const isValid = await activeStepModule.validate({
+			root: document.querySelector("#stepContent")
+		});
+
+		if (!isValid) {
+			return;
+		}
+	}
+
 	const steps = simulationState.displaySteps;
 	// 완료 상태일 경우
 	if (simulationState.isCompleted) {
