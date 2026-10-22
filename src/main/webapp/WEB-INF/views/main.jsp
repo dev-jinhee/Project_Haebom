@@ -12,47 +12,6 @@
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/home.css" rel="stylesheet">
 
-    <style>
-        .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-weight: 400; font-style: normal; font-size: 1.15em; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; word-wrap: normal; direction: ltr; font-feature-settings: 'liga'; -webkit-font-feature-settings: 'liga'; -webkit-font-smoothing: antialiased; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; }
-        .home-main { padding: 26px 0 30px; }
-        .home-hero { padding: 34px 0 30px; }
-        .home-hero .hero-grid { grid-template-columns: 1.2fr .8fr; gap: 34px; }
-        .home-hero .hero-copy h1 { margin: 12px 0 12px; font-size: clamp(2rem, 3.4vw, 2.8rem); }
-        .home-hero .hero-copy p { font-size: .92rem; }
-        .home-hero .hero-visual { min-height: 205px; }
-        .start-guide { width: min(100%, 390px); padding: 18px; border: 1px solid rgba(255,255,255,.24); border-radius: 18px; color: #fff; background: rgba(255,255,255,.12); backdrop-filter: blur(8px); }
-        .start-guide h2 { margin: 0 0 12px; color: #d8eaf5; font-size: .78rem; font-weight: 500; }
-        .start-step { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
-        .start-step-number { display: grid; flex: 0 0 27px; width: 27px; height: 27px; place-items: center; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; font-size: .73rem; }
-        .start-step b, .start-step small { display: block; }
-        .start-step b { font-size: .78rem; }
-        .start-step small { margin-top: 1px; color: #d6e4ef; font-size: .66rem; }
-        .home-content { display: grid; gap: 22px; padding-top: 26px; }
-        .home-service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .home-service-card { min-height: 174px; padding: 16px; border-radius: 16px; }
-        .home-service-card .service-icon { width: 38px; height: 38px; border-radius: 12px; font-size: 1.05rem; }
-        .home-service-card .service-kicker { margin-top: 9px; }
-        .home-service-card h2 { margin: 3px 0 5px; font-size: .98rem; font-weight: 800; }
-        .home-service-card p { font-size: .72rem; }
-        .home-service-card .service-action { padding-top: 9px; font-size: .72rem; }
-        .policy-panel { padding: 18px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: 0 7px 20px rgba(31,58,84,.035); }
-        .policy-panel h2 { margin: 0 0 5px; font-size: .98rem; font-weight: 800; }
-        .policy-search-intro { font-size: .76rem; }
-        .policy-search-form .form-control, .policy-search-form .btn { min-height: 40px; font-size: .78rem; }
-        .policy-search-form .input-group { border-radius: 9px; }
-        .policy-keywords { margin: 9px 0 0; font-size: .7rem; }
-        .policy-keywords button { padding: 3px 9px; font-size: .68rem; }
-        .policy-search-footnote { margin: 0; padding: 11px 15px; border: 1px solid #e8edf2; border-radius: 10px; background: #f7f9fb; font-size: .68rem; }
-        @media (max-width: 767.98px) {
-            .home-main { padding-top: 0; }
-            .home-hero { padding: 38px 0 30px; }
-            .home-hero .hero-grid { grid-template-columns: 1fr; gap: 18px; }
-            .home-hero .hero-visual { min-height: 0; }
-            .start-guide { width: 100%; }
-            .home-content { padding-top: 18px; }
-            .home-service-grid { grid-template-columns: 1fr; }
-        }
-    </style>
 </head>
 <body>
 <jsp:include page="/WEB-INF/views/common/header-main.jsp" />
