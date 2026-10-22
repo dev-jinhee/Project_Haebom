@@ -191,14 +191,8 @@
                     <!-- 관리자 답변 영역 -->
                     <div id="inquiryAnswerSection">
                         <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-reply-fill text-success me-1"></i>관리자 답변</h3>
-                        <div class="p-3 rounded-3" id="inquiryAnswerBox" style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
-                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-success-subtle">
-                                <span class="fw-bold text-success-emphasis small"><i class="bi bi-shield-check me-1"></i>해봄 운영팀</span>
-                                <small class="text-secondary" id="inquiryAnswerDate">2026.10.14</small>
-                            </div>
-                            <p class="mb-0 text-dark small" id="inquiryAnswerContent" style="white-space: pre-line; line-height: 1.6;">
-                                관리자의 답변이 등록되면 이곳에서 확인하실 수 있습니다.
-                            </p>
+                        <div class="d-flex flex-column gap-2" id="inquiryAnswerList">
+                            <!-- 답변 목록이 여기에 동적으로 추가됩니다 -->
                         </div>
                     </div>
                 </div>

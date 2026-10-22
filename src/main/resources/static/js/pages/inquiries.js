@@ -196,6 +196,45 @@
     openModal('#inquiryModal');
   });
 
+  // 관리자 답변 목록 불러오기 (사용자 화면용)
+  const loadUserInquiryAnswers = async (qnaId) => {
+    const listEl = document.getElementById('inquiryAnswerList');
+    if (!listEl) return;
+    listEl.innerHTML = '<div class="p-3 text-secondary small bg-light rounded-3">답변을 불러오는 중입니다...</div>';
+
+    try {
+      const res = await fetch(`/api/inquiries/${qnaId}/answers`);
+      if (!res.ok) throw new Error('답변 목록 로드 실패');
+      const answers = await res.json();
+
+      if (!answers || answers.length === 0) {
+        listEl.innerHTML = '<div class="p-3 text-secondary small bg-light rounded-3">등록된 답변이 없습니다.</div>';
+        return;
+      }
+
+      listEl.innerHTML = answers.map(a => {
+        const dateStr = a.qnaAnswerCreatedAt ? String(a.qnaAnswerCreatedAt).replace('T', ' ').substring(0, 19) : '';
+        const responder = a.responderName || a.responderLoginId || '관리자';
+        return `
+          <div class="p-3 rounded-3" style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
+            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-success-subtle">
+              <span class="fw-bold text-success-emphasis small">
+                <i class="bi bi-shield-check me-1"></i>해봄 운영팀 (${escapeHtml(responder)})
+              </span>
+              <small class="text-secondary">${dateStr}</small>
+            </div>
+            <p class="mb-0 text-dark small" style="white-space: pre-line; line-height: 1.6;">
+              ${escapeHtml(a.qnaAnswerContent)}
+            </p>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      console.error(e);
+      listEl.innerHTML = '<div class="p-3 text-danger small bg-light rounded-3">답변을 불러오지 못했습니다.</div>';
+    }
+  };
+
   // 6. 문의 내역 클릭 시 상세 모달 열기 (진짜 데이터 바인딩)
   document.getElementById('inquiryTableBody')?.addEventListener('click', (e) => {
     const link = e.target.closest('.inquiry-item-link');
@@ -223,8 +262,7 @@
       statusBadge.textContent = '답변 완료';
       if (answerSection) {
         answerSection.style.display = 'block';
-        document.getElementById('inquiryAnswerContent').textContent = data.qnaAnswerContent || '답변이 등록되었습니다.';
-        document.getElementById('inquiryAnswerDate').textContent = data.qnaAnswerCreatedAt || '';
+        loadUserInquiryAnswers(data.qnaId);
       }
       if (editBtn) editBtn.style.display = 'none'; // 답변 완료된 글은 수정 불가
     } else {

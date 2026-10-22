@@ -30,5 +30,6 @@ public class QnaDTO {
 	// 관리자 답변(qna_answer) 확인용
 	private String qnaAnswerContent; // 관리자 답변 내용
 	private LocalDateTime qnaAnswerCreatedAt; // 관리자 답변 등록일시
+	private String responderLoginId; // 답변한 관리자 로그인 ID (예: admin)
 
 }
