@@ -38,4 +38,8 @@ public interface SimulationProgressMapper {
 	// 다음 단계 이동 가능 여부 확인
 	boolean isNextStep(@Param("scenarioId") Integer scenarioId, @Param("currentStepId") Integer currentStepId,
 			@Param("targetStepId") Integer targetStepId);
+
+	// 0단계 확인 및 다음 단계 ID 조회
+	Integer selectNextStepId(@Param("scenarioId") Integer scenarioId,
+			@Param("currentStepId") Integer currentStepId);
 }
