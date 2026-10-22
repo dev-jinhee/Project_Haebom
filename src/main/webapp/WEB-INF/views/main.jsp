@@ -16,20 +16,50 @@
 <body>
 <jsp:include page="/WEB-INF/views/common/header-main.jsp" />
 
-<main id="main-content" class="home-main">
+<main id="main-content" class="home-main" data-api-url="${pageContext.request.contextPath}/api/main">
     <section class="hero-section home-hero" aria-labelledby="home-title">
         <div class="container hero-grid">
             <div class="hero-copy">
-                <span class="eyebrow">화요일 · 2026. 10. 13</span>
-                <h1 id="home-title">민지님, 오늘도 차근차근<br><span>한 단계씩 준비해 봐요.</span></h1>
-                <p>필요한 행정절차를 미리 알고, 실제 신청 전에 단계별로 미리 연습해 보세요.</p>
-                <a class="btn btn-light rounded-pill px-4 mt-3" href="${pageContext.request.contextPath}/scenario">
-                    진행 중인 연습 보기 <span class="material-symbols-outlined ms-1" aria-hidden="true">arrow_forward</span>
-                </a>
+                <div id="loggedOutView" hidden>
+                    <h1 id="home-title">
+                        필요한 행정절차를<br>
+                        <span>미리 살펴보고 연습해 보세요.</span>
+                    </h1>
+                    <p>실제 신청 전에 단계별 절차를 안전하게 경험할 수 있어요.</p>
+                    <a class="btn btn-light rounded-pill px-4 mt-3"
+                       href="${pageContext.request.contextPath}/scenario">
+                        연습할 시나리오 선택하기
+                    </a>
+                </div>
+
+                <div id="loggedInNoProgressView" hidden>
+                    <h1>
+                        <span id="memberNameNoProgress"></span>님, 오늘도 차근차근<br>
+                        <span>한 단계씩 준비해 봐요.</span>
+                    </h1>
+                    <p>필요한 행정절차를 미리 알고, 실제 신청 전에 단계별로 연습해 보세요.</p>
+                    <a class="btn btn-light rounded-pill px-4 mt-3"
+                       href="${pageContext.request.contextPath}/scenario">
+                        연습할 시나리오 선택하기
+                    </a>
+                </div>
+
+                <div id="loggedInProgressView" hidden>
+                    <h1>
+                        <span id="memberNameProgress"></span>님, 오늘도 차근차근<br>
+                        <span>한 단계씩 준비해 봐요.</span>
+                    </h1>
+                    <p>필요한 행정절차를 미리 알고, 실제 신청 전에 단계별로 연습해 보세요.</p>
+                    <a class="btn btn-light rounded-pill px-4 mt-3"
+                       href="${pageContext.request.contextPath}/scenario">
+                        진행 중인 연습 보기
+                        <span class="material-symbols-outlined ms-1" aria-hidden="true">arrow_forward</span>
+                    </a>
+                </div>
             </div>
 
             <aside class="hero-visual" aria-label="해봄 이용 방법">
-                <div class="start-guide">
+                <div id="startGuideCard" class="start-guide" hidden>
                     <h2>쉽게 시작하는 방법</h2>
                     <div class="start-step">
                         <span class="start-step-number">1</span>
@@ -44,6 +74,10 @@
                         <span><b>결과 확인</b><small>상황에 맞는 안내를 살펴봐요.</small></span>
                     </div>
                 </div>
+                
+				<div id="recentProgressMount" hidden>
+                    <!-- 시나리오 최근 진행중인거 그래프 표시 예정 -->
+				</div>
             </aside>
         </div>
     </section>
