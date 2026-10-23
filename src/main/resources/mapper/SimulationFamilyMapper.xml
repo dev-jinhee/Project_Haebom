@@ -23,4 +23,18 @@
 			#{originalRelationship}
 		)
 	</insert>
+	
+	<select id="selectApplicant" resultType="kr.co.oti.haebom.domain.SimulationFamily">
+		select *
+		from simulation_family
+		where progress_id = #{progressId}
+			and is_applicant = 1
+	</select>
+	
+	<update id="updateApplicantPhone">
+		update simulation_family
+		set phone_num = #{phoneNum}
+		where progress_id = #{progressId}
+			and is_applicant = 1
+	</update>
 </mapper>

@@ -52,8 +52,8 @@
 	</div>
 
 	<!-- 유의사항 확인 -->
-	<div class="form-check">
-		<input class="form-check-input" type="checkbox" id="agreeNotice">
+	<div class="form-check d-flex justify-content-end align-items-center gap-2">
+		<input class="form-check-input ms-0 mt-0" type="checkbox" id="agreeNotice">
 
 		<label class="form-check-label fw-semibold" for="agreeNotice">
 			위 전입신고 유의사항을 모두 확인했습니다. </label>
