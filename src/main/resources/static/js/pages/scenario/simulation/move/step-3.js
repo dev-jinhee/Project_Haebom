@@ -23,7 +23,7 @@ const RELATION_LABELS = {
 // 0단계에서 사용하는 관계 코드에 맞춤
 const RELATION_OPTIONS = [
     ["SELF", "본인"], ["SPOUSE", "배우자"], ["CHILD", "자녀"],
-    ["FATHER", "부"], ["MOTHER", "모"], ["PARENT", "부모"], ["OTHER", "기타"]
+    ["FATHER", "부"], ["MOTHER", "모"], ["OTHER", "기타"]
 ];
 
 // ==============================

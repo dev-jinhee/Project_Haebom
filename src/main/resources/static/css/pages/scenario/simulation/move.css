@@ -683,3 +683,137 @@
         min-height: 48px;
     }
 }
+
+/* 전입신고 4단계 전용 추가 스타일: 기존 move.css 맨 아래에 추가 */
+.move-step4 .move-step4-address-controls .form-control {
+    min-height: 52px;
+    max-width: 590px;
+    background: #f8fafc;
+}
+
+.move-step4 .move-step4-household-detail {
+    border-top: 1px solid #e0e6ec;
+    padding-top: 23px;
+}
+
+.move-step4 .move-step4-household-detail h4 {
+    color: #26384b;
+    line-height: 1.5;
+}
+
+.move-step4 .move-step4-warning {
+    color: #8b4c20;
+    font-size: .86rem;
+    line-height: 1.7;
+}
+
+.move-step4 .move-step4-existing-fields {
+    display: grid;
+    gap: 22px;
+    max-width: 760px;
+}
+
+.move-step4 .move-step4-existing-name .form-control {
+    max-width: 450px;
+    min-height: 46px;
+}
+
+.move-step4 .move-step4-identity-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.move-step4 .move-step4-id-box {
+    width: 125px;
+    flex: 0 0 125px;
+    min-height: 45px;
+    text-align: center;
+    background: #e9edf1;
+    color: #526273;
+    -webkit-text-fill-color: #526273;
+    opacity: 1;
+}
+
+.move-step4 .move-step4-identity-row button {
+    min-height: 45px;
+}
+
+.move-step4 .move-step4-phone-fields {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 455px;
+}
+
+.move-step4 .move-step4-phone-fields .form-control {
+    min-width: 0;
+    width: 86px;
+    min-height: 42px;
+    padding-inline: 7px;
+    text-align: center;
+}
+
+.move-step4 .move-step4-phone-fields .form-control:first-child {
+    width: 75px;
+}
+
+.move-step4 .move-step4-family-table {
+    min-width: 905px;
+    border-top: 1px solid #abc2d8;
+}
+
+.move-step4 .move-step4-family-table th,
+.move-step4 .move-step4-family-table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.move-step4 .move-step4-family-table .form-select {
+    min-width: 125px;
+    min-height: 39px;
+}
+
+.move-step4 .move-step4-family-table th:first-child,
+.move-step4 .move-step4-family-table td:first-child {
+    width: 65px;
+    text-align: center;
+}
+
+.move-step4 .move-step4-join-table th:first-child,
+.move-step4 .move-step4-join-table td:first-child {
+    width: 165px;
+    text-align: left;
+}
+
+.move-step4 .move-step4-family-phone {
+    min-width: 240px;
+}
+
+.move-step4 .move-step4-family-phone .form-control {
+    width: 67px;
+    min-height: 39px;
+}
+
+.move-step4 .move-step4-family-phone .form-control:first-child {
+    width: 57px;
+}
+
+.move-step4 .move-step4-phone-static {
+    display: inline-block;
+    min-width: 136px;
+    padding: 9px 12px;
+    border-radius: 5px;
+    background: #e9edf1;
+    color: #53657a;
+    font-size: .82rem;
+}
+
+@media (max-width: 640px) {
+    .move-step4 .move-step4-identity-row { align-items: stretch; }
+    .move-step4 .move-step4-identity-row button { width: 100%; }
+    .move-step4 .move-step4-id-box { width: calc(50% - 20px); flex: 1 1 90px; }
+    .move-step4 .move-step4-existing-fields { gap: 18px; }
+}
+
