@@ -20,8 +20,8 @@ const stepModules = {
 		0: () => import("/js/pages/scenario/simulation/move/step-0.js"),
 		1: () => import("/js/pages/scenario/simulation/move/step-1.js"),
 		2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
-		/*3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
-		4: () => import("/js/pages/scenario/simulation/move/step-4.js"),*/
+		3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
+		/*4: () => import("/js/pages/scenario/simulation/move/step-4.js"),*/
 	}
 };
 

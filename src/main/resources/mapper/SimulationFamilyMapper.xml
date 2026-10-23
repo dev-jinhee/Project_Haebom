@@ -24,6 +24,13 @@
 		)
 	</insert>
 	
+	<!-- 가족 구성원 조회 -->
+	<select id="selectFamily" resultType="kr.co.oti.haebom.domain.SimulationFamily">
+		select *
+		from simulation_family
+		where progress_id = #{progressId}
+	</select>
+	
 	<select id="selectApplicant" resultType="kr.co.oti.haebom.domain.SimulationFamily">
 		select *
 		from simulation_family
@@ -36,5 +43,21 @@
 		set phone_num = #{phoneNum}
 		where progress_id = #{progressId}
 			and is_applicant = 1
+	</update>
+	
+	<update id="updateFamilyMoveState">
+		update simulation_family
+		set move_status = #{moveStatus},
+			relationship = #{relationship},
+			is_household_head = #{isHouseholdHead}
+		where progress_id = #{progressId}
+			and family_id = #{familyId}
+	</update>
+	
+	<update id="updateFamilyPhone">
+		update simulation_family
+		set phone_num = #{phoneNum}
+		where progress_id = #{progressId}
+			and family_id = #{familyId}
 	</update>
 </mapper>
