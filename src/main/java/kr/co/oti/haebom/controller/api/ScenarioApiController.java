@@ -2,6 +2,7 @@ package kr.co.oti.haebom.controller.api;
 
 import java.util.List;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.domain.ScenarioStep;
 import kr.co.oti.haebom.dto.ScenarioDTO;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
-import kr.co.oti.haebom.dto.SimulationProgressDTO;
+import kr.co.oti.haebom.security.MemberPrincipal;
 import kr.co.oti.haebom.service.ScenarioService;
 import kr.co.oti.haebom.service.SimulationService;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +38,8 @@ public class ScenarioApiController {
         description = "조회 성공"
     )
 	@GetMapping
-	public List<ScenarioListItemDTO> getScenarioList() {
-	    // TODO: 로그인 구현 후 실제 회원 ID 사용
-	    return scenarioService.getScenarioList(1);
+	public List<ScenarioListItemDTO> getScenarioList(@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	    return scenarioService.getScenarioList(memberPrincipal.getMemberId());
 	}
     
     // 선택 시나리오 상세 조회
@@ -79,8 +79,7 @@ public class ScenarioApiController {
         description = "생성 성공"
     )
 	@PostMapping("/{scenarioId}/start")
-	public Integer postScenarioStart(@PathVariable("scenarioId") Integer scenarioId) {
-    	// TODO: 로그인 구현 후 실제 회원 ID 사용
-	    return simulationService.startSimulation(scenarioId, 1);
+	public Integer postScenarioStart(@PathVariable("scenarioId") Integer scenarioId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	    return simulationService.startSimulation(scenarioId, memberPrincipal.getMemberId());
 	}
 }

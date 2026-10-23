@@ -116,15 +116,33 @@
 	<select id="isNextStep" resultType="boolean">
 		SELECT EXISTS (
 		SELECT 1
-		FROM scenario_step current_step
+		FROM
+		scenario_step current_step
 		JOIN scenario_step target_step
-		ON current_step.scenario_id = target_step.scenario_id
-		WHERE current_step.step_id = #{currentStepId}
-		AND target_step.step_id = #{targetStepId}
+		ON
+		current_step.scenario_id = target_step.scenario_id
+		WHERE
+		current_step.step_id = #{currentStepId}
+		AND target_step.step_id =
+		#{targetStepId}
 		AND current_step.scenario_id = #{scenarioId}
-		AND current_step.step_order > 0
+		AND
+		current_step.step_order > 0
 		AND target_step.step_order > 0
-		AND target_step.step_order = current_step.step_order + 1
+		AND
+		target_step.step_order = current_step.step_order + 1
 		)
+	</select>
+
+	<!-- 0단계 확인 및 다음 단계 ID 조회 -->
+	<select id="selectNextStepId" resultType="java.lang.Integer">
+		SELECT next_step.step_id
+		FROM scenario_step current_step
+		JOIN scenario_step next_step
+		ON current_step.scenario_id = next_step.scenario_id
+		AND next_step.step_order = current_step.step_order + 1
+		WHERE current_step.scenario_id = #{scenarioId}
+		AND current_step.step_id = #{currentStepId}
+		AND current_step.step_order = 0
 	</select>
 </mapper>

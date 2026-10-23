@@ -19,6 +19,8 @@
 <link href="/css/app.css" rel="stylesheet">
 <link href="/css/pages/scenario/simulation/simulation.css"
 	rel="stylesheet">
+	<link href="/css/pages/scenario/simulation/move.css"
+	rel="stylesheet">
 </head>
 <body class="simulation-page">
 	<!-- 공통 헤더 -->

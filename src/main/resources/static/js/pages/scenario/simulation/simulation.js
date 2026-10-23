@@ -9,6 +9,18 @@ const simulationState = {
 	currentStep: null,
 	viewingStep: null
 };
+// ==============================
+// 시나리오별 단계 JS 모듈
+// ==============================
+const stepModules = {
+	MOVE: {
+		0: () => import("/js/pages/scenario/simulation/move/step-0.js"),
+		1: () => import("/js/pages/scenario/simulation/move/step-1.js"),
+		2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
+		3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
+		4: () => import("/js/pages/scenario/simulation/move/step-4.js"),
+	}
+};
 
 // ==============================
 // 시뮬레이션 최초 로딩
@@ -54,6 +66,18 @@ async function loadSimulation() {
 		const scenario = await scenarioResponse.json();
 
 		simulationState.scenarioCode = scenario.scenarioCode;
+		// 전입신고 전용 CSS 로드
+		if (simulationState.scenarioCode === "MOVE") {
+
+			// CSS 중복 로드 방지
+			if (!document.querySelector('link[data-scenario="MOVE"]')) {
+				const link = document.createElement("link");
+				link.rel = "stylesheet";
+				link.href = "/css/pages/scenario/simulation/move.css";
+				link.dataset.scenario = "MOVE";
+				document.head.appendChild(link);
+			}
+		}
 
 		// 브레드 크럼
 		document.querySelector("#breadcrumbScenarioTitle").textContent =
@@ -254,13 +278,43 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 	const stepContent = document.querySelector("#stepContent");
 	stepContent.innerHTML = html;
 
-	// 완료된 시뮬레이션은 입력 기능 비활성화
+	// 1. 공통 완료 화면
+	if (stepOrder === "complete") {
+
+		const completeModule = await import(
+			"/js/pages/scenario/simulation/complete.js"
+		);
+
+		await completeModule.init({
+			root: stepContent,
+			progressId: simulationState.progressId,
+			scenarioId: simulationState.scenarioId
+		});
+
+		return;
+	}
+
+	// 완료 후 단계 다시보기
 	if (isCompleted) {
 		stepContent
 			.querySelectorAll("input, textarea, select, button")
 			.forEach(element => {
 				element.disabled = true;
 			});
+	}
+
+	// 시나리오별 단계 JS
+	const loadModule = stepModules[scenarioCode]?.[stepOrder];
+
+	if (loadModule) {
+		const stepModule = await loadModule();
+
+		await stepModule.init({
+			root: stepContent,
+			progressId: simulationState.progressId,
+			readOnly: isCompleted,
+			reload: loadSimulation
+		});
 	}
 }
 
@@ -399,7 +453,7 @@ async function handleNextStep() {
 			const currentIndex = steps.findIndex(
 				step => step.stepId === simulationState.viewingStep.stepId
 			);
-			
+
 			if (currentIndex === -1) return;
 
 			// 마지막 단계라면 완료 화면으로 이동

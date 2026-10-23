@@ -1,6 +1,7 @@
 package kr.co.oti.haebom.controller.api;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
+import kr.co.oti.haebom.security.MemberPrincipal;
 import kr.co.oti.haebom.service.SimulationService;
 import lombok.RequiredArgsConstructor;
 
@@ -26,9 +28,8 @@ public class SimulationApiController {
 	@Operation(summary = "진행정보 조회", description = "시뮬레이션의 진행 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "조회 성공")
 	@GetMapping("/progress/{progressId}")
-	public SimulationProgressDTO getSimulationProgress(@PathVariable("progressId") Integer progressId) {
-		// TODO: 로그인 구현 후 실제 회원 ID 사용
-		return simulationService.getProgress(progressId, 1);
+	public SimulationProgressDTO getSimulationProgress(@PathVariable("progressId") Integer progressId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		return simulationService.getProgress(progressId, memberPrincipal.getMemberId());
 	}
 
 	// 이전 단계 이동
@@ -36,10 +37,9 @@ public class SimulationApiController {
 	@ApiResponse(responseCode = "204", description = "이동 성공")
 	@PatchMapping("/progress/{progressId}/prevStep")
 	public ResponseEntity<Void> moveToPrevStep(@PathVariable("progressId") Integer progressId,
-			@RequestParam("targetStepId") Integer targetStepId) {
+			@RequestParam("targetStepId") Integer targetStepId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
-		// TODO : Spring Security 로그인 회원 정보 연동
-		Integer memberId = 1;
+		Integer memberId = memberPrincipal.getMemberId();
 
 		simulationService.moveToStep(progressId, memberId, targetStepId);
 
@@ -51,10 +51,9 @@ public class SimulationApiController {
 	@ApiResponse(responseCode = "204", description = "이동 성공")
 	@PatchMapping("/progress/{progressId}/nextStep")
 	public ResponseEntity<Void> moveToNextStep(@PathVariable("progressId") Integer progressId,
-			@RequestParam("targetStepId") Integer targetStepId) {
+			@RequestParam("targetStepId") Integer targetStepId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
-		// TODO : Spring Security 로그인 회원 정보 연동
-		Integer memberId = 1;
+		Integer memberId = memberPrincipal.getMemberId();
 
 		simulationService.saveAndMoveToStep(progressId, memberId, targetStepId);
 
@@ -65,10 +64,9 @@ public class SimulationApiController {
 	@Operation(summary = "시뮬레이션 완료", description = "입력값 저장 후 시뮬레이션 완료처리합니다.")
 	@ApiResponse(responseCode = "204", description = "완료 처리 성공")
 	@PatchMapping("/progress/{progressId}/complete")
-	public ResponseEntity<Void> completeSimulation(@PathVariable("progressId") Integer progressId) {
+	public ResponseEntity<Void> completeSimulation(@PathVariable("progressId") Integer progressId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
-		// TODO : Spring Security 로그인 회원 정보 연동
-		Integer memberId = 1;
+		Integer memberId = memberPrincipal.getMemberId();
 
 		simulationService.completeSimulation(progressId, memberId);
 

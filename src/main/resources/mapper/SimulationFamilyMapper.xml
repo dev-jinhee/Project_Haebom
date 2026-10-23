@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="kr.co.oti.haebom.mapper.SimulationFamilyMapper">
+	<!-- 가족 구성원 정보 저장 -->
+	<insert id="insertFamily">
+		insert into simulation_family(
+		progress_id,
+		family_name,
+		birth_date,
+		gender,
+		is_applicant,
+		is_original_head,
+		original_relationship
+		)
+		values(
+			#{progressId},
+			#{familyName},
+			#{birthDate},
+			#{gender},
+			#{isApplicant},
+			#{isOriginalHead},
+			#{originalRelationship}
+		)
+	</insert>
+</mapper>
