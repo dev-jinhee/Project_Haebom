@@ -98,4 +98,22 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 		}
 	}
 
+	// 신청인 정보 조회
+	@Override
+	public SimulationFamily getApplicant(Integer progressId, Integer memberId) {
+		// 로그인 사용자의 진행 사항이 맞는지
+		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		if(progress == null) {
+			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
+		}
+		//신청인 정보 조회
+	    SimulationFamily applicant = familyMapper.selectApplicant(progressId);
+
+	    if (applicant == null) {
+	        throw new IllegalArgumentException("신청인 정보를 찾을 수 없습니다.");
+	    }
+
+	    return applicant;
+	}
+
 }

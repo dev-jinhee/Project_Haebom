@@ -23,4 +23,11 @@
 			#{originalRelationship}
 		)
 	</insert>
+	
+	<select id="selectApplicant" resultType="kr.co.oti.haebom.domain.SimulationFamily">
+		select *
+		from simulation_family
+		where progress_id = #{progressId}
+			and is_applicant = 1
+	</select>
 </mapper>
