@@ -19,8 +19,8 @@ const stepModules = {
 	MOVE: {
 		0: () => import("/js/pages/scenario/simulation/move/step-0.js"),
 		1: () => import("/js/pages/scenario/simulation/move/step-1.js"),
-		/*2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
-		3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
+		2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
+		/*3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
 		4: () => import("/js/pages/scenario/simulation/move/step-4.js"),*/
 	}
 };
@@ -252,6 +252,8 @@ async function renderSimulation() {
 
 		stepLabels.appendChild(label);
 	});
+	// 하단 네비게이션 갱신
+	updateNavigation();
 
 	// 단계별 JSP 화면 로딩
 	await loadStepFragment(
@@ -259,8 +261,7 @@ async function renderSimulation() {
 		isCompleteScreen ? "complete" : activeStep.stepOrder,
 		simulationState.isCompleted
 	);
-	// 하단 네비게이션 갱신
-	updateNavigation();
+
 }
 
 // ==============================
@@ -319,10 +320,16 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 
 		// init이 있는 단계에서만 실행
 		if (stepModule.init) {
+			// 현재 표시 중인 단계 정보
+			const step = simulationState.steps.find(
+				step => step.stepOrder === stepOrder
+			);
 			await stepModule.init({
 				root: stepContent,
 				progressId: simulationState.progressId,
 				readOnly: isCompleted,
+				// 입력 값 조회를 위한 stepId 넘기기
+				//stepId: step?.stepId,
 				reload: loadSimulation
 			});
 		}
@@ -464,6 +471,23 @@ async function handleNextStep() {
 		}
 	}
 
+	// 단계별 저장 처리
+	if (!simulationState.isCompleted && activeStepModule?.save) {
+		try {
+			await activeStepModule.save({
+				root: document.querySelector("#stepContent"),
+				progressId: simulationState.progressId
+			});
+
+		} catch (error) {
+			console.error("단계별 저장 오류:", error);
+			alert("정보 저장에 실패했습니다. 다시 시도해주세요.");
+			return;
+		}
+	}
+	
+	// TODO : 입력값 저장 api 호출
+	
 	const steps = simulationState.displaySteps;
 	// 완료 상태일 경우
 	if (simulationState.isCompleted) {

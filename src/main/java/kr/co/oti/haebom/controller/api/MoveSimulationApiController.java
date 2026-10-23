@@ -5,6 +5,7 @@ import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,5 +49,16 @@ public class MoveSimulationApiController {
 	public SimulationFamily getApplicant(@PathVariable Integer progressId,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		return moveSimulationService.getApplicant(progressId, memberPrincipal.getMemberId());
+	}
+
+	// 신청인 휴대전화번호 수정
+	@Operation(summary = "전입신고 신청인 휴대전화번호 수정", description = "로그인 사용자의 진행 이력과 완료 여부를 확인한 후 신청인의 휴대전화번호를 수정합니다.")
+	@ApiResponse(responseCode = "204", description = "신청인 휴대전화번호 수정 성공")
+	@PatchMapping("/{progressId}/applicant/phone")
+	public ResponseEntity<Void> updateApplicantPhone(@PathVariable Integer progressId,
+			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal,
+			@RequestBody String phoneNum) {
+		moveSimulationService.updateApplicantPhone(progressId, memberPrincipal.getMemberId(), phoneNum);
+		return ResponseEntity.noContent().build();
 	}
 }

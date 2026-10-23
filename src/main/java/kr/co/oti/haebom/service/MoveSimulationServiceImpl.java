@@ -116,4 +116,26 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 	    return applicant;
 	}
 
+	//신청인 전화번호 수정
+	@Override
+	public void updateApplicantPhone(Integer progressId, Integer memberId, String phoneNum) {
+		// 수정 가능한 진행사항인지 확인
+		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		if(progress == null) {
+			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
+		}
+		if("COMPLETED".equals(progress.getProgressStatus())) {
+			throw new IllegalArgumentException("이미 완료된 진행이라 수정 불가능합니다.");
+		}
+		//전화번호 확인
+		if (phoneNum == null || !phoneNum.matches("^010-\\d{4}-\\d{4}$")) {
+		    throw new IllegalArgumentException("올바른 휴대전화번호를 입력해주세요.");
+		}
+		//전화번호 수정
+		int updatedCount = familyMapper.updateApplicantPhone(progressId, phoneNum);
+		if (updatedCount == 0) {
+		    throw new IllegalStateException("신청인 휴대전화번호 수정에 실패했습니다.");
+		}
+	}
+
 }
