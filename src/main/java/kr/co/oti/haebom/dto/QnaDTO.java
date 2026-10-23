@@ -13,15 +13,16 @@ import lombok.NoArgsConstructor;
 @Builder
 public class QnaDTO {
 	
-	private Integer qnaId; //문의 번호 (PK)
-	private Integer memberId; //작성자 회원 번호 (FK)
-	private Integer qnaCategoryId; //문의 카테고리 번호 (FK)
-	private String qnaTitle; //문의 제목
-	private String qnaContent; //문의 내용
-	private String qnaStatus; //답변 상태
-	private Integer isDeleted; //삭제 여부
-	private LocalDateTime qnaCreatedAt; //작성일
-	private LocalDateTime qnaUpdatedAt; //수정일
+	private Integer qnaId; // 문의 번호 (PK)
+	private Integer memberId; // 작성자 회원 번호 (FK)
+	private Integer qnaCategoryId; // 문의 카테고리 번호 (FK)
+	private String qnaTitle; // 문의 제목
+	private String qnaContent; // 문의 내용
+	private String qnaStatus; // 답변 상태
+	private Integer isDeleted; // 삭제 여부
+	private Boolean isSecret; // 비밀글 여부
+	private LocalDateTime qnaCreatedAt; // 작성일
+	private LocalDateTime qnaUpdatedAt; // 수정일
 
 	// 화면 표시(JOIN)용 추가 컬럼
 	private String qnaCategoryName; // 카테고리 한글 이름 (예 : 시뮬레이션 문의)

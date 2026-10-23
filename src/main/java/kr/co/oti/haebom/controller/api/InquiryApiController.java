@@ -3,7 +3,9 @@ package kr.co.oti.haebom.controller.api;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.oti.haebom.dto.QnaAnswerDTO;
 import kr.co.oti.haebom.dto.QnaDTO;
+import kr.co.oti.haebom.security.MemberPrincipal;
 import kr.co.oti.haebom.service.QnaService;
 import lombok.RequiredArgsConstructor;
 
@@ -28,13 +31,39 @@ public class InquiryApiController {
 
 	// 1. 문의글 목록 데이터(JSON) 보내주기
 	@GetMapping
-	public List<QnaDTO> getInquiryList() {
-		return qnaService.getQnaList();
+	public List<QnaDTO> getInquiryList(@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		List<QnaDTO> list = qnaService.getQnaList();
+		
+		Integer currentMemberId = memberPrincipal != null ? memberPrincipal.getMemberId() : null;
+		boolean isAdmin = memberPrincipal != null && memberPrincipal.getAuthorities() != null && memberPrincipal.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+		
+		// 비밀글 마스킹 보안 처리!
+		for (QnaDTO item : list) {
+			if (Boolean.TRUE.equals(item.getIsSecret())) {
+				boolean isOwner = currentMemberId != null && currentMemberId.equals(item.getMemberId());
+				if (!isOwner && !isAdmin) {
+					// 작성자 본인도 아니고 관리자도 아니면 제목/내용 마스킹
+					item.setQnaTitle("비밀글입니다");
+					item.setQnaContent("비밀글은 작성자와 관리자만 열람할 수 있습니다.");
+					item.setQnaAnswerContent(null);
+				}
+			}
+		}
+		return list;
 	}
 
 	// 2. 모달 창에서 보낸 새 문의글 DB에 등록하기!
 	@PostMapping
-	public ResponseEntity<String> createInquiry(@RequestBody QnaDTO qnaDTO) {
+	public ResponseEntity<String> createInquiry(
+			@AuthenticationPrincipal MemberPrincipal memberPrincipal, 
+			@RequestBody QnaDTO qnaDTO) {
+		
+		// 비로그인 유저의 직접 API 요청 차단 (401 에러 반환)
+		if (memberPrincipal == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body("로그인이 필요한 서비스입니다.");
+		}
+		qnaDTO.setMemberId(memberPrincipal.getMemberId()); // 로그인 회원 번호 세팅!
 		qnaService.createQna(qnaDTO);
 		return ResponseEntity.ok("문의글이 성공적으로 등록되었습니다.");
 	}

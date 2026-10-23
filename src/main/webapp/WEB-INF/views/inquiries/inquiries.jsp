@@ -20,7 +20,11 @@
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
 
     <!-- 2. 문의 게시판 본문 컨텐츠 영역 -->
-    <main class="container subpage-container flex-grow-1">
+    <main class="container subpage-container flex-grow-1"
+          data-login-user-id="${loginMemberId != null ? loginMemberId : ''}"
+          data-login-username="${loginUsername != null ? loginUsername : ''}"
+          data-is-logged-in="${isLoggedIn}"
+          data-is-admin="${isAdmin}">
         
         <!-- 상단 헤딩 & 브레드크럼 -->
         <div class="subpage-heading">
@@ -33,32 +37,60 @@
             <p>서비스 이용과 시뮬레이션에 관한 질문을 남겨주세요.</p>
         </div>
 
-        <!-- 내 문의 현황 요약 카드 & 문의 작성 버튼 -->
+        <!-- 상단 가이드 & 내 문의 현황 배너 (전체 문의: 친절 가이드, 내 문의: 진행 현황) -->
         <div class="inquiry-summary">
-            <div>
-                <i class="bi bi-chat-left-text"></i>
-                <span>내 문의<strong data-inquiry-total>-건</strong></span>
+            <!-- 1) 전체 문의 탭용: 친절한 이용 안내 배너 (기본 표시) -->
+            <div class="inquiry-summary-banner d-flex align-items-center gap-3" id="inquiryBannerInfo">
+                <div class="inquiry-banner-icon">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <div class="inquiry-banner-text">
+                    <strong class="d-block text-dark fw-bold mb-1">무엇이든 편하게 물어보세요!</strong>
+                    <span class="text-secondary small">궁금한 점을 남겨주시면 해봄 운영팀이 영업일 기준 1~2일 내에 꼼꼼히 확인 후 답변해 드립니다.</span>
+                </div>
             </div>
-            <div>
-                <i class="bi bi-hourglass-split"></i>
-                <span>답변 대기<strong data-inquiry-waiting>-건</strong></span>
+
+            <!-- 2) 내 문의 탭용: 나의 문의 진행 현황 (내 문의 탭 클릭 시 표시) -->
+            <div class="inquiry-summary-stats align-items-center gap-4 d-none" id="inquiryBannerStats">
+                <div>
+                    <i class="bi bi-chat-left-text"></i>
+                    <span>내 문의<strong data-inquiry-total>0건</strong></span>
+                </div>
+                <div>
+                    <i class="bi bi-hourglass-split"></i>
+                    <span>답변 대기<strong data-inquiry-waiting>0건</strong></span>
+                </div>
+                <div>
+                    <i class="bi bi-check-circle"></i>
+                    <span>답변 완료<strong data-inquiry-answered>0건</strong></span>
+                </div>
             </div>
-            <div>
-                <i class="bi bi-check-circle"></i>
-                <span>답변 완료<strong data-inquiry-answered>-건</strong></span>
-            </div>
-            <button type="button" class="btn btn-primary rounded-pill" data-open-inquiry>
+
+            <!-- 우측: 문의 작성 버튼 (공통) -->
+            <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap" data-open-inquiry>
                 <i class="bi bi-pencil-square me-1"></i>문의 작성
             </button>
         </div>
 
-        <!-- 내 문의 내역 패널 -->
-        <section class="content-panel mt-4" aria-labelledby="inquiryHistoryTitle">
-            <div class="panel-heading">
-                <div>
-                    <h2 id="inquiryHistoryTitle">내 문의 내역</h2>
+        <!-- 문의 내역 패널 (전체 문의 / 내 문의 내역 탭) -->
+        <section class="content-panel mt-4" aria-labelledby="inquiryTabs">
+            <div class="panel-heading flex-wrap gap-2">
+                <!-- 탭 버튼: 전체 문의 vs 내 문의 -->
+                <div class="inquiry-tabs-wrap">
+                    <ul class="nav nav-pills inquiry-nav-tabs" id="inquiryTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tabAllInquiries" data-inquiry-tab="all" type="button" role="tab" aria-selected="true">
+                                <i class="bi bi-chat-square-text me-1"></i>전체 문의 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeAllCount">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tabMyInquiries" data-inquiry-tab="my" type="button" role="tab" aria-selected="false">
+                                <i class="bi bi-person-check me-1"></i>내 문의 내역 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeMyCount">0</span>
+                            </button>
+                        </li>
+                    </ul>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 ms-auto align-items-center">
                     <!-- 상태 필터 -->
                     <select class="form-select form-select-sm" id="inquiryStatusFilter" aria-label="문의 상태 필터">
                         <option value="">전체 상태</option>
@@ -153,7 +185,17 @@
 
                     <!-- 내용 입력 -->
                     <label class="form-label fw-semibold" for="inquiryBody">문의 내용 <span class="text-danger">*</span></label>
-                    <textarea id="inquiryBody" name="qnaContent" class="form-control" rows="5" placeholder="궁금한 내용을 자세히 적어주세요" required></textarea>
+                    <textarea id="inquiryBody" name="qnaContent" class="form-control mb-3" rows="5" placeholder="궁금한 내용을 자세히 적어주세요" required></textarea>
+
+                    <!-- 비밀글 설정 -->
+                    <div class="p-2 bg-light rounded-3 d-flex align-items-center gap-2">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" role="switch" id="inquiryIsSecret" name="isSecret">
+                            <label class="form-check-label small text-secondary fw-semibold cursor-pointer" for="inquiryIsSecret">
+                                <i class="bi bi-lock-fill text-warning me-1"></i>비밀글로 등록하기 <span class="text-muted fw-normal">(작성자와 관리자만 확인 가능)</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer px-4 pb-4 pt-2 border-top-0 d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">취소</button>

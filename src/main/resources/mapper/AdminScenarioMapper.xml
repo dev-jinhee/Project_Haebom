@@ -21,6 +21,7 @@
 	<update id="updateScenario" parameterType="kr.co.oti.haebom.dto.AdminScenarioDTO">
 		UPDATE scenario 
 		SET scenario_title = #{scenarioTitle}, 
+			description = #{description},
 			category_id = #{categoryId},
 			estimated_minutes = #{estimatedMinutes}, 
 			is_active = #{isActive} 

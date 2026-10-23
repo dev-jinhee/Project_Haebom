@@ -44,7 +44,7 @@ public class AdminDashboardApiController {
     }
     
     // 3. 최근 운영자 활동 내역 조회 (GET /api/admin/dashboard/activities)
-    @Operation(summary = "최근 운영자 활동 내역 조회", description = "최근 6건의 관리자 활동 로그를 조회합니다.")
+    @Operation(summary = "최근 운영자 활동 내역 조회", description = "최근 10건의 관리자 활동 로그를 조회합니다.")
     @GetMapping("/activities")
     public ResponseEntity<List<AdminActivityDTO>> getRecentActivities() {
         List<AdminActivityDTO> activities = adminDashboardService.getRecentActivities();

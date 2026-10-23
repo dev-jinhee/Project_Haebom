@@ -18,7 +18,12 @@
         <!-- 우측 액션 메뉴 (메인 풀 메뉴: 관리자 + 글씨 크기 + 마이페이지 + 로그인/로그아웃) -->
         <div class="d-flex align-items-center gap-2 ms-auto">
             <!-- 관리자(ADMIN) 권한이 있는 경우에만 관리자 페이지 버튼 노출 (개발 테스트용 ?role=admin 허용) -->
-            <c:if test="${sessionScope.loginMember.role eq 'ADMIN' or param.role eq 'admin'}">
+            <%
+            	boolean isAdmin = request.isUserInRole("ROLE_ADMIN")
+            					|| request.isUserInRole("ADMIN") 
+            					|| "admin".equals(request.getParameter("role"));
+            %>
+            <c:if test="<%= isAdmin %>">
                 <a class="btn btn-outline-secondary rounded-pill" href="${pageContext.request.contextPath}/admin">
                     <span class="material-symbols-outlined me-1" aria-hidden="true">space_dashboard</span>관리자 페이지
                 </a>
