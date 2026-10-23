@@ -12,7 +12,7 @@ import kr.co.oti.haebom.service.QnaService;
 import lombok.RequiredArgsConstructor;
 
 @Controller
-@RequestMapping("/inquiries")
+@RequestMapping({"/inquiry", "/inquiries"})
 public class InquiryController {
 
     // 1:1 문의 게시판 화면(JSP)만 띄어주기

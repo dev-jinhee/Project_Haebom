@@ -8,7 +8,7 @@
     <nav class="navbar container py-3">
         <!-- 브랜드 로고 -->
         <a class="navbar-brand d-flex align-items-center gap-2" href="${pageContext.request.contextPath}/">
-            <span class="brand-mark"><i class="bi bi-building-fill-check"></i></span>
+            <span class="brand-mark"><span class="material-symbols-outlined" aria-hidden="true">domain_verification</span></span>
             <span>
                 <strong>해봄</strong>
                 <small class="d-block">생활 행정절차 미리연습</small>
@@ -20,7 +20,7 @@
             <!-- 글씨 크기 조절 드롭다운 (피그마 '보통') -->
             <div class="dropdown">
                 <button class="btn btn-access dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정" title="글씨 크기 설정">
-                    <i class="bi bi-fonts me-1" aria-hidden="true"></i><span data-mode-label>보통</span>
+                <span class="material-symbols-outlined me-1" aria-hidden="true">text_fields</span><span data-mode-label>보통</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
                     <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
@@ -31,7 +31,7 @@
 
             <!-- 홈으로 이동 버튼 (집 모양 아이콘) -->
             <a href="${pageContext.request.contextPath}/" class="btn btn-outline-secondary rounded-pill">
-                <i class="bi bi-house me-1"></i>홈으로
+                <span class="material-symbols-outlined me-1" aria-hidden="true">home</span>홈으로
             </a>
         </div>
     </nav>
