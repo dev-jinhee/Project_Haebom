@@ -354,14 +354,19 @@
 					<!-- 2. 회원 목록 페이지 -->
 					<div data-admin-page="members" class="d-none">
 						<section class="card mb-4" id="members">
-							<div class="card-header flex-wrap gap-2">
-								<h2 class="card-title fw-semibold">
+							<div class="card-header flex-wrap gap-2 d-flex align-items-center justify-content-between">
+								<h2 class="card-title fw-semibold mb-0">
 									<i class="bi bi-people text-info me-2"></i>회원 목록
 								</h2>
-								<div class="input-group input-group-sm admin-search ms-auto">
-									<span class="input-group-text"><i class="bi bi-search"></i></span><input
-										class="form-control" placeholder="이름·아이디 검색"
-										aria-label="회원 검색" data-member-search>
+								<div class="d-flex align-items-center gap-2 ms-auto">
+									<div class="input-group input-group-sm admin-search">
+										<span class="input-group-text"><i class="bi bi-search"></i></span>
+										<input class="form-control" placeholder="이름·아이디 검색"
+											aria-label="회원 검색" data-member-search>
+									</div>
+									<button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold text-nowrap" id="btnExportMembersExcel" title="회원 목록을 엑셀 파일로 다운로드합니다">
+										<i class="bi bi-file-earmark-excel me-1"></i>엑셀 다운로드
+									</button>
 								</div>
 							</div>
 							<div class="table-responsive">
@@ -392,10 +397,13 @@
 					<!-- 3. 문의 게시판 페이지 -->
 					<div data-admin-page="inquiries" class="d-none">
 						<section class="card" id="inquiries-admin">
-							<div class="card-header">
-								<h2 class="card-title fw-semibold">
+							<div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+								<h2 class="card-title fw-semibold mb-0">
 									<i class="bi bi-chat-left-text text-warning me-2"></i>문의 게시판 목록
 								</h2>
+								<button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold text-nowrap ms-auto" id="btnExportInquiriesExcel" title="문의 목록을 엑셀 파일로 다운로드합니다">
+									<i class="bi bi-file-earmark-excel me-1"></i>엑셀 다운로드
+								</button>
 							</div>
 							<div class="table-responsive">
 								<table class="table table-hover align-middle mb-0">
@@ -595,6 +603,11 @@
 								<label class="form-label" for="scenarioStatus">운영 상태</label><select
 									class="form-select" id="scenarioStatus"><option value="true">운영 중</option>
 									<option value="false">점검 중</option></select>
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="scenarioDescription">시나리오 설명</label>
+								<textarea class="form-control" id="scenarioDescription" rows="3"
+									placeholder="시나리오 목록에 노출될 소개 및 안내 설명을 입력하세요."></textarea>
 							</div>
 						</form>
 					</section>
@@ -905,6 +918,8 @@
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 	<script
 		src="https://cdn.jsdelivr.net/npm/admin-lte@4.10.0/dist/js/adminlte.min.js"></script>
+	<!-- SheetJS (Excel 내보내기 전용 라이브러리) -->
+	<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 	<script src="${pageContext.request.contextPath}/js/app.js"></script>
 	<script src="${pageContext.request.contextPath}/js/pages/admin.js?v=<%= System.currentTimeMillis() %>"></script>
 	<script

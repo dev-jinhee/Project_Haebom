@@ -50,3 +50,16 @@
         </div>
     </div>
 </div>
+
+<!-- 3. 공통 토스트 알림 (Toast - window.Haebom.toast 연동) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="siteToast" class="toast align-items-center text-bg-dark border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body py-2 px-3 fs-6 d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle-fill text-info"></i>
+                <span id="toastMessage"></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="닫기"></button>
+        </div>
+    </div>
+</div>
