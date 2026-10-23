@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
@@ -28,7 +29,7 @@ public class SimulationApiController {
 	@Operation(summary = "진행정보 조회", description = "시뮬레이션의 진행 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "조회 성공")
 	@GetMapping("/progress/{progressId}")
-	public SimulationProgressDTO getSimulationProgress(@PathVariable("progressId") Integer progressId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	public SimulationProgressDTO getSimulationProgress(@PathVariable("progressId") Integer progressId, @Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		return simulationService.getProgress(progressId, memberPrincipal.getMemberId());
 	}
 
@@ -37,7 +38,7 @@ public class SimulationApiController {
 	@ApiResponse(responseCode = "204", description = "이동 성공")
 	@PatchMapping("/progress/{progressId}/prevStep")
 	public ResponseEntity<Void> moveToPrevStep(@PathVariable("progressId") Integer progressId,
-			@RequestParam("targetStepId") Integer targetStepId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+			@RequestParam("targetStepId") Integer targetStepId, @Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
 		Integer memberId = memberPrincipal.getMemberId();
 
@@ -51,7 +52,7 @@ public class SimulationApiController {
 	@ApiResponse(responseCode = "204", description = "이동 성공")
 	@PatchMapping("/progress/{progressId}/nextStep")
 	public ResponseEntity<Void> moveToNextStep(@PathVariable("progressId") Integer progressId,
-			@RequestParam("targetStepId") Integer targetStepId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+			@RequestParam("targetStepId") Integer targetStepId, @Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
 		Integer memberId = memberPrincipal.getMemberId();
 
@@ -64,7 +65,7 @@ public class SimulationApiController {
 	@Operation(summary = "시뮬레이션 완료", description = "입력값 저장 후 시뮬레이션 완료처리합니다.")
 	@ApiResponse(responseCode = "204", description = "완료 처리 성공")
 	@PatchMapping("/progress/{progressId}/complete")
-	public ResponseEntity<Void> completeSimulation(@PathVariable("progressId") Integer progressId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	public ResponseEntity<Void> completeSimulation(@PathVariable("progressId") Integer progressId, @Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
 		Integer memberId = memberPrincipal.getMemberId();
 

@@ -33,7 +33,7 @@ public class MoveSimulationApiController {
 	@ApiResponse(responseCode = "204", description = "사전정보 저장 및 단계 이동 성공")
 	@PostMapping("/{progressId}/start")
 	public ResponseEntity<Void> startMoveSimulation(@PathVariable Integer progressId,
-			@AuthenticationPrincipal MemberPrincipal memberPrincipal,
+			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal,
 			@Valid @RequestBody MovePreparationRequestDTO requestdto) {
 
 		moveSimulationService.startMoveSimulation(progressId, memberPrincipal.getMemberId(), requestdto);
@@ -46,7 +46,7 @@ public class MoveSimulationApiController {
 	@ApiResponse(responseCode = "200", description = "신청인 정보 조회 성공")
 	@GetMapping("/{progressId}/applicant")
 	public SimulationFamily getApplicant(@PathVariable Integer progressId,
-			@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		return moveSimulationService.getApplicant(progressId, memberPrincipal.getMemberId());
 	}
 }

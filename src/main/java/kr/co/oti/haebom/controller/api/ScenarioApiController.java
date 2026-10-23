@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.domain.ScenarioStep;
@@ -38,7 +39,7 @@ public class ScenarioApiController {
         description = "조회 성공"
     )
 	@GetMapping
-	public List<ScenarioListItemDTO> getScenarioList(@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	public List<ScenarioListItemDTO> getScenarioList(@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 	    return scenarioService.getScenarioList(memberPrincipal.getMemberId());
 	}
     
@@ -79,7 +80,7 @@ public class ScenarioApiController {
         description = "생성 성공"
     )
 	@PostMapping("/{scenarioId}/start")
-	public Integer postScenarioStart(@PathVariable("scenarioId") Integer scenarioId, @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	public Integer postScenarioStart(@PathVariable("scenarioId") Integer scenarioId, @Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 	    return simulationService.startSimulation(scenarioId, memberPrincipal.getMemberId());
 	}
 }
