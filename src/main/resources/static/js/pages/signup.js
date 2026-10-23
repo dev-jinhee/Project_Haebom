@@ -24,6 +24,130 @@
         element.hidden = !message;
     }
 
+    // 검사 결과를 입력칸 아래에 표시합니다.
+    function setFieldStatus(input, statusId, message, state) {
+        const status = document.getElementById(statusId);
+        if (status === null) return;
+
+        status.textContent = message;
+        status.classList.remove('text-success', 'text-danger', 'text-muted');
+        status.classList.add(state === 'valid' ? 'text-success'
+            : state === 'invalid' ? 'text-danger' : 'text-muted');
+        input.setAttribute('aria-invalid', String(state === 'invalid'));
+    }
+
+    function validateSignupName() {
+        const input = document.getElementById('signupName');
+        if (input === null) return false;
+
+        const name = input.value.trim();
+        const valid = name.length > 0 && name.length <= 20
+            && /^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]+$/.test(name);
+        const message = name.length === 0 ? '이름을 입력해 주세요.'
+            : valid ? ''
+                : '한글·영문·공백만 입력할 수 있습니다. (20자 이내)';
+
+        setFieldStatus(input, 'signupNameStatus', message,
+            name.length === 0 || !valid ? 'invalid' : 'valid');
+        return valid;
+    }
+
+    function filterSignupName(input) {
+        input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]/g, '');
+    }
+
+    function showSignupNameGuidance() {
+        const input = document.getElementById('signupName');
+        if (input === null) return;
+
+        setFieldStatus(input, 'signupNameStatus', '이름을 입력해 주세요.', 'neutral');
+    }
+
+    function showSignupPasswordGuidance() {
+        const input = document.getElementById('signupPassword');
+        if (input === null) return;
+
+        const guidance = '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.';
+        setFieldStatus(input, 'signupPasswordStatus', guidance, 'neutral');
+    }
+
+    function validateSignupPassword() {
+        const input = document.getElementById('signupPassword');
+        if (input === null) return false;
+
+        const password = input.value;
+        if (password.length === 0) {
+            showSignupPasswordGuidance();
+            return false;
+        }
+
+        const validLength = password.length >= 8 && password.length <= 20;
+        const hasForbiddenCharacter = /[><_\-"']/.test(password);
+        const valid = validLength && !hasForbiddenCharacter;
+        const message = !validLength ? '8~20자로 입력해 주세요.'
+            : hasForbiddenCharacter ? '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.'
+                : '사용 가능한 비밀번호입니다.';
+
+        setFieldStatus(input, 'signupPasswordStatus', message, valid ? 'valid' : 'invalid');
+        return valid;
+    }
+
+    function validatePasswordConfirmation() {
+        const passwordInput = document.getElementById('signupPassword');
+        const confirmInput = document.getElementById('signupPasswordConfirm');
+        if (passwordInput === null || confirmInput === null) return false;
+
+        const confirmation = confirmInput.value;
+        const valid = confirmation.length > 0 && confirmation === passwordInput.value;
+        const message = confirmation.length === 0 ? '비밀번호를 다시 입력해 주세요.'
+            : valid ? '비밀번호가 일치합니다.' : '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.';
+
+        setFieldStatus(confirmInput, 'signupPasswordConfirmStatus', message,
+            confirmation.length === 0 ? 'neutral' : valid ? 'valid' : 'invalid');
+        return valid;
+    }
+
+    function showPasswordConfirmationGuidance() {
+        const confirmInput = document.getElementById('signupPasswordConfirm');
+        if (confirmInput === null) return;
+
+        setFieldStatus(confirmInput, 'signupPasswordConfirmStatus', '비밀번호를 다시 입력해 주세요.', 'neutral');
+    }
+
+    function bindImmediateValidation() {
+        const nameInput = document.getElementById('signupName');
+        const passwordInput = document.getElementById('signupPassword');
+        if (nameInput !== null) {
+            nameInput.addEventListener('input', function (event) {
+                if (event.isComposing) return;
+                filterSignupName(nameInput);
+            });
+            nameInput.addEventListener('compositionend', function () {
+                filterSignupName(nameInput);
+            });
+            nameInput.addEventListener('focus', showSignupNameGuidance);
+            nameInput.addEventListener('blur', function () {
+                filterSignupName(nameInput);
+                validateSignupName();
+            });
+        }
+
+        if (passwordInput !== null) {
+            passwordInput.addEventListener('input', function () {
+                validatePasswordConfirmation();
+            });
+            passwordInput.addEventListener('focus', showSignupPasswordGuidance);
+            passwordInput.addEventListener('blur', validateSignupPassword);
+        }
+
+        const passwordConfirmInput = document.getElementById('signupPasswordConfirm');
+        if (passwordConfirmInput !== null) {
+            passwordConfirmInput.addEventListener('focus', showPasswordConfirmationGuidance);
+            passwordConfirmInput.addEventListener('blur', validatePasswordConfirmation);
+        }
+
+    }
+
     // 지정한 가입 단계만 화면에 표시합니다.
     function showStep(activeIndex) {
         for (let i = 0; i < steps.length; i++) {
@@ -94,20 +218,20 @@
         });
     }
 
-    // 등록번호 입력란에는 숫자만 남깁니다.
-    function allowDigitsOnly(inputId) {
-        const input = document.getElementById(inputId);
-        if (input === null) {
-            return;
-        }
+    bindImmediateValidation();
 
-        input.addEventListener('input', function (event) {
-            event.currentTarget.value = event.currentTarget.value.replace(/\D/g, '');
+    document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const input = document.getElementById(button.dataset.togglePassword);
+            const icon = button.querySelector('.material-symbols-outlined');
+            if (input === null || icon === null) return;
+
+            const showPassword = input.type === 'password';
+            input.type = showPassword ? 'text' : 'password';
+            icon.textContent = showPassword ? 'visibility' : 'visibility_off';
+            button.setAttribute('aria-label', showPassword ? '비밀번호 숨기기' : '비밀번호 표시');
         });
-    }
-
-    allowDigitsOnly('registrationNumberFront');
-    allowDigitsOnly('registrationNumberBackFirstDigit');
+    });
 
     // 아이디 중복 확인 버튼의 현재 화면 동작입니다.
     const idCheckButton = document.querySelector('[data-check-id]');
@@ -135,6 +259,16 @@
             event.preventDefault();
             setError(accountError, '');
 
+            if (!validateSignupName()) {
+                document.getElementById('signupName').focus();
+                return;
+            }
+
+            if (!validateSignupPassword()) {
+                document.getElementById('signupPassword').focus();
+                return;
+            }
+
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
@@ -152,18 +286,20 @@
 
             if (password !== passwordConfirm) {
                 setError(accountError, page.dataset.passwordError);
+                validatePasswordConfirmation();
                 passwordConfirmInput.focus();
                 return;
             }
 
-            // API가 받는 DTO 필드명과 같은 이름으로 요청 데이터를 만듭니다.
+            // 생년월일·성별 필드는 이후 회원가입 API DTO와 맞춰야 합니다.
+            const selectedGender = form.querySelector('input[name="gender"]:checked');
             const requestData = {
                 memberName: document.getElementById('signupName').value.trim(),
                 loginId: document.getElementById('signupId').value.trim(),
                 password: password,
                 email: document.getElementById('signupEmail').value.trim(),
-                registrationNumberFront: document.getElementById('registrationNumberFront').value,
-                registrationNumberBackFirstDigit: document.getElementById('registrationNumberBackFirstDigit').value,
+                birthDate: document.getElementById('signupBirthDate').value || null,
+                gender: selectedGender === null ? null : selectedGender.value,
                 termsAgreed: consent !== null && consent.checked
             };
 
