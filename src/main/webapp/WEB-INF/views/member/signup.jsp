@@ -152,8 +152,21 @@
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupEmail">이메일 <em>(필수)</em></label>
-                <input class="form-control" type="email" id="signupEmail" autocomplete="email" maxlength="50" required>
+                <div class="input-group">
+                    <input class="form-control" type="email" id="signupEmail"
+                           autocomplete="email" maxlength="50" required>
+                    <button class="btn btn-outline-primary" type="button"
+                            data-send-email-code>인증번호 받기</button>
+                </div>
                 <p class="member-signup-field-help">아이디·비밀번호 찾기에 사용할 이메일을 입력해 주세요.</p>
+                <p class="member-signup-field-help" id="signupEmailSendStatus" aria-live="polite"></p>
+                <div class="input-group mt-2">
+                    <input class="form-control" id="signupEmailCode" inputmode="numeric"
+                           maxlength="6" placeholder="인증번호 6자리">
+                    <button class="btn btn-outline-secondary" type="button"
+                            data-verify-email-code>인증 확인</button>
+                </div>
+                <p class="member-signup-field-help" id="signupEmailVerifyStatus" aria-live="polite"></p>
             </div>
 
             <div class="member-signup-field">
