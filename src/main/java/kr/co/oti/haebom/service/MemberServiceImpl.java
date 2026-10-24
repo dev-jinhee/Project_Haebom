@@ -18,24 +18,29 @@ public class MemberServiceImpl implements MemberService{
 	
 	@Override
 	@Transactional
-	public void join(MemberJoinRequestDTO request) {
+	public void join(MemberJoinRequestDTO request, String verifiedEmail) {
 		
 		if(request.getTermsAgreed() == null || !request.getTermsAgreed()) {
 			throw new IllegalArgumentException("필수 약관에 동의해 주세요.");
 		}
 		
+		String email = request.getEmail().trim().toLowerCase(java.util.Locale.ROOT);
+	    if (verifiedEmail == null || !email.equals(verifiedEmail)) {
+	        throw new IllegalArgumentException("회원가입 전 이메일 인증을 완료해 주세요.");
+	    }
+		
 		if(memberMapper.countByLoginId(request.getLoginId()) > 0) {
 			throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
 		}
 		
-		if(memberMapper.countByEmail(request.getEmail()) > 0) {
+		if(memberMapper.countByEmail(email) > 0) {
 			throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
 		}
 		
 		Member member = new Member();
 		member.setLoginId(request.getLoginId());
 		member.setPassword(passwordEncoder.encode(request.getPassword()));
-		member.setEmail(request.getEmail());
+		member.setEmail(email);
 		member.setMemberName(request.getMemberName());
 		member.setBirthDate(request.getBirthDate());
 		member.setGender(request.getGender());

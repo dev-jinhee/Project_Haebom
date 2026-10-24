@@ -4,7 +4,7 @@ import kr.co.oti.haebom.dto.MemberJoinRequestDTO;
 
 public interface MemberService {
 	
-	void join(MemberJoinRequestDTO  request);
+	void join(MemberJoinRequestDTO request, String verifiedEmail);
 	
 	boolean isLoginIdAvailable(String loginId);
 	
