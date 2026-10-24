@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.dto.MemberJoinRequestDTO;
 import kr.co.oti.haebom.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/members")
+@Tag(name = "회원가입", description = "회원가입 관련 API")
 public class MemberApiController {
 
 	private final MemberService memberService;
 
 	@PostMapping("/join")
 	@ResponseStatus(HttpStatus.CREATED)
+	@Operation(
+		    summary = "회원가입",
+		    description = "회원 정보를 입력받아 회원가입을 처리합니다."
+		)
 	public void join(@Valid @RequestBody MemberJoinRequestDTO request) {
 		memberService.join(request);
 	}

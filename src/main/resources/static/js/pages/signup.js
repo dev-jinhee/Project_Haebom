@@ -13,6 +13,7 @@
     const consentError = document.getElementById('signupConsentError');
     const accountError = document.getElementById('signupAccountError');
     const form = document.getElementById('signupAccountForm');
+    let checkedLoginId = null;
 
     // 오류 메시지를 표시하거나 지웁니다.
     function setError(element, message) {
@@ -233,22 +234,73 @@
         });
     });
 
-    // 아이디 중복 확인 버튼의 현재 화면 동작입니다.
+    // 중복확인 결과는 아이디가 바뀌면 더 이상 유효하지 않습니다.
+    const idField = document.getElementById('signupId');
+    const idStatus = document.getElementById('signupIdCheckStatus');
     const idCheckButton = document.querySelector('[data-check-id]');
-    if (idCheckButton !== null) {
-        idCheckButton.addEventListener('click', function () {
-            const idField = document.getElementById('signupId');
-            const status = document.getElementById('signupIdCheckStatus');
+    if (idField !== null) {
+        idField.addEventListener('input', function () {
+            checkedLoginId = null;
+            if (idStatus !== null) {
+                idStatus.textContent = '';
+                idStatus.classList.remove('text-success', 'text-danger');
+            }
+        });
+    }
 
-            if (idField === null || idField.value.trim() === '') {
-                if (idField !== null) {
-                    idField.focus();
+    if (idCheckButton !== null && idField !== null) {
+        idCheckButton.addEventListener('click', async function () {
+            const loginId = idField.value.trim();
+
+            if (!/^[A-Za-z0-9]{4,16}$/.test(loginId)) {
+                checkedLoginId = null;
+                idField.focus();
+                if (idStatus !== null) {
+                    idStatus.textContent =
+                        '아이디는 4~16자의 영문 대소문자와 숫자로 입력해 주세요.';
+                    idStatus.classList.remove('text-success', 'text-muted');
+                    idStatus.classList.add('text-danger');
                 }
                 return;
             }
 
-            if (status !== null) {
-                status.textContent = page.dataset.idCheckMessage || '';
+            idCheckButton.disabled = true;
+
+            try {
+                const url = page.dataset.contextPath
+                    + '/api/members/id-availability?loginId='
+                    + encodeURIComponent(loginId);
+                const response = await fetch(url, {
+                    headers: { Accept: 'application/json' }
+                });
+                const result = await response.json().catch(function () {
+                    return null;
+                });
+
+                if (!response.ok || result === null
+                        || typeof result.available !== 'boolean') {
+                    throw new Error('중복확인에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+                }
+
+                checkedLoginId = result.available ? loginId : null;
+                if (idStatus !== null) {
+                    idStatus.textContent = result.available
+                        ? '사용할 수 있는 아이디입니다.'
+                        : '이미 사용 중인 아이디입니다.';
+                    idStatus.classList.remove('text-muted');
+                    idStatus.classList.toggle('text-success', result.available);
+                    idStatus.classList.toggle('text-danger', !result.available);
+                }
+            } catch (error) {
+                checkedLoginId = null;
+                if (idStatus !== null) {
+                    idStatus.textContent =
+                        '중복확인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+                    idStatus.classList.remove('text-success', 'text-muted');
+                    idStatus.classList.add('text-danger');
+                }
+            } finally {
+                idCheckButton.disabled = false;
             }
         });
     }
@@ -291,11 +343,24 @@
                 return;
             }
 
+            const loginId = idField === null ? '' : idField.value.trim();
+            if (checkedLoginId !== loginId) {
+                if (idStatus !== null) {
+                    idStatus.textContent = '아이디 중복확인을 해주세요.';
+                    idStatus.classList.remove('text-success', 'text-muted');
+                    idStatus.classList.add('text-danger');
+                }
+                if (idField !== null) {
+                    idField.focus();
+                }
+                return;
+            }
+
             // 생년월일·성별 필드는 이후 회원가입 API DTO와 맞춰야 합니다.
             const selectedGender = form.querySelector('input[name="gender"]:checked');
             const requestData = {
                 memberName: document.getElementById('signupName').value.trim(),
-                loginId: document.getElementById('signupId').value.trim(),
+                loginId: loginId,
                 password: password,
                 email: document.getElementById('signupEmail').value.trim(),
                 birthDate: document.getElementById('signupBirthDate').value || null,
@@ -328,10 +393,11 @@
                 form.reset();
                 setError(accountError, '');
 
-                const idStatus = document.getElementById('signupIdCheckStatus');
                 if (idStatus !== null) {
                     idStatus.textContent = '';
+                    idStatus.classList.remove('text-success', 'text-danger');
                 }
+                checkedLoginId = null;
 
                 showStep(2);
             } catch (error) {
