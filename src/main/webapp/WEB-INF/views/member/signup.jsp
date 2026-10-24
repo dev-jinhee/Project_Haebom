@@ -16,7 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-9" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-10" rel="stylesheet">
 </head>
 <body class="member-signup-page"
       data-context-path="${pageContext.request.contextPath}"
@@ -202,8 +202,26 @@
     </section>
 </main>
 
+<div class="modal" id="signupNoticeModal" tabindex="-1"
+     aria-labelledby="signupNoticeTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered signup-notice-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="signupNoticeTitle">안내</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="닫기"></button>
+            </div>
+            <div class="modal-body" id="signupNoticeMessage"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script src="${pageContext.request.contextPath}/js/pages/signup.js?v=signup-validation-10"></script>
+<script src="${pageContext.request.contextPath}/js/pages/signup.js?v=signup-modal-11"></script>
 </body>
 </html>

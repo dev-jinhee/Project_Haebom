@@ -14,6 +14,22 @@
     const accountError = document.getElementById('signupAccountError');
     const form = document.getElementById('signupAccountForm');
     let checkedLoginId = null;
+    const signupNoticeElement = document.getElementById('signupNoticeModal');
+    const signupNoticeMessage = document.getElementById('signupNoticeMessage');
+    const signupNoticeModal = signupNoticeElement !== null
+            && window.bootstrap !== undefined
+        ? window.bootstrap.Modal.getOrCreateInstance(signupNoticeElement)
+        : null;
+
+    function showSignupNotice(message) {
+        if (signupNoticeMessage !== null && signupNoticeModal !== null) {
+            signupNoticeMessage.textContent = message;
+            signupNoticeModal.show();
+            return;
+        }
+
+        window.alert(message);
+    }
 
     // 오류 메시지를 표시하거나 지웁니다.
     function setError(element, message) {
@@ -255,12 +271,7 @@
             if (!/^[A-Za-z0-9]{4,16}$/.test(loginId)) {
                 checkedLoginId = null;
                 idField.focus();
-                if (idStatus !== null) {
-                    idStatus.textContent =
-                        '아이디는 4~16자의 영문 대소문자와 숫자로 입력해 주세요.';
-                    idStatus.classList.remove('text-success', 'text-muted');
-                    idStatus.classList.add('text-danger');
-                }
+                showSignupNotice('아이디는 4~16자의 영문 대소문자와 숫자로 입력해 주세요.');
                 return;
             }
 
@@ -284,21 +295,20 @@
 
                 checkedLoginId = result.available ? loginId : null;
                 if (idStatus !== null) {
-                    idStatus.textContent = result.available
-                        ? '사용할 수 있는 아이디입니다.'
-                        : '이미 사용 중인 아이디입니다.';
-                    idStatus.classList.remove('text-muted');
-                    idStatus.classList.toggle('text-success', result.available);
-                    idStatus.classList.toggle('text-danger', !result.available);
+                    idStatus.textContent = '';
+                    idStatus.classList.remove('text-success', 'text-danger', 'text-muted');
                 }
+                showSignupNotice(result.available
+                    ? '사용할 수 있는 아이디입니다.'
+                    : '이미 사용 중인 아이디입니다.');
             } catch (error) {
                 checkedLoginId = null;
                 if (idStatus !== null) {
-                    idStatus.textContent =
-                        '중복확인에 실패했습니다. 잠시 후 다시 시도해 주세요.';
-                    idStatus.classList.remove('text-success', 'text-muted');
-                    idStatus.classList.add('text-danger');
+                    idStatus.textContent = '';
+                    idStatus.classList.remove('text-success', 'text-danger', 'text-muted');
                 }
+                showSignupNotice(error.message
+                    || '중복확인에 실패했습니다. 잠시 후 다시 시도해 주세요.');
             } finally {
                 idCheckButton.disabled = false;
             }
