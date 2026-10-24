@@ -14,6 +14,7 @@
     const accountError = document.getElementById('signupAccountError');
     const form = document.getElementById('signupAccountForm');
     let checkedLoginId = null;
+    let verifiedEmail = null;
     const signupNoticeElement = document.getElementById('signupNoticeModal');
     const signupNoticeMessage = document.getElementById('signupNoticeMessage');
     const signupNoticeModal = signupNoticeElement !== null
@@ -315,6 +316,146 @@
         });
     }
 
+    // 이메일 인증 결과는 이메일이 바뀌면 폐기하고 서버에서 다시 인증합니다.
+    const emailField = document.getElementById('signupEmail');
+    const emailCodeField = document.getElementById('signupEmailCode');
+    const emailSendStatus = document.getElementById('signupEmailSendStatus');
+    const emailVerifyStatus = document.getElementById('signupEmailVerifyStatus');
+    const emailCsrfToken = document.getElementById('csrfToken');
+    const emailSendButton = document.querySelector('[data-send-email-code]');
+    const emailVerifyButton = document.querySelector('[data-verify-email-code]');
+
+    function showEmailMessage(element, message, success) {
+        if (element === null) return;
+
+        element.textContent = message;
+        element.classList.remove('text-success', 'text-danger');
+        if (message !== '') {
+            element.classList.add(success ? 'text-success' : 'text-danger');
+        }
+    }
+
+    if (emailField !== null) {
+        emailField.addEventListener('input', function () {
+            verifiedEmail = null;
+            if (emailCodeField !== null) emailCodeField.value = '';
+            showEmailMessage(emailSendStatus, '', false);
+            showEmailMessage(emailVerifyStatus, '', false);
+        });
+    }
+
+    if (emailSendButton !== null && emailField !== null) {
+        emailSendButton.addEventListener('click', async function () {
+            const email = emailField.value.trim();
+            if (!emailField.checkValidity()) {
+                emailField.reportValidity();
+                emailField.focus();
+                return;
+            }
+            if (emailCsrfToken === null) {
+                showEmailMessage(emailSendStatus,
+                    '보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.', false);
+                return;
+            }
+
+            emailSendButton.disabled = true;
+            try {
+                const response = await fetch(page.dataset.contextPath
+                        + '/api/members/email-verification/send', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': emailCsrfToken.value
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                const result = await response.json().catch(function () {
+                    return null;
+                });
+
+                if (!response.ok || result === null
+                        || typeof result.sent !== 'boolean') {
+                    throw new Error('인증번호 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+                }
+
+                if (emailField.value.trim() !== email) return;
+                verifiedEmail = null;
+                if (emailCodeField !== null) emailCodeField.value = '';
+                showEmailMessage(emailVerifyStatus, '', false);
+                showEmailMessage(emailSendStatus,
+                    result.sent ? '인증번호를 이메일로 보냈습니다.'
+                        : '이미 가입된 이메일입니다.', result.sent);
+            } catch (error) {
+                if (emailField.value.trim() === email) {
+                    showEmailMessage(emailSendStatus,
+                        error.message || '인증번호 발송에 실패했습니다.', false);
+                }
+            } finally {
+                emailSendButton.disabled = false;
+            }
+        });
+    }
+
+    if (emailVerifyButton !== null && emailField !== null && emailCodeField !== null) {
+        emailVerifyButton.addEventListener('click', async function () {
+            const email = emailField.value.trim();
+            const code = emailCodeField.value.trim();
+            if (!emailField.checkValidity()) {
+                emailField.reportValidity();
+                emailField.focus();
+                return;
+            }
+            if (!/^[0-9]{6}$/.test(code)) {
+                showEmailMessage(emailVerifyStatus,
+                    '인증번호 6자리를 입력해 주세요.', false);
+                emailCodeField.focus();
+                return;
+            }
+            if (emailCsrfToken === null) {
+                showEmailMessage(emailVerifyStatus,
+                    '보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.', false);
+                return;
+            }
+
+            emailVerifyButton.disabled = true;
+            try {
+                const response = await fetch(page.dataset.contextPath
+                        + '/api/members/email-verification/confirm', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': emailCsrfToken.value
+                    },
+                    body: JSON.stringify({ email: email, code: code })
+                });
+                const result = await response.json().catch(function () {
+                    return null;
+                });
+
+                if (!response.ok || result === null
+                        || typeof result.verified !== 'boolean') {
+                    throw new Error('이메일 인증 확인에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+                }
+
+                if (emailField.value.trim() !== email) return;
+                verifiedEmail = result.verified ? email : null;
+                showEmailMessage(emailVerifyStatus,
+                    result.verified ? '이메일 인증이 완료되었습니다.'
+                        : '인증번호가 틀렸거나 만료되었습니다.', result.verified);
+            } catch (error) {
+                verifiedEmail = null;
+                if (emailField.value.trim() === email) {
+                    showEmailMessage(emailVerifyStatus,
+                        error.message || '이메일 인증 확인에 실패했습니다.', false);
+                }
+            } finally {
+                emailVerifyButton.disabled = false;
+            }
+        });
+    }
+
     // 입력값을 확인한 뒤 회원가입 API에 요청을 보냅니다.
     if (form !== null) {
         form.addEventListener('submit', async function (event) {
@@ -366,13 +507,21 @@
                 return;
             }
 
+            const email = emailField === null ? '' : emailField.value.trim();
+            if (verifiedEmail !== email) {
+                showEmailMessage(emailVerifyStatus,
+                    '가입할 이메일 인증을 완료해 주세요.', false);
+                if (emailField !== null) emailField.focus();
+                return;
+            }
+
             // 생년월일·성별 필드는 이후 회원가입 API DTO와 맞춰야 합니다.
             const selectedGender = form.querySelector('input[name="gender"]:checked');
             const requestData = {
                 memberName: document.getElementById('signupName').value.trim(),
                 loginId: loginId,
                 password: password,
-                email: document.getElementById('signupEmail').value.trim(),
+                email: email,
                 birthDate: document.getElementById('signupBirthDate').value || null,
                 gender: selectedGender === null ? null : selectedGender.value,
                 termsAgreed: consent !== null && consent.checked
@@ -402,6 +551,7 @@
                 // 성공 응답은 201 Created이며 본문이 비어 있습니다.
                 form.reset();
                 setError(accountError, '');
+                verifiedEmail = null;
 
                 if (idStatus !== null) {
                     idStatus.textContent = '';
