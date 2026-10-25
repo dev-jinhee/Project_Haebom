@@ -1,5 +1,7 @@
 package kr.co.oti.haebom.dto;
 
+import java.time.LocalDate;
+
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -18,16 +20,17 @@ public class MemberJoinRequestDTO {
 	
 	@NotBlank
 	@Size(max = 20)
+	@Pattern(regexp = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]+$")
 	private String memberName;
 	
 	@NotBlank
-	@Size(min = 7, max = 15, message = "아이디는 7자 이상 15자 이하로 입력해 주세요.")
-	@Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디는 영문 대소문자와 숫자만 사용할 수 있습니다.")
+	@Size(min = 4, max = 16)
+	@Pattern(regexp = "^[a-zA-Z0-9]+$")
 	private String loginId;
 	
 	@NotBlank
-	@Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하로 입력해 주세요.")
-	@Pattern(regexp = "^[a-zA-Z0-9]+$", message = "비밀번호는 영문 대소문자와 숫자만 사용할 수 있습니다.")
+	@Size(min = 8, max = 20)
+	@Pattern(regexp = "^[^><_\"'-]+$")
 	private String password;
 	
 	@NotBlank
@@ -35,16 +38,13 @@ public class MemberJoinRequestDTO {
 	@Size(max = 50)
 	private String email;
 	
-	@NotBlank
-	@Pattern(regexp = "^[0-9]{6}$", message = "주민등록번호 또는 외국인등록번호 앞 6자리를 입력해 주세요.")
-	private String registrationNumberFront;
+	private LocalDate birthDate;
 	
-	@NotBlank
-	@Pattern(regexp = "^[1-8]$", message = "주민등록번호 또는 외국인등록번호의 뒤 첫 숫자를 확인해 주세요.")
-	private String registrationNumberBackFirstDigit;
+	@Pattern(regexp = "^[MF]$")
+	private String gender;
 	
 	@NotNull
-    @AssertTrue(message = "필수 약관에 동의해 주세요.")
+    @AssertTrue
 	private Boolean termsAgreed;
 	
 }
