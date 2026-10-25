@@ -178,7 +178,7 @@
     </div>
 
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-completed-history-1"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-profile-api-1"></script>
 </body>
 </html>
 
