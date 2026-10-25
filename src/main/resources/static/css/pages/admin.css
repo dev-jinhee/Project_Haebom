@@ -722,8 +722,9 @@
 
 .admin-page [data-admin-page] .card-header .card-title {
 	float: none;
-	display: block;
-	width: 100%;
+	display: flex;
+	align-items: center;
+	width: auto;
 }
 
 .admin-page .admin-activity-card .card-header .card-title {
@@ -807,6 +808,26 @@
 
 .admin-activity-list {
 	padding: 3px 18px 7px;
+	max-height: 195px;
+	overflow-y: auto;
+}
+
+/* 슬림 모던 스크롤바 */
+.admin-activity-list::-webkit-scrollbar {
+	width: 5px;
+}
+
+.admin-activity-list::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.admin-activity-list::-webkit-scrollbar-thumb {
+	background-color: #cbd5e1;
+	border-radius: 4px;
+}
+
+.admin-activity-list::-webkit-scrollbar-thumb:hover {
+	background-color: #94a3b8;
 }
 
 .admin-activity-list>div {
@@ -2139,4 +2160,20 @@
 		align-items: flex-start !important;
 		flex-direction: column;
 	}
+}
+
+/* Excel Export Buttons */
+#btnExportMembersExcel,
+#btnExportInquiriesExcel {
+	transition: all 0.2s ease-in-out;
+	border-color: #198754;
+	color: #198754;
+}
+
+#btnExportMembersExcel:hover,
+#btnExportInquiriesExcel:hover {
+	background-color: #198754;
+	color: #fff;
+	transform: translateY(-1px);
+	box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);
 }

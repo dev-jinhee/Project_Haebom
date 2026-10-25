@@ -72,6 +72,9 @@
                 </div>
 
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+                <c:if test="${not empty param.redirect}">
+                    <input type="hidden" name="redirect" value="<c:out value='${param.redirect}' />">
+                </c:if>
 
                 <div class="login-help-row">
                     <span class="login-help-spacer" aria-hidden="true"></span>

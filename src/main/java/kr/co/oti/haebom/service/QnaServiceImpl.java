@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class QnaServiceImpl implements QnaService {
 
     private final QnaMapper qnaMapper;
+    private final AdminDashboardService adminDashboardService;
 
     // 1. 문의글 전체 목록 조회
     @Override
@@ -54,6 +55,7 @@ public class QnaServiceImpl implements QnaService {
     	}
     	qnaMapper.insertQnaAnswer(answerDTO);
     	qnaMapper.updateQnaStatus(qnaId, "ANSWERED");
+    	adminDashboardService.recordActivity(answerDTO.getMemberId(), "QNA", "ANSWER", qnaId);
     }
     
     // 6. 특정 문의글의 답변 목록 조회

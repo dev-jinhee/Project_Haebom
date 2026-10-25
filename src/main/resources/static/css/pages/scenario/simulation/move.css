@@ -138,28 +138,9 @@
     min-height: 42px;
 }
 
-/* ==============================
-   03. 1단계 해봄 시뮬레이션 안내
-   ============================== */
-.move-simulation-notice {
-    padding: 18px 20px;
-    background-color: #f1f6fa;
-    border: 1px solid #d9e5ed;
-    border-left: 4px solid #164166;
-    border-radius: 10px;
-    color: #334155;
-}
-
-.move-simulation-notice strong {
-    color: #164166;
-}
-
-.move-simulation-notice p {
-    line-height: 1.7;
-}
 
 /* ============================================================
-   04. 세대원 및 세대 정보
+   03. 세대원 및 세대 정보
    구성원 목록/세대 정보 영역의 보조 컴포넌트
    ============================================================ */
 
@@ -223,7 +204,7 @@
 
 
 /* ============================================================
-   05. 이사 사유
+   04. 이사 사유
    사유 선택 그리드 및 기타 입력
    ============================================================ */
 
@@ -254,7 +235,7 @@
 
 
 /* ============================================================
-   06. 주소 입력 및 검색 결과
+   05. 주소 입력 및 검색 결과
    현재 주소/전입 주소/건물 정보 및 검색 결과
    ============================================================ */
 
@@ -416,7 +397,7 @@
 
 
 /* ============================================================
-   07. 부가 서비스
+   06. 부가 서비스
    부가 민원서비스 항목
    ============================================================ */
 
@@ -477,7 +458,7 @@
 
 
 /* ============================================================
-   08. 동의 및 유의사항
+   07. 동의 및 유의사항
    안내문, 개인정보 동의, 확인 체크박스
    ============================================================ */
 
@@ -574,7 +555,7 @@
 
 
 /* ============================================================
-   09. 완료 후 조회 모드
+   08. 완료 후 조회 모드
    작성 내역 조회 시 수정 버튼 숨김 / 폼 값 가독성 유지
    ============================================================ */
 
@@ -586,4 +567,119 @@
 .simulation-page.is-completed .gov24-people-table :is(.form-control, .form-select):disabled {
     opacity: 1;
     color: #425466;
+}
+
+
+/* ============================================================
+   09. 전입신고 3단계 | 이전 주소 및 세대주 선택
+   기존 move.css의 공통 클래스 재사용:
+   .gov24-form-panel / .gov24-address-controls /
+   .gov24-result-table / .gov24-people-table
+   ============================================================ */
+
+.move-step3 .move-step3-block + .move-step3-block {
+    margin-top: 48px;
+}
+
+.move-step3 .move-step3-heading {
+    margin: 0 0 24px;
+    color: #1c2733;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.move-step3 .move-step3-required {
+    color: #53728c;
+    font-size: .86rem;
+    font-weight: 400;
+}
+
+/* 기존 .gov24-address-controls를 활용하고 줄바꿈만 보완 */
+.move-step3 .move-step3-address-controls {
+    flex-wrap: wrap;
+}
+
+.move-step3 .move-step3-address-controls .form-select {
+    flex: 0 1 230px;
+    width: 230px;
+    max-width: 100%;
+}
+
+/* 기존 .gov24-result-table 스타일을 유지하고 열 비율만 조정 */
+.move-step3 .move-step3-info-table th {
+    width: 25%;
+}
+
+/* 기존 .gov24-people-table 기반 3단계 전용 열 배분 */
+.move-step3 .move-step3-people-table {
+    table-layout: fixed;
+    min-width: 740px;
+}
+
+.move-step3 .move-step3-col-check    { width: 10%; }
+.move-step3 .move-step3-col-relation { width: 24%; }
+.move-step3 .move-step3-col-name     { width: 27%; }
+.move-step3 .move-step3-col-birth    { width: 25%; }
+.move-step3 .move-step3-col-gender   { width: 14%; }
+
+.move-step3 .move-step3-people-table th:first-child,
+.move-step3 .move-step3-people-table td:first-child {
+    width: auto;
+}
+
+.move-step3 .move-step3-people-table .form-select {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+}
+
+.move-step3 .move-step3-people-table .form-check-input {
+    width: 19px;
+    height: 19px;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.move-step3 .move-step3-phone-heading {
+    margin-top: 32px;
+}
+
+.move-step3 .move-step3-phone-group {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    max-width: 600px;
+}
+
+.move-step3 .move-step3-phone-group .form-control {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    min-height: 56px;
+    border-color: #858585;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.move-step3 .move-step3-phone-group span {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 800px) {
+    .move-step3 .move-step3-panel {
+        padding: 22px 18px;
+    }
+
+    .move-step3 .move-step3-address-controls .form-select {
+        flex: 1 1 200px;
+        width: auto;
+    }
+
+    .move-step3 .move-step3-phone-group {
+        gap: 8px;
+    }
+
+    .move-step3 .move-step3-phone-group .form-control {
+        min-height: 48px;
+    }
 }
