@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-layout-2" rel="stylesheet">
 </head>
 <body class="login-page">
     <div class="account-screen-tools dropdown">

@@ -38,7 +38,6 @@
 
         <section class="login-card account-find-card" aria-labelledby="findPasswordTitle">
             <header class="account-find-heading">
-                <span class="login-symbol material-symbols-outlined" aria-hidden="true">lock_reset</span>
                 <h1 id="findPasswordTitle">비밀번호 찾기</h1>
                 <p>가입 정보 확인을 위해 아이디, 이름, 이메일을 입력해 주세요.</p>
             </header>
