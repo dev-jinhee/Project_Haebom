@@ -20,6 +20,7 @@
     <!-- HTML attribute 문맥에서는 c:out으로 이스케이프 후 value로 읽음 (JS 문자열에 직접 삽입하지 않음) -->
     <input type="hidden" id="inputYn" value="<c:out value='${param.inputYn}' />">
     <input type="hidden" id="roadFullAddr" value="<c:out value='${param.roadFullAddr}' />">
+    <input type="hidden" id="addrDetail" value="<c:out value='${param.addrDetail}' />">
     <input type="hidden" id="roadAddrPart1" value="<c:out value='${param.roadAddrPart1}' />">
     <input type="hidden" id="jibunAddr" value="<c:out value='${param.jibunAddr}' />">
     <input type="hidden" id="zipNo" value="<c:out value='${param.zipNo}' />">
@@ -42,6 +43,7 @@
                 const result = {
                     roadFullAddr: val("roadFullAddr"),
                     roadAddrPart1: val("roadAddrPart1"),
+                    addrDetail: val("addrDetail"),
                     jibunAddr: val("jibunAddr"),
                     zipNo: val("zipNo"),
                     admCd: val("admCd"),

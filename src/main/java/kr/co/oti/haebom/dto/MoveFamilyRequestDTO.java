@@ -21,6 +21,8 @@ public class MoveFamilyRequestDTO {
         private Integer familyId;
 
         private String moveStatus;
+        
+        private String phoneNum;
 
         private String relationship;
 

@@ -17,8 +17,11 @@ public interface MoveSimulationService {
 	void updateApplicantPhone(Integer progressId, Integer memberId, String phoneNum);
 
 	// 가족 정보 조회
-	List<SimulationFamily> getFamily(Integer progressId, Integer memberId);
-	
-	//전입신고 가족 정보 변경- 이사가는 가족정보 및 새 세대주 정보 변경
+	List<SimulationFamily> getFamily(Integer progressId, Integer memberId, String moveStatus);
+
+	// 전입신고 가족 정보 변경- 이사가는 가족정보 및 새 세대주 정보 변경
 	void updateFamilyMove(Integer progressId, Integer memberId, MoveFamilyRequestDTO requestDTO);
+
+	//전입신고 4단계 이사간 가족 세대주 관련 정보 수정
+	void updateCurrentFamily(Integer progressId, Integer memberId, MoveFamilyRequestDTO requestDTO);
 }

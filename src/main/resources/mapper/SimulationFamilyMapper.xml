@@ -14,50 +14,68 @@
 		original_relationship
 		)
 		values(
-			#{progressId},
-			#{familyName},
-			#{birthDate},
-			#{gender},
-			#{isApplicant},
-			#{isOriginalHead},
-			#{originalRelationship}
+		#{progressId},
+		#{familyName},
+		#{birthDate},
+		#{gender},
+		#{isApplicant},
+		#{isOriginalHead},
+		#{originalRelationship}
 		)
 	</insert>
-	
+
 	<!-- 가족 구성원 조회 -->
-	<select id="selectFamily" resultType="kr.co.oti.haebom.domain.SimulationFamily">
+	<select id="selectFamily"
+		resultType="kr.co.oti.haebom.domain.SimulationFamily">
 		select *
 		from simulation_family
-		where progress_id = #{progressId}
+		where progress_id =
+		#{progressId}
 	</select>
-	
-	<select id="selectApplicant" resultType="kr.co.oti.haebom.domain.SimulationFamily">
+
+	<select id="selectApplicant"
+		resultType="kr.co.oti.haebom.domain.SimulationFamily">
 		select *
 		from simulation_family
-		where progress_id = #{progressId}
-			and is_applicant = 1
+		where progress_id =
+		#{progressId}
+		and is_applicant = 1
 	</select>
-	
+
 	<update id="updateApplicantPhone">
 		update simulation_family
 		set phone_num = #{phoneNum}
 		where progress_id = #{progressId}
-			and is_applicant = 1
+		and is_applicant = 1
 	</update>
-	
+
 	<update id="updateFamilyMoveState">
 		update simulation_family
-		set move_status = #{moveStatus},
-			relationship = #{relationship},
-			is_household_head = #{isHouseholdHead}
+		set move_status =
+		#{moveStatus},
+		relationship = #{relationship},
+		is_household_head =
+		#{isHouseholdHead}
 		where progress_id = #{progressId}
-			and family_id = #{familyId}
+		and family_id =
+		#{familyId}
 	</update>
-	
+
 	<update id="updateFamilyPhone">
 		update simulation_family
 		set phone_num = #{phoneNum}
 		where progress_id = #{progressId}
-			and family_id = #{familyId}
+		and family_id = #{familyId}
+	</update>
+
+	<!-- 4단계: 이사 가족의 세대주 및 연락처 변경 -->
+	<update id="updateMovingFamilyHousehold">
+		UPDATE simulation_family
+		SET relationship = #{member.relationship},
+		is_household_head = #{member.isHouseholdHead},
+		phone_num = #{member.phoneNum}
+		WHERE progress_id = #{progressId}
+		AND family_id = #{member.familyId}
+		AND move_status = 'MOVE'
 	</update>
 </mapper>
