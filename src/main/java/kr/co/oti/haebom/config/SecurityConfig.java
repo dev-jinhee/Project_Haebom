@@ -18,6 +18,7 @@ public class SecurityConfig {
                 .ignoringAntMatchers("/api/**")
             )
             .authorizeRequests(auth -> auth
+                .antMatchers("/api/mypage/**").authenticated()
                 .antMatchers("/", "/login", "/error", "/member/signup", "/member/find-id", "/member/find-password",
                         "/api/members/join", "/admin/**",
                         "/inquiry/**", "/inquiries/**", "/css/**", "/js/**", "/images/**", "/api/**",
