@@ -1,5 +1,7 @@
 (function () {
     const toast = window.Haebom.toast;
+    const page = document.getElementById('mypage-content');
+    const completedHistory = [];
 
     function openModal(selector) {
         const modalElement = document.querySelector(selector);
@@ -19,64 +21,152 @@
 
     function handleTabClick(event) {
         const selectedTab = event.currentTarget;
-        const tabs = document.querySelectorAll('[data-my-tab]');
+        const selectedPanel = selectedTab.dataset.myTab;
+        const tabs = document.querySelectorAll('.mypage-tabs [data-my-tab]');
         const panels = document.querySelectorAll('[data-my-panel]');
 
         tabs.forEach(function (tab) {
-            tab.classList.toggle('active', tab === selectedTab);
+            const isSelected = tab.dataset.myTab === selectedPanel;
+            tab.classList.toggle('active', isSelected);
+            if (isSelected) {
+                tab.setAttribute('aria-current', 'page');
+            } else {
+                tab.removeAttribute('aria-current');
+            }
         });
 
         panels.forEach(function (panel) {
             panel.classList.toggle(
                 'd-none',
-                panel.dataset.myPanel !== selectedTab.dataset.myTab
+                panel.dataset.myPanel !== selectedPanel
             );
         });
     }
 
-    function handleOpenPasswordChange() {
-        openModal('#passwordChangeModal');
-    }
-
-    function handleOpenEmailChange() {
-        const currentEmailInput = document.getElementById('currentEmail');
-        const profileEmail = document.querySelector('[data-profile-email]');
-
-        if (currentEmailInput && profileEmail) {
-            currentEmailInput.value = profileEmail.textContent.trim();
+    function formatDate(value) {
+        if (!value) {
+            return '완료일 정보 없음';
         }
 
-        openModal('#emailChangeModal');
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return '완료일 정보 없음';
+        }
+
+        return new Intl.DateTimeFormat('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).format(date);
     }
 
-    function handleEmailChange(event) {
-        event.preventDefault();
+    function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+            return {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[character];
+        });
+    }
 
-        const newEmailInput = document.getElementById('newEmail');
-        const email = newEmailInput ? newEmailInput.value.trim() : '';
-
-        if (!email) {
+    function renderCompletedList(target, records) {
+        if (!target) {
             return;
         }
 
-        localStorage.setItem('ongyeol-demo-email', email);
-
-        const profileEmails = document.querySelectorAll('[data-profile-email]');
-
-        profileEmails.forEach(function (profileEmail) {
-            profileEmail.textContent = email;
-        });
-
-        closeModal('#emailChangeModal');
-        event.currentTarget.reset();
-
-        const currentEmailInput = document.getElementById('currentEmail');
-
-        if (currentEmailInput) {
-            currentEmailInput.value = email;
+        if (records.length === 0) {
+            target.innerHTML = `
+                <div class="completed-history-empty">
+                    <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
+                    <strong>아직 완료한 연습이 없습니다.</strong>
+                    <p>시나리오를 완료하면 작성한 내용을 여기서 다시 볼 수 있어요.</p>
+                    <a class="btn btn-outline-primary btn-sm rounded-pill" href="${escapeHtml(page.dataset.scenarioListUrl)}">시나리오 둘러보기</a>
+                </div>`;
+            return;
         }
 
-        toast('이메일이 변경된 화면을 보여드립니다. 실제 이메일 인증은 연결되지 않았습니다.');
+        target.innerHTML = records.map(function (record) {
+            const scenario = record.scenario || {};
+            const progress = record.progress || {};
+            const completedAt = progress.completedAt || progress.lastSavedAt || progress.startedAt;
+
+            return `
+                <article class="completed-history-item">
+                    <span class="completed-history-icon material-symbols-outlined" aria-hidden="true">task_alt</span>
+                    <div class="completed-history-info">
+                        <h3>${escapeHtml(scenario.scenarioTitle || '시나리오')}</h3>
+                        <p>${escapeHtml(scenario.categoryLabel || scenario.categoryName || '행정절차 연습')}</p>
+                    </div>
+                    <time>${escapeHtml(formatDate(completedAt))}</time>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill" type="button" data-review-progress="${escapeHtml(progress.progressId)}">
+                        작성 내역 보기
+                    </button>
+                </article>`;
+        }).join('');
+    }
+
+    function renderCompletedHistory(records) {
+        const list = document.querySelector('[data-completed-list]');
+        renderCompletedList(list, records);
+    }
+
+    async function loadCompletedHistory() {
+        if (!page) {
+            return;
+        }
+
+        const list = document.querySelector('[data-completed-list]');
+        if (list) {
+            list.innerHTML = '<p class="text-secondary mb-0" role="status">완료 내역을 불러오는 중입니다.</p>';
+        }
+
+        try {
+            const response = await fetch(page.dataset.scenariosApiUrl, {
+                headers: { Accept: 'application/json' }
+            });
+            if (!response.ok) {
+                throw new Error('완료 내역을 불러오지 못했습니다.');
+            }
+
+            const scenarios = await response.json();
+            const records = scenarios
+                .filter(function (item) {
+                    return item && item.progress && item.progress.progressStatus === 'COMPLETED';
+                })
+                .sort(function (first, second) {
+                    const firstDate = new Date(first.progress.completedAt || first.progress.lastSavedAt || first.progress.startedAt || 0).getTime();
+                    const secondDate = new Date(second.progress.completedAt || second.progress.lastSavedAt || second.progress.startedAt || 0).getTime();
+                    return secondDate - firstDate;
+                });
+
+            completedHistory.splice(0, completedHistory.length, ...records);
+            renderCompletedHistory(completedHistory);
+        } catch (error) {
+            if (list) {
+                list.innerHTML = `
+                    <div class="completed-history-error" role="alert">
+                        <span>${escapeHtml(error.message || '완료 내역을 불러오지 못했습니다.')}</span>
+                        <button class="btn btn-outline-secondary btn-sm" type="button" data-retry-completed>다시 시도</button>
+                    </div>`;
+            }
+        }
+    }
+
+    function handleReviewClick(event) {
+        const button = event.target.closest('[data-review-progress]');
+        if (!button || !page) {
+            return;
+        }
+
+        sessionStorage.setItem('progressId', button.dataset.reviewProgress);
+        window.location.href = page.dataset.simulationUrl;
+    }
+
+    function handleOpenPasswordChange() {
+        openModal('#passwordChangeModal');
     }
 
     function handlePasswordChange(event) {
@@ -132,23 +222,25 @@
     function bindEvents() {
         bindClickEvents('[data-my-tab]', handleTabClick);
         bindClickEvents('[data-open-password-change]', handleOpenPasswordChange);
-        bindClickEvents('[data-open-email-change]', handleOpenEmailChange);
         bindClickEvents('[data-delete-account]', handleDeleteAccount);
         bindClickEvents('[data-confirm-delete]', handleConfirmDelete);
-
-        const emailChangeForm = document.getElementById('emailChangeForm');
-
-        if (emailChangeForm) {
-            emailChangeForm.addEventListener('submit', handleEmailChange);
-        }
 
         const passwordChangeForm = document.getElementById('passwordChangeForm');
 
         if (passwordChangeForm) {
             passwordChangeForm.addEventListener('submit', handlePasswordChange);
         }
+
+        document.addEventListener('click', function (event) {
+            if (event.target.closest('[data-review-progress]')) {
+                handleReviewClick(event);
+            } else if (event.target.closest('[data-retry-completed]')) {
+                loadCompletedHistory();
+            }
+        });
     }
 
     bindEvents();
+    loadCompletedHistory();
 }());
 
