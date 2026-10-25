@@ -155,10 +155,10 @@ public class AdminDashboardServiceImpl implements AdminDashboardService {
                 .completed(completed)
                 .build();
     }
-    // 3. 최근 운영자 활동 목록 조회 (최신 6건)
+    // 3. 최근 운영자 활동 목록 조회 (최신 10건)
     @Override
     public List<AdminActivityDTO> getRecentActivities() {
-        return adminDashboardMapper.selectRecentActivities(6);
+        return adminDashboardMapper.selectRecentActivities(10);
     }
     // 4. 운영자 활동 로그 기록
     @Override

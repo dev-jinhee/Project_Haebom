@@ -159,6 +159,7 @@ CREATE TABLE qna (
     qna_content TEXT NOT NULL COMMENT '문의 내용',
     qna_status VARCHAR(20) NOT NULL DEFAULT 'WAITING' COMMENT '문의 답변 상태 (WAITING/ANSWERING/ANSWERED)',
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE COMMENT '삭제 여부 (논리적 삭제)',
+    is_secret BOOLEAN NOT NULL DEFAULT FALSE COMMENT '비밀글 여부',
     qna_created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '문의 작성일',
     qna_updated_at DATETIME COMMENT '문의 수정일',
     CONSTRAINT fk_qna_member

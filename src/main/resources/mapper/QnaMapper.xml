@@ -15,6 +15,7 @@
             q.qna_content, 
             q.qna_status, 
             q.is_deleted, 
+            q.is_secret, 
             q.qna_created_at, 
             q.qna_updated_at, 
             qc.qna_category_name, 
@@ -47,14 +48,16 @@
             qna_title,
             qna_content,
             qna_status,
-            is_deleted
+            is_deleted, 
+            is_secret
         ) VALUES (
             #{memberId},
             #{qnaCategoryId},
             #{qnaTitle},
             #{qnaContent},
             'WAITING',
-            0
+            0, 
+            COALESCE(#{isSecret}, 0)
         )
     </insert>
     
@@ -71,7 +74,8 @@
         UPDATE qna 
         SET qna_category_id = #{qnaCategoryId},
             qna_title = #{qnaTitle},
-            qna_content = #{qnaContent},
+            qna_content = #{qnaContent}, 
+            is_secret = COALESCE(#{isSecret}, is_secret), 
             qna_updated_at = NOW()
         WHERE qna_id = #{qnaId}
     </update>
