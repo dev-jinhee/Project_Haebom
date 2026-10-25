@@ -43,6 +43,78 @@
         });
     }
 
+    function setProfileText(selector, value) {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.textContent = value == null || value === '' ? '정보 없음' : value;
+        }
+    }
+
+    function formatProfileDate(value, emptyLabel) {
+        if (!value) {
+            return emptyLabel;
+        }
+
+        const datePart = String(value).split('T')[0];
+        const match = datePart.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        return match ? `${match[1]}.${match[2]}.${match[3]}` : datePart;
+    }
+
+    function formatGender(value) {
+        if (value === 'M') {
+            return '남성';
+        }
+        if (value === 'F') {
+            return '여성';
+        }
+        return '미입력';
+    }
+
+    async function loadProfile() {
+        if (!page || !page.dataset.profileApiUrl) {
+            return;
+        }
+
+        try {
+            const response = await fetch(page.dataset.profileApiUrl, {
+                headers: { Accept: 'application/json' }
+            });
+
+            if (response.status === 401 || response.redirected) {
+                throw new Error('로그인 후 회원 정보를 확인할 수 있습니다.');
+            }
+            if (!response.ok) {
+                throw new Error('회원 정보를 불러오지 못했습니다.');
+            }
+
+            const profile = await response.json();
+            setProfileText('[data-profile-name]', profile.memberName);
+            setProfileText('[data-profile-login-id]', profile.loginId);
+            setProfileText('[data-profile-email]', profile.email);
+            setProfileText(
+                '[data-profile-birth-date]',
+                formatProfileDate(profile.birthDate, '미입력')
+            );
+            setProfileText('[data-profile-gender]', formatGender(profile.gender));
+            setProfileText(
+                '[data-profile-created-at]',
+                formatProfileDate(profile.createdAt, '정보 없음')
+            );
+        } catch (error) {
+            setProfileText('[data-profile-name]', '조회 실패');
+            setProfileText('[data-profile-login-id]', '조회 실패');
+            setProfileText('[data-profile-email]', '조회 실패');
+            setProfileText('[data-profile-birth-date]', '조회 실패');
+            setProfileText('[data-profile-gender]', '조회 실패');
+            setProfileText('[data-profile-created-at]', '조회 실패');
+
+            const status = document.querySelector('[data-mypage-status]');
+            if (status) {
+                status.textContent = error.message || '회원 정보를 불러오지 못했습니다.';
+            }
+        }
+    }
+
     function formatDate(value) {
         if (!value) {
             return '완료일 정보 없음';
@@ -241,6 +313,7 @@
     }
 
     bindEvents();
+    loadProfile();
     loadCompletedHistory();
 }());
 
