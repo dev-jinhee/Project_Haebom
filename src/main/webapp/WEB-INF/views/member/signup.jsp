@@ -3,7 +3,6 @@
 
 <spring:message code="signup.validation.consentRequired" var="consentRequiredMessage" />
 <spring:message code="signup.validation.passwordMismatch" var="passwordMismatchMessage" />
-<spring:message code="signup.idCheck.pending" var="idCheckPendingMessage" />
 
 <!doctype html>
 <html lang="ko">
@@ -21,8 +20,7 @@
 <body class="member-signup-page"
       data-context-path="${pageContext.request.contextPath}"
       data-consent-error="${consentRequiredMessage}"
-      data-password-error="${passwordMismatchMessage}"
-      data-id-check-message="${idCheckPendingMessage}">
+      data-password-error="${passwordMismatchMessage}">
 <header class="member-signup-header">
     <div class="container member-signup-header-inner">
         <a class="member-signup-brand" href="${pageContext.request.contextPath}/" aria-label="해봄 홈">
@@ -235,6 +233,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script src="${pageContext.request.contextPath}/js/pages/signup.js?v=signup-email-verification-19"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-1"></script>
 </body>
 </html>

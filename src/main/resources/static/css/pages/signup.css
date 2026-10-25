@@ -406,14 +406,6 @@
   -webkit-text-fill-color: #172b4d;
 }
 
-.member-signup-field .form-select {
-  min-height: 56px;
-  border-color: #b7c1cc;
-  border-radius: 8px;
-  color: #172b4d;
-  font-size: 1rem;
-}
-
 .member-signup-radio-field {
   min-width: 0;
   margin: 0;
@@ -458,11 +450,6 @@
 .member-signup-radio-field .member-signup-gender-options .form-check-label {
   color: #25384d;
   cursor: pointer;
-}
-
-.member-signup-field .form-select:focus {
-  border-color: #5792c4;
-  box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .14);
 }
 
 .member-signup-field .form-control[aria-invalid="true"] {
