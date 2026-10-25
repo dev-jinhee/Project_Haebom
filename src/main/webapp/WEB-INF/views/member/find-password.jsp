@@ -39,7 +39,6 @@
         <section class="login-card account-find-card" aria-labelledby="findPasswordTitle">
             <header class="account-find-heading">
                 <h1 id="findPasswordTitle">비밀번호 찾기</h1>
-                <p>가입 정보 확인을 위해 아이디, 이름, 이메일을 입력해 주세요.</p>
             </header>
 
             <form class="account-find-form" method="post"
@@ -57,7 +56,7 @@
                 <div class="mb-4">
                     <label class="form-label" for="email">이메일</label>
                     <input class="form-control" id="email" name="email" type="email"
-                           autocomplete="email" placeholder="가입한 이메일을 입력해 주세요" required>
+                           autocomplete="email" placeholder="회원가입 시 등록한 이메일을 입력해 주세요" required>
                 </div>
 
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
