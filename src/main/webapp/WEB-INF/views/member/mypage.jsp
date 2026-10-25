@@ -94,23 +94,24 @@
                         <dd data-profile-login-id>불러오는 중</dd>
                     </div>
                     <div>
-                        <dt>이메일</dt>
-                        <dd data-profile-email>불러오는 중</dd>
-                    </div>
-                    <div>
-                        <dt>생년월일</dt>
-                        <dd>
-                            <span data-profile-birth-date>불러오는 중</span>
-                            <small class="account-list-note">주민등록번호는 저장하지 않고, 가입 시 입력한 생년월일만 표시합니다.</small>
-                        </dd>
-                    </div>
-                    <div>
                         <dt>비밀번호</dt>
                         <dd>
                             <button class="btn btn-outline-primary btn-sm rounded-pill" type="button" data-open-password-change>
                                 비밀번호 수정
                             </button>
                         </dd>
+                    </div>
+                    <div>
+                        <dt>이메일</dt>
+                        <dd data-profile-email>불러오는 중</dd>
+                    </div>
+                    <div>
+                        <dt>생년월일</dt>
+                        <dd data-profile-birth-date>불러오는 중</dd>
+                    </div>
+                    <div>
+                        <dt>성별</dt>
+                        <dd data-profile-gender>불러오는 중</dd>
                     </div>
                     <div>
                         <dt>가입일</dt>
@@ -133,7 +134,7 @@
         <p class="small text-secondary mt-3" data-mypage-status role="status" aria-live="polite"></p>
     </main>
 
-    <div class="modal fade" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeTitle" aria-hidden="true">
+    <div class="modal" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <form id="passwordChangeForm">
