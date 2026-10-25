@@ -395,6 +395,17 @@
   font-size: 1rem;
 }
 
+.member-signup-field .form-control:disabled {
+  background-color: #e9ecef;
+  color: #172b4d;
+  opacity: 1;
+}
+
+.member-signup-field .form-control:disabled:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #e9ecef inset;
+  -webkit-text-fill-color: #172b4d;
+}
+
 .member-signup-field .form-select {
   min-height: 56px;
   border-color: #b7c1cc;

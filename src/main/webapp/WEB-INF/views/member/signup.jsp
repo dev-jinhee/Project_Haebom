@@ -16,7 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-10" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-11" rel="stylesheet">
 </head>
 <body class="member-signup-page"
       data-context-path="${pageContext.request.contextPath}"
@@ -163,7 +163,7 @@
                 <div class="input-group mt-2">
                     <input class="form-control" id="signupEmailCode" inputmode="numeric"
                            maxlength="6" placeholder="인증번호 6자리">
-                    <button class="btn btn-outline-secondary" type="button"
+                    <button class="btn btn-outline-primary" type="button"
                             data-verify-email-code>인증 확인</button>
                 </div>
                 <p class="member-signup-field-help" id="signupEmailVerifyStatus" aria-live="polite"></p>
@@ -235,6 +235,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script src="${pageContext.request.contextPath}/js/pages/signup.js?v=signup-email-verification-12"></script>
+<script src="${pageContext.request.contextPath}/js/pages/signup.js?v=signup-email-verification-19"></script>
 </body>
 </html>

@@ -62,23 +62,16 @@
         const valid = name.length > 0 && name.length <= 20
             && /^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]+$/.test(name);
         const message = name.length === 0 ? '이름을 입력해 주세요.'
-            : valid ? ''
+            : valid ? '이름을 입력해 주세요.'
                 : '한글·영문·공백만 입력할 수 있습니다. (20자 이내)';
 
         setFieldStatus(input, 'signupNameStatus', message,
-            name.length === 0 || !valid ? 'invalid' : 'valid');
+            name.length === 0 || !valid ? 'invalid' : 'neutral');
         return valid;
     }
 
     function filterSignupName(input) {
         input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]/g, '');
-    }
-
-    function showSignupNameGuidance() {
-        const input = document.getElementById('signupName');
-        if (input === null) return;
-
-        setFieldStatus(input, 'signupNameStatus', '이름을 입력해 주세요.', 'neutral');
     }
 
     function showSignupPasswordGuidance() {
@@ -143,7 +136,6 @@
             nameInput.addEventListener('compositionend', function () {
                 filterSignupName(nameInput);
             });
-            nameInput.addEventListener('focus', showSignupNameGuidance);
             nameInput.addEventListener('blur', function () {
                 filterSignupName(nameInput);
                 validateSignupName();
@@ -238,6 +230,17 @@
 
     bindImmediateValidation();
 
+    const birthDateInput = document.getElementById('signupBirthDate');
+    if (birthDateInput !== null && typeof birthDateInput.showPicker === 'function') {
+        birthDateInput.addEventListener('click', function () {
+            try {
+                birthDateInput.showPicker();
+            } catch (error) {
+                // 브라우저가 직접 제공하는 달력 버튼을 계속 사용할 수 있습니다.
+            }
+        });
+    }
+
     document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
         button.addEventListener('click', function () {
             const input = document.getElementById(button.dataset.togglePassword);
@@ -324,6 +327,8 @@
     const emailCsrfToken = document.getElementById('csrfToken');
     const emailSendButton = document.querySelector('[data-send-email-code]');
     const emailVerifyButton = document.querySelector('[data-verify-email-code]');
+    let emailExpiryTimer = null;
+    let emailExpiresAt = 0;
 
     function showEmailMessage(element, message, success) {
         if (element === null) return;
@@ -335,10 +340,57 @@
         }
     }
 
+    function clearEmailExpiryTimer() {
+        if (emailExpiryTimer !== null) {
+            window.clearInterval(emailExpiryTimer);
+            emailExpiryTimer = null;
+        }
+        emailExpiresAt = 0;
+    }
+
+    function updateEmailExpiryStatus() {
+        const remainingSeconds = Math.max(
+            0,
+            Math.ceil((emailExpiresAt - Date.now()) / 1000)
+        );
+
+        if (remainingSeconds === 0) {
+            clearEmailExpiryTimer();
+            showEmailMessage(
+                emailSendStatus,
+                '인증번호가 만료되었습니다. 다시 발송해 주세요.',
+                false
+            );
+            return;
+        }
+
+        const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+        const seconds = String(remainingSeconds % 60).padStart(2, '0');
+        showEmailMessage(
+            emailSendStatus,
+            '인증번호를 이메일로 보냈습니다. (' + minutes + ':' + seconds + ' 남음)',
+            true
+        );
+    }
+
+    function startEmailExpiryTimer() {
+        clearEmailExpiryTimer();
+        emailExpiresAt = Date.now() + (5 * 60 * 1000);
+        updateEmailExpiryStatus();
+        emailExpiryTimer = window.setInterval(updateEmailExpiryStatus, 1000);
+    }
+
     if (emailField !== null) {
         emailField.addEventListener('input', function () {
             verifiedEmail = null;
+            clearEmailExpiryTimer();
             if (emailCodeField !== null) emailCodeField.value = '';
+            if (emailVerifyButton !== null) {
+                emailVerifyButton.disabled = false;
+                emailVerifyButton.textContent = '인증 확인';
+                emailVerifyButton.classList.remove('btn-outline-success');
+                emailVerifyButton.classList.add('btn-outline-primary');
+            }
             showEmailMessage(emailSendStatus, '', false);
             showEmailMessage(emailVerifyStatus, '', false);
         });
@@ -346,6 +398,27 @@
 
     if (emailSendButton !== null && emailField !== null) {
         emailSendButton.addEventListener('click', async function () {
+            if (verifiedEmail !== null) {
+                verifiedEmail = null;
+                clearEmailExpiryTimer();
+                emailField.disabled = false;
+                emailField.focus();
+                if (emailCodeField !== null) {
+                    emailCodeField.value = '';
+                    emailCodeField.disabled = false;
+                }
+                if (emailVerifyButton !== null) {
+                    emailVerifyButton.disabled = false;
+                    emailVerifyButton.textContent = '인증 확인';
+                    emailVerifyButton.classList.remove('btn-outline-success');
+                    emailVerifyButton.classList.add('btn-outline-primary');
+                }
+                emailSendButton.textContent = '인증번호 받기';
+                showEmailMessage(emailSendStatus, '', false);
+                showEmailMessage(emailVerifyStatus, '', false);
+                return;
+            }
+
             const email = emailField.value.trim();
             if (!emailField.checkValidity()) {
                 emailField.reportValidity();
@@ -382,10 +455,20 @@
                 if (emailField.value.trim() !== email) return;
                 verifiedEmail = null;
                 if (emailCodeField !== null) emailCodeField.value = '';
+                if (emailVerifyButton !== null) {
+                    emailVerifyButton.disabled = !result.sent;
+                    emailVerifyButton.textContent = '인증 확인';
+                    emailVerifyButton.classList.remove('btn-outline-success');
+                    emailVerifyButton.classList.add('btn-outline-primary');
+                }
                 showEmailMessage(emailVerifyStatus, '', false);
-                showEmailMessage(emailSendStatus,
-                    result.sent ? '인증번호를 이메일로 보냈습니다.'
-                        : '이미 가입된 이메일입니다.', result.sent);
+                if (result.sent) {
+                    startEmailExpiryTimer();
+                    if (emailCodeField !== null) emailCodeField.disabled = false;
+                } else {
+                    clearEmailExpiryTimer();
+                    showEmailMessage(emailSendStatus, '이미 가입된 이메일입니다.', false);
+                }
             } catch (error) {
                 if (emailField.value.trim() === email) {
                     showEmailMessage(emailSendStatus,
@@ -441,6 +524,18 @@
 
                 if (emailField.value.trim() !== email) return;
                 verifiedEmail = result.verified ? email : null;
+                if (result.verified) {
+                    clearEmailExpiryTimer();
+                    showEmailMessage(emailSendStatus, '', false);
+                    emailField.disabled = true;
+                    emailCodeField.disabled = true;
+                    if (emailSendButton !== null) {
+                        emailSendButton.textContent = '이메일 변경';
+                    }
+                    emailVerifyButton.textContent = '인증 완료 ✓';
+                    emailVerifyButton.classList.remove('btn-outline-primary');
+                    emailVerifyButton.classList.add('btn-outline-success');
+                }
                 showEmailMessage(emailVerifyStatus,
                     result.verified ? '이메일 인증이 완료되었습니다.'
                         : '인증번호가 틀렸거나 만료되었습니다.', result.verified);
@@ -451,7 +546,7 @@
                         error.message || '이메일 인증 확인에 실패했습니다.', false);
                 }
             } finally {
-                emailVerifyButton.disabled = false;
+                emailVerifyButton.disabled = verifiedEmail === email;
             }
         });
     }
