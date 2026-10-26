@@ -62,7 +62,7 @@
   renderAdminPage();
 
   // ========================================================
-  // ⭐ [실제 DB 연동] 관리자 최근 활동 로그
+  // [실제 DB 연동] 관리자 최근 활동 로그
   // ========================================================
   const adminActivityIcons = {
     member: ['blue', 'bi-person-gear'],
@@ -111,7 +111,7 @@
 
     const items = activities;
 
-    items.slice(0, 6).forEach((activity) => {
+    items.slice(0, 10).forEach((activity) => {
       const typeKey = (activity.logType || 'member').toLowerCase();
       const [color, icon] = adminActivityIcons[typeKey] || adminActivityIcons.member;
       const row = document.createElement('div');
@@ -141,7 +141,7 @@
 
 
   // ========================================================
-  // ⭐ [실제 DB 연동] 관리자 대시보드 종합 통계
+  // [실제 DB 연동] 관리자 대시보드 종합 통계
   // ========================================================
   async function loadAdminDashboardStats() {
     try {
@@ -290,7 +290,7 @@
   }
 
   // ========================================================
-  // ⭐ [실제 DB 연동] 관리자 시나리오 관리
+  // [실제 DB 연동] 관리자 시나리오 관리
   // ========================================================
   let adminScenarioCache = [];
   let selectedAdminScenarioId = null;
@@ -407,6 +407,7 @@
     const categorySelect = document.getElementById('scenarioCategory');
     const minutesInput = document.getElementById('scenarioEstimatedMinutes');
     const statusSelect = document.getElementById('scenarioStatus');
+    const descInput = document.getElementById('scenarioDescription');
 
     if (titleEl) titleEl.textContent = scenario.scenarioTitle;
     if (idInput) idInput.value = scenario.scenarioId;
@@ -414,6 +415,7 @@
     if (categorySelect) categorySelect.value = scenario.categoryId || '1';
     if (minutesInput) minutesInput.value = scenario.estimatedMinutes || 5;
     if (statusSelect) statusSelect.value = scenario.isActive ? 'true' : 'false';
+    if (descInput) descInput.value = scenario.description || '';
 
     const descEl = document.getElementById('scenarioUsageDescription');
     if (descEl) descEl.textContent = `${scenario.scenarioTitle} 시나리오 운영 이후의 전체 이용 흐름입니다.`;
@@ -486,10 +488,12 @@
     const categorySelect = document.getElementById('scenarioCategory');
     const minutesInput = document.getElementById('scenarioEstimatedMinutes');
     const statusSelect = document.getElementById('scenarioStatus');
+    const descInput = document.getElementById('scenarioDescription');
 
     const updatePayload = {
       scenarioId: Number(selectedAdminScenarioId),
       scenarioTitle: nameInput.value.trim(),
+      description: descInput ? descInput.value.trim() : '',
       categoryId: Number(categorySelect?.value || 1),
       estimatedMinutes: Number(minutesInput.value),
       isActive: statusSelect.value === 'true'
@@ -607,7 +611,7 @@
   document.querySelector('[data-dashboard-trend-period]')?.addEventListener('change', renderDashboardTrend);
 
   // ========================================================
-  // ⭐ [실제 DB 연동] 관리자 회원 관리
+  // [실제 DB 연동] 관리자 회원 관리
   // ========================================================
   let adminMemberCache = [];
   let selectedAdminMemberId = null;
@@ -716,7 +720,7 @@
   });
 
   // ========================================================
-  // ⭐ [실제 DB 연동] 관리자 문의 게시판 관리
+  // [실제 DB 연동] 관리자 문의 게시판 관리
   // ========================================================
   let adminInquiryCache = [];
   let inquirySortDirection = 0; // 0: 기본, 1: 답변대기우선, -1: 답변완료우선
@@ -855,11 +859,13 @@
         : '<span class="badge text-bg-warning">답변 대기</span>';
       const dateText = qna.qnaCreatedAt ? String(qna.qnaCreatedAt).substring(0, 10).replace(/-/g, '.') : '';
       const responder = qna.responderLoginId || (isAnswered ? 'admin' : '—');
+      const isSecret = Boolean(qna.isSecret);
+      const secretBadge = isSecret ? '<span class="badge text-bg-secondary ms-1"><i class="bi bi-lock-fill me-1"></i>비밀글</span>' : '';
       const author = qna.memberName || ('회원' + qna.memberId);
 
       return `
         <tr data-inquiry-row data-inquiry-id="${qna.qnaId}">
-          <td class="ps-3"><strong>${escapeAdminHtml(qna.qnaTitle)}</strong></td>
+          <td class="ps-3"><strong>${escapeAdminHtml(qna.qnaTitle)}</strong> ${secretBadge}</td>
           <td>${escapeAdminHtml(author)}</td>
           <td>${escapeAdminHtml(qna.qnaCategoryName || '일반 문의')}</td>
           <td>${dateText}</td>
@@ -1032,6 +1038,130 @@
       console.error('문의 상태 변경 실패:', error);
       toast('변경사항 저장에 실패했습니다.');
     }
+  });
+  // ========================================================
+  // [엑셀 다운로드 기능] SheetJS 기반 Excel(.xlsx) 내보내기
+  // ========================================================
+
+  /**
+   * 공통 엑셀 파일 내보내기 헬퍼 함수
+   * @param {Array<Object>} rows - 엑셀에 들어갈 데이터 행 배열
+   * @param {string} fileName - 저장될 파일명 (확장자 제외)
+   * @param {string} sheetName - 엑셀 시트명
+   * @param {Array<Object>} colWidths - 컬럼별 너비 설정 (예: [{ wch: 10 }, { wch: 20 }])
+   */
+  const exportToExcelFile = (rows, fileName, sheetName = 'Sheet1', colWidths = []) => {
+    if (!window.XLSX) {
+      console.error('XLSX 라이브러리가 로드되지 않았습니다.');
+      toast('엑셀 라이브러리를 불러오지 못했습니다.');
+      return;
+    }
+
+    if (!rows || rows.length === 0) {
+      toast('다운로드할 데이터가 없습니다.');
+      return;
+    }
+
+    // 1. JSON 데이터를 워크시트로 변환
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+
+    // 2. 컬럼 너비(auto-width) 적용
+    if (colWidths && colWidths.length > 0) {
+      worksheet['!cols'] = colWidths;
+    }
+
+    // 3. 워크북 생성 및 시트 추가
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+    // 4. 날짜 문자열 생성 (YYYYMMDD_HHmm)
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const dateStr = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}`;
+    const fullFileName = `${fileName}_${dateStr}.xlsx`;
+
+    // 5. 파일 다운로드 트리거
+    XLSX.writeFile(workbook, fullFileName);
+    toast(`${fileName} 엑셀 파일이 다운로드되었습니다.`);
+  };
+
+  // 1) 회원 목록 엑셀 다운로드 이벤트
+  document.getElementById('btnExportMembersExcel')?.addEventListener('click', () => {
+    if (!adminMemberCache || adminMemberCache.length === 0) {
+      toast('다운로드할 회원 데이터가 없습니다.');
+      return;
+    }
+
+    const statusMap = {
+      'ACTIVE': '정상',
+      'SUSPENDED': '이용 정지',
+      'WITHDRAWN': '탈퇴'
+    };
+
+    const excelData = adminMemberCache.map((m, idx) => ({
+      '순번': idx + 1,
+      '회원 번호': m.memberId || '',
+      '이름': m.memberName || '',
+      '아이디': m.loginId || '',
+      '이메일': m.email || '',
+      '계정 상태': statusMap[m.memberStatus] || m.memberStatus || '알 수 없음',
+      '가입일시': m.createdAt ? String(m.createdAt).replace('T', ' ').substring(0, 19) : ''
+    }));
+
+    const colWidths = [
+      { wch: 8 },  // 순번
+      { wch: 12 }, // 회원 번호
+      { wch: 15 }, // 이름
+      { wch: 18 }, // 아이디
+      { wch: 26 }, // 이메일
+      { wch: 12 }, // 계정 상태
+      { wch: 22 }  // 가입일시
+    ];
+
+    exportToExcelFile(excelData, '해봄_회원목록', '회원목록', colWidths);
+  });
+
+  // 2) 문의 게시판 목록 엑셀 다운로드 이벤트
+  document.getElementById('btnExportInquiriesExcel')?.addEventListener('click', () => {
+    if (!adminInquiryCache || adminInquiryCache.length === 0) {
+      toast('다운로드할 문의 데이터가 없습니다.');
+      return;
+    }
+
+    const categoryNames = {
+      1: '회원·계정 문의',
+      2: '시뮬레이션 문의',
+      3: '오류·버그 신고',
+      4: '기타 문의'
+    };
+
+    const excelData = adminInquiryCache.map((qna, idx) => ({
+      '순번': idx + 1,
+      '문의 번호': qna.qnaId || '',
+      '문의 제목': qna.qnaTitle || '',
+      '비밀글 여부': qna.isSecret ? '비밀글' : '공개글',
+      '문의 분류': qna.qnaCategoryName || categoryNames[qna.qnaCategoryId] || `카테고리 ${qna.qnaCategoryId}`,
+      '작성자(ID)': qna.loginId || qna.memberName || '익명',
+      '답변 상태': qna.qnaStatus === 'ANSWERED' ? '답변 완료' : '답변 대기',
+      '담당자': qna.responderLoginId || qna.responderName || (qna.qnaStatus === 'ANSWERED' ? '관리자' : '미지정'),
+      '등록일시': qna.qnaCreatedAt ? String(qna.qnaCreatedAt).replace('T', ' ').substring(0, 19) : '',
+      '문의 내용': qna.qnaContent || ''
+    }));
+
+    const colWidths = [
+      { wch: 8 },  // 순번
+      { wch: 12 }, // 문의 번호
+      { wch: 30 }, // 문의 제목
+      { wch: 12 }, // 비밀글 여부
+      { wch: 18 }, // 문의 분류
+      { wch: 16 }, // 작성자
+      { wch: 12 }, // 답변 상태
+      { wch: 14 }, // 담당자
+      { wch: 22 }, // 등록일시
+      { wch: 45 }  // 문의 내용
+    ];
+
+    exportToExcelFile(excelData, '해봄_문의목록', '문의목록', colWidths);
   });
 
   // 8. 최초 DB 데이터 로드 실행

@@ -3,7 +3,6 @@
 
 <spring:message code="signup.validation.consentRequired" var="consentRequiredMessage" />
 <spring:message code="signup.validation.passwordMismatch" var="passwordMismatchMessage" />
-<spring:message code="signup.idCheck.pending" var="idCheckPendingMessage" />
 
 <!doctype html>
 <html lang="ko">
@@ -16,13 +15,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/signup.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-11" rel="stylesheet">
 </head>
 <body class="member-signup-page"
       data-context-path="${pageContext.request.contextPath}"
       data-consent-error="${consentRequiredMessage}"
-      data-password-error="${passwordMismatchMessage}"
-      data-id-check-message="${idCheckPendingMessage}">
+      data-password-error="${passwordMismatchMessage}">
 <header class="member-signup-header">
     <div class="container member-signup-header-inner">
         <a class="member-signup-brand" href="${pageContext.request.contextPath}/" aria-label="해봄 홈">
@@ -35,6 +33,7 @@
                 <button class="member-signup-size-button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정">
                     <span class="material-symbols-outlined" aria-hidden="true">text_fields</span>
                     <span data-mode-label>보통</span>
+                    <span class="material-symbols-outlined member-signup-size-caret" aria-hidden="true">arrow_drop_down</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" aria-label="글씨 크기 선택">
                     <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
@@ -76,39 +75,35 @@
         </li>
     </ol>
 
-    <section class="member-signup-card" id="signupStep0" aria-labelledby="signupConsentTitle">
+    <section class="member-signup-step" id="signupStep0" aria-labelledby="signupConsentTitle">
         <div class="member-signup-stage-title">
             <span><strong>1단계</strong> / 3단계</span>
             <h2 id="signupConsentTitle" tabindex="-1">약관동의</h2>
         </div>
-        <p class="member-signup-intro">회원가입에 필요한 안내를 확인하고 동의해 주세요.</p>
+        <div class="member-signup-card">
+            <p class="member-signup-intro">회원가입에 필요한 안내를 확인하고 동의해 주세요.</p>
 
-        <div class="member-signup-consent-row">
-            <input class="form-check-input" type="checkbox" id="signupRequiredConsent" aria-describedby="signupConsentDescription signupConsentError">
-            <label for="signupRequiredConsent">해봄 서비스 이용 및 개인정보 처리 안내에 동의합니다 <em>(필수)</em></label>
-        </div>
-        <p class="member-signup-consent-description" id="signupConsentDescription">필수 동의에 체크해야 다음 단계로 진행할 수 있습니다.</p>
-        <p class="member-signup-error" id="signupConsentError" role="alert" hidden></p>
+            <div class="member-signup-consent-row">
+                <input class="form-check-input" type="checkbox" id="signupRequiredConsent" aria-describedby="signupConsentDescription signupConsentError">
+                <label for="signupRequiredConsent">해봄 서비스 이용 및 개인정보 처리 안내에 동의합니다 <em>(필수)</em></label>
+            </div>
+            <p class="member-signup-consent-description" id="signupConsentDescription">필수 동의에 체크해야 다음 단계로 진행할 수 있습니다.</p>
+            <p class="member-signup-error" id="signupConsentError" role="alert" hidden></p>
 
-        <div class="member-signup-actions">
-            <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/login"><spring:message code="common.cancel" /></a>
-            <button class="btn btn-primary rounded-pill px-4" type="button" data-signup-next="1">
-                <spring:message code="common.next" />
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-            </button>
+            <div class="member-signup-actions">
+                <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/login"><spring:message code="common.cancel" /></a>
+                <button class="btn btn-primary rounded-pill px-4" type="button" data-signup-next="1">
+                    <spring:message code="common.next" />
+                    <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </button>
+            </div>
         </div>
     </section>
 
-    <section class="member-signup-card d-none" id="signupStep1" aria-labelledby="signupAccountTitle" aria-hidden="true">
+    <section class="member-signup-account-step d-none" id="signupStep1" aria-labelledby="signupAccountTitle" aria-hidden="true">
         <div class="member-signup-stage-title">
             <span><strong>2단계</strong> / 3단계</span>
             <h2 id="signupAccountTitle" tabindex="-1">회원정보입력</h2>
-        </div>
-
-        <div class="member-signup-type-label">개인 회원</div>
-        <div class="member-signup-privacy-note">
-            <span class="material-symbols-outlined" aria-hidden="true">info</span>
-            <p>주민등록번호 전체를 입력하지 마세요. 앞 6자리와 뒤 첫 자리만 입력합니다. 실제 개인정보 대신 가상 정보를 사용하는 것을 권장합니다.</p>
         </div>
 
         <form id="signupAccountForm" class="member-signup-fields" novalidate>
@@ -117,44 +112,81 @@
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupName">이름 <em>(필수)</em></label>
-                <input class="form-control" id="signupName" autocomplete="name" maxlength="20" placeholder="이름을 20자 이내로 입력해 주세요" required>
-            </div>
-
-            <div class="member-signup-field">
-                <label class="form-label" for="registrationNumberFront">주민등록번호 <em>(필수)</em></label>
-                <div class="member-signup-rrn-fields">
-                    <input class="form-control" id="registrationNumberFront" inputmode="numeric" autocomplete="off" maxlength="6" pattern="[0-9]{6}" placeholder="앞 6자리" aria-label="주민등록번호 앞 6자리" required>
-                    <span class="member-signup-rrn-divider" aria-hidden="true">-</span>
-                    <input class="form-control member-signup-rrn-first" id="registrationNumberBackFirstDigit" inputmode="numeric" autocomplete="off" maxlength="1" pattern="[1-8]" placeholder="뒤 첫 자리" aria-label="주민등록번호 뒤 첫 자리" required>
-                    <span class="member-signup-rrn-mask" aria-hidden="true">● ● ● ● ● ●</span>
-                </div>
+                    <input class="form-control" id="signupName" autocomplete="name" maxlength="20" required>
+                <p class="member-signup-field-help text-muted" id="signupNameStatus" aria-live="polite">이름을 입력해 주세요.</p>
             </div>
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupId">아이디 <em>(필수)</em></label>
                 <div class="input-group">
-                    <input class="form-control" id="signupId" autocomplete="username" minlength="7" maxlength="15" pattern="[A-Za-z0-9]+" placeholder="영문 대소문자와 숫자를 사용해 7~15자로 입력해 주세요" required>
+                    <input class="form-control" id="signupId" autocomplete="username" minlength="4" maxlength="16" pattern="[A-Za-z0-9]+" required>
                     <button class="btn btn-outline-primary" type="button" data-check-id>중복확인</button>
                 </div>
+                <p class="member-signup-field-help">아이디는 4~16자로 입력해 주세요.</p>
                 <p class="member-signup-field-help" id="signupIdCheckStatus" aria-live="polite"></p>
             </div>
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupPassword">비밀번호 <em>(필수)</em></label>
-                <input class="form-control" type="password" id="signupPassword" autocomplete="new-password" minlength="8" maxlength="20" pattern="[A-Za-z0-9]+" placeholder="영문 대소문자와 숫자를 사용해 8~20자로 입력해 주세요" required>
-                <p class="member-signup-field-help">비밀번호는 영문 대소문자와 숫자만 사용해 8~20자로 입력해 주세요.</p>
+                <div class="member-signup-password-wrap">
+                    <input class="form-control" type="password" id="signupPassword" autocomplete="new-password" minlength="8" maxlength="20" required>
+                    <button class="member-signup-password-toggle" type="button" data-toggle-password="signupPassword" aria-label="비밀번호 표시">
+                        <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                    </button>
+                </div>
+                <p class="member-signup-field-help member-signup-password-status text-muted" id="signupPasswordStatus" aria-live="polite">비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, &gt;, &lt;, _, -, &quot;, '는 사용할 수 없어요.</p>
             </div>
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupPasswordConfirm">비밀번호 확인 <em>(필수)</em></label>
-                <input class="form-control" type="password" id="signupPasswordConfirm" autocomplete="new-password" minlength="8" maxlength="20" pattern="[A-Za-z0-9]+" placeholder="비밀번호를 다시 입력해 주세요" required>
+                <div class="member-signup-password-wrap">
+                    <input class="form-control" type="password" id="signupPasswordConfirm" autocomplete="new-password" minlength="8" maxlength="20" required>
+                    <button class="member-signup-password-toggle" type="button" data-toggle-password="signupPasswordConfirm" aria-label="비밀번호 표시">
+                        <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                    </button>
+                </div>
+                <p class="member-signup-field-help text-muted" id="signupPasswordConfirmStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
             </div>
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupEmail">이메일 <em>(필수)</em></label>
-                <input class="form-control" type="email" id="signupEmail" autocomplete="email" maxlength="50" placeholder="예: name@example.com (50자 이내)" required>
+                <div class="input-group">
+                    <input class="form-control" type="email" id="signupEmail"
+                           autocomplete="email" maxlength="50" required>
+                    <button class="btn btn-outline-primary" type="button"
+                            data-send-email-code>인증번호 받기</button>
+                </div>
                 <p class="member-signup-field-help">아이디·비밀번호 찾기에 사용할 이메일을 입력해 주세요.</p>
+                <p class="member-signup-field-help" id="signupEmailSendStatus" aria-live="polite"></p>
+                <div class="input-group mt-2">
+                    <input class="form-control" id="signupEmailCode" inputmode="numeric"
+                           maxlength="6" placeholder="인증번호 6자리">
+                    <button class="btn btn-outline-primary" type="button"
+                            data-verify-email-code>인증 확인</button>
+                </div>
+                <p class="member-signup-field-help" id="signupEmailVerifyStatus" aria-live="polite"></p>
             </div>
+
+            <div class="member-signup-field">
+                <label class="form-label" for="signupBirthDate">생년월일 <em class="member-signup-optional">(선택)</em></label>
+                <input class="form-control" type="date" id="signupBirthDate" autocomplete="bday">
+            </div>
+
+            <fieldset class="member-signup-field member-signup-radio-field" aria-describedby="signupDemographicNote">
+                <legend class="form-label">성별 <em class="member-signup-optional">(선택)</em></legend>
+                <div class="member-signup-gender-options">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="signupGenderMale" name="gender" value="M">
+                        <label class="form-check-label" for="signupGenderMale">남성</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="signupGenderFemale" name="gender" value="F">
+                        <label class="form-check-label" for="signupGenderFemale">여성</label>
+                    </div>
+                </div>
+            </fieldset>
+
+            <p class="member-signup-demographic-note" id="signupDemographicNote">생년월일과 성별은 서비스 이용 통계에 활용됩니다. 입력하지 않아도 가입할 수 있습니다.</p>
 
             <p class="member-signup-error" id="signupAccountError" role="alert" hidden></p>
             <div class="member-signup-actions">
@@ -167,20 +199,40 @@
         </form>
     </section>
 
-    <section class="member-signup-card member-signup-complete d-none" id="signupStep2" aria-labelledby="signupCompleteTitle" aria-hidden="true">
+    <section class="member-signup-step d-none" id="signupStep2" aria-labelledby="signupCompleteTitle" aria-hidden="true">
         <div class="member-signup-stage-title">
             <span><strong>3단계</strong> / 3단계</span>
             <h2 id="signupCompleteTitle" tabindex="-1">회원가입완료</h2>
         </div>
-        <span class="material-symbols-outlined member-signup-complete-icon" aria-hidden="true">check_circle</span>
-        <h3>회원가입이 완료되었어요</h3>
-        <p>회원가입이 완료되었어요. 가입한 아이디로 로그인해 주세요.</p>
-        <a class="btn btn-primary rounded-pill px-4" href="${pageContext.request.contextPath}/login">로그인 화면으로 이동</a>
+        <div class="member-signup-card member-signup-complete">
+            <span class="material-symbols-outlined member-signup-complete-icon" aria-hidden="true">check_circle</span>
+            <h3>회원가입이 완료되었어요</h3>
+            <p>회원가입이 완료되었어요. 가입한 아이디로 로그인해 주세요.</p>
+            <a class="btn btn-primary rounded-pill px-4" href="${pageContext.request.contextPath}/login">로그인 화면으로 이동</a>
+        </div>
     </section>
 </main>
 
+<div class="modal" id="signupNoticeModal" tabindex="-1"
+     aria-labelledby="signupNoticeTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered signup-notice-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="signupNoticeTitle">안내</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="닫기"></button>
+            </div>
+            <div class="modal-body" id="signupNoticeMessage"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script src="${pageContext.request.contextPath}/js/pages/signup.js"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-1"></script>
 </body>
 </html>

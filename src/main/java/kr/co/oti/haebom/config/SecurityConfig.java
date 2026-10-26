@@ -19,7 +19,7 @@ public class SecurityConfig {
                 .ignoringAntMatchers("/api/**","/address/juso/popup") //주소팝업은 외부 서비스라 CSRF 예외 필요
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/member/signup", "/member/find-id", "/member/find-password",
+                .requestMatchers("/", "/login", "/error", "/member/signup", "/member/find-id", "/member/find-password",
                         "/api/members/join", "/css/**", "/js/**", "/images/**", "/api/**","/address/juso/popup",
                         // Swagger UI 및 OpenAPI 문서
                         "/swagger-ui.html",
@@ -30,14 +30,22 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-            	.loginPage("/login")
-            	.loginProcessingUrl("/login")
-            	.usernameParameter("loginId")
-            	.passwordParameter("password")
-            	.defaultSuccessUrl("/", false)
-            	.failureUrl("/login?error")
-                .permitAll()
-            )
+                	.loginPage("/login")
+                	.loginProcessingUrl("/login")
+                	.usernameParameter("loginId")
+                	.passwordParameter("password")
+                	// ⭐ 스마트 리다이렉트 (이전 보던 페이지 파라미터가 있으면 거기로 복귀!)
+                	.successHandler((request, response, authentication) -> {
+                		String redirect = request.getParameter("redirect");
+                		if (redirect != null && !redirect.isBlank() && redirect.startsWith("/")) {
+                			response.sendRedirect(redirect);
+                		} else {
+                			response.sendRedirect("/");
+                		}
+                	})
+                	.failureUrl("/login?error")
+                    .permitAll()
+                )
             .logout(logout -> logout
                 .permitAll()
             );
