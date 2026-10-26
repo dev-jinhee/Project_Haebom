@@ -38,9 +38,7 @@
 
         <section class="login-card account-find-card" aria-labelledby="findIdTitle">
             <header class="account-find-heading">
-                <span class="login-symbol material-symbols-outlined" aria-hidden="true">person_search</span>
                 <h1 id="findIdTitle">아이디 찾기</h1>
-                <p>가입할 때 입력한 이름과 이메일을 입력해 주세요.</p>
             </header>
 
             <form class="account-find-form" method="post"

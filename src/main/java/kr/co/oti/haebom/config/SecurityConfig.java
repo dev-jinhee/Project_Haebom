@@ -18,6 +18,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .ignoringAntMatchers("/api/**","/address/juso/popup") //주소팝업은 외부 서비스라 CSRF 예외 필요
             )
+
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/member/signup", "/member/find-id", "/member/find-password",
                         "/api/members/join", "/css/**", "/js/**", "/images/**", "/api/**","/address/juso/popup",
