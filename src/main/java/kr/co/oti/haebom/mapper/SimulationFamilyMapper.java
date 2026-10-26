@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import kr.co.oti.haebom.domain.SimulationFamily;
+import kr.co.oti.haebom.dto.MoveFamilyRequestDTO;
 
 @Mapper
 public interface SimulationFamilyMapper {
@@ -29,4 +30,6 @@ public interface SimulationFamilyMapper {
 	// 새 세대주 연락처 변경
 	void updateFamilyPhone(@Param("progressId") Integer progressId, @Param("familyId") Integer familyId,
 			@Param("phoneNum") String phoneNum);
+	//이사 가족의 세대주 및 연락처 변경
+	int updateMovingFamilyHousehold(@Param("progressId") Integer progressId, @Param("member") MoveFamilyRequestDTO.FamilyMember member );
 }

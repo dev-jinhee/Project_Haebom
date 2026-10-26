@@ -21,7 +21,7 @@ const stepModules = {
 		1: () => import("/js/pages/scenario/simulation/move/step-1.js"),
 		2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
 		3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
-		/*4: () => import("/js/pages/scenario/simulation/move/step-4.js"),*/
+		4: () => import("/js/pages/scenario/simulation/move/step-4.js")
 	}
 };
 
@@ -390,7 +390,7 @@ function updateNavigation() {
 		if (viewingStep === null) {
 			// 완료 화면
 			prevStepBtn.disabled = false;
-			nextStepBtn.textContent = "마치기";
+			nextStepBtn.textContent = "메인 화면으로";
 		} else {
 			// 단계별 작성 내역 조회
 			prevStepBtn.disabled =

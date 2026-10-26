@@ -2,13 +2,17 @@ package kr.co.oti.haebom.service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import kr.co.oti.haebom.domain.SimulationFamily;
 import kr.co.oti.haebom.dto.MoveFamilyMemberDTO;
@@ -143,13 +147,33 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 
 	// 가족 조회
 	@Override
-	public List<SimulationFamily> getFamily(Integer progressId, Integer memberId) {
+	public List<SimulationFamily> getFamily(Integer progressId, Integer memberId, String moveStatus) {
 		// 로그인 사용자의 진행 사항이 맞는지
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 		if (progress == null) {
 			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
 		}
-		return familyMapper.selectFamily(progressId);
+		List<SimulationFamily> families = familyMapper.selectFamily(progressId);
+
+		if (families == null) {
+			throw new IllegalArgumentException("가족을 찾을 수 없습니다.");
+		}
+
+		// 필터가 없으면 전체 가족 반환
+		if (moveStatus == null) {
+			return families;
+		}
+
+		// 상태값 정규화
+		String status = moveStatus.trim().toUpperCase(Locale.ROOT);
+
+		// 허용된 상태값 검증
+		if (!"MOVE".equals(status) && !"REMAIN".equals(status)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바르지 않은 이사 상태입니다.");
+		}
+
+		// 선택한 상태에 해당하는 가족만 반환
+		return families.stream().filter(family -> status.equals(family.getMoveStatus())).collect(Collectors.toList());
 	}
 
 	// 이사가는 가족정보 및 새 세대주 정보 변경
@@ -157,178 +181,178 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 	@Override
 	public void updateFamilyMove(Integer progressId, Integer memberId, MoveFamilyRequestDTO requestDTO) {
 
-    // 1. 진행정보 소유자 확인
-    SimulationProgressDTO progress =
-            progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		// 1. 진행정보 소유자 확인
+		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 
-    if (progress == null) {
-        throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
-    }
+		if (progress == null) {
+			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
+		}
 
-    if ("COMPLETED".equals(progress.getProgressStatus())) {
-        throw new IllegalStateException("완료된 시뮬레이션은 수정할 수 없습니다.");
-    }
+		if ("COMPLETED".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("완료된 시뮬레이션은 수정할 수 없습니다.");
+		}
 
-    // 2. DB에 등록된 가족 조회
-    List<SimulationFamily> families = familyMapper.selectFamily(progressId);
+		// 2. DB에 등록된 가족 조회
+		List<SimulationFamily> families = familyMapper.selectFamily(progressId);
 
-    if (families.isEmpty()) {
-        throw new IllegalArgumentException("가족정보가 없습니다.");
-    }
+		if (families.isEmpty()) {
+			throw new IllegalArgumentException("가족정보가 없습니다.");
+		}
 
-    if (requestDTO == null || requestDTO.getFamilyMembers() == null) {
-        throw new IllegalArgumentException("가족 이사정보가 없습니다.");
-    }
+		if (requestDTO == null || requestDTO.getFamilyMembers() == null) {
+			throw new IllegalArgumentException("가족 이사정보가 없습니다.");
+		}
 
-    // 3. 요청 가족 목록 검증
-    Map<Integer, MoveFamilyRequestDTO.FamilyMember> requested = new HashMap<>();
+		// 3. 요청 가족 목록 검증
+		Map<Integer, MoveFamilyRequestDTO.FamilyMember> requested = new HashMap<>();
 
-    for (MoveFamilyRequestDTO.FamilyMember member : requestDTO.getFamilyMembers()) {
+		for (MoveFamilyRequestDTO.FamilyMember member : requestDTO.getFamilyMembers()) {
 
-        if (member == null || member.getFamilyId() == null) {
-            throw new IllegalArgumentException("가족 ID가 올바르지 않습니다.");
-        }
+			if (member == null || member.getFamilyId() == null) {
+				throw new IllegalArgumentException("가족 ID가 올바르지 않습니다.");
+			}
 
-        if (!"MOVE".equals(member.getMoveStatus())
-                && !"REMAIN".equals(member.getMoveStatus())) {
-            throw new IllegalArgumentException("이사 상태가 올바르지 않습니다.");
-        }
+			if (!"MOVE".equals(member.getMoveStatus()) && !"REMAIN".equals(member.getMoveStatus())) {
+				throw new IllegalArgumentException("이사 상태가 올바르지 않습니다.");
+			}
 
-        if (requested.put(member.getFamilyId(), member) != null) {
-            throw new IllegalArgumentException("중복된 가족정보가 있습니다.");
-        }
-    }
+			if (requested.put(member.getFamilyId(), member) != null) {
+				throw new IllegalArgumentException("중복된 가족정보가 있습니다.");
+			}
+		}
 
-    if (requested.size() != families.size()) {
-        throw new IllegalArgumentException("전체 가족정보를 전달해야 합니다.");
-    }
+		if (requested.size() != families.size()) {
+			throw new IllegalArgumentException("전체 가족정보를 전달해야 합니다.");
+		}
 
-    for (SimulationFamily family : families) {
-        if (!requested.containsKey(family.getFamilyId())) {
-            throw new IllegalArgumentException("등록되지 않은 가족정보가 포함되어 있습니다.");
-        }
-    }
+		for (SimulationFamily family : families) {
+			if (!requested.containsKey(family.getFamilyId())) {
+				throw new IllegalArgumentException("등록되지 않은 가족정보가 포함되어 있습니다.");
+			}
+		}
 
-    // 4. 신청인과 기존 세대주 확인
-    SimulationFamily applicant = families.stream()
-            .filter(SimulationFamily::getIsApplicant)
-            .findFirst()
-            .orElseThrow(() ->
-                    new IllegalArgumentException("신청인이 없습니다."));
+		// 4. 신청인과 기존 세대주 확인
+		SimulationFamily applicant = families.stream().filter(SimulationFamily::getIsApplicant).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("신청인이 없습니다."));
 
-    SimulationFamily originalHead = families.stream()
-            .filter(SimulationFamily::getIsOriginalHead)
-            .findFirst()
-            .orElseThrow(() ->
-                    new IllegalArgumentException("기존 세대주가 없습니다."));
+		SimulationFamily originalHead = families.stream().filter(SimulationFamily::getIsOriginalHead).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("기존 세대주가 없습니다."));
 
-    // 신청인은 반드시 MOVE
-    if (!"MOVE".equals(
-            requested.get(applicant.getFamilyId()).getMoveStatus())) {
-        throw new IllegalArgumentException("신청인은 반드시 이사 대상이어야 합니다.");
-    }
+		// 신청인은 반드시 MOVE
+		if (!"MOVE".equals(requested.get(applicant.getFamilyId()).getMoveStatus())) {
+			throw new IllegalArgumentException("신청인은 반드시 이사 대상이어야 합니다.");
+		}
 
-    // 5. 새 세대주가 필요한지 판단
-    boolean originalHeadMoves = "MOVE".equals(
-            requested.get(originalHead.getFamilyId()).getMoveStatus());
+		// 5. 새 세대주가 필요한지 판단
+		boolean originalHeadMoves = "MOVE".equals(requested.get(originalHead.getFamilyId()).getMoveStatus());
 
-    boolean hasRemaining = requested.values().stream()
-            .anyMatch(member -> "REMAIN".equals(member.getMoveStatus()));
+		boolean hasRemaining = requested.values().stream().anyMatch(member -> "REMAIN".equals(member.getMoveStatus()));
 
-    boolean needsNewHead = originalHeadMoves && hasRemaining;
+		boolean needsNewHead = originalHeadMoves && hasRemaining;
 
-    Integer newHeadId = requestDTO.getRemainingHeadFamilyId();
+		Integer newHeadId = requestDTO.getRemainingHeadFamilyId();
 
-    if (needsNewHead) {
+		if (needsNewHead) {
 
-        // 새 세대주는 남는 가족 중에서 선택해야 함
-        if (newHeadId == null
-                || !requested.containsKey(newHeadId)
-                || !"REMAIN".equals(requested.get(newHeadId).getMoveStatus())) {
-            throw new IllegalArgumentException(
-                    "남는 가족 중 새로운 세대주를 선택해야 합니다.");
-        }
+			// 새 세대주는 남는 가족 중에서 선택해야 함
+			if (newHeadId == null || !requested.containsKey(newHeadId)
+					|| !"REMAIN".equals(requested.get(newHeadId).getMoveStatus())) {
+				throw new IllegalArgumentException("남는 가족 중 새로운 세대주를 선택해야 합니다.");
+			}
 
-        // 새 세대주 연락처 검증
-        String phone = requestDTO.getRemainingHeadPhoneNum();
+			// 새 세대주 연락처 검증
+			String phone = requestDTO.getRemainingHeadPhoneNum();
 
-        if (phone == null || !phone.matches("^010-\\d{4}-\\d{4}$")) {
-            throw new IllegalArgumentException(
-                    "새 세대주의 휴대전화번호가 올바르지 않습니다.");
-        }
+			if (phone == null || !phone.matches("^010-\\d{4}-\\d{4}$")) {
+				throw new IllegalArgumentException("새 세대주의 휴대전화번호가 올바르지 않습니다.");
+			}
 
-    } else if (newHeadId != null || requestDTO.getRemainingHeadPhoneNum() != null) {
-        throw new IllegalArgumentException("새 세대주를 지정할 필요가 없습니다.");
-    }
+		} else if (newHeadId != null || requestDTO.getRemainingHeadPhoneNum() != null) {
+			throw new IllegalArgumentException("새 세대주를 지정할 필요가 없습니다.");
+		}
 
-    // 6. 모든 가족의 현재 정보를 다시 계산하여 저장
-    Set<String> relationCodes = Set.of(
-            "SELF", "SPOUSE", "CHILD",
-            "FATHER", "MOTHER", "PARENT", "OTHER"
-    );
+		// 6. 모든 가족의 현재 정보를 다시 계산하여 저장
+		Set<String> relationCodes = Set.of("SELF", "SPOUSE", "CHILD", "FATHER", "MOTHER", "PARENT", "OTHER");
 
-    for (SimulationFamily family : families) {
+		for (SimulationFamily family : families) {
 
-        MoveFamilyRequestDTO.FamilyMember member =
-                requested.get(family.getFamilyId());
+			MoveFamilyRequestDTO.FamilyMember member = requested.get(family.getFamilyId());
 
-        boolean isMoving = "MOVE".equals(member.getMoveStatus());
+			boolean isMoving = "MOVE".equals(member.getMoveStatus());
 
-        String relationship;
-        boolean isHouseholdHead;
+			String relationship;
+			boolean isHouseholdHead;
 
-        if (!needsNewHead) {
-            // 새 세대주가 필요 없다면 원본 정보로 복원
-            relationship = family.getOriginalRelationship();
-            isHouseholdHead = family.getIsOriginalHead();
+			if (!needsNewHead) {
+				// 새 세대주가 필요 없다면 원본 정보로 복원
+				relationship = family.getOriginalRelationship();
+				isHouseholdHead = family.getIsOriginalHead();
 
-        } else if (isMoving) {
-            // 이사하는 가족은 이 단계에서 원본 관계를 유지
-            relationship = family.getOriginalRelationship();
-            isHouseholdHead = false;
+			} else if (isMoving) {
+				// 이사하는 가족은 이 단계에서 원본 관계를 유지
+				relationship = family.getOriginalRelationship();
+				isHouseholdHead = false;
 
-        } else if (family.getFamilyId().equals(newHeadId)) {
-            // 남는 가족 중 새 세대주
-            relationship = "SELF";
-            isHouseholdHead = true;
+			} else if (family.getFamilyId().equals(newHeadId)) {
+				// 남는 가족 중 새 세대주
+				relationship = "SELF";
+				isHouseholdHead = true;
 
-        } else {
-            // 남는 다른 가족은 새 세대주와의 관계를 사용
-            relationship = member.getRelationship();
-            isHouseholdHead = false;
+			} else {
+				// 남는 다른 가족은 새 세대주와의 관계를 사용
+				relationship = member.getRelationship();
+				isHouseholdHead = false;
 
-            if (!relationCodes.contains(relationship)
-                    || "SELF".equals(relationship)) {
-                throw new IllegalArgumentException(
-                        "남는 가족의 세대주와의 관계가 올바르지 않습니다.");
-            }
-        }
+				if (!relationCodes.contains(relationship) || "SELF".equals(relationship)) {
+					throw new IllegalArgumentException("남는 가족의 세대주와의 관계가 올바르지 않습니다.");
+				}
+			}
 
-        // 프론트에서 보낸 관계와 세대주 여부도 검증
-        if (!Objects.equals(relationship, member.getRelationship())
-                || !Objects.equals(isHouseholdHead, member.getIsHouseholdHead())) {
-            throw new IllegalArgumentException(
-                    "가족의 세대주 정보가 올바르지 않습니다.");
-        }
+			// 프론트에서 보낸 관계와 세대주 여부도 검증
+			if (!Objects.equals(relationship, member.getRelationship())
+					|| !Objects.equals(isHouseholdHead, member.getIsHouseholdHead())) {
+				throw new IllegalArgumentException("가족의 세대주 정보가 올바르지 않습니다.");
+			}
 
-        familyMapper.updateFamilyMoveState(
-                progressId,
-                family.getFamilyId(),
-                member.getMoveStatus(),
-                relationship,
-                isHouseholdHead
-        );
-    }
+			familyMapper.updateFamilyMoveState(progressId, family.getFamilyId(), member.getMoveStatus(), relationship,
+					isHouseholdHead);
+		}
 
-    // 7. 새 세대주 연락처 업데이트
-    if (needsNewHead) {
-        familyMapper.updateFamilyPhone(
-                progressId,
-                newHeadId,
-                requestDTO.getRemainingHeadPhoneNum()
-        );
-    }
-		
+		// 7. 새 세대주 연락처 업데이트
+		if (needsNewHead) {
+			familyMapper.updateFamilyPhone(progressId, newHeadId, requestDTO.getRemainingHeadPhoneNum());
+		}
+
+	}
+
+	@Transactional
+	@Override
+	public void updateCurrentFamily(Integer progressId, Integer memberId, MoveFamilyRequestDTO requestDTO) {
+
+		// 진행정보 소유자 검증
+		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+
+		if (progress == null) {
+			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
+		}
+
+		if ("COMPLETED".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("완료된 시뮬레이션은 수정할 수 없습니다.");
+		}
+
+		if (requestDTO == null || requestDTO.getFamilyMembers() == null || requestDTO.getFamilyMembers().isEmpty()) {
+			throw new IllegalArgumentException("저장할 가족정보가 없습니다.");
+		}
+
+		// 가족별 UPDATE
+		for (MoveFamilyRequestDTO.FamilyMember member : requestDTO.getFamilyMembers()) {
+
+			int updated = familyMapper.updateMovingFamilyHousehold(progressId, member);
+
+			if (updated != 1) {
+				throw new IllegalArgumentException("이사 대상이 아닌 가족이 포함되어 있습니다.");
+			}
+		}
 	}
 
 }

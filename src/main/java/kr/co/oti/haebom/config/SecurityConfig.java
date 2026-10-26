@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -15,13 +16,12 @@ public class SecurityConfig {
             throws Exception {
         http
             .csrf(csrf -> csrf
-                .ignoringAntMatchers("/api/**")
+                .ignoringAntMatchers("/api/**","/address/juso/popup") //주소팝업은 외부 서비스라 CSRF 예외 필요
             )
-            .authorizeRequests(auth -> auth
-                .antMatchers("/api/mypage/**").authenticated()
-                .antMatchers("/", "/login", "/error", "/member/signup", "/member/find-id", "/member/find-password",
-                        "/api/members/join", "/admin/**",
-                        "/inquiry/**", "/inquiries/**", "/css/**", "/js/**", "/images/**", "/api/**",
+
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/member/signup", "/member/find-id", "/member/find-password",
+                        "/api/members/join", "/css/**", "/js/**", "/images/**", "/api/**","/address/juso/popup",
                         // Swagger UI 및 OpenAPI 문서
                         "/swagger-ui.html",
                         "/swagger-ui/**",
