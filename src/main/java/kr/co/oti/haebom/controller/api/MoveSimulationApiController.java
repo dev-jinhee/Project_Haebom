@@ -19,9 +19,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.co.oti.haebom.domain.SimulationFamily;
 import kr.co.oti.haebom.dto.MoveFamilyRequestDTO;
 import kr.co.oti.haebom.dto.MovePreparationRequestDTO;
+import kr.co.oti.haebom.dto.SimulationFamilyDTO;
 import kr.co.oti.haebom.security.MemberPrincipal;
 import kr.co.oti.haebom.service.MoveSimulationService;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +50,7 @@ public class MoveSimulationApiController {
 	@Operation(summary = "전입신고 신청인 정보 조회", description = "로그인 사용자의 진행 이력을 확인한 후 해당 진행 이력에 등록된 신청인 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "신청인 정보 조회 성공")
 	@GetMapping("/{progressId}/applicant")
-	public SimulationFamily getApplicant(@PathVariable Integer progressId,
+	public SimulationFamilyDTO getApplicant(@PathVariable Integer progressId,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		return moveSimulationService.getApplicant(progressId, memberPrincipal.getMemberId());
 	}
@@ -59,7 +59,7 @@ public class MoveSimulationApiController {
 	@Operation(summary = "가족 조회", description = "로그인 사용자의 진행 이력을 확인한 후 해당 진행 이력에 등록된 가족 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "가족 정보 조회 성공")
 	@GetMapping("/{progressId}/family")
-	public List<SimulationFamily> getFamily(@PathVariable Integer progressId,
+	public List<SimulationFamilyDTO> getFamily(@PathVariable Integer progressId,
 			@RequestParam(required = false) String moveStatus,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		return moveSimulationService.getFamily(progressId, memberPrincipal.getMemberId(), moveStatus);

@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import kr.co.oti.haebom.domain.Member;
+import kr.co.oti.haebom.dto.MemberDTO;
 import kr.co.oti.haebom.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +17,7 @@ public class MemberUserDetailsService implements UserDetailsService {
 	
 	public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
 		
-		Member member = memberMapper.findByLoginId(loginId);
+		MemberDTO member = memberMapper.findByLoginId(loginId);
 		
 		if(member == null) {
 			throw new UsernameNotFoundException("회원 정보를 찾을 수 없습니다.");

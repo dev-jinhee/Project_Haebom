@@ -1,4 +1,4 @@
-package kr.co.oti.haebom.domain;
+package kr.co.oti.haebom.dto;
 
 import java.time.LocalDate;
 
@@ -11,9 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SimulationFamily {
-
-    private Integer familyId;
+public class SimulationFamilyDTO {
+	private Integer familyId;
     private Integer progressId;
 
     private String familyName;
