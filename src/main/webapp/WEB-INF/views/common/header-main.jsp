@@ -25,7 +25,7 @@
             %>
             <c:if test="<%= isAdmin %>">
                 <a class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/admin">
-                    <span class="material-symbols-outlined me-1" aria-hidden="true">space_dashboard</span>관리자 페이지
+                    <span class="material-symbols-outlined me-1" aria-hidden="true">space_dashboard</span><span>관리자 페이지</span>
                 </a>
             </c:if>
 
@@ -45,21 +45,21 @@
             <c:choose>
                 <c:when test="${not empty pageContext.request.userPrincipal}">
                     <a class="btn btn-outline-primary rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/mypage">
-                        <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span>마이페이지
+                        <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span><span>마이페이지</span>
                     </a>
                     <form class="d-inline" method="post" action="${pageContext.request.contextPath}/logout">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         <button class="btn btn-light rounded-pill d-inline-flex align-items-center" type="submit">
-                            <span class="material-symbols-outlined me-1" aria-hidden="true">logout</span>로그아웃
+                            <span class="material-symbols-outlined me-1" aria-hidden="true">logout</span><span>로그아웃</span>
                         </button>
                     </form>
                 </c:when>
                 <c:otherwise>
                     <a class="btn btn-outline-primary rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/mypage">
-                        <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span>마이페이지
+                        <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span><span>마이페이지</span>
                     </a>
                     <a class="btn btn-light rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/login">
-                        <span class="material-symbols-outlined me-1" aria-hidden="true">login</span>로그인
+                        <span class="material-symbols-outlined me-1" aria-hidden="true">login</span><span>로그인</span>
                     </a>
                 </c:otherwise>
             </c:choose>

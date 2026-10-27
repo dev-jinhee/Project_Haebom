@@ -2036,14 +2036,48 @@
 }
 
 .admin-detail-section-icon {
-	display: grid;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	flex: 0 0 36px;
 	width: 36px;
 	height: 36px;
-	place-items: center;
 	border-radius: 11px;
 	color: #1769aa;
 	background: #eaf4ff;
+}
+
+/* 모달 사각형 박스 내부 아이콘(Bootstrap Icons)의 하단 처짐(vertical-align: -.125em) 완전 보정 */
+.admin-detail-icon,
+.admin-detail-section-icon,
+.admin-member-meta-icon,
+.inquiry-meta-icon,
+.inquiry-detail-icon {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+
+.admin-detail-icon i,
+.admin-detail-section-icon i,
+.admin-member-meta-icon i,
+.inquiry-meta-icon i,
+.inquiry-detail-icon i {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	line-height: 1 !important;
+	margin: 0 !important;
+}
+
+.admin-detail-icon i::before,
+.admin-detail-section-icon i::before,
+.admin-member-meta-icon i::before,
+.inquiry-meta-icon i::before,
+.inquiry-detail-icon i::before {
+	display: block !important;
+	line-height: 1 !important;
+	vertical-align: 0 !important;
 }
 
 .admin-detail-section-heading h3 {

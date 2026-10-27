@@ -31,7 +31,7 @@
 
             <!-- 홈으로 이동 버튼 (집 모양 아이콘) -->
             <a href="${pageContext.request.contextPath}/" class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center">
-                <span class="material-symbols-outlined me-1" aria-hidden="true">home</span>홈으로
+                <span class="material-symbols-outlined me-1" aria-hidden="true">home</span><span>홈으로</span>
             </a>
         </div>
     </nav>
