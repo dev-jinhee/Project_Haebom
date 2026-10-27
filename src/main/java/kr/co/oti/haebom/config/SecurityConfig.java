@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
@@ -21,29 +21,58 @@ public class SecurityConfig {
 				.csrf(csrf -> csrf.disable())
 
 				// URL별 인증·권한은 계속 검사합니다.
-				// 비로그인 접근 허용
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/", "/login", "/error", "/member/signup", "/member/find-id",
-								"/member/find-password", "/css/**", "/js/**", "/images/**", "/favicon.ico",
-								"/address/juso/popup", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs",
-								"/v3/api-docs/**")
-						.permitAll()
-						// 회원 관련 공개 API
-						.requestMatchers("/api/members/join", "/api/members/id-availability",
-								"/api/members/email-verification/**")
-						.permitAll()
-						// 공개 조회 API (GET)
-						.requestMatchers(HttpMethod.GET, "/api/main/**", "/api/address/**", "/api/scenario/**",
-								"/api/inquiries")
-						.permitAll()
-						// 관리자 전용
-						.requestMatchers("/admin/**", "/api/admin/**").hasRole("ADMIN")
-						// 로그인 필수
-						.requestMatchers("/mypage", "/api/mypage/**", "/api/simulation/**", "/api/simulation/move/**",
-								"/api/inquiries/**")
-						.authenticated()
 
-						.anyRequest().authenticated())
+					    // 비로그인 접근 허용
+					    .requestMatchers(
+					        antMatcher("/"),
+					        antMatcher("/login"),
+					        antMatcher("/error"),
+					        antMatcher("/member/signup"),
+					        antMatcher("/member/find-id"),
+					        antMatcher("/member/find-password"),
+					        antMatcher("/css/**"),
+					        antMatcher("/js/**"),
+					        antMatcher("/images/**"),
+					        antMatcher("/favicon.ico"),
+					        antMatcher("/address/juso/popup"),
+					        antMatcher("/swagger-ui.html"),
+					        antMatcher("/swagger-ui/**"),
+					        antMatcher("/v3/api-docs"),
+					        antMatcher("/v3/api-docs/**")
+					    ).permitAll()
+
+					    // 회원 관련 공개 API
+					    .requestMatchers(
+					        antMatcher("/api/members/join"),
+					        antMatcher("/api/members/id-availability"),
+					        antMatcher("/api/members/email-verification/**")
+					    ).permitAll()
+
+					    // 공개 조회 API
+					    .requestMatchers(
+					        antMatcher(HttpMethod.GET, "/api/main/**"),
+					        antMatcher(HttpMethod.GET, "/api/address/**"),
+					        antMatcher(HttpMethod.GET, "/api/scenario/**"),
+					        antMatcher(HttpMethod.GET, "/api/inquiries")
+					    ).permitAll()
+
+					    // 관리자 전용
+					    .requestMatchers(
+					        antMatcher("/admin/**"),
+					        antMatcher("/api/admin/**")
+					    ).hasRole("ADMIN")
+
+					    // 로그인 필수
+					    .requestMatchers(
+					        antMatcher("/mypage"),
+					        antMatcher("/api/mypage/**"),
+					        antMatcher("/api/simulation/**"),
+					        antMatcher("/api/inquiries/**")
+					    ).authenticated()
+
+					    .anyRequest().authenticated()
+					)
 				
 				.formLogin(form -> form.loginPage("/login").loginProcessingUrl("/login").usernameParameter("loginId")
 						.passwordParameter("password").successHandler((request, response, authentication) -> {

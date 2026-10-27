@@ -288,9 +288,9 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 	// 1. 공통 완료 화면
 	if (stepOrder === "complete") {
 
-		const completeModule = await import(
+		/*const completeModule = await import(
 			"/js/pages/scenario/simulation/complete.js"
-		);
+		);*/
 
 		await completeModule.init({
 			root: stepContent,
