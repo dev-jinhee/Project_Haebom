@@ -1,5 +1,6 @@
 package kr.co.oti.haebom.service;
 
+import kr.co.oti.haebom.dto.AnswerSaveRequestListDTO;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
 
 public interface SimulationService {
@@ -13,8 +14,8 @@ public interface SimulationService {
 	void moveToStep(Integer progressId, Integer memberId, Integer targetStepId);
 
 	// 다음 단계 이동 (저장 O)
-	void saveAndMoveToStep(Integer progressId, Integer memberId, Integer targetStepId);
+	void saveAndMoveToStep(Integer progressId, Integer memberId, Integer targetStepId, AnswerSaveRequestListDTO request);
 	
 	// 시뮬레이션 완료 처리 (저장 O)
-	void completeSimulation(Integer progressId, Integer memberId);
+	void completeSimulation(Integer progressId, Integer memberId, AnswerSaveRequestListDTO request);
 }

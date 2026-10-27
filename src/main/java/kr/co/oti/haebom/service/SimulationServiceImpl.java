@@ -1,14 +1,18 @@
 package kr.co.oti.haebom.service;
 
+import java.util.Objects;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import kr.co.oti.haebom.domain.ScenarioStep;
+import kr.co.oti.haebom.dto.AnswerSaveRequestListDTO;
+import kr.co.oti.haebom.dto.ScenarioStepDTO;
 import kr.co.oti.haebom.dto.SimulationProgressCreateDTO;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
 import kr.co.oti.haebom.mapper.ScenarioMapper;
+import kr.co.oti.haebom.mapper.SimulationAnswerMapper;
 import kr.co.oti.haebom.mapper.SimulationProgressMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class SimulationServiceImpl implements SimulationService {
 	private final ScenarioMapper scenarioMapper;
 	private final SimulationProgressMapper simulationProgressMapper;
+	private final SimulationAnswerMapper answerMapper;
 
 	// 시뮬레이션 시작
 	@Override
@@ -27,7 +32,7 @@ public class SimulationServiceImpl implements SimulationService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "시나리오를 찾을 수 없습니다.");
 		}
 		// 시나리오의 첫 단계 조회
-		ScenarioStep scenarioStep = scenarioMapper.selectFirstStepByScenarioId(scenarioId);
+		ScenarioStepDTO scenarioStep = scenarioMapper.selectFirstStepByScenarioId(scenarioId);
 		if (scenarioStep == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "시나리오의 단계가 존재하지 않습니다.");
 		}
@@ -87,21 +92,26 @@ public class SimulationServiceImpl implements SimulationService {
 	// 다음 단계 이동
 	@Override
 	@Transactional
-	public void saveAndMoveToStep(Integer progressId, Integer memberId, Integer targetStepId) {
+	public void saveAndMoveToStep(Integer progressId, Integer memberId, Integer targetStepId,
+			AnswerSaveRequestListDTO request) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
 			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
 		}
-		if (!simulationProgressMapper.isNextStep(
-		        progress.getScenarioId(),
-		        progress.getStepId(),
-		        targetStepId)) {
-		    throw new IllegalArgumentException("다음 단계로 이동할 수 없습니다.");
+		if (!simulationProgressMapper.isNextStep(progress.getScenarioId(), progress.getStepId(), targetStepId)) {
+			throw new IllegalArgumentException("다음 단계로 이동할 수 없습니다.");
 		}
-		
-		// TODO : 현재 단계 입력값 검증
-		// TODO : 현재 단계 입력값 저장
+
+		// 현재 단계 입력값 저장
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+
+			if (!Objects.equals(progress.getStepId(), answer.getStepId())) {
+				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
+			}
+
+			answerMapper.upsertAnswer(progressId, answer);
+		}
 
 		// 다음 단계 이동
 		int updatedRows = simulationProgressMapper.updateProgressStep(progressId, memberId, progress.getStepId(),
@@ -115,15 +125,22 @@ public class SimulationServiceImpl implements SimulationService {
 	// 시뮬레이션 완료
 	@Override
 	@Transactional
-	public void completeSimulation(Integer progressId, Integer memberId) {
+	public void completeSimulation(Integer progressId, Integer memberId, AnswerSaveRequestListDTO request) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
 			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
 		}
-		// TODO : 마지막 단계 입력값 유효성 검증
 
-		// TODO : 마지막 단계 입력값 저장
+		// 마지막 단계 입력값 저장
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+
+			if (!Objects.equals(progress.getStepId(), answer.getStepId())) {
+				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
+			}
+
+			answerMapper.upsertAnswer(progressId, answer);
+		}
 
 		// completeSimulationProgress() 호출
 		int updatedRows = simulationProgressMapper.completeSimulationProgress(progressId, memberId,

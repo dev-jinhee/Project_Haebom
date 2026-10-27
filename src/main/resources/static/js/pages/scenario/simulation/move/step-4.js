@@ -11,8 +11,8 @@ const VIRTUAL_WELFARE_CENTER = "해봄동 행정복지센터 (가상)";
 const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 const RELATIONS = [
 	["", "관계 선택"],
-	["FATHER", "부"], ["MOTHER", "모"],
-	["OTHER", "기타"]
+	["SPOUSE", "배우자"], ["CHILD", "자녀"],
+	["FATHER", "부"], ["MOTHER", "모"], ["OTHER", "기타"]
 ];
 const RELATION_LABELS = Object.fromEntries([["SELF", "본인"], ...RELATIONS]);
 const ADDRESS_FIELDS = {
@@ -71,10 +71,12 @@ function createRelationSelect(family) {
 	return select;
 }
 
+
 function createPhoneGroup(name, familyId) {
 	const group = document.createElement("div");
 	group.className = "move-step4-phone-fields move-step4-family-phone";
 	group.dataset.familyId = String(familyId);
+
 	[3, 4, 4].forEach((length, index) => {
 		if (index > 0) {
 			const separator = document.createElement("span");
@@ -82,6 +84,7 @@ function createPhoneGroup(name, familyId) {
 			separator.setAttribute("aria-hidden", "true");
 			group.appendChild(separator);
 		}
+
 		const input = document.createElement("input");
 		input.type = "tel";
 		input.inputMode = "numeric";
@@ -89,15 +92,27 @@ function createPhoneGroup(name, familyId) {
 		input.className = "form-control form-control-sm";
 		input.maxLength = length;
 		input.required = true;
-		input.setAttribute("aria-label", `${name} 휴대전화번호 ${["앞", "가운데", "뒤"][index]}자리`);
-		// 입력칸 생성 시 placeholder/초기값 없음. 신청인만 init()에서 저장 번호를 설정.
+
+		input.setAttribute(
+			"aria-label",
+			`${name} 휴대전화번호 ${["앞", "가운데", "뒤"][index]}자리`
+		);
+
+		// 전화번호 기본값 및 placeholder
+		input.value = index === 0 ? "010" : "";
+		input.placeholder = index === 0 ? "010" : "0000";
+
+		// 숫자만 입력 가능
 		input.addEventListener("input", () => {
 			input.value = input.value.replace(/\D/g, "").slice(0, length);
 		});
+
 		group.appendChild(input);
 	});
+
 	return group;
 }
+
 
 function readPhone(group) {
 	if (!group) return null;
@@ -148,7 +163,23 @@ function syncApplicantPhoneAcrossModes(root, sourceGroup) {
 
 function addPhoneCell(row, family) {
 	const td = document.createElement("td");
-	td.appendChild(createPhoneGroup(family.familyName, family.familyId));
+	// 전화번호 입력 그룹 생성
+	const group = createPhoneGroup(
+		family.familyName,
+		family.familyId
+	);
+
+	// DB에서 조회한 가족별 전화번호 복원
+	if (family.phoneNum) {
+		const parts = family.phoneNum.split("-");
+		const inputs = group.querySelectorAll("input");
+
+		inputs.forEach((input, index) => {
+			input.value = parts[index] ?? "";
+		});
+	}
+
+	td.appendChild(group);
 	row.appendChild(td);
 }
 
@@ -196,6 +227,9 @@ function renderChangeNewHeadTable(root) {
 		// 세대주로 선택되면 표시할 '본인' 옵션 추가
 		select.add(new Option("본인", "SELF"), 1);
 
+		// DB에 저장된 관계 복원
+		select.value = family.relationship ?? "";
+
 		relationshipTd.appendChild(select);
 		row.appendChild(relationshipTd);
 
@@ -212,7 +246,9 @@ function renderExistingHouseholdTable(root) {
 		const row = document.createElement("tr");
 		row.dataset.familyId = String(family.familyId);
 		const relationTd = document.createElement("td");
-		relationTd.appendChild(createRelationSelect(family));
+		const select = createRelationSelect(family);
+		relationTd.appendChild(select);
+		select.value = family.relationship ?? "";
 		row.appendChild(relationTd);
 		addIdentityCells(row, family);
 		addPhoneCell(row, family);
@@ -235,28 +271,28 @@ function getCurrentHeadId(root) {
 }
 
 function updateChangeHeadRows(root, resetRelations = false) {
-    const tbody = $(root, "changeNewHeadTableBody");
+	const tbody = $(root, "changeNewHeadTableBody");
 
-    for (const row of tbody.querySelectorAll("tr[data-family-id]")) {
-        const isHead = sameId(row.dataset.familyId, selectedNewHeadId);
-        const radio = row.querySelector('input[name="newHeadFamilyId"]');
-        const select = row.querySelector("select[data-family-id]");
+	for (const row of tbody.querySelectorAll("tr[data-family-id]")) {
+		const isHead = sameId(row.dataset.familyId, selectedNewHeadId);
+		const radio = row.querySelector('input[name="newHeadFamilyId"]');
+		const select = row.querySelector("select[data-family-id]");
 
-        radio.checked = isHead;
+		radio.checked = isHead;
 
-        if (isHead) {
-            // 세대주는 '본인' 자동 선택 + 변경 불가
-            select.value = "SELF";
-            select.disabled = true;
-        } else {
-            // 다른 가족은 관계 직접 선택 가능
-            select.disabled = false;
+		if (isHead) {
+			// 세대주는 '본인' 자동 선택 + 변경 불가
+			select.value = "SELF";
+			select.disabled = true;
+		} else {
+			// 다른 가족은 관계 직접 선택 가능
+			select.disabled = false;
 
-            if (resetRelations || select.value === "SELF") {
-                select.value = "";
-            }
-        }
-    }
+			if (resetRelations || select.value === "SELF") {
+				select.value = "";
+			}
+		}
+	}
 }
 
 function updateHouseholdSections(root) {
@@ -364,32 +400,81 @@ function captureFamilies(tbody) {
 		relationship: row.querySelector("select[data-family-id]")?.value || null
 	}));
 }
+export async function save({ root, progressId }) {
+	const mode = getMode(root);
+	const strategy = mode === "NEW_HOUSEHOLD"
+		? getStrategy(root)
+		: null;
+
+	const headId = mode === "NEW_HOUSEHOLD"
+		? getCurrentHeadId(root)
+		: null;
+
+	let familyMembers = [];
+
+	if (mode === "NEW_HOUSEHOLD") {
+
+		const tbody = $(root,
+			strategy === "KEEP_ORIGINAL"
+				? "keepOriginalHeadTableBody"
+				: "changeNewHeadTableBody"
+		);
+
+		familyMembers = captureFamilies(tbody).map(item => {
+			const family = movingFamilies.find(
+				f => sameId(f.familyId, item.familyId)
+			);
+
+			const isHead = sameId(item.familyId, headId);
+
+			return {
+				familyId: item.familyId,
+				isHouseholdHead: isHead,
+				relationship: isHead
+					? "SELF"
+					: strategy === "KEEP_ORIGINAL"
+						? family?.originalRelationship ?? null
+						: item.relationship,
+				phoneNum: item.phoneNum
+			};
+		});
+
+	} else if (mode === "JOIN_EXISTING") {
+
+		familyRelations = captureFamilies(
+			$(root, "existingHouseholdTableBody")
+		).map(item => ({
+			familyId: item.familyId,
+			isHouseholdHead: false,
+			relationship: item.relationship,
+			phoneNum: item.phoneNum
+		}));
+	}
+	console.log("저장할 가족정보:", JSON.stringify(familyMembers, null, 2));
+	const response = await fetch(`/api/simulation/move/${progressId}/family/current`, {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ familyMembers })
+	});
+	if (!response.ok) {
+		const errorText = await response.text();
+
+		console.error("4단계 가족정보 저장 실패:", {
+			status: response.status,
+			response: errorText,
+			familyMembers
+		});
+
+		throw new Error("4단계 가족정보 저장에 실패했습니다.");
+	}
+}
 
 export function getData({ root }) {
 	const mode = getMode(root);
 	const strategy = mode === "NEW_HOUSEHOLD" ? getStrategy(root) : null;
-	const headId = mode === "NEW_HOUSEHOLD" ? getCurrentHeadId(root) : null;
-	let familyRelations = [];
-
-	if (mode === "NEW_HOUSEHOLD") {
-		const tbody = $(root, strategy === "KEEP_ORIGINAL" ? "keepOriginalHeadTableBody" : "changeNewHeadTableBody");
-		familyRelations = captureFamilies(tbody).map(item => {
-			const family = movingFamilies.find(f => sameId(f.familyId, item.familyId));
-			const isHead = sameId(item.familyId, headId);
-			return {
-				familyId: item.familyId,
-				isHouseholdHead: isHead,
-				relationship: isHead ? "SELF"
-					: strategy === "KEEP_ORIGINAL" ? (family?.originalRelationship || null) : item.relationship,
-				phoneNum: item.phoneNum
-			};
-		});
-	} else if (mode === "JOIN_EXISTING") {
-		familyRelations = captureFamilies($(root, "existingHouseholdTableBody")).map(item => ({
-			...item, isHouseholdHead: false
-		}));
-	}
-
+	const headId = mode === "NEW_HOUSEHOLD"
+		? getCurrentHeadId(root)
+		: null;
 	const currentAddress = {};
 	for (const [id, key] of Object.entries(ADDRESS_FIELDS)) {
 		currentAddress[key] = $(root, id).value.trim() || null;
@@ -403,7 +488,6 @@ export function getData({ root }) {
 		existingHeadName: mode === "JOIN_EXISTING" ? $(root, "existingHeadName").value.trim() || null : null,
 		existingHeadPhoneNum: mode === "JOIN_EXISTING" ? readPhone($(root, "existingHeadPhoneGroup")) : null,
 		existingHeadCheck: mode === "JOIN_EXISTING" && existingHeadMockConfirmed ? "SIMULATED" : null,
-		familyRelations,
 		additionalServices: [...root.querySelectorAll('input[name="additionalService"]:checked')].map(input => input.value)
 	};
 }
@@ -488,6 +572,40 @@ export function restore({ root, data, readOnly = false }) {
 	return true;
 }
 
+
+// ==============================
+// 전입신고 4단계 저장된 입력값 조회
+// ==============================
+async function fetchSavedAnswers(progressId, stepId) {
+
+	const response = await fetch(
+		`/api/simulation/answers/${progressId}/${stepId}`
+	);
+
+	if (!response.ok) {
+		throw new Error("4단계 입력값 조회 실패");
+	}
+
+	const answers = await response.json();
+
+	const jsonFields = [
+		"currentAddress",
+		"familyRelations",
+		"additionalServices"
+	];
+
+	const data = {};
+
+	for (const answer of answers) {
+		data[answer.fieldKey] = jsonFields.includes(answer.fieldKey)
+			? JSON.parse(answer.answerValue)
+			: answer.answerValue;
+	}
+
+	return Object.keys(data).length > 0 ? data : null;
+}
+
+
 export async function init({ root, progressId, stepId, readOnly = false, savedData = null }) {
 	activeRoot = root;
 	activeProgressId = progressId;
@@ -524,13 +642,22 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 		updateChangeHeadRows(root);
 		updateHouseholdSections(root);
 
+		// 저장된 입력값 조회
+		const storedData = savedData ?? await fetchSavedAnswers(progressId, stepId);
+
+		// 기존 임시 저장값
 		const draft = drafts.get(String(progressId));
-		if (savedData) restoreData(root, savedData);
-		else if (!readOnly && draft?.signature === familySignature()) restoreData(root, draft.data);
+
+		if (storedData) {
+			// DB에 저장된 입력값 우선 복원
+			restoreData(root, storedData);
+
+		} else if (!readOnly && draft?.signature === familySignature()) {
+			// DB 저장값이 없으면 임시 입력값 복원
+			restoreData(root, draft.data);
+		}
 
 		if (readOnly) {
-			if (!savedData) $(root, "newAddressStatus").textContent =
-				"4단계 저장 답변 조회 API 연결 전이므로 완료된 입력값을 불러올 수 없습니다.";
 			disableForReadOnly(root);
 			return;
 		}

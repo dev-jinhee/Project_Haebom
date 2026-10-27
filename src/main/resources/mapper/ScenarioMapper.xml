@@ -69,23 +69,23 @@
 
 	<!-- 시나리오 전체단계 조회 -->
 	<select id="selectScenarioStep"
-		resultType="kr.co.oti.haebom.domain.ScenarioStep">
+		resultType="kr.co.oti.haebom.dto.ScenarioStepDTO">
 		select *
 		from scenario_step
 		where scenario_id = #{scenarioId}
 	</select>
 	
 	<select id="selectScenarioStepById"
-		resultType="kr.co.oti.haebom.domain.ScenarioStep">
+		resultType="kr.co.oti.haebom.dto.ScenarioStepDTO">
 		select *
 		from scenario_step
 		where step_id = #{stepId}
-		order by
-		step_order ASC
+			and scenario_id = #{scenarioId}
 	</select>
+	
 	<!-- 시나리오의 첫 단계 조회 -->
 	<select id="selectFirstStepByScenarioId"
-		resultType="kr.co.oti.haebom.domain.ScenarioStep">
+		resultType="kr.co.oti.haebom.dto.ScenarioStepDTO">
 		select *
 		from scenario_step
 		where scenario_id = #{scenarioId}
