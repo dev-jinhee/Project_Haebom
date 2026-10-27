@@ -24,14 +24,14 @@
             					|| "admin".equals(request.getParameter("role"));
             %>
             <c:if test="<%= isAdmin %>">
-                <a class="btn btn-outline-secondary rounded-pill" href="${pageContext.request.contextPath}/admin">
+                <a class="btn btn-outline-secondary rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/admin">
                     <span class="material-symbols-outlined me-1" aria-hidden="true">space_dashboard</span>관리자 페이지
                 </a>
             </c:if>
 
             <!-- 글씨 크기 조절 드롭다운 (피그마 '보통') -->
             <div class="dropdown">
-                <button class="btn btn-access dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정" title="글씨 크기 설정">
+                <button class="btn btn-access dropdown-toggle d-inline-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정" title="글씨 크기 설정">
                     <span class="material-symbols-outlined me-1" aria-hidden="true">text_fields</span><span data-mode-label>보통</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
@@ -44,21 +44,21 @@
             <!-- 로그인 여부에 따른 버튼 분기 -->
             <c:choose>
                 <c:when test="${not empty pageContext.request.userPrincipal}">
-                    <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
+                    <a class="btn btn-outline-primary rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/mypage">
                         <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span>마이페이지
                     </a>
                     <form class="d-inline" method="post" action="${pageContext.request.contextPath}/logout">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-                        <button class="btn btn-light rounded-pill" type="submit">
+                        <button class="btn btn-light rounded-pill d-inline-flex align-items-center" type="submit">
                             <span class="material-symbols-outlined me-1" aria-hidden="true">logout</span>로그아웃
                         </button>
                     </form>
                 </c:when>
                 <c:otherwise>
-                    <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/mypage">
+                    <a class="btn btn-outline-primary rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/mypage">
                         <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span>마이페이지
                     </a>
-                    <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/login">
+                    <a class="btn btn-light rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/login">
                         <span class="material-symbols-outlined me-1" aria-hidden="true">login</span>로그인
                     </a>
                 </c:otherwise>

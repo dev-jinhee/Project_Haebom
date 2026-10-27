@@ -12,7 +12,7 @@ const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 const RELATIONS = [
 	["", "관계 선택"],
 	["SPOUSE", "배우자"], ["CHILD", "자녀"],
-	["FATHER", "부"], ["MOTHER", "모"], ["PARENT", "부모"],
+	["FATHER", "부"], ["MOTHER", "모"],
 	["OTHER", "기타"]
 ];
 const RELATION_LABELS = Object.fromEntries([["SELF", "본인"], ...RELATIONS]);

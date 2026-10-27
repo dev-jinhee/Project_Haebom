@@ -42,6 +42,23 @@ button, input, select { font: inherit; }
 .btn-outline-primary { --bs-btn-color: #1769aa; --bs-btn-border-color: #9ab8d1; --bs-btn-hover-bg: #1769aa; --bs-btn-hover-border-color: #1769aa; }
 .form-control:focus, .form-check-input:focus, .btn:focus-visible, a:focus-visible { outline: 3px solid #ffbf47; outline-offset: 2px; box-shadow: 0 0 0 .2rem rgba(255,191,71,.2); }
 
+/* 공통 헤더 버튼 아이콘 & 텍스트 수직 중앙 정렬 */
+.site-header .btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle;
+  line-height: 1.5;
+}
+.site-header .btn .material-symbols-outlined {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.25rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
 .hero-section { overflow: hidden; position: relative; padding: 80px 0 76px; color: #fff; background: radial-gradient(ellipse at 83% 45%, rgba(87,157,194,.22), transparent 38%), linear-gradient(110deg,#10345a 0%,#164d79 55%,#22678b 100%); }
 .hero-section::after { position: absolute; right: -140px; bottom: -270px; width: 620px; height: 620px; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; content: ''; }
 .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 46px; }
