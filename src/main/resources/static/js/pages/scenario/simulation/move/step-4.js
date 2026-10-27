@@ -11,7 +11,6 @@ const VIRTUAL_WELFARE_CENTER = "해봄동 행정복지센터 (가상)";
 const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 const RELATIONS = [
 	["", "관계 선택"],
-	["SPOUSE", "배우자"], ["CHILD", "자녀"],
 	["FATHER", "부"], ["MOTHER", "모"],
 	["OTHER", "기타"]
 ];
