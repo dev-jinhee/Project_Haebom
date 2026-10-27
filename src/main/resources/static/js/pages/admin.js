@@ -624,7 +624,7 @@
       const response = await fetch('/api/admin/members');
       if (!response.ok) throw new Error('회원 목록 조회 실패');
       const list = await response.json();
-      adminMemberCache = list || [];
+      adminMemberCache = (list || []).filter(m => m.role !== 'ADMIN');
 
       renderAdminMemberRows();
     } catch (error) {
@@ -667,7 +667,7 @@
   }
 
   // 회원 상세 모달 열릴 때 진짜 DB 데이터 바인딩!
-  document.getElementById('memberDetailModal')?.addEventListener('show.bs.modal', (event) => {
+  document.getElementById('memberDetailModal')?.addEventListener('show.bs.modal', async (event) => {
     selectedAdminMemberId = event.relatedTarget?.dataset.memberDetail || '';
     const member = adminMemberCache.find(item => String(item.memberId) === String(selectedAdminMemberId));
     if (!member) return;
@@ -680,10 +680,69 @@
 
     const draftBody = document.querySelector('[data-member-drafts]');
     const draftCount = document.querySelector('[data-member-draft-count]');
+
     if (draftBody) {
-      draftBody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">임시 저장된 연습이 없습니다.</td></tr>';
+      draftBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-3"><div class="spinner-border spinner-border-sm me-2" role="status"></div>연습 내역을 불러오는 중입니다...</td></tr>';
     }
-    if (draftCount) draftCount.textContent = '0건';
+    if (draftCount) draftCount.textContent = '...';
+
+    try {
+      const response = await fetch(`/api/admin/members/${selectedAdminMemberId}/drafts`);
+      if (!response.ok) throw new Error('연습 내역 조회 실패');
+      const drafts = await response.json();
+
+      if (draftCount) {
+        draftCount.textContent = `${drafts ? drafts.length : 0}건`;
+      }
+
+      if (!draftBody) return;
+
+      if (!drafts || drafts.length === 0) {
+        draftBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">진행 중이거나 완료된 연습이 없습니다.</td></tr>';
+        return;
+      }
+
+      draftBody.innerHTML = drafts.map((d) => {
+        const isCompleted = d.progressStatus === 'COMPLETED';
+        const statusBadge = isCompleted
+          ? '<span class="badge text-bg-success">완료</span>'
+          : '<span class="badge text-bg-warning">진행중</span>';
+
+        const saveDate = (d.completedAt || d.lastSavedAt || d.startedAt)
+          ? String(d.completedAt || d.lastSavedAt || d.startedAt).substring(0, 16).replace('T', ' ').replace(/-/g, '.')
+          : '—';
+
+        const expireDate = isCompleted
+          ? '<span class="text-secondary">—</span>'
+          : (d.expireDate ? `<span class="text-danger fw-semibold">${String(d.expireDate).substring(0, 10).replace(/-/g, '.')}</span>` : '—');
+
+        const rate = d.progressRate != null ? d.progressRate : (isCompleted ? 100 : 0);
+
+        return `
+          <tr>
+            <td class="fw-semibold">${escapeAdminHtml(d.scenarioTitle || '시나리오')}</td>
+            <td>${statusBadge}</td>
+            <td>${escapeAdminHtml(d.stepTitle || '—')}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height: 6px; width: 60px;">
+                  <div class="progress-bar ${isCompleted ? 'bg-success' : 'bg-primary'}" role="progressbar" style="width: ${rate}%;"></div>
+                </div>
+                <small class="text-secondary fw-semibold">${rate}%</small>
+              </div>
+            </td>
+            <td class="small text-secondary">${saveDate}</td>
+            <td class="small">${expireDate}</td>
+          </tr>
+        `;
+      }).join('');
+    } catch (err) {
+      console.error('회원 연습 내역 조회 에러:', err);
+      if (draftBody) {
+        draftBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-4">내역을 불러오지 못했습니다.</td></tr>';
+      }
+      if (draftCount) draftCount.textContent = '0건';
+    }
   });
 
   // 관리자 회원 상태 변경 저장 버튼 클릭 이벤트

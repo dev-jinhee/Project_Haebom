@@ -591,8 +591,8 @@
 							</div>
 							<div class="col-md-3">
 								<label class="form-label" for="scenarioCategory">분류</label><select
-									class="form-select" id="scenarioCategory"><option value="1">이사·주거</option>
-									<option value="2">신분증</option></select>
+									class="form-select" id="scenarioCategory"><option value="1">주거·이사</option>
+									<option value="2">신분증·주민등록</option></select>
 							</div>
 							<div class="col-md-2">
 								<label class="form-label" for="scenarioEstimatedMinutes">예상
@@ -758,9 +758,8 @@
 								<span class="admin-detail-section-icon"><i
 									class="bi bi-bookmark-check"></i></span>
 								<div>
-									<h3 class="h6 fw-bold mb-1" id="memberDraftTitle">임시 저장 진행</h3>
-									<p class="small text-secondary mb-0">이 회원이 이어서 진행할 수 있는
-										연습입니다.</p>
+									<h3 class="h6 fw-bold mb-1" id="memberDraftTitle">연습 진행 및 이력</h3>
+									<p class="small text-secondary mb-0">각 시나리오별 가장 최근에 진행한 연습 내역입니다.</p>
 								</div>
 							</div>
 							<span class="admin-count-badge" data-member-draft-count></span>
@@ -770,9 +769,10 @@
 								<thead>
 									<tr>
 										<th>시나리오</th>
-										<th>마지막 저장 단계</th>
+										<th>상태</th>
+										<th>마지막 진행 단계</th>
 										<th>진행률</th>
-										<th>저장 일시</th>
+										<th>저장/완료 일시</th>
 										<th>자동 삭제 예정</th>
 									</tr>
 								</thead>
