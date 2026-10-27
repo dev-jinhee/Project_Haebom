@@ -18,8 +18,15 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		http // 임시 단계: 모든 요청에서 CSRF 토큰 검사를 하지 않습니다.
-				.csrf(csrf -> csrf.disable())
+		http
+				// CSRF 보호 정책 정비: 일반 폼 요청(로그아웃 등)은 CSRF 토큰을 검증하고,
+				// 비동기 REST API(/api/**) 및 외부 행안부 주소 팝업 콜백(/address/juso/popup)은 안전하게 예외 처리
+				.csrf(csrf -> csrf
+						.ignoringRequestMatchers(
+								antMatcher("/api/**"),
+								antMatcher("/address/juso/popup")
+						)
+				)
 
 				// URL별 인증·권한은 계속 검사합니다.
 				.authorizeHttpRequests(auth -> auth
