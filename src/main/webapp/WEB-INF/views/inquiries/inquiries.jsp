@@ -66,10 +66,19 @@
                 </div>
             </div>
 
-            <!-- 우측: 문의 작성 버튼 (공통) -->
-            <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap" data-open-inquiry>
-                <i class="bi bi-pencil-square me-1"></i>문의 작성
-            </button>
+            <!-- 우측: 문의 작성 버튼 (일반 사용자) vs 관리자 문의 관리 버튼 (관리자) -->
+            <c:choose>
+                <c:when test="${isAdmin}">
+                    <a href="${pageContext.request.contextPath}/admin#inquiries" class="btn btn-outline-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap d-inline-flex align-items-center">
+                        <i class="bi bi-shield-lock-fill me-1"></i>관리자 문의 관리
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap" data-open-inquiry>
+                        <i class="bi bi-pencil-square me-1"></i>문의 작성
+                    </button>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <!-- 문의 내역 패널 (전체 문의 / 내 문의 내역 탭) -->
@@ -148,10 +157,6 @@
             <details>
                 <summary>시뮬레이션을 완료하면 실제 민원이 접수되나요?</summary>
                 <p>아니요. 해봄은 학습 및 체험용 시뮬레이션 서비스로, 실제 공공기관이나 정부24 시스템에 데이터가 전송되지 않습니다. 안심하고 연습해 보세요.</p>
-            </details>
-            <details>
-                <summary>작성한 문서나 개인정보가 서버에 저장되나요?</summary>
-                <p>시뮬레이션 과정에서 입력하신 가상 정보는 연습 종료 시 안전하게 초기화되며, 실제 개인정보는 보관되지 않습니다.</p>
             </details>
             <details>
                 <summary>답변은 보통 언제 등록되나요?</summary>

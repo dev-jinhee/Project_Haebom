@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.oti.haebom.dto.AdminMemberDTO;
+import kr.co.oti.haebom.dto.AdminMemberProgressDTO;
 import kr.co.oti.haebom.mapper.AdminMemberMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -29,5 +30,11 @@ public class AdminMemberServiceImpl implements AdminMemberService {
 	public void updateMemberStatus(int memberId, String memberStatus) {
 		adminMemberMapper.updateMemberStatus(memberId, memberStatus);
 		adminDashboardService.recordActivity(1, "MEMBER", "UPDATE", memberId);
+	}
+	
+	// 3. 특정 회원의 시뮬레이션 진행/완료 내역 조회
+	@Override
+	public List<AdminMemberProgressDTO> getMemberProgressList(int memberId) {
+		return adminMemberMapper.selectMemberProgressList(memberId);
 	}
 }

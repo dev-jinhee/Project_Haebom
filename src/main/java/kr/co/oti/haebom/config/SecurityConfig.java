@@ -1,5 +1,7 @@
 package kr.co.oti.haebom.config;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
@@ -17,8 +18,15 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-		http // 임시 단계: 모든 요청에서 CSRF 토큰 검사를 하지 않습니다.
-				.csrf(csrf -> csrf.disable())
+		http
+				// CSRF 보호 정책 정비: 일반 폼 요청(로그아웃 등)은 CSRF 토큰을 검증하고,
+				// 비동기 REST API(/api/**) 및 외부 행안부 주소 팝업 콜백(/address/juso/popup)은 안전하게 예외 처리
+				.csrf(csrf -> csrf
+						.ignoringRequestMatchers(
+								antMatcher("/api/**"),
+								antMatcher("/address/juso/popup")
+						)
+				)
 
 				// URL별 인증·권한은 계속 검사합니다.
 				.authorizeHttpRequests(auth -> auth
@@ -46,7 +54,9 @@ public class SecurityConfig {
 					    .requestMatchers(
 					        antMatcher("/api/members/join"),
 					        antMatcher("/api/members/id-availability"),
-					        antMatcher("/api/members/email-verification/**")
+					        antMatcher("/api/members/email-verification/**"),
+					        antMatcher("/api/members/recovery/find-id/**"),
+					        antMatcher("/api/members/recovery/find-password/**")
 					    ).permitAll()
 
 					    // 공개 조회 API
@@ -93,30 +103,3 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 }
-
-/*
- * @Configuration public class SecurityConfig {
- * 
- * @Bean public SecurityFilterChain securityFilterChain(HttpSecurity http)
- * throws Exception { http .csrf(csrf -> csrf
- * .ignoringAntMatchers("/address/juso/popup") //주소팝업은 외부 서비스라 CSRF 예외 필요 )
- * .authorizeHttpRequests(auth -> auth .requestMatchers("/", "/login", "/error",
- * "/member/signup", "/member/find-id", "/member/find-password",
- * "/api/members/join", "/css/**", "/js/**", "/images/**",
- * "/api/**","/address/juso/popup", // Swagger UI 및 OpenAPI 문서
- * "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**")
- * .permitAll() .anyRequest().authenticated() ) .formLogin(form -> form
- * .loginPage("/login") .loginProcessingUrl("/login")
- * .usernameParameter("loginId") .passwordParameter("password") // ⭐ 스마트 리다이렉트
- * (이전 보던 페이지 파라미터가 있으면 거기로 복귀!) .successHandler((request, response,
- * authentication) -> { String redirect = request.getParameter("redirect"); if
- * (redirect != null && !redirect.isBlank() && redirect.startsWith("/")) {
- * response.sendRedirect(redirect); } else { response.sendRedirect("/"); } })
- * .failureUrl("/login?error") .permitAll() ) .logout(logout -> logout
- * .permitAll() );
- * 
- * return http.build(); }
- * 
- * @Bean public PasswordEncoder passwordEncoder() { return new
- * BCryptPasswordEncoder(); } }
- */
