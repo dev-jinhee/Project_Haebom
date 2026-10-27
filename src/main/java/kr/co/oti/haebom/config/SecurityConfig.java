@@ -54,7 +54,9 @@ public class SecurityConfig {
 					    .requestMatchers(
 					        antMatcher("/api/members/join"),
 					        antMatcher("/api/members/id-availability"),
-					        antMatcher("/api/members/email-verification/**")
+					        antMatcher("/api/members/email-verification/**"),
+					        antMatcher("/api/members/recovery/find-id/**"),
+					        antMatcher("/api/members/recovery/find-password/**")
 					    ).permitAll()
 
 					    // 공개 조회 API
