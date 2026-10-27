@@ -1,4 +1,4 @@
-package kr.co.oti.haebom.domain;
+package kr.co.oti.haebom.dto;
 
 import java.time.LocalDate;
 
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Member {
+public class MemberDTO {
 
 	private Integer memberId;
 	private String memberName;
