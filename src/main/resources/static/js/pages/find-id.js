@@ -5,12 +5,14 @@
 
     const nameField = document.getElementById('memberName');
     const emailField = document.getElementById('email');
+    const verificationSection = document.getElementById('verificationSection');
     const codeField = document.getElementById('verificationCode');
     const sendButton = document.getElementById('sendCodeButton');
     const confirmButton = document.getElementById('confirmCodeButton');
     const sendStatus = document.getElementById('sendCodeStatus');
     const verifyStatus = document.getElementById('verifyCodeStatus');
     const result = document.getElementById('findIdResult');
+    const resultActions = document.getElementById('findIdResultActions');
     const foundLoginId = document.getElementById('foundLoginId');
     const title = document.getElementById('findIdTitle');
     const contextPath = card.dataset.contextPath || '';
@@ -74,6 +76,7 @@
                 return;
             }
             setStatus(sendStatus, '인증번호를 이메일로 보냈습니다. 5분 안에 입력해 주세요.', 'text-success');
+            verificationSection.hidden = false;
             codeField.focus();
         } catch (error) {
             setStatus(sendStatus, error.message, 'text-danger');
@@ -106,8 +109,7 @@
             title.textContent = '아이디 찾기 결과';
             form.hidden = true;
             result.hidden = false;
-            const backLink = card.querySelector('.back-link');
-            if (backLink) backLink.hidden = true;
+            resultActions.hidden = false;
         } catch (error) {
             setStatus(verifyStatus, error.message, 'text-danger');
         } finally {
