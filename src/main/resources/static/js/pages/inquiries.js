@@ -181,6 +181,7 @@
     if (footerSpanEl) footerSpanEl.textContent = `총 ${filtered.length}건`;
 
     // 데이터가 0건일 때 안내 화면
+    if (filtered.length === 0) {
       const emptyActionBtn = isAdmin
         ? '<a href="/admin#inquiries" class="btn btn-outline-primary btn-sm rounded-pill px-4"><i class="bi bi-shield-lock-fill me-1"></i>관리자 문의 관리로 이동</a>'
         : '<button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-4" data-open-inquiry>문의 작성하기</button>';
