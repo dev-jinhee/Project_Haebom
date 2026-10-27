@@ -441,7 +441,7 @@ export async function save({ root, progressId }) {
 
 	} else if (mode === "JOIN_EXISTING") {
 
-		familyRelations = captureFamilies(
+		familyMembers = captureFamilies(
 			$(root, "existingHouseholdTableBody")
 		).map(item => ({
 			familyId: item.familyId,
