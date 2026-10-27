@@ -14,10 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import kr.co.oti.haebom.domain.SimulationFamily;
 import kr.co.oti.haebom.dto.MoveFamilyMemberDTO;
 import kr.co.oti.haebom.dto.MoveFamilyRequestDTO;
 import kr.co.oti.haebom.dto.MovePreparationRequestDTO;
+import kr.co.oti.haebom.dto.SimulationFamilyDTO;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
 import kr.co.oti.haebom.mapper.SimulationFamilyMapper;
 import kr.co.oti.haebom.mapper.SimulationProgressMapper;
@@ -91,7 +91,7 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 		// 4. 가족 구성원 저장
 		for (MoveFamilyMemberDTO member : requestdto.getFamilyMembers()) {
 
-			SimulationFamily family = SimulationFamily.builder().progressId(progressId)
+			SimulationFamilyDTO family = SimulationFamilyDTO.builder().progressId(progressId)
 					.familyName(member.getFamilyName()).birthDate(member.getBirthDate()).gender(member.getGender())
 					.isApplicant(member.getIsApplicant()).isOriginalHead(member.getIsOriginalHead())
 					.originalRelationship(member.getOriginalRelationship()).build();
@@ -107,14 +107,14 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 
 	// 신청인 정보 조회
 	@Override
-	public SimulationFamily getApplicant(Integer progressId, Integer memberId) {
+	public SimulationFamilyDTO getApplicant(Integer progressId, Integer memberId) {
 		// 로그인 사용자의 진행 사항이 맞는지
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 		if (progress == null) {
 			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
 		}
 		// 신청인 정보 조회
-		SimulationFamily applicant = familyMapper.selectApplicant(progressId);
+		SimulationFamilyDTO applicant = familyMapper.selectApplicant(progressId);
 
 		if (applicant == null) {
 			throw new IllegalArgumentException("신청인 정보를 찾을 수 없습니다.");
@@ -147,13 +147,13 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 
 	// 가족 조회
 	@Override
-	public List<SimulationFamily> getFamily(Integer progressId, Integer memberId, String moveStatus) {
+	public List<SimulationFamilyDTO> getFamily(Integer progressId, Integer memberId, String moveStatus) {
 		// 로그인 사용자의 진행 사항이 맞는지
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 		if (progress == null) {
 			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
 		}
-		List<SimulationFamily> families = familyMapper.selectFamily(progressId);
+		List<SimulationFamilyDTO> families = familyMapper.selectFamily(progressId);
 
 		if (families == null) {
 			throw new IllegalArgumentException("가족을 찾을 수 없습니다.");
@@ -193,7 +193,7 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 		}
 
 		// 2. DB에 등록된 가족 조회
-		List<SimulationFamily> families = familyMapper.selectFamily(progressId);
+		List<SimulationFamilyDTO> families = familyMapper.selectFamily(progressId);
 
 		if (families.isEmpty()) {
 			throw new IllegalArgumentException("가족정보가 없습니다.");
@@ -225,17 +225,17 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 			throw new IllegalArgumentException("전체 가족정보를 전달해야 합니다.");
 		}
 
-		for (SimulationFamily family : families) {
+		for (SimulationFamilyDTO family : families) {
 			if (!requested.containsKey(family.getFamilyId())) {
 				throw new IllegalArgumentException("등록되지 않은 가족정보가 포함되어 있습니다.");
 			}
 		}
 
 		// 4. 신청인과 기존 세대주 확인
-		SimulationFamily applicant = families.stream().filter(SimulationFamily::getIsApplicant).findFirst()
+		SimulationFamilyDTO applicant = families.stream().filter(SimulationFamilyDTO::getIsApplicant).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("신청인이 없습니다."));
 
-		SimulationFamily originalHead = families.stream().filter(SimulationFamily::getIsOriginalHead).findFirst()
+		SimulationFamilyDTO originalHead = families.stream().filter(SimulationFamilyDTO::getIsOriginalHead).findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("기존 세대주가 없습니다."));
 
 		// 신청인은 반드시 MOVE
@@ -274,7 +274,7 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 		// 6. 모든 가족의 현재 정보를 다시 계산하여 저장
 		Set<String> relationCodes = Set.of("SELF", "SPOUSE", "CHILD", "FATHER", "MOTHER", "PARENT", "OTHER");
 
-		for (SimulationFamily family : families) {
+		for (SimulationFamilyDTO family : families) {
 
 			MoveFamilyRequestDTO.FamilyMember member = requested.get(family.getFamilyId());
 
