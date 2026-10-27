@@ -3,9 +3,10 @@ package kr.co.oti.haebom.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
-import kr.co.oti.haebom.domain.ScenarioStep;
 import kr.co.oti.haebom.dto.ScenarioDTO;
+import kr.co.oti.haebom.dto.ScenarioStepDTO;
 
 @Mapper
 public interface ScenarioMapper {
@@ -22,11 +23,11 @@ public interface ScenarioMapper {
 	boolean existsActiveScenarioById(Integer scenarioId);
 
 	// 시나리오 전체 단계 조회
-	List<ScenarioStep> selectScenarioStep(Integer scenarioId);
+	List<ScenarioStepDTO> selectScenarioStep(Integer scenarioId);
 
 	// 시나리오 특정 단계 조회
-	ScenarioStep selectScenarioStepById(Integer stepId);
+	ScenarioStepDTO selectScenarioStepById(@Param("stepId") Integer stepId, @Param("scenarioId") Integer scenarioId);
 	
 	//시나리오의 첫 단계 조회
-	ScenarioStep selectFirstStepByScenarioId(Integer scenarioId);
+	ScenarioStepDTO selectFirstStepByScenarioId(Integer scenarioId);
 }

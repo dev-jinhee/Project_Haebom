@@ -13,9 +13,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.co.oti.haebom.domain.ScenarioStep;
 import kr.co.oti.haebom.dto.ScenarioDTO;
 import kr.co.oti.haebom.dto.ScenarioListItemDTO;
+import kr.co.oti.haebom.dto.ScenarioStepDTO;
 import kr.co.oti.haebom.security.MemberPrincipal;
 import kr.co.oti.haebom.service.ScenarioService;
 import kr.co.oti.haebom.service.SimulationService;
@@ -67,7 +67,7 @@ public class ScenarioApiController {
         description = "조회 성공"
     )
 	@GetMapping("/{scenarioId}/steps")
-	public List<ScenarioStep> getScenarioSteps(@PathVariable("scenarioId") Integer scenarioId) {
+	public List<ScenarioStepDTO> getScenarioSteps(@PathVariable("scenarioId") Integer scenarioId) {
 	    return scenarioService.getScenarioStep(scenarioId);
 	}
     // 새 진행 이력 생성

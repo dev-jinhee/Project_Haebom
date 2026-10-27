@@ -1,9 +1,9 @@
-package kr.co.oti.haebom.domain;
+package kr.co.oti.haebom.dto;
 
 import lombok.Getter;
 
 @Getter
-public class ScenarioStep {
+public class ScenarioStepDTO {
 	private Integer stepId;
     private Integer scenarioId;
     private Integer stepOrder;
