@@ -12,14 +12,14 @@
 		SELECT COUNT(*) FROM member WHERE email = #{email}
 	</select>
 	
-	<insert id="insertMember" parameterType="kr.co.oti.haebom.domain.Member">
+	<insert id="insertMember" parameterType="kr.co.oti.haebom.dto.MemberDTO">
 		INSERT INTO member
 			(login_id, password, email, member_name, birth_date, gender)
 		VALUES
 			(#{loginId}, #{password}, #{email}, #{memberName}, #{birthDate}, #{gender})
 	</insert>
 	
-	<select id="findByLoginId" resultType="kr.co.oti.haebom.domain.Member">
+	<select id="findByLoginId" resultType="kr.co.oti.haebom.dto.MemberDTO">
 		SELECT member_name, member_id, login_id, password, role, member_status
 		FROM member
 		WHERE login_id = #{loginId}

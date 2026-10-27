@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import kr.co.oti.haebom.dto.QnaAnswerDTO;
 import kr.co.oti.haebom.dto.QnaDTO;
 import kr.co.oti.haebom.mapper.QnaMapper;
+import kr.co.oti.haebom.util.XssUtils;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,6 +31,10 @@ public class QnaServiceImpl implements QnaService {
         if (qnaDTO.getMemberId() == null) {
             qnaDTO.setMemberId(1);
         }
+        // XSS 방어: 제목 및 본문 악성 스크립트 정제
+        qnaDTO.setQnaTitle(XssUtils.clean(qnaDTO.getQnaTitle()));
+        qnaDTO.setQnaContent(XssUtils.clean(qnaDTO.getQnaContent()));
+
         qnaMapper.insertQna(qnaDTO);
     }
     
@@ -42,6 +47,10 @@ public class QnaServiceImpl implements QnaService {
     // 4. 문의글 수정
     @Override
     public void updateQna(QnaDTO qnaDTO) {
+        // XSS 방어: 수정 시에도 제목 및 본문 악성 스크립트 정제
+        qnaDTO.setQnaTitle(XssUtils.clean(qnaDTO.getQnaTitle()));
+        qnaDTO.setQnaContent(XssUtils.clean(qnaDTO.getQnaContent()));
+
         qnaMapper.updateQna(qnaDTO);
     }
     
@@ -53,6 +62,9 @@ public class QnaServiceImpl implements QnaService {
     	if (answerDTO.getMemberId() == null) {
     		answerDTO.setMemberId(1); // 로그인 연동 전: 기본 1번 관리자로 지정
     	}
+    	// XSS 방어: 답변 내용 악성 스크립트 정제
+    	answerDTO.setQnaAnswerContent(XssUtils.clean(answerDTO.getQnaAnswerContent()));
+
     	qnaMapper.insertQnaAnswer(answerDTO);
     	qnaMapper.updateQnaStatus(qnaId, "ANSWERED");
     	adminDashboardService.recordActivity(answerDTO.getMemberId(), "QNA", "ANSWER", qnaId);

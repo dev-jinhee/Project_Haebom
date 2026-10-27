@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import kr.co.oti.haebom.domain.Member;
+import kr.co.oti.haebom.dto.MemberDTO;
 
 public class MemberPrincipal implements UserDetails {
 
@@ -18,7 +18,7 @@ public class MemberPrincipal implements UserDetails {
 	private final String memberName;
 	private final Collection<? extends GrantedAuthority> authorities;
 	
-	public MemberPrincipal(Member member) {
+	public MemberPrincipal(MemberDTO member) {
 		this.memberId = member.getMemberId();
 		this.username = member.getLoginId();
 		this.password = member.getPassword();

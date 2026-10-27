@@ -425,9 +425,31 @@
 	padding-top: 16px;
 }
 
+.admin-page .sidebar-menu .nav-link {
+	display: flex !important;
+	align-items: center !important;
+	gap: 12px;
+}
+
+.admin-page .sidebar-menu .nav-link .nav-icon {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	margin: 0 !important;
+	font-size: 1.2rem;
+	line-height: 1 !important;
+	vertical-align: middle;
+	flex-shrink: 0;
+	position: relative;
+	top: 1px;
+}
+
 .admin-page .sidebar-menu .nav-link p {
-	display: flex;
-	align-items: center;
+	display: flex !important;
+	align-items: center !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	line-height: 1.5 !important;
 	width: 100%;
 }
 
@@ -1692,10 +1714,10 @@
 
 .inquiry-meta-card {
 	display: flex;
-	min-height: 72px;
+	min-height: 66px;
 	align-items: center;
 	gap: 12px;
-	padding: 13px 15px;
+	padding: 10px 15px;
 	border: 1px solid #e7edf3;
 	border-radius: 12px;
 	background: #fff;
@@ -1703,24 +1725,35 @@
 
 .inquiry-meta-icon {
 	display: grid;
-	flex: 0 0 36px;
-	width: 36px;
-	height: 36px;
+	flex: 0 0 38px;
+	width: 38px;
+	height: 38px;
 	place-items: center;
 	border-radius: 11px;
 	color: #42769e;
 	background: #f0f6fb;
 }
 
+.inquiry-meta-card > div {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 2px;
+	min-width: 0;
+}
+
 .inquiry-meta-label {
-	margin-bottom: 3px;
+	margin-bottom: 0;
 	color: #718195;
-	font-size: .72rem;
+	font-size: .74rem;
+	line-height: 1.2;
 }
 
 .inquiry-meta-card strong {
 	color: #263b50;
 	font-size: .88rem;
+	font-weight: 700;
+	line-height: 1.25;
 }
 
 .inquiry-content-panel {
@@ -2003,14 +2036,48 @@
 }
 
 .admin-detail-section-icon {
-	display: grid;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	flex: 0 0 36px;
 	width: 36px;
 	height: 36px;
-	place-items: center;
 	border-radius: 11px;
 	color: #1769aa;
 	background: #eaf4ff;
+}
+
+/* 모달 사각형 박스 내부 아이콘(Bootstrap Icons)의 하단 처짐(vertical-align: -.125em) 완전 보정 */
+.admin-detail-icon,
+.admin-detail-section-icon,
+.admin-member-meta-icon,
+.inquiry-meta-icon,
+.inquiry-detail-icon {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+}
+
+.admin-detail-icon i,
+.admin-detail-section-icon i,
+.admin-member-meta-icon i,
+.inquiry-meta-icon i,
+.inquiry-detail-icon i {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	line-height: 1 !important;
+	margin: 0 !important;
+}
+
+.admin-detail-icon i::before,
+.admin-detail-section-icon i::before,
+.admin-member-meta-icon i::before,
+.inquiry-meta-icon i::before,
+.inquiry-detail-icon i::before {
+	display: block !important;
+	line-height: 1 !important;
+	vertical-align: 0 !important;
 }
 
 .admin-detail-section-heading h3 {
@@ -2068,10 +2135,10 @@
 
 .admin-member-meta-card {
 	display: flex;
-	min-height: 76px;
+	min-height: 66px;
 	align-items: center;
 	gap: 12px;
-	padding: 13px 15px;
+	padding: 10px 15px;
 	border: 1px solid #e7edf3;
 	border-radius: 12px;
 	background: #fff;
@@ -2079,24 +2146,35 @@
 
 .admin-member-meta-icon {
 	display: grid;
-	flex: 0 0 36px;
-	width: 36px;
-	height: 36px;
+	flex: 0 0 38px;
+	width: 38px;
+	height: 38px;
 	place-items: center;
 	border-radius: 11px;
 	color: #42769e;
 	background: #f0f6fb;
 }
 
+.admin-member-meta-card > div {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 2px;
+	min-width: 0;
+}
+
 .admin-member-meta-label {
-	margin-bottom: 3px;
+	margin-bottom: 0;
 	color: #718195;
-	font-size: .72rem;
+	font-size: .74rem;
+	line-height: 1.2;
 }
 
 .admin-member-meta-card strong {
 	color: #263b50;
-	font-size: .84rem;
+	font-size: .88rem;
+	font-weight: 700;
+	line-height: 1.25;
 	overflow-wrap: anywhere;
 }
 

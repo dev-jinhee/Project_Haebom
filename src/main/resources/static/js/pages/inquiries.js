@@ -182,12 +182,16 @@
 
     // 데이터가 0건일 때 안내 화면
     if (filtered.length === 0) {
+      const emptyActionBtn = isAdmin
+        ? '<a href="/admin#inquiries" class="btn btn-outline-primary btn-sm rounded-pill px-4"><i class="bi bi-shield-lock-fill me-1"></i>관리자 문의 관리로 이동</a>'
+        : '<button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-4" data-open-inquiry>문의 작성하기</button>';
+
       const emptyHtml = (currentTab === 'my')
         ? `
           <i class="bi bi-chat-square-text fs-1 text-muted d-block mb-2"></i>
           <div class="fw-bold text-dark mb-1">작성하신 문의 내역이 없습니다</div>
           <p class="text-muted small mb-3">궁금한 점이 있으시다면 언제든 편하게 문의를 남겨주세요.</p>
-          <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-4" data-open-inquiry>문의 작성하기</button>
+          ${emptyActionBtn}
         `
         : `
           <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
@@ -369,6 +373,21 @@
         haebomConfirm(loginConfirmMsg, goToLogin, null, '로그인 필요');
       } else if (confirm(loginConfirmMsg)) {
         goToLogin();
+      }
+      return;
+    }
+
+    // 🚨 관리자 유저 검증: 관리자는 직접 문의 작성 대신 관리자 페이지로 유도!
+    if (isAdmin) {
+      const adminGuideMsg = '관리자 계정은 문의글을 직접 작성하지 않습니다.\n관리자 페이지의 [문의 게시판]으로 이동하시겠습니까?';
+      const goToAdmin = () => {
+        window.location.href = '/admin#inquiries';
+      };
+
+      if (typeof haebomConfirm === 'function') {
+        haebomConfirm(adminGuideMsg, goToAdmin, null, '관리자 안내');
+      } else if (confirm(adminGuideMsg)) {
+        goToAdmin();
       }
       return;
     }

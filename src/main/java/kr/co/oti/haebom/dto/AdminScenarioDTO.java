@@ -18,5 +18,5 @@ public class AdminScenarioDTO {
 	private Boolean isActive; // 운영 여부 (true : 운영 중, false : 점검 중)
 	private Integer categoryId; // 카테고리 번호
 	private String categoryName; // 카테고리 코드명 (HOUSING, IDENTITY)
-	private String categoryLabel; // 화면 표시용 한글명 (이사·주거, 신분증)
+	private String categoryLabel; // 화면 표시용 한글명 (주거·이사, 신분증·주민등록)
 }

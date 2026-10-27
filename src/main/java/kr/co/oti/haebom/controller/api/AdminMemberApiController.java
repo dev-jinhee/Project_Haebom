@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.oti.haebom.dto.AdminMemberDTO;
+import kr.co.oti.haebom.dto.AdminMemberProgressDTO;
 import kr.co.oti.haebom.service.AdminMemberService;
 import lombok.RequiredArgsConstructor;
 
@@ -40,5 +41,12 @@ public class AdminMemberApiController {
 		adminMemberService.updateMemberStatus(memberId, memberStatus);
 		
 		return ResponseEntity.ok("회원 상태가 성공적으로 변경되었습니다.");
+	}
+	
+	// 3. 특정 회원의 시뮬레이션 연습 내역 조회 API (GET /api/admin/members/{memberId}/drafts)
+	@GetMapping("/{memberId}/drafts")
+	public ResponseEntity<List<AdminMemberProgressDTO>> getMemberProgressList(@PathVariable Integer memberId) {
+		List<AdminMemberProgressDTO> progressList = adminMemberService.getMemberProgressList(memberId);
+		return ResponseEntity.ok(progressList);
 	}
 }

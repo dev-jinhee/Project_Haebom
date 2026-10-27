@@ -28,9 +28,9 @@ public class AdminScenarioServiceImpl implements AdminScenarioService {
 
 		for (AdminScenarioDTO dto : list) {
 			if ("HOUSING".equals(dto.getCategoryName())) {
-				dto.setCategoryLabel("이사·주거");
+				dto.setCategoryLabel("주거·이사");
 			} else if ("IDENTITY".equals(dto.getCategoryName())) {
-				dto.setCategoryLabel("신분증");
+				dto.setCategoryLabel("신분증·주민등록");
 			} else {
 				dto.setCategoryLabel(dto.getCategoryName());
 			}

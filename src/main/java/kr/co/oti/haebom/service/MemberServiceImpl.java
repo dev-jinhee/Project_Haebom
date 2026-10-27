@@ -4,8 +4,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.oti.haebom.domain.Member;
 import kr.co.oti.haebom.dto.MemberJoinRequestDTO;
+import kr.co.oti.haebom.dto.MemberDTO;
 import kr.co.oti.haebom.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -37,7 +37,7 @@ public class MemberServiceImpl implements MemberService{
 			throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
 		}
 		
-		Member member = new Member();
+		MemberDTO member = new MemberDTO();
 		member.setLoginId(request.getLoginId());
 		member.setPassword(passwordEncoder.encode(request.getPassword()));
 		member.setEmail(email);
