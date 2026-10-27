@@ -152,13 +152,13 @@
                         <div class="move-step4-phone-fields move-step4-existing-head-phone" id="existingHeadPhoneGroup"
                              data-phone-group="existingHeadPhone">
                             <input id="existingHeadPhoneFirst" class="form-control" type="tel" inputmode="numeric"
-                                   maxlength="3" autocomplete="off" aria-label="기존 세대주 연락처 앞자리">
+                                   maxlength="3" autocomplete="off" value="010" aria-label="기존 세대주 연락처 앞자리">
                             <span aria-hidden="true">–</span>
                             <input id="existingHeadPhoneMiddle" class="form-control" type="tel" inputmode="numeric"
-                                   maxlength="4" autocomplete="off" aria-label="기존 세대주 연락처 가운데자리">
+                                   maxlength="4" autocomplete="off" placeholder="0000" aria-label="기존 세대주 연락처 가운데자리">
                             <span aria-hidden="true">–</span>
                             <input id="existingHeadPhoneLast" class="form-control" type="tel" inputmode="numeric"
-                                   maxlength="4" autocomplete="off" aria-label="기존 세대주 연락처 뒷자리">
+                                   maxlength="4" autocomplete="off" placeholder="0000" aria-label="기존 세대주 연락처 뒷자리">
                         </div>
                     </div>
                 </div>

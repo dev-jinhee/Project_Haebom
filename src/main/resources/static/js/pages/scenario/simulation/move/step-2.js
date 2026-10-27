@@ -1,7 +1,7 @@
 // ==============================
 // 전입신고 2단계 초기화
 // ==============================
-export async function init({ root, progressId, readOnly }) {
+export async function init({ root, progressId, readOnly, stepId }) {
 	const phoneInputs = [
 		root.querySelector("#phoneFirst"),
 		root.querySelector("#phoneMiddle"),
@@ -14,9 +14,43 @@ export async function init({ root, progressId, readOnly }) {
 	const otherRadio = root.querySelector("#reasonOther");
 	const otherInput = root.querySelector("#moveReasonDetail");
 
-	// TODO : 저장된 입력 값 있으면 가져와 화면에 반영
+	// 저장된 입력 값 있으면 가져와 화면에 반영
+	// 저장된 입력값 조회
+	const initresponse = await fetch(
+		`/api/simulation/answers/${progressId}/${stepId}`
+	);
 
-	// TODO : 가족정보 조회 API 구현 후 연결
+	if (!initresponse.ok) {
+		throw new Error("2단계 입력값 조회 실패");
+	}
+
+	const answers = await initresponse.json();
+
+	// 저장된 전입 사유 복원
+	const moveReason = answers.find(
+		answers => answers.fieldKey === "moveReason"
+	);
+
+	if (moveReason) {
+		const selectedRadio = Array.from(reasonRadios).find(
+			radio => radio.value === moveReason.answerValue
+		);
+
+		if (selectedRadio) {
+			selectedRadio.checked = true;
+		}
+		// 기타 사유 복원
+		if (moveReason.answerValue == "OTHER") {
+			const detail = answers.find(
+				answers => answers.fieldKey === "moveReasonDetail"
+			);
+			otherInput.disabled = false;
+			otherInput.value = detail?.answerValue ?? "";
+		}
+	}
+
+
+	// 가족정보 조회 API 구현 후 연결
 	const response = await fetch(`/api/simulation/move/${progressId}/applicant`);
 	if (!response) {
 		throw new Error("신청인 조회 실패");

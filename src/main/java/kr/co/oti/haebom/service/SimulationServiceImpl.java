@@ -1,5 +1,7 @@
 package kr.co.oti.haebom.service;
 
+import java.util.Objects;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,21 +92,26 @@ public class SimulationServiceImpl implements SimulationService {
 	// 다음 단계 이동
 	@Override
 	@Transactional
-	public void saveAndMoveToStep(Integer progressId, Integer memberId, Integer targetStepId, AnswerSaveRequestListDTO request) {
+	public void saveAndMoveToStep(Integer progressId, Integer memberId, Integer targetStepId,
+			AnswerSaveRequestListDTO request) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
 			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
 		}
-		if (!simulationProgressMapper.isNextStep(
-		        progress.getScenarioId(),
-		        progress.getStepId(),
-		        targetStepId)) {
-		    throw new IllegalArgumentException("다음 단계로 이동할 수 없습니다.");
+		if (!simulationProgressMapper.isNextStep(progress.getScenarioId(), progress.getStepId(), targetStepId)) {
+			throw new IllegalArgumentException("다음 단계로 이동할 수 없습니다.");
 		}
-		
+
 		// 현재 단계 입력값 저장
-		answerMapper.upsertAnswer(progressId, request);
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+
+			if (!Objects.equals(progress.getStepId(), answer.getStepId())) {
+				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
+			}
+
+			answerMapper.upsertAnswer(progressId, answer);
+		}
 
 		// 다음 단계 이동
 		int updatedRows = simulationProgressMapper.updateProgressStep(progressId, memberId, progress.getStepId(),
@@ -126,7 +133,14 @@ public class SimulationServiceImpl implements SimulationService {
 		}
 
 		// 마지막 단계 입력값 저장
-		answerMapper.upsertAnswer(progressId, request);
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+
+			if (!Objects.equals(progress.getStepId(), answer.getStepId())) {
+				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
+			}
+
+			answerMapper.upsertAnswer(progressId, answer);
+		}
 
 		// completeSimulationProgress() 호출
 		int updatedRows = simulationProgressMapper.completeSimulationProgress(progressId, memberId,

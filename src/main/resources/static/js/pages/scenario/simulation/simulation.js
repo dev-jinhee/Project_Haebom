@@ -292,11 +292,11 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 			"/js/pages/scenario/simulation/complete.js"
 		);*/
 
-		await completeModule.init({
+		/*await completeModule.init({
 			root: stepContent,
 			progressId: simulationState.progressId,
 			scenarioId: simulationState.scenarioId
-		});
+		});*/
 
 		return;
 	}
@@ -329,7 +329,7 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 				progressId: simulationState.progressId,
 				readOnly: isCompleted,
 				// 입력 값 조회를 위한 stepId 넘기기
-				//stepId: step?.stepId,
+				stepId: step?.stepId,
 				reload: loadSimulation
 			});
 		}
@@ -405,6 +405,33 @@ function updateNavigation() {
 
 	}
 }
+// ==============================
+// 현재 단계 입력값 수집
+// ==============================
+async function collectStepAnswers() {
+
+	const root = document.querySelector("#stepContent");
+	const stepId = simulationState.currentStep.stepId;
+
+	// Step별 getData() 호출
+	const data = activeStepModule?.getData
+		? await activeStepModule.getData({ root })
+		: {};
+
+	// 입력값을 서버 DTO 형식으로 변환
+	const answers = Object.entries(data)
+    .filter(([, value]) => value !== null && value !== undefined)
+    .map(([fieldKey, value]) => ({
+        stepId,
+        fieldKey,
+        answerValue: typeof value === "string"
+            ? value
+            : JSON.stringify(value)
+    }));
+
+	return { answers };
+}
+
 // ==============================
 // 이전 버튼 클릭 처리
 // ==============================
@@ -485,9 +512,12 @@ async function handleNextStep() {
 			return;
 		}
 	}
-	
-	// TODO : 입력값 저장 api 호출
-	
+
+	// 입력값 저장 api 호출
+	const requestBody = !simulationState.isCompleted
+		? await collectStepAnswers()
+		: null;
+
 	const steps = simulationState.displaySteps;
 	// 완료 상태일 경우
 	if (simulationState.isCompleted) {
@@ -524,7 +554,11 @@ async function handleNextStep() {
 			const completeResponse = await fetch(
 				`/api/simulation/progress/${simulationState.progressId}/complete`,
 				{
-					method: "PATCH"
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(requestBody)
 				}
 			);
 			if (!completeResponse.ok) {
@@ -540,7 +574,11 @@ async function handleNextStep() {
 			const nextStepResponse = await fetch(
 				`/api/simulation/progress/${simulationState.progressId}/nextStep?targetStepId=${nextStep.stepId}`,
 				{
-					method: "PATCH"
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(requestBody)
 				}
 			);
 			if (!nextStepResponse.ok) {

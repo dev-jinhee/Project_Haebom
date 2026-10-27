@@ -32,7 +32,7 @@ public class SimulationAnswerServiceImpl implements SimulationAnswerService {
 		if (step == null) {
 			throw new IllegalArgumentException("현재 시나리오에 속하지 않는 단계입니다.");
 		}
-		return answerMapper.findByProgressIdAndStepId(progressId, stepId);
+		return answerMapper.findAnswerByProgressIdAndStepId(progressId, stepId);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class SimulationAnswerServiceImpl implements SimulationAnswerService {
 		if (progress == null) {
 			throw new IllegalStateException("진행 사항이 존재하지 않습니다.");
 		}
-		return answerMapper.findByProgressId(progressId);
+		return answerMapper.findAnswerByProgressId(progressId);
 	}
 
 }

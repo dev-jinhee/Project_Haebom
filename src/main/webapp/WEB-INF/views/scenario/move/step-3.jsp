@@ -118,10 +118,10 @@
                        maxlength="3" autocomplete="off" aria-label="세대주 휴대전화번호 앞자리" value="010">
                 <span aria-hidden="true">-</span>
                 <input id="newHeadPhoneMiddle" class="form-control" type="text" inputmode="numeric"
-                       maxlength="4" autocomplete="off" aria-label="세대주 휴대전화번호 중간자리">
+                       maxlength="4" autocomplete="off" placeholder="0000" aria-label="세대주 휴대전화번호 중간자리">
                 <span aria-hidden="true">-</span>
                 <input id="newHeadPhoneLast" class="form-control" type="text" inputmode="numeric"
-                       maxlength="4" autocomplete="off" aria-label="세대주 휴대전화번호 뒷자리">
+                       maxlength="4" autocomplete="off" placeholder="0000" aria-label="세대주 휴대전화번호 뒷자리">
             </div>
         </div>
     </section>

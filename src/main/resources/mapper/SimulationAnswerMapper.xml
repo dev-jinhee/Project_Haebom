@@ -15,7 +15,7 @@
             answer_value = VALUES(answer_value)
 	</insert>
 	<!-- 특정 단계의 입력값 조회 -->
-	<select id="findByProgressId" resultType="kr.co.oti.haebom.dto.AnswerResponseDTO">
+	<select id="findAnswerByProgressIdAndStepId" resultType="kr.co.oti.haebom.dto.AnswerResponseDTO">
 		select *
 		from simulation_answer
 		where progress_id = #{progressId}
@@ -23,7 +23,7 @@
 	</select>
 	
 	<!-- 시뮬레이션 전체 입력값 조회 -->
-	<select id="findByProgressId" resultType="kr.co.oti.haebom.dto.AnswerResponseDTO">
+	<select id="findAnswerByProgressId" resultType="kr.co.oti.haebom.dto.AnswerResponseDTO">
 		select *
 		from simulation_answer
 		where progress_id = #{progressId}
