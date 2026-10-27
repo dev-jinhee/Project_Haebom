@@ -66,10 +66,19 @@
                 </div>
             </div>
 
-            <!-- 우측: 문의 작성 버튼 (공통) -->
-            <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap" data-open-inquiry>
-                <i class="bi bi-pencil-square me-1"></i>문의 작성
-            </button>
+            <!-- 우측: 문의 작성 버튼 (일반 사용자) vs 관리자 문의 관리 버튼 (관리자) -->
+            <c:choose>
+                <c:when test="${isAdmin}">
+                    <a href="${pageContext.request.contextPath}/admin#inquiries" class="btn btn-outline-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap d-inline-flex align-items-center">
+                        <i class="bi bi-shield-lock-fill me-1"></i>관리자 문의 관리
+                    </a>
+                </c:when>
+                <c:otherwise>
+                    <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap" data-open-inquiry>
+                        <i class="bi bi-pencil-square me-1"></i>문의 작성
+                    </button>
+                </c:otherwise>
+            </c:choose>
         </div>
 
         <!-- 문의 내역 패널 (전체 문의 / 내 문의 내역 탭) -->
