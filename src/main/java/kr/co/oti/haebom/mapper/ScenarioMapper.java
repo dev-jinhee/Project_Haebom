@@ -10,9 +10,6 @@ import kr.co.oti.haebom.dto.ScenarioStepDTO;
 
 @Mapper
 public interface ScenarioMapper {
-	// 시나리오 목록 조회
-	List<ScenarioDTO> selectScenarioList();
-
 	// 공개 시나리오 목록 조회
 	List<ScenarioDTO> selectActiveScenarioList();
 	
