@@ -13,6 +13,8 @@ export function init({ root, progressId, readOnly, reload }) {
     const addButton = root.querySelector("#addHouseholdPerson");
     const removeButton = root.querySelector("#removeHouseholdPerson");
     const startButton = root.querySelector("#startMoveSimulation");
+    
+    loadMemberProfile(tbody);
 
     // 가족 구성원 행 목록
     const getRows = () => Array.from(
@@ -165,6 +167,40 @@ export function init({ root, progressId, readOnly, reload }) {
     updateRemoveButton();
 }
 
+// ==============================
+// 로그인 회원정보 조회
+// ==============================
+async function loadMemberProfile(tbody) {
+    try {
+        const response = await fetch("/api/mypage/profile");
+
+        if (!response.ok) {
+            throw new Error("회원정보 조회 실패");
+        }
+
+        const profile = await response.json();
+
+        // 실제 Step0의 input ID에 맞게 수정
+        const nameInput = tbody.querySelector("#householdName");
+        const birthInput = tbody.querySelector("#householdBirthdate");
+        const genderInput = tbody.querySelector("#householdGender");
+
+        if (nameInput) {
+            nameInput.value = profile.memberName ?? "";
+        }
+
+        if (birthInput) {
+            birthInput.value = profile.birthDate ?? "";
+        }
+
+        if (genderInput) {
+            genderInput.value = profile.gender ?? "";
+        }
+
+    } catch (error) {
+        console.error("회원정보 자동 입력 실패:", error);
+    }
+}
 
 // ==============================
 // 가족 구성원 정보 수집
