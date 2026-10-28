@@ -64,8 +64,7 @@
 		set step_id = #{nextStepId}
 		where progress_id = #{progressId}
 		and member_id = #{memberId}
-		step_id =
-		#{currentStepId}
+		and step_id =#{currentStepId}
 		and progress_status = 'IN_PROGRESS'
 	</update>
 
