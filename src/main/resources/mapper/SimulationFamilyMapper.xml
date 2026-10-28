@@ -84,4 +84,15 @@
 		delete from simulation_family
 		where progress_id = #{progressId}
 	</delete>
+	
+	<!-- 사용자의 가족기록 전부 삭제 -->
+	<delete id="deleteFamilyByMemberId">
+    DELETE FROM simulation_family
+    WHERE progress_id IN (
+        SELECT progress_id
+        FROM simulation_progress
+        WHERE member_id = #{memberId}
+    )
+</delete>
+	
 </mapper>
