@@ -19,8 +19,7 @@
 <link href="/css/app.css" rel="stylesheet">
 <link href="/css/pages/scenario/simulation/simulation.css"
 	rel="stylesheet">
-	<link href="/css/pages/scenario/simulation/move.css"
-	rel="stylesheet">
+<link href="/css/pages/scenario/simulation/move.css" rel="stylesheet">
 </head>
 <body class="simulation-page">
 	<!-- 공통 헤더 -->
@@ -110,6 +109,18 @@
 
 					<!-- 단계별 JSP 콘텐츠가 들어올 영역 -->
 					<div id="stepContent" class="sim-step-content"></div>
+					<div id="printSection" class="border-top mt-4 pt-3">
+						<button id="printBtn" type="button"
+							class="btn btn-link text-secondary
+                           text-decoration-none p-0 small">
+
+							<i class="bi bi-printer me-1" aria-hidden="true"></i> 화면 인쇄 /
+							PDF 저장
+						</button>
+
+						<p class="text-secondary mb-0 mt-1" style="font-size: .72rem;">
+							인쇄 창에서 'PDF로 저장'을 선택할 수 있습니다.</p>
+					</div>
 
 					<!-- 공통 이전 / 다음 버튼 -->
 					<div id="simulationNavigation">

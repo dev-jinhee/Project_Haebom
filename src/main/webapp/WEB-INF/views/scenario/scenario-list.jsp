@@ -11,6 +11,9 @@
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
 	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
+	rel="stylesheet">
 <link href="/css/common.css" rel="stylesheet">
 <link href="/css/pages/scenario/scenario-list.css" rel="stylesheet">
 </head>
@@ -20,7 +23,7 @@
 	<main class="container subpage-container scenarios-page">
 		<div class="subpage-heading">
 			<div class="breadcrumb-line">
-				<a href="/home.html">홈</a><i class="bi bi-chevron-right"></i><span>행정절차
+				<a href="/">홈</a><i class="bi bi-chevron-right"></i><span>행정절차
 					연습</span>
 			</div>
 
@@ -72,9 +75,8 @@
 					<div class="scenario-card-labels">
 						<span
 							class="badge rounded-pill text-bg-primary-subtle text-primary"
-							data-scenario-category>카테고리</span>
-						
-						<span class="scenario-state d-none" data-scenario-state></span>
+							data-scenario-category>카테고리</span> <span
+							class="scenario-state d-none" data-scenario-state></span>
 					</div>
 					<h3 data-scenario-title>시나리오 이름</h3>
 					<p data-scenario-description>시나리오 설명입니다.</p>
@@ -99,10 +101,10 @@
 					</div>
 				</div>
 				<div class="scenario-actions">
-					<button
-						class="btn btn-primary rounded-pill scenario-start"
-						data-scenario-action>연습 시작하기 <i class="bi bi-arrow-right ms-1"
-						aria-hidden="true"></i></button>
+					<button class="btn btn-primary rounded-pill scenario-start"
+						data-scenario-action>
+						연습 시작하기 <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+					</button>
 					<button class="btn btn-outline-primary rounded-pill d-none"
 						type="button" data-scenario-restart>
 						<i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>처음부터
@@ -123,7 +125,7 @@
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="/js/common.js"></script>
 	<script src="/js/pages/demo-actions.js"></script>
-	<script src="/js/pages/scenario-progress.js"></script>
+	<script src="/js/pages/scenario/scenario-progress.js"></script>
 
 	<!-- defer 추가 시 html 구성 완료 후 js 실행 -->
 	<script src="/js/pages/scenario/scenario-list.js" defer>

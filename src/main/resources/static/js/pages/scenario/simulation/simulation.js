@@ -222,11 +222,13 @@ async function renderSimulation() {
 		);
 	}
 
-	// 완료 화면일 때 도움말 숨김 (추후 필요하면 사용)
-	/*if (isCompleteScreen) {
-		document.querySelector("#questionHelp")
-			.classList.add("d-none");
-	}*/
+	// 완료 화면일 때 print 숨기기
+	if (isCompleteScreen) {
+		document.querySelector("#printSection")
+			.hidden = true;
+	} else {
+		document.querySelector("#printSection").hidden = false;
+	}
 
 	// 단계 목록 동적 생성
 	const stepLabels = document.querySelector("#stepLabels");
@@ -288,15 +290,16 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 	// 1. 공통 완료 화면
 	if (stepOrder === "complete") {
 
-		/*const completeModule = await import(
+		const completeModule = await import(
 			"/js/pages/scenario/simulation/complete.js"
-		);*/
+		);
 
-		/*await completeModule.init({
+		await completeModule.init({
 			root: stepContent,
 			progressId: simulationState.progressId,
-			scenarioId: simulationState.scenarioId
-		});*/
+			scenarioId: simulationState.scenarioId,
+			scenarioCode: simulationState.scenarioCode
+		});
 
 		return;
 	}
@@ -390,7 +393,7 @@ function updateNavigation() {
 		if (viewingStep === null) {
 			// 완료 화면
 			prevStepBtn.disabled = false;
-			nextStepBtn.textContent = "메인 화면으로";
+			nextStepBtn.textContent = "시나리오 목록보기";
 		} else {
 			// 단계별 작성 내역 조회
 			prevStepBtn.disabled =
@@ -420,14 +423,14 @@ async function collectStepAnswers() {
 
 	// 입력값을 서버 DTO 형식으로 변환
 	const answers = Object.entries(data)
-    .filter(([, value]) => value !== null && value !== undefined)
-    .map(([fieldKey, value]) => ({
-        stepId,
-        fieldKey,
-        answerValue: typeof value === "string"
-            ? value
-            : JSON.stringify(value)
-    }));
+		.filter(([, value]) => value !== null && value !== undefined)
+		.map(([fieldKey, value]) => ({
+			stepId,
+			fieldKey,
+			answerValue: typeof value === "string"
+				? value
+				: JSON.stringify(value)
+		}));
 
 	return { answers };
 }
@@ -598,5 +601,9 @@ document.querySelector("#prevStep")
 	.addEventListener("click", handlePrevStep);
 document.querySelector("#nextStep")
 	.addEventListener("click", handleNextStep);
+document.querySelector("#printBtn")
+	.addEventListener("click", () => {
+		window.print();
+	});
 // 최초 실행
 loadSimulation();

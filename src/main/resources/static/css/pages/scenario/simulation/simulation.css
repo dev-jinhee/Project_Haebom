@@ -723,6 +723,12 @@
     }
 }
 
+/* 완료 화면 - 신청 전 준비사항 */
+#completeChecklistList li {
+    font-size: 14px;
+    line-height: 1.8;
+}
+
 /* ===== Dynamic step state ===== */
 /* Blue remains for the last step (100%) until progressStatus is COMPLETED. */
 #stepProgress {
