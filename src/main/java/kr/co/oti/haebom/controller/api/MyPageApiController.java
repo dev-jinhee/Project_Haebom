@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/mypage")
-@Tag(name = "마이페이지", description = "마이페이지 회원정보 및 탈퇴 API")
+@Tag(name = "마이페이지", description = "마이페이지 회원정보·비밀번호 변경·탈퇴 API")
 public class MyPageApiController {
 
 	private final MyPageService myPageService;
@@ -58,5 +59,27 @@ public class MyPageApiController {
 		new SecurityContextLogoutHandler().logout(request, response, authentication);
 		
 		return Map.of("withdrawn", true);
+	}
+	
+	@Operation(summary = "비밀번호 변경", description = "현재 비밀번호를 확인하고 새 비밀번호를 저장합니다.")
+	@PostMapping("/password")
+	public Map<String, Boolean> changePassword(
+	        @AuthenticationPrincipal MemberPrincipal memberPrincipal,
+	        @RequestParam String currentPassword,
+	        @RequestParam String newPassword,
+	        @RequestParam String passwordConfirm) {
+
+	    if (memberPrincipal == null) {
+	        throw new ResponseStatusException(
+	                HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+	    }
+
+	    myPageService.changePassword(
+	            memberPrincipal.getMemberId(),
+	            currentPassword,
+	            newPassword,
+	            passwordConfirm);
+
+	    return Map.of("changed", true);
 	}
 }
