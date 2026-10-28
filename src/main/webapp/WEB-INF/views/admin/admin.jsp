@@ -924,7 +924,12 @@
 	<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 	<script src="${pageContext.request.contextPath}/js/app.js"></script>
 	<script src="${pageContext.request.contextPath}/js/common.js"></script>
-	<script src="${pageContext.request.contextPath}/js/pages/admin.js?v=<%= System.currentTimeMillis() %>"></script>
+	<!-- 관리자 기능별 모듈 스크립트 -->
+	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-dashboard.js?v=<%= System.currentTimeMillis() %>"></script>
+	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-scenarios.js?v=<%= System.currentTimeMillis() %>"></script>
+	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-members.js?v=<%= System.currentTimeMillis() %>"></script>
+	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-inquiries.js?v=<%= System.currentTimeMillis() %>"></script>
+	<script src="${pageContext.request.contextPath}/js/pages/admin/admin.js?v=<%= System.currentTimeMillis() %>"></script>
 	<script
 		src="${pageContext.request.contextPath}/js/pages/demo-actions.js"></script>
 </body>
