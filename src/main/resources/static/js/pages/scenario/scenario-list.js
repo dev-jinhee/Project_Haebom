@@ -205,11 +205,12 @@ async function restartSimulation(progressId) {
 		if (!response.ok) {
 			throw new Error("시뮬레이션 재시작 실패");
 		}
-		return true;
+		// 새로 생성된 progressId 반환
+        return await response.json();
 	} catch (error) {
 		console.error("시뮬레이션 재시작 삭제 오류:", error);
 		alert("시뮬레이션 재시작 중 오류가 발생했습니다.");
-		return false;
+		return null;
 	}
 }
 
