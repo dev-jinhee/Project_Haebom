@@ -76,7 +76,7 @@
                 </div>
                 
 				<div id="recentProgressMount" hidden>
-                    <!-- 시나리오 최근 진행중인거 그래프 표시 예정 -->
+					<!-- 로그인 회원의 진행 중인 시나리오 카드와 그래프를 home.js에서 표시합니다. -->
 				</div>
             </aside>
         </div>
