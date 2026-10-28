@@ -268,3 +268,18 @@ function haebomConfirm(message, onConfirm, onCancel, title) {
   modalEl.addEventListener("hidden.bs.modal", handleHidden);
   bsModal.show();
 }
+
+// ========================================================
+// 8. [공통 유틸리티] 루시(Lucy) 치환 텍스트 디코더 (decodeHtml)
+// - 루시 필터에 의해 DB에 &#39;, &lt;, &gt; 등으로 저장된 텍스트를
+// - 화면(textContent 등)에 원래 문자(' ', < >) 모양으로 깨끗하게 복원
+// ========================================================
+function decodeHtml(str) {
+	if (!str) return '';
+	const txt = document.createElement('textarea');
+	txt.innerHTML = str;
+	return txt.value;
+}
+
+// 전역 등록 (어느 페이지에서나 바로 호출 가능!)
+window.decodeHtml = decodeHtml;
