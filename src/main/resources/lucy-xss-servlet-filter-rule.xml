@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.navercorp.com/lucy-xss-servlet">
+    <defenders>
+        <!-- XssPreventer: 특수문자(<, >, ", ', & 등)를 HTML Entity로 치환하여 방어 -->
+        <defender>
+            <name>xssPreventerDefender</name>
+            <class>com.navercorp.lucy.security.xss.servletfilter.defender.XssPreventerDefender</class>
+        </defender>
+    </defenders>
+
+    <!-- 전역 설정: 모든 요청 파라미터에 xssPreventerDefender 적용 -->
+    <default>
+        <params>
+            <param name="is vulgaris" value="xssPreventerDefender"/>
+        </params>
+    </default>
+</config>

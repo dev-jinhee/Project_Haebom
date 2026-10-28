@@ -190,6 +190,12 @@
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>1.8.0</version>
 		</dependency>
+		<!-- NAVER Lucy XSS Servlet Filter -->
+		<dependency>
+			<groupId>com.navercorp.lucy</groupId>
+			<artifactId>lucy-xss-servlet</artifactId>
+			<version>2.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
