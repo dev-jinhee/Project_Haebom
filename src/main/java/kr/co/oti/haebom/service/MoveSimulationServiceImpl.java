@@ -32,14 +32,14 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 	// 가족 구성원 정보 검증
 	private void validateFamilyMembers(MovePreparationRequestDTO requestdto) {
 
-		// 1. 가족 구성원 존재 여부
+		// 가족 구성원 존재 여부
 		if (requestdto == null || requestdto.getFamilyMembers() == null || requestdto.getFamilyMembers().isEmpty()) {
 			throw new IllegalArgumentException("가족 구성원을 입력해주세요.");
 		}
 
 		List<MoveFamilyMemberDTO> members = requestdto.getFamilyMembers();
 
-		// 2. 신청인 수 확인
+		// 신청인 수 확인
 		long applicantCount = members.stream()
 				.filter(member -> member != null && Boolean.TRUE.equals(member.getIsApplicant())).count();
 
@@ -47,14 +47,14 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 			throw new IllegalArgumentException("신청인은 반드시 한 명이어야 합니다.");
 		}
 
-		// 3. 최초 세대주 수 확인
+		// 최초 세대주 수 확인
 		long headCount = members.stream()
 				.filter(member -> member != null && Boolean.TRUE.equals(member.getIsOriginalHead())).count();
 
 		if (headCount != 1) {
 			throw new IllegalArgumentException("세대주는 반드시 한 명이어야 합니다.");
 		}
-		// 4. 세대주 여부와 관계 일치 확인
+		// 세대주 여부와 관계 일치 확인
 		for (MoveFamilyMemberDTO member : members) {
 
 			if (member == null) {
@@ -79,8 +79,8 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 		// 2. 본인의 진행 이력 조회
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 
-		if (progress == null) {
-			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
+		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("수정 가능한 진행사항이 아닙니다.");
 		}
 		// 3. 전입신고 0단계인지 확인하고 다음 단계 ID 조회
 		Integer nextStepId = progressMapper.selectNextStepId(progress.getScenarioId(), progress.getStepId());
@@ -110,7 +110,8 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 	public SimulationFamilyDTO getApplicant(Integer progressId, Integer memberId) {
 		// 로그인 사용자의 진행 사항이 맞는지
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null) {
+		if (progress == null || "DELETED".equals(progress.getProgressStatus())
+				|| "ABANDONED".equals(progress.getProgressStatus())) {
 			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
 		}
 		// 신청인 정보 조회
@@ -128,11 +129,8 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 	public void updateApplicantPhone(Integer progressId, Integer memberId, String phoneNum) {
 		// 수정 가능한 진행사항인지 확인
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null) {
-			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
-		}
-		if ("COMPLETED".equals(progress.getProgressStatus())) {
-			throw new IllegalArgumentException("이미 완료된 진행이라 수정 불가능합니다.");
+		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("수정 가능한 진행사항이 아닙니다.");
 		}
 		// 전화번호 확인
 		if (phoneNum == null || !phoneNum.matches("^010-\\d{4}-\\d{4}$")) {
@@ -150,7 +148,8 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 	public List<SimulationFamilyDTO> getFamily(Integer progressId, Integer memberId, String moveStatus) {
 		// 로그인 사용자의 진행 사항이 맞는지
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null) {
+		if (progress == null || "DELETED".equals(progress.getProgressStatus())
+				|| "ABANDONED".equals(progress.getProgressStatus())) {
 			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
 		}
 		List<SimulationFamilyDTO> families = familyMapper.selectFamily(progressId);
@@ -184,12 +183,8 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 		// 1. 진행정보 소유자 확인
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 
-		if (progress == null) {
-			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
-		}
-
-		if ("COMPLETED".equals(progress.getProgressStatus())) {
-			throw new IllegalStateException("완료된 시뮬레이션은 수정할 수 없습니다.");
+		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("수정 가능한 진행사항이 아닙니다.");
 		}
 
 		// 2. DB에 등록된 가족 조회
@@ -332,12 +327,8 @@ public class MoveSimulationServiceImpl implements MoveSimulationService {
 		// 진행정보 소유자 검증
 		SimulationProgressDTO progress = progressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 
-		if (progress == null) {
-			throw new IllegalArgumentException("진행 정보를 찾을 수 없습니다.");
-		}
-
-		if ("COMPLETED".equals(progress.getProgressStatus())) {
-			throw new IllegalStateException("완료된 시뮬레이션은 수정할 수 없습니다.");
+		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("수정 가능한 진행사항이 아닙니다.");
 		}
 
 		if (requestDTO == null || requestDTO.getFamilyMembers() == null || requestDTO.getFamilyMembers().isEmpty()) {

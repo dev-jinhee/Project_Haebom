@@ -30,6 +30,12 @@ public interface SimulationProgressMapper {
 	// 시뮬레이션 완료 상태 변경
 	int completeSimulationProgress(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId,
 			@Param("currentStepId") Integer currentStepId);
+	
+	//시뮬레이션 진행 상태 변경
+	int updateProgressAbandoned(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId);
+
+	// 시뮬레이션 진행기록 논리 삭제
+	int markProgressDeleted(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId);
 
 	// 이전 단계 이동 가능 여부 확인
 	boolean isPreviousStep(@Param("scenarioId") Integer scenarioId, @Param("currentStepId") Integer currentStepId,
@@ -40,6 +46,5 @@ public interface SimulationProgressMapper {
 			@Param("targetStepId") Integer targetStepId);
 
 	// 0단계 확인 및 다음 단계 ID 조회
-	Integer selectNextStepId(@Param("scenarioId") Integer scenarioId,
-			@Param("currentStepId") Integer currentStepId);
+	Integer selectNextStepId(@Param("scenarioId") Integer scenarioId, @Param("currentStepId") Integer currentStepId);
 }

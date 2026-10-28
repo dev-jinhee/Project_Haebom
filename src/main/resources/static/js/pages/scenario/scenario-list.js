@@ -13,11 +13,15 @@ async function loadScenarios() {
 
 		const items = await response.json();
 
-		console.log("시나리오 목록:", items);
+		// 기존에 생성된 카드 초기화
+		catalog.querySelectorAll(".scenario-item")
+			.forEach(card => card.remove());
 
 		items.forEach(item => {
 			const scenario = item.scenario;
-			const progress = item.progress;
+			const progress = item.progress?.progressStatus === "DELETED"
+				? null
+				: item.progress;
 
 			// 템플릿 복제
 			const card = template.content.firstElementChild.cloneNode(true);
@@ -74,7 +78,7 @@ async function loadScenarios() {
 
 					// 버튼 변경
 					actionBtn.textContent = "이어하기";
-					
+
 					actionBtn.addEventListener("click", () => {
 						openSimulation(progress.progressId);
 					});
@@ -91,12 +95,49 @@ async function loadScenarios() {
 				}
 				restartBtn.classList.remove("d-none");
 				deleteBtn.classList.remove("d-none");
-				restartBtn.addEventListener("click", () => {
-					// 연습 재시작 -> 나중에 수정하기 지금 확인을 위해 넣어둠		
-					startSimulation(scenario.scenarioId);		
+				restartBtn.addEventListener("click", async () => {
+					// 기존 기록 삭제 후 연습 재시작
+					const confirmed = confirm(
+						"기존 진행기록을 삭제하고 처음부터 시작하시겠습니까?"
+					);
+
+					if (!confirmed) return;
+
+					restartBtn.disabled = true;
+
+					try {
+						const newProgressId = await restartSimulation(
+							progress.progressId
+						);
+
+						if (newProgressId == null) return;
+
+						// 새 시뮬레이션으로 이동
+						openSimulation(newProgressId);
+
+					} finally {
+						restartBtn.disabled = false;
+					}
+
 				});
-				deleteBtn.addEventListener("click", () => {
-					// 진행 기록 삭제		
+				deleteBtn.addEventListener("click", async () => {
+					// 진행 기록 삭제
+					const confirmed = confirm(
+						"진행기록을 삭제하시겠습니까?\n삭제된 입력값은 복구할 수 없습니다."
+					);
+
+					if (!confirmed) return;
+
+					deleteBtn.disabled = true;
+
+					const deleted = await deleteProgress(progress.progressId);
+
+					if (deleted) {
+						alert("진행기록이 삭제되었습니다.");
+						await loadScenarios();
+					} else {
+						deleteBtn.disabled = false;
+					}
 				});
 			}
 
@@ -118,8 +159,8 @@ async function loadScenarios() {
 // 시뮬레이션 이동
 function openSimulation(progressId) {
 	//progressId는 SessionStorage로 관리
-    sessionStorage.setItem("progressId", progressId);
-    window.location.href = "/simulation";
+	sessionStorage.setItem("progressId", progressId);
+	window.location.href = "/simulation";
 }
 //시뮬 시작
 async function startSimulation(scenarioId) {
@@ -136,6 +177,39 @@ async function startSimulation(scenarioId) {
 
 	} catch (error) {
 		console.error("시나리오 시작 오류:", error);
+	}
+}
+//시뮬 진행기록 삭제
+async function deleteProgress(progressId) {
+	try {
+		const response = await fetch(`/api/simulation/progress/${progressId}`, {
+			method: "DELETE"
+		})
+		if (!response.ok) {
+			throw new Error("진행기록 삭제 실패");
+		}
+		return true;
+	} catch (error) {
+		console.error("시나리오 진행기록 삭제 오류:", error);
+		alert("진행기록 삭제 중 오류가 발생했습니다.");
+		return false;
+	}
+}
+
+//시뮬 재시작
+async function restartSimulation(progressId) {
+	try {
+		const response = await fetch(`/api/simulation/progress/${progressId}/restart`, {
+			method: "POST"
+		})
+		if (!response.ok) {
+			throw new Error("시뮬레이션 재시작 실패");
+		}
+		return true;
+	} catch (error) {
+		console.error("시뮬레이션 재시작 삭제 오류:", error);
+		alert("시뮬레이션 재시작 중 오류가 발생했습니다.");
+		return false;
 	}
 }
 

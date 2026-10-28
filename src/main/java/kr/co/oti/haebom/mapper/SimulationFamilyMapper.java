@@ -30,6 +30,11 @@ public interface SimulationFamilyMapper {
 	// 새 세대주 연락처 변경
 	void updateFamilyPhone(@Param("progressId") Integer progressId, @Param("familyId") Integer familyId,
 			@Param("phoneNum") String phoneNum);
-	//이사 가족의 세대주 및 연락처 변경
-	int updateMovingFamilyHousehold(@Param("progressId") Integer progressId, @Param("member") MoveFamilyRequestDTO.FamilyMember member );
+
+	// 이사 가족의 세대주 및 연락처 변경
+	int updateMovingFamilyHousehold(@Param("progressId") Integer progressId,
+			@Param("member") MoveFamilyRequestDTO.FamilyMember member);
+	
+	//해당 진행사항의 가족정보 삭제
+	int deleteByProgressId(@Param("progressId") Integer progressId);
 }

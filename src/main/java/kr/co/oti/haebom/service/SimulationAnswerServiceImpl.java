@@ -23,7 +23,7 @@ public class SimulationAnswerServiceImpl implements SimulationAnswerService {
 	public List<AnswerResponseDTO> getAnswersByStep(Integer progressId, Integer stepId, Integer memberId) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null) {
+		if (progress == null || "DELETED".equals(progress.getProgressStatus()) || "ABANDONED".equals(progress.getProgressStatus())) {
 			throw new IllegalStateException("진행 사항이 존재하지 않습니다.");
 		}
 		// 현재 시나리오에 속하는 단계인지 확인
@@ -39,7 +39,7 @@ public class SimulationAnswerServiceImpl implements SimulationAnswerService {
 	public List<AnswerResponseDTO> getAnswersByProgress(Integer progressId, Integer memberId) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null) {
+		if (progress == null || "DELETED".equals(progress.getProgressStatus()) || "ABANDONED".equals(progress.getProgressStatus())) {
 			throw new IllegalStateException("진행 사항이 존재하지 않습니다.");
 		}
 		return answerMapper.findAnswerByProgressId(progressId);

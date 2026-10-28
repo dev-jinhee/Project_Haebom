@@ -35,11 +35,11 @@
 		s.scenario_title,
 		s.description,
 		s.estimated_minutes,
-		s.is_active,
 		(select c.category_name from category c
 		where c.category_id = s.category_id) AS category_name
 		from scenario s
 		where s.scenario_id = #{scenarioId}
+			and s.is_active = 1
 	</select>
 
 	<!-- 시나리오 존재 여부 확인 -->

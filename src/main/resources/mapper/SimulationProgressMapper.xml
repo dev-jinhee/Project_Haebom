@@ -64,7 +64,6 @@
 		set step_id = #{nextStepId}
 		where progress_id = #{progressId}
 		and member_id = #{memberId}
-		and
 		step_id = #{currentStepId}
 		and progress_status = 'IN_PROGRESS'
 	</update>
@@ -73,7 +72,8 @@
 	<update id="completeSimulationProgress">
 		UPDATE simulation_progress p
 		SET p.step_id = NULL,
-		p.progress_status = 'COMPLETED'
+		p.progress_status = 'COMPLETED',
+		p.completed_at = CURRENT_TIMESTAMP
 		WHERE p.progress_id = #{progressId}
 		AND
 		p.member_id = #{memberId}
@@ -145,4 +145,20 @@
 		AND current_step.step_id = #{currentStepId}
 		AND current_step.step_order = 0
 	</select>
+	
+	<!-- 시뮬레이션 진행기록 논리 삭제 -->
+	<update id="markProgressDeleted">
+		update simulation_progress
+		set progress_status = 'DELETED'
+		where progress_id = #{progressId}
+			and member_id = #{memberId}
+	</update>
+	
+	<!-- 진행 상태 ABANDONED로 변경 -->
+	<update id="updateProgressAbandoned">
+		update simulation_progress
+		set progress_status = 'ABANDONED'
+		where progress_id = #{progressId}
+			and member_id = #{memberId}
+	</update>
 </mapper>

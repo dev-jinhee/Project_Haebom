@@ -37,7 +37,7 @@ public class ScenarioServiceImpl implements ScenarioService {
 			return Collections.emptyList();
 		}
 		// 2. 회원이면 최신 진행 이력 조회
-		// TODO: 회원인지 아닌지 확인하는 로직은 로그인 구현 이후 추가
+		// 회원인지 아닌지 확인하는 로직은 로그인 구현 이후 추가
 		List<SimulationProgressDTO> progressList = simulationProgressMapper
 				.selectLatestProgressListByMemberId(memberId);
 		Map<Integer, SimulationProgressDTO> progressByScenarioId = new HashMap<>();
