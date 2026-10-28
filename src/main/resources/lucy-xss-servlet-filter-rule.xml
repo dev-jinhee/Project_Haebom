@@ -8,10 +8,14 @@
         </defender>
     </defenders>
 
-    <!-- 전역 설정: 모든 요청 파라미터에 xssPreventerDefender 적용 -->
+    <!-- ⭕ Default Defender: 별도 예외가 없는 모든 파라미터는 xssPreventerDefender 적용 -->
     <default>
-        <params>
-            <param name="is vulgaris" value="xssPreventerDefender"/>
-        </params>
+        <defender>xssPreventerDefender</defender>
     </default>
+
+    <global>
+        <params>
+            <!-- 예외 처리 파라미터가 필요한 경우 여기에 등록 -->
+        </params>
+    </global>
 </config>
