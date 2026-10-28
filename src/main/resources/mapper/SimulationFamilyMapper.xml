@@ -78,4 +78,10 @@
 		AND family_id = #{member.familyId}
 		AND move_status = 'MOVE'
 	</update>
+	
+	<!-- 해당 진행사항의 가족정보 삭제 -->
+	<delete id="deleteByProgressId">
+		delete from simulation_family
+		where progress_id = #{progressId}
+	</delete>
 </mapper>

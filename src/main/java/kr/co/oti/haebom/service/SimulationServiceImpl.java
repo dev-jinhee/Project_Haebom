@@ -13,6 +13,7 @@ import kr.co.oti.haebom.dto.SimulationProgressCreateDTO;
 import kr.co.oti.haebom.dto.SimulationProgressDTO;
 import kr.co.oti.haebom.mapper.ScenarioMapper;
 import kr.co.oti.haebom.mapper.SimulationAnswerMapper;
+import kr.co.oti.haebom.mapper.SimulationFamilyMapper;
 import kr.co.oti.haebom.mapper.SimulationProgressMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,7 @@ public class SimulationServiceImpl implements SimulationService {
 	private final ScenarioMapper scenarioMapper;
 	private final SimulationProgressMapper simulationProgressMapper;
 	private final SimulationAnswerMapper answerMapper;
+	private final SimulationFamilyMapper familyMapper;
 
 	// 시뮬레이션 시작
 	@Override
@@ -51,7 +53,7 @@ public class SimulationServiceImpl implements SimulationService {
 		// 진행 이력이 존재 검증
 		SimulationProgressDTO progressDTO = simulationProgressMapper.selectProgressByIdAndMemberId(progressId,
 				memberId);
-		if (progressDTO == null || "DELETED".equals(progressDTO.getProgressStatus())) {
+		if (progressDTO == null || "DELETED".equals(progressDTO.getProgressStatus()) || "ABANDONED".equals(progressDTO.getProgressStatus())) {
 			throw new ResponseStatusException(// 404ERROR
 					HttpStatus.NOT_FOUND, "진행 이력을 찾을 수 없습니다.");
 		}
@@ -149,6 +151,54 @@ public class SimulationServiceImpl implements SimulationService {
 		if (updatedRows != 1) {
 			throw new IllegalStateException("마지막 단계가 아니거나 완료 처리할 수 없는 상태입니다.");
 		}
+	}
+
+	// 시뮬레이션 삭제
+	@Transactional
+	@Override
+	public void deleteProgress(Integer progressId, Integer memberId) {
+		// 현재 단계 조회
+		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		if (progress == null || "DELETED".equals(progress.getProgressStatus()) || "ABANDONED".equals(progress.getProgressStatus())) {
+			throw new IllegalStateException("삭제 가능한 시뮬레이션이 아닙니다.");
+		}
+		// 시뮬레이션가족 삭제
+		familyMapper.deleteByProgressId(progressId);
+		// 시물레이션 입력값 삭제
+		answerMapper.deleteSimulationAnswer(progressId);
+		// 시물레이션 상태 DELETED 변경
+		int updateRow = simulationProgressMapper.markProgressDeleted(progressId, memberId);
+		if (updateRow != 1) {
+			throw new IllegalStateException("진행 기록 삭제가 실패하였습니다.");
+		}
+	}
+
+	// 시뮬레이션 재시작
+	@Transactional
+	@Override
+	public Integer restartSimulation(Integer progressId, Integer memberId) {
+		// 현재 단계 조회
+		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		if (progress == null || !("IN_PROGRESS".equals(progress.getProgressStatus())
+				|| "COMPLETED".equals(progress.getProgressStatus()))) {
+			throw new IllegalStateException("재시작 가능한 시뮬레이션이 아닙니다.");
+		}
+		// 시뮬레이션가족 삭제
+		familyMapper.deleteByProgressId(progressId);
+		// 시물레이션 입력값 삭제
+		answerMapper.deleteSimulationAnswer(progressId);
+		// 진행 중이던 기록은 ABANDONED 처리
+		if ("IN_PROGRESS".equals(progress.getProgressStatus())) {
+
+			int updatedRows = simulationProgressMapper.updateProgressAbandoned(progressId, memberId);
+
+			if (updatedRows != 1) {
+				throw new IllegalStateException("진행 상태 변경에 실패하였습니다.");
+			}
+		}
+
+		// 새로운 시뮬레이션 시작
+		return startSimulation(progress.getScenarioId(), memberId);
 	}
 
 }

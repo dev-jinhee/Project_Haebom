@@ -10,7 +10,6 @@ public class ScenarioDTO {
 	private String scenarioTitle;
 	private String description;
 	private Integer estimatedMinutes;
-	private Boolean isActive;
 
 	private String categoryName;
 
