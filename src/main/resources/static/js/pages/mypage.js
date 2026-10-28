@@ -2,6 +2,10 @@
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');
     const completedHistory = [];
+    const withdrawConfirmText = document.getElementById('withdrawConfirmText');
+    const withdrawConfirmButton = document.querySelector('[data-confirm-delete]');
+    const withdrawModal = document.getElementById('confirmModal');
+    const withdrawPhrase = '회원 탈퇴';
 
     function openModal(selector) {
         const modalElement = document.querySelector(selector);
@@ -278,9 +282,54 @@
         openModal('#confirmModal');
     }
 
-    function handleConfirmDelete() {
-        closeModal('#confirmModal');
-        toast('탈퇴 처리 화면 시안입니다. 계정은 삭제되지 않았습니다.');
+    function updateWithdrawButtonState() {
+        if (!withdrawConfirmText || !withdrawConfirmButton) {
+            return;
+        }
+
+        withdrawConfirmButton.disabled =
+            withdrawConfirmText.value.trim() !== withdrawPhrase;
+    }
+
+    async function handleConfirmDelete(event) {
+        const button = event.currentTarget;
+        const apiUrl = page && page.dataset.withdrawApiUrl;
+
+        // 화면의 disabled 상태와 별개로 요청 직전에도 확인 문구를 검사합니다.
+        if (!withdrawConfirmText
+                || withdrawConfirmText.value.trim() !== withdrawPhrase) {
+            toast('안내 문구에 회원 탈퇴를 입력해 주세요.');
+            return;
+        }
+
+        if (!apiUrl) {
+            toast('회원 탈퇴 요청 주소를 찾을 수 없습니다.');
+            return;
+        }
+
+        button.disabled = true;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { Accept: 'application/json' }
+            });
+
+            if (!response.ok || response.redirected) {
+                throw new Error('회원 탈퇴 처리에 실패했습니다. 다시 로그인한 뒤 시도해 주세요.');
+            }
+
+            const result = await response.json();
+            if (!result.withdrawn) {
+                throw new Error('회원 탈퇴 처리에 실패했습니다. 다시 시도해 주세요.');
+            }
+
+            closeModal('#confirmModal');
+            window.location.href = page.dataset.homeUrl || '/';
+        } catch (error) {
+            toast(error.message || '회원 탈퇴 중 오류가 발생했습니다.');
+            updateWithdrawButtonState();
+        }
     }
 
     function bindClickEvents(selector, handler) {
@@ -296,6 +345,17 @@
         bindClickEvents('[data-open-password-change]', handleOpenPasswordChange);
         bindClickEvents('[data-delete-account]', handleDeleteAccount);
         bindClickEvents('[data-confirm-delete]', handleConfirmDelete);
+
+        if (withdrawConfirmText) {
+            withdrawConfirmText.addEventListener('input', updateWithdrawButtonState);
+        }
+
+        if (withdrawModal && withdrawConfirmText && withdrawConfirmButton) {
+            withdrawModal.addEventListener('hidden.bs.modal', function () {
+                withdrawConfirmText.value = '';
+                updateWithdrawButtonState();
+            });
+        }
 
         const passwordChangeForm = document.getElementById('passwordChangeForm');
 

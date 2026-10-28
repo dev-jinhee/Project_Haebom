@@ -19,11 +19,11 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 		http
-				// CSRF 보호 정책 정비: 일반 폼 요청(로그아웃 등)은 CSRF 토큰을 검증하고,
-				// 비동기 REST API(/api/**) 및 외부 행안부 주소 팝업 콜백(/address/juso/popup)은 안전하게 예외 처리
+				// [배포 보안 표준] 전역 CSRF 보호 활성화: 웹 폼 및 모든 REST API(/api/**) 대상 CSRF 토큰 검증
+				// (비동기 fetch 요청은 common.js 전역 인터셉터가 X-CSRF-TOKEN 헤더를 자동 탑재)
+				// 외부 연동인 행안부 도로명주소 팝업(/address/juso/popup)만 안전하게 예외 처리
 				.csrf(csrf -> csrf
 						.ignoringRequestMatchers(
-								antMatcher("/api/**"),
 								antMatcher("/address/juso/popup")
 						)
 				)

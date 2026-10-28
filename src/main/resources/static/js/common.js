@@ -1,10 +1,59 @@
 /**
  * ========================================================
  * [해봄(HaeBom) 통합 공통 스크립트 - common.js]
+ * 0. 전역 보안 (CSRF 토큰 자동 주입 Fetch 인터셉터)
  * 1. 피그마 app.js 기능 (토스트 팝업, 글자 크기 설정, 시뮬레이션 세션 관리)
  * 2. 해봄 Bootstrap 5.3 모달 (haebomAlert, haebomWarn, haebomConfirm)
  * ========================================================
  */
+
+// ----------------------------------------------------
+// 0. [전역 보안] CSRF 토큰 자동 주입 Fetch 인터셉터
+// - POST / PUT / DELETE / PATCH 등 상태 변경 비동기 요청 시
+// - Spring Security CSRF 토큰(X-CSRF-TOKEN)을 헤더에 자동 탑재
+// ----------------------------------------------------
+(() => {
+  const originalFetch = window.fetch;
+  if (!originalFetch) return;
+
+  window.fetch = function(input, init = {}) {
+    const method = (init.method || 'GET').toUpperCase();
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const token = document.querySelector('meta[name="_csrf"]')?.content
+                 || window._csrf?.token
+                 || document.getElementById('csrfToken')?.value
+                 || (document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/) || [])[1];
+
+      const headerName = document.querySelector('meta[name="_csrf_header"]')?.content
+                      || window._csrf?.headerName
+                      || 'X-CSRF-TOKEN';
+
+      if (token) {
+        if (!init.headers) {
+          init.headers = {};
+        }
+
+        if (init.headers instanceof Headers) {
+          if (!init.headers.has(headerName)) {
+            init.headers.set(headerName, decodeURIComponent(token));
+          }
+        } else if (Array.isArray(init.headers)) {
+          const exists = init.headers.some(([k]) => k.toLowerCase() === headerName.toLowerCase());
+          if (!exists) {
+            init.headers.push([headerName, decodeURIComponent(token)]);
+          }
+        } else {
+          // 일반 객체
+          const exists = Object.keys(init.headers).some(k => k.toLowerCase() === headerName.toLowerCase());
+          if (!exists) {
+            init.headers[headerName] = decodeURIComponent(token);
+          }
+        }
+      }
+    }
+    return originalFetch.call(this, input, init);
+  };
+})();
 
 (() => {
   // ----------------------------------------------------

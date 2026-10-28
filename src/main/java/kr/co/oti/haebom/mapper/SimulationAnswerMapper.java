@@ -22,4 +22,6 @@ public interface SimulationAnswerMapper {
 	// 단계별 입력 데이터 물리 삭제
 	int deleteSimulationAnswer(Integer progressId);
 
+	// 사용자의 입력 데이터 전부 삭제
+	int deleteAnswerByMemberId(Integer memberId);
 }

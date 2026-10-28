@@ -6,6 +6,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="_csrf" content="${_csrf.token}">
+<meta name="_csrf_header" content="${_csrf.headerName}">
 <title>관리자 | 해봄</title>
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -921,6 +923,7 @@
 	<!-- SheetJS (Excel 내보내기 전용 라이브러리) -->
 	<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 	<script src="${pageContext.request.contextPath}/js/app.js"></script>
+	<script src="${pageContext.request.contextPath}/js/common.js"></script>
 	<script src="${pageContext.request.contextPath}/js/pages/admin.js?v=<%= System.currentTimeMillis() %>"></script>
 	<script
 		src="${pageContext.request.contextPath}/js/pages/demo-actions.js"></script>

@@ -47,4 +47,13 @@ public interface SimulationProgressMapper {
 
 	// 0단계 확인 및 다음 단계 ID 조회
 	Integer selectNextStepId(@Param("scenarioId") Integer scenarioId, @Param("currentStepId") Integer currentStepId);
+	
+	// 마지막 저장일로부터 30일이 지난 진행기록 조회
+	List<SimulationProgressDTO> selectExpiredProgress();
+	
+	// 자동 삭제 대상 재확인 및 행 잠금
+	SimulationProgressDTO selectExpiredProgressForUpdate(Integer progressId);
+
+	// 사용자의 진행 기록 전부 논리 삭제
+	int deleteProgressByMemberId(Integer memberId);
 }

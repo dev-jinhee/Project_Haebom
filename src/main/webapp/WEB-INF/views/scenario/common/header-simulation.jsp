@@ -4,6 +4,8 @@
 
 <!-- [해봄 시뮬레이션 체험 전용 헤더 (header-simulation.jsp)] -->
 <!-- 시뮬레이션 연습 진행 화면(simulation.jsp)에서 사용하는 상단 바 (글씨 크기 + 나가기) -->
+<meta name="_csrf" content="${_csrf.token}">
+<meta name="_csrf_header" content="${_csrf.headerName}">
 <header class="sim-topbar sticky-top">
     <div class="container d-flex align-items-center justify-content-between py-3">
         <!-- 브랜드 로고 -->
