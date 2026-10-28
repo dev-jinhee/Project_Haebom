@@ -17,6 +17,8 @@
     <main id="mypage-content"
           class="container subpage-container"
           data-profile-api-url="${pageContext.request.contextPath}/api/mypage/profile"
+          data-withdraw-api-url="${pageContext.request.contextPath}/api/mypage/withdraw"
+          data-home-url="${pageContext.request.contextPath}/"
           data-scenarios-api-url="${pageContext.request.contextPath}/api/scenario"
           data-scenario-list-url="${pageContext.request.contextPath}/scenario"
           data-simulation-url="${pageContext.request.contextPath}/simulation">
@@ -167,18 +169,28 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
                 </div>
                 <div class="modal-body">
-                    탈퇴를 진행하면 계정으로 다시 로그인할 수 없습니다. 정말 탈퇴하시겠어요?
+                    <div class="alert alert-warning" role="alert">
+                        탈퇴하면 기존 계정을 복구할 수 없습니다.
+                    </div>
+                    <label class="form-label" for="withdrawConfirmText">
+                        계속하려면 <strong>회원 탈퇴</strong>를 입력해 주세요.
+                    </label>
+                    <input class="form-control" id="withdrawConfirmText" type="text"
+                           autocomplete="off" aria-describedby="withdrawConfirmHelp">
+                    <div class="form-text" id="withdrawConfirmHelp">
+                        입력값이 정확히 일치해야 회원 탈퇴 버튼이 활성화됩니다.
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline-secondary rounded-pill" type="button" data-bs-dismiss="modal">취소</button>
-                    <button class="btn btn-danger rounded-pill" type="button" data-confirm-delete>탈퇴하기</button>
+                    <button class="btn btn-danger rounded-pill" type="button" data-confirm-delete disabled>회원 탈퇴</button>
                 </div>
             </div>
         </div>
     </div>
 
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-profile-api-1"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-withdraw-confirm-1"></script>
 </body>
 </html>
 
