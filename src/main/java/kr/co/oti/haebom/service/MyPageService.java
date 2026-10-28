@@ -7,6 +7,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.mapper.MyPageMapper;
+import kr.co.oti.haebom.mapper.SimulationAnswerMapper;
+import kr.co.oti.haebom.mapper.SimulationFamilyMapper;
+import kr.co.oti.haebom.mapper.SimulationProgressMapper;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -14,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 public class MyPageService {
 	
 	private final MyPageMapper myPageMapper;
+	private final SimulationAnswerMapper simulationAnswerMapper;
+	private final SimulationFamilyMapper simulationFamilyMapper;
+	private final SimulationProgressMapper simulationProgressMapper;
 	
 	public MyPageProfileResponseDTO getProfile(Integer memberId) {
 		
@@ -28,7 +34,10 @@ public class MyPageService {
 	
 	@Transactional
 	public void withdraw(Integer memberId) {
-		
+	    simulationAnswerMapper.deleteAnswerByMemberId(memberId);
+	    simulationFamilyMapper.deleteFamilyByMemberId(memberId);
+	    simulationProgressMapper.deleteProgressByMemberId(memberId);
+	    
 		int updateRows = myPageMapper.withdrawMemberById(memberId);
 		
 		if (updateRows != 1) {
