@@ -1,8 +1,26 @@
 package kr.co.oti.haebom.service;
 
-import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-public interface MyPageService {
+import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
+import kr.co.oti.haebom.mapper.MyPageMapper;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class MyPageService {
 	
-	MyPageProfileResponseDTO getProfile(Integer memberId);
+	private final MyPageMapper myPageMapper;
+	
+	public MyPageProfileResponseDTO getProfile(Integer memberId) {
+		MyPageProfileResponseDTO profile = myPageMapper.selectProfileByMemberId(memberId);
+		
+		if (profile == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "회원 정보를 찾을 수 없습니다.");
+		}
+		
+		return profile;
+	}
 }
