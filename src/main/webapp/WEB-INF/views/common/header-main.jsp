@@ -4,6 +4,8 @@
 
 <!-- [해봄 메인 홈 전용 헤더 (header-main.jsp)] -->
 <!-- 메인 홈 화면(main.jsp)에서만 사용하는 풀 메뉴 헤더 -->
+<meta name="_csrf" content="${_csrf.token}">
+<meta name="_csrf_header" content="${_csrf.headerName}">
 <header class="site-header sticky-top">
     <nav class="navbar container py-3">
         <!-- 브랜드 로고 -->

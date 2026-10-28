@@ -4,6 +4,8 @@
 
 <!-- [해봄 공통 서브 헤더 (header.jsp)] -->
 <!-- 문의게시판, 시나리오, 마이페이지 등 모든 일반 서브 페이지용 표준 헤더 -->
+<meta name="_csrf" content="${_csrf.token}">
+<meta name="_csrf_header" content="${_csrf.headerName}">
 <header class="site-header sticky-top">
     <nav class="navbar container py-3">
         <!-- 브랜드 로고 -->
