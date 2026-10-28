@@ -37,4 +37,7 @@ public interface SimulationFamilyMapper {
 	
 	//해당 진행사항의 가족정보 삭제
 	int deleteByProgressId(@Param("progressId") Integer progressId);
+	
+	//사용자의 가족 정보 전부 삭제
+	int deleteFamilyByMemberId(Integer memberId);
 }

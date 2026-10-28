@@ -5,7 +5,8 @@
 	<!-- 입력값 저장 및 수정 (UPSERT) -->
 	<insert id="upsertAnswer">
 		insert into simulation_answer(
-		progress_id, step_id, field_key, answer_value
+		progress_id, step_id,
+		field_key, answer_value
 		)
 		values(
 		#{progressId},
@@ -36,7 +37,17 @@
 	<!-- 단계별 입력 데이터 물리 삭제 -->
 	<delete id="deleteSimulationAnswer">
 		delete from simulation_answer
-		where progress_id = #{progressId}
+		where progress_id =
+		#{progressId}
+	</delete>
+	<!-- 사용자의 입력기록 전부 삭제 -->
+	<delete id="deleteAnswerByMemberId">
+		DELETE FROM simulation_answer
+		WHERE progress_id IN (
+		SELECT progress_id
+		FROM simulation_progress
+		WHERE member_id = #{memberId}
+		)
 	</delete>
 
 </mapper>
