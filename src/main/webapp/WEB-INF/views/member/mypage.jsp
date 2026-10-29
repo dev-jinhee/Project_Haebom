@@ -18,6 +18,7 @@
           class="container subpage-container"
           data-profile-api-url="${pageContext.request.contextPath}/api/mypage/profile"
           data-withdraw-api-url="${pageContext.request.contextPath}/api/mypage/withdraw"
+          data-password-change-api-url="${pageContext.request.contextPath}/api/mypage/password"
           data-home-url="${pageContext.request.contextPath}/"
           data-scenarios-api-url="${pageContext.request.contextPath}/api/scenario"
           data-scenario-list-url="${pageContext.request.contextPath}/scenario"
@@ -146,15 +147,15 @@
                     </div>
                     <div class="modal-body">
                         <label class="form-label" for="currentPassword">현재 비밀번호</label>
-                        <input class="form-control mb-3" id="currentPassword" type="password" autocomplete="current-password" required>
+                        <input class="form-control mb-3" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
                         <label class="form-label" for="newPassword">새 비밀번호</label>
-                        <input class="form-control mb-3" id="newPassword" type="password" autocomplete="new-password" minlength="8" required>
+                        <input class="form-control mb-3" id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="20" required>
                         <label class="form-label" for="confirmNewPassword">새 비밀번호 확인</label>
-                        <input class="form-control" id="confirmNewPassword" type="password" autocomplete="new-password" minlength="8" required>
+                        <input class="form-control" id="confirmNewPassword" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="20" required>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-outline-secondary rounded-pill" type="button" data-bs-dismiss="modal">취소</button>
-                        <button class="btn btn-primary rounded-pill" type="submit">변경</button>
+                        <button class="btn btn-primary rounded-pill" type="submit" data-password-submit>변경</button>
                     </div>
                 </form>
             </div>
