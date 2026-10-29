@@ -1,14 +1,13 @@
 package kr.co.oti.haebom.controller.api;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.oti.haebom.dto.AdminMemberDTO;
@@ -35,9 +34,8 @@ public class AdminMemberApiController {
 	@PutMapping("/{memberId}/status")
 	public ResponseEntity<String> updateMemberStatus(
 			@PathVariable Integer memberId, 
-			@RequestBody Map<String, String> params) {
+			@RequestParam("memberStatus") String memberStatus) {
 		
-		String memberStatus = params.get("memberStatus");
 		adminMemberService.updateMemberStatus(memberId, memberStatus);
 		
 		return ResponseEntity.ok("회원 상태가 성공적으로 변경되었습니다.");

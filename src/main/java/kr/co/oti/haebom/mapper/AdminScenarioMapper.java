@@ -21,6 +21,6 @@ public interface AdminScenarioMapper {
 	// 3. 특정 시나리오의 전체 시작 및 완료 건수 집계 조회
 	Map<String , Object> selectScenarioProgressCounts(@Param("scenarioId") Integer scenarioId);
 	
-	// 4. 특정 시나리오의 단계별 임시 저장(IN_PROGRESS) 건수 목록 조회
+	// 4. 특정 시나리오의 단계별 미완료 및 중도 이탈(IN_PROGRESS, ABANDONED) 건수 목록 조회
 	List<AdminScenarioStepStatsDTO> selectScenarioStepStats(@Param("scenarioId") Integer scenarioId);
 }

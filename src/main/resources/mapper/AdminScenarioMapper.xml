@@ -37,7 +37,7 @@
 		WHERE scenario_id = #{scenarioId}
 	</select>
 
-	<!-- 4. 특정 시나리오의 단계별 임시 저장(IN_PROGRESS) 건수 집계 -->
+	<!-- 4. 특정 시나리오의 단계별 미완료 및 중도 이탈(IN_PROGRESS, ABANDONED) 건수 집계 -->
 	<select id="selectScenarioStepStats" resultType="kr.co.oti.haebom.dto.AdminScenarioStepStatsDTO">
 		SELECT 
 			ss.step_id AS stepId,
@@ -47,7 +47,7 @@
 		FROM scenario_step ss
 		LEFT JOIN simulation_progress sp ON ss.step_id = sp.step_id 
 			AND sp.scenario_id = #{scenarioId} 
-			AND sp.progress_status = 'IN_PROGRESS'
+			AND sp.progress_status IN ('IN_PROGRESS', 'ABANDONED')
 		WHERE ss.scenario_id = #{scenarioId}
 		GROUP BY ss.step_id, ss.step_order, ss.step_title
 		ORDER BY ss.step_order ASC
