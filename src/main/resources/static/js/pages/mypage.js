@@ -241,6 +241,244 @@
         window.location.href = page.dataset.simulationUrl;
     }
 
+    function initializeMyInquiries() {
+        const rows = document.querySelector('[data-mypage-inquiry-rows]');
+        const statusFilter = document.getElementById('mypageInquiryStatus');
+        const searchInput = document.getElementById('mypageInquirySearch');
+        const totalElement = document.querySelector('[data-mypage-inquiry-total]');
+        const pagination = document.querySelector('[data-mypage-inquiry-pagination]');
+
+        if (!page || !rows || !page.dataset.inquiriesApiUrl) {
+            return;
+        }
+
+        let inquiryItems = [];
+        let currentPage = 1;
+        const pageSize = 10;
+
+        function showMessage(message, isError) {
+            const cell = document.createElement('td');
+            cell.colSpan = 5;
+            cell.className = isError
+                ? 'text-center py-5 text-danger'
+                : 'text-center py-5 text-secondary';
+            cell.setAttribute('role', isError ? 'alert' : 'status');
+            cell.textContent = message;
+
+            const row = document.createElement('tr');
+            row.appendChild(cell);
+            rows.replaceChildren(row);
+        }
+
+        function getFilteredItems() {
+            const selectedStatus = statusFilter ? statusFilter.value : '';
+            const keyword = searchInput
+                ? searchInput.value.trim().toLocaleLowerCase()
+                : '';
+
+            return inquiryItems.filter(function (item) {
+                const statusMatches = !selectedStatus || item.qnaStatus === selectedStatus;
+                const title = String(item.qnaTitle || '').toLocaleLowerCase();
+                const keywordMatches = !keyword || title.indexOf(keyword) !== -1;
+                return statusMatches && keywordMatches;
+            });
+        }
+
+        function appendCell(row, text) {
+            const cell = document.createElement('td');
+            cell.textContent = text;
+            row.appendChild(cell);
+            return cell;
+        }
+
+        function renderPagination(totalPages, totalItems) {
+            if (!pagination) {
+                return;
+            }
+
+            pagination.replaceChildren();
+
+            function appendPage(label, targetPage, disabled, active) {
+                const item = document.createElement('li');
+                item.className = 'page-item';
+                if (disabled) item.classList.add('disabled');
+                if (active) item.classList.add('active');
+
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'page-link';
+                button.textContent = label;
+                button.disabled = disabled;
+                button.setAttribute('aria-label', label === '이전' || label === '다음'
+                    ? label + ' 페이지'
+                    : '페이지 ' + label);
+                button.addEventListener('click', function () {
+                    currentPage = targetPage;
+                    render();
+                });
+
+                item.appendChild(button);
+                pagination.appendChild(item);
+            }
+
+            appendPage('이전', currentPage - 1, currentPage <= 1, false);
+            for (let pageNumber = 1; pageNumber <= Math.max(1, totalPages); pageNumber++) {
+                appendPage(String(pageNumber), pageNumber, false, pageNumber === currentPage);
+            }
+            appendPage('다음', currentPage + 1, currentPage >= totalPages, false);
+        }
+
+        function render() {
+            const filteredItems = getFilteredItems();
+            const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+            if (totalElement) {
+                totalElement.textContent = '총 ' + filteredItems.length + '건';
+            }
+
+            if (filteredItems.length === 0) {
+                const cell = document.createElement('td');
+                cell.colSpan = 5;
+                cell.className = 'text-center py-5 text-secondary';
+
+                const icon = document.createElement('span');
+                icon.className = 'material-symbols-outlined d-block mb-2 mypage-inquiry-empty-icon';
+                icon.setAttribute('aria-hidden', 'true');
+                icon.textContent = 'chat';
+
+                const title = document.createElement('strong');
+                title.className = 'd-block text-dark mb-1';
+                title.textContent = inquiryItems.length === 0
+                    ? '작성하신 문의 내역이 없습니다'
+                    : '검색 결과가 없습니다';
+
+                cell.appendChild(icon);
+                cell.appendChild(title);
+
+                if (inquiryItems.length === 0) {
+                    const description = document.createElement('p');
+                    description.className = 'small mb-3';
+                    description.textContent = '궁금한 점이 있으시다면 언제든 편하게 문의를 남겨주세요.';
+
+                    const link = document.createElement('a');
+                    link.className = 'btn btn-outline-primary btn-sm rounded-pill px-4';
+                    link.href = page.dataset.inquiryBoardUrl;
+                    link.textContent = '문의 작성하기';
+                    cell.appendChild(description);
+                    cell.appendChild(link);
+                }
+
+                const emptyRow = document.createElement('tr');
+                emptyRow.appendChild(cell);
+                rows.replaceChildren(emptyRow);
+                renderPagination(totalPages, 0);
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const visibleItems = filteredItems.slice(startIndex, startIndex + pageSize);
+            const renderedRows = visibleItems.map(function (item, index) {
+                const row = document.createElement('tr');
+                appendCell(row, String(item.qnaId == null
+                    ? filteredItems.length - startIndex - index
+                    : item.qnaId).padStart(2, '0'));
+
+                const titleCell = document.createElement('td');
+                const title = document.createElement('a');
+                title.href = page.dataset.inquiryBoardUrl;
+                title.className = 'mypage-inquiry-title';
+                title.textContent = item.qnaTitle || '(제목 없음)';
+                title.setAttribute('aria-label', title.textContent + ' - 문의 게시판에서 확인');
+                titleCell.appendChild(title);
+                row.appendChild(titleCell);
+
+                appendCell(row, item.qnaCategoryName || '-');
+                appendCell(row, item.qnaCreatedAt
+                    ? String(item.qnaCreatedAt).substring(0, 10).replace(/-/g, '.')
+                    : '-');
+
+                const statusCell = document.createElement('td');
+                const badge = document.createElement('span');
+                const statusLabels = {
+                    WAITING: '답변 대기',
+                    ANSWERING: '답변 중',
+                    ANSWERED: '답변 완료'
+                };
+                const statusClasses = {
+                    WAITING: 'text-bg-warning-subtle text-warning-emphasis',
+                    ANSWERING: 'text-bg-primary-subtle text-primary',
+                    ANSWERED: 'text-bg-success-subtle text-success'
+                };
+                const status = item.qnaStatus || 'WAITING';
+                badge.className = 'badge rounded-pill ' + (statusClasses[status] || 'text-bg-secondary-subtle text-secondary');
+                badge.textContent = statusLabels[status] || status;
+                statusCell.appendChild(badge);
+                row.appendChild(statusCell);
+                return row;
+            });
+
+            rows.replaceChildren.apply(rows, renderedRows);
+            renderPagination(totalPages, filteredItems.length);
+        }
+
+        async function loadInquiries() {
+            showMessage('문의 내역을 불러오는 중입니다.', false);
+            try {
+                const response = await fetch(page.dataset.inquiriesApiUrl, {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin'
+                });
+
+                if (response.status === 401 || response.redirected) {
+                    throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
+                }
+                if (!response.ok) {
+                    throw new Error('문의 내역을 불러오지 못했습니다.');
+                }
+
+                const result = await response.json();
+                if (!Array.isArray(result)) {
+                    throw new Error('문의 내역 응답 형식이 올바르지 않습니다.');
+                }
+
+                inquiryItems = result;
+                currentPage = 1;
+                render();
+            } catch (error) {
+                showMessage(error.message || '문의 내역을 불러오지 못했습니다.', true);
+                if (pagination) pagination.replaceChildren();
+                if (totalElement) totalElement.textContent = '총 0건';
+
+                const retry = document.createElement('button');
+                retry.type = 'button';
+                retry.className = 'btn btn-outline-secondary btn-sm mt-2';
+                retry.textContent = '다시 시도';
+                retry.addEventListener('click', loadInquiries);
+                rows.querySelector('td').appendChild(document.createElement('br'));
+                rows.querySelector('td').appendChild(retry);
+            }
+        }
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function () {
+                currentPage = 1;
+                render();
+            });
+        }
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                currentPage = 1;
+                render();
+            });
+        }
+
+        loadInquiries();
+    }
+
     function handleOpenPasswordChange() {
         openModal('#passwordChangeModal');
     }
@@ -440,5 +678,6 @@
     bindEvents();
     loadProfile();
     loadCompletedHistory();
+    initializeMyInquiries();
 }());
 

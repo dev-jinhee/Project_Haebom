@@ -9,7 +9,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-completed-history-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-inquiries-1" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -22,7 +22,9 @@
           data-home-url="${pageContext.request.contextPath}/"
           data-scenarios-api-url="${pageContext.request.contextPath}/api/scenario"
           data-scenario-list-url="${pageContext.request.contextPath}/scenario"
-          data-simulation-url="${pageContext.request.contextPath}/simulation">
+          data-simulation-url="${pageContext.request.contextPath}/simulation"
+          data-inquiries-api-url="${pageContext.request.contextPath}/api/mypage/inquiries"
+          data-inquiry-board-url="${pageContext.request.contextPath}/inquiries">
         <div class="subpage-heading">
             <div class="breadcrumb-line">
                 <a href="${pageContext.request.contextPath}/">홈</a>
@@ -60,21 +62,54 @@
         </section>
 
         <section class="d-none" data-my-panel="inquiries" aria-labelledby="inquiriesTitle">
-            <div class="content-panel">
-                <div class="panel-heading">
-                    <div>
-                        <h2 id="inquiriesTitle">문의 내역</h2>
+            <div class="content-panel mypage-inquiries-panel">
+                <div class="panel-heading mypage-inquiries-toolbar">
+                    <h2 id="inquiriesTitle">문의 내역</h2>
+                    <div class="mypage-inquiry-controls">
+                        <label class="visually-hidden" for="mypageInquiryStatus">문의 상태</label>
+                        <select class="form-select form-select-sm" id="mypageInquiryStatus">
+                            <option value="">전체 상태</option>
+                            <option value="WAITING">답변 대기</option>
+                            <option value="ANSWERING">답변 중</option>
+                            <option value="ANSWERED">답변 완료</option>
+                        </select>
+                        <label class="visually-hidden" for="mypageInquirySearch">문의 검색</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text" aria-hidden="true">
+                                <span class="material-symbols-outlined">search</span>
+                            </span>
+                            <input class="form-control" id="mypageInquirySearch"
+                                   type="search" placeholder="문의 검색">
+                        </div>
                     </div>
-                    <a class="btn btn-outline-primary btn-sm rounded-pill" href="${pageContext.request.contextPath}/inquiries">
-                        문의 게시판
-                    </a>
                 </div>
-                <div class="mypage-inquiry-summary" data-inquiry-summary>
-                    <div><span class="inquiry-status-dot"></span><span><strong>답변 대기</strong><small data-inquiry-waiting>불러오는 중</small></span></div>
-                    <div><span class="inquiry-status-dot answered"></span><span><strong>답변 완료</strong><small data-inquiry-answered>불러오는 중</small></span></div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle inquiry-table mypage-inquiry-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="inquiry-number">번호</th>
+                                <th scope="col">문의 내용</th>
+                                <th scope="col" class="inquiry-category">분류</th>
+                                <th scope="col" class="inquiry-date">등록일</th>
+                                <th scope="col" class="inquiry-status">상태</th>
+                            </tr>
+                        </thead>
+                        <tbody data-mypage-inquiry-rows>
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-secondary" role="status">
+                                    문의 내역을 불러오는 중입니다.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="mypage-inquiry-list mt-3" data-inquiry-list>
-                    <p class="text-secondary mb-0 py-3" role="status">문의 내역을 불러오는 중입니다.</p>
+
+                <div class="table-footer mypage-inquiry-footer">
+                    <span data-mypage-inquiry-total>총 0건</span>
+                    <nav aria-label="내 문의 페이지">
+                        <ul class="pagination pagination-sm mb-0" data-mypage-inquiry-pagination></ul>
+                    </nav>
                 </div>
             </div>
         </section>
@@ -191,7 +226,7 @@
     </div>
 
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-withdraw-confirm-1"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-inquiries-1"></script>
 </body>
 </html>
 
