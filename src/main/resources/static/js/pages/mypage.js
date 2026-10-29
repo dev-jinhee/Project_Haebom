@@ -461,17 +461,11 @@
         const pageSize = 10;
 
         function showMessage(message, isError) {
-            const cell = document.createElement('td');
-            cell.colSpan = 5;
-            cell.className = isError
-                ? 'text-center py-5 text-danger'
-                : 'text-center py-5 text-secondary';
-            cell.setAttribute('role', isError ? 'alert' : 'status');
-            cell.textContent = message;
-
-            const row = document.createElement('tr');
-            row.appendChild(cell);
-            rows.replaceChildren(row);
+            const messageElement = document.createElement('p');
+            messageElement.className = 'mypage-inquiry-message' + (isError ? ' is-error' : '');
+            messageElement.setAttribute('role', isError ? 'alert' : 'status');
+            messageElement.textContent = message;
+            rows.replaceChildren(messageElement);
         }
 
         function getFilteredItems() {
@@ -486,13 +480,6 @@
                 const keywordMatches = !keyword || title.indexOf(keyword) !== -1;
                 return statusMatches && keywordMatches;
             });
-        }
-
-        function appendCell(row, text) {
-            const cell = document.createElement('td');
-            cell.textContent = text;
-            row.appendChild(cell);
-            return cell;
         }
 
         function renderPagination(totalPages, totalItems) {
@@ -544,92 +531,91 @@
             }
 
             if (filteredItems.length === 0) {
-                const cell = document.createElement('td');
-                cell.colSpan = 5;
-                cell.className = 'text-center py-5 text-secondary';
+                const emptyState = document.createElement('div');
+                emptyState.className = 'mypage-inquiry-empty';
 
                 const icon = document.createElement('span');
-                icon.className = 'material-symbols-outlined d-block mb-2 mypage-inquiry-empty-icon';
+                icon.className = 'material-symbols-outlined mypage-inquiry-empty-icon';
                 icon.setAttribute('aria-hidden', 'true');
                 icon.textContent = 'chat';
 
                 const title = document.createElement('strong');
-                title.className = 'd-block text-dark mb-1';
                 title.textContent = inquiryItems.length === 0
                     ? '작성하신 문의 내역이 없습니다'
                     : '검색 결과가 없습니다';
 
-                cell.appendChild(icon);
-                cell.appendChild(title);
+                emptyState.append(icon, title);
 
                 if (inquiryItems.length === 0) {
                     const description = document.createElement('p');
-                    description.className = 'small mb-3';
                     description.textContent = '궁금한 점이 있으시다면 언제든 편하게 문의를 남겨주세요.';
 
                     const link = document.createElement('a');
                     link.className = 'btn btn-outline-primary btn-sm rounded-pill px-4';
                     link.href = page.dataset.inquiryBoardUrl;
                     link.textContent = '문의 작성하기';
-                    cell.appendChild(description);
-                    cell.appendChild(link);
+                    emptyState.append(description, link);
                 }
 
-                const emptyRow = document.createElement('tr');
-                emptyRow.appendChild(cell);
-                rows.replaceChildren(emptyRow);
+                rows.replaceChildren(emptyState);
                 renderPagination(totalPages, 0);
                 return;
             }
 
             const startIndex = (currentPage - 1) * pageSize;
             const visibleItems = filteredItems.slice(startIndex, startIndex + pageSize);
-            const renderedRows = visibleItems.map(function (item, index) {
-                const row = document.createElement('tr');
-                appendCell(row, String(item.qnaId == null
-                    ? filteredItems.length - startIndex - index
-                    : item.qnaId).padStart(2, '0'));
+            const renderedItems = visibleItems.map(function (item) {
+                const row = document.createElement('article');
+                row.className = 'mypage-inquiry-item';
+                row.dataset.inquiryId = String(item.qnaId);
 
-                const titleCell = document.createElement('td');
+                const content = document.createElement('div');
+                content.className = 'mypage-inquiry-content';
                 const title = document.createElement('a');
                 title.href = page.dataset.inquiryBoardUrl;
                 title.className = 'mypage-inquiry-title';
                 title.textContent = item.qnaTitle || '(제목 없음)';
-                title.setAttribute('aria-label', title.textContent + ' - 문의 게시판에서 확인');
-                titleCell.appendChild(title);
-                row.appendChild(titleCell);
+                title.setAttribute('aria-label', title.textContent + ' - 문의 상세 보기');
 
-                appendCell(row, item.qnaCategoryName || '-');
-                appendCell(row, item.qnaCreatedAt
-                    ? String(item.qnaCreatedAt).substring(0, 10).replace(/-/g, '.')
-                    : '-');
+                const metadata = document.createElement('div');
+                metadata.className = 'mypage-inquiry-metadata';
 
-                const statusCell = document.createElement('td');
+                const category = document.createElement('span');
+                category.textContent = item.qnaCategoryName || '-';
+
+                const date = document.createElement('time');
+                const createdAt = item.qnaCreatedAt ? String(item.qnaCreatedAt).substring(0, 10) : '';
+                date.dateTime = createdAt;
+                date.textContent = createdAt ? createdAt.replace(/-/g, '.') : '-';
+                metadata.append(category, date);
+                content.append(title, metadata);
+
                 const badge = document.createElement('span');
+                badge.className = 'mypage-inquiry-status';
                 const statusLabels = {
                     WAITING: '답변 대기',
                     ANSWERING: '답변 중',
                     ANSWERED: '답변 완료'
                 };
-                const statusClasses = {
-                    WAITING: 'text-bg-warning-subtle text-warning-emphasis',
-                    ANSWERING: 'text-bg-primary-subtle text-primary',
-                    ANSWERED: 'text-bg-success-subtle text-success'
-                };
                 const status = item.qnaStatus || 'WAITING';
-                badge.className = 'badge rounded-pill ' + (statusClasses[status] || 'text-bg-secondary-subtle text-secondary');
+                const statusClassNames = {
+                    WAITING: 'waiting',
+                    ANSWERING: 'answering',
+                    ANSWERED: 'answered'
+                };
+                badge.classList.add(statusClassNames[status] || 'unknown');
                 badge.textContent = statusLabels[status] || status;
-                statusCell.appendChild(badge);
-                row.appendChild(statusCell);
+
+                row.append(content, badge);
                 return row;
             });
 
-            rows.replaceChildren.apply(rows, renderedRows);
+            rows.replaceChildren.apply(rows, renderedItems);
             renderPagination(totalPages, filteredItems.length);
         }
 
         async function loadInquiries() {
-            showMessage('문의 내역을 불러오는 중입니다.', false);
+            showMessage('내 문의 내역을 불러오는 중입니다.', false);
             try {
                 const response = await fetch(page.dataset.inquiriesApiUrl, {
                     method: 'GET',
@@ -641,19 +627,19 @@
                     throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
                 }
                 if (!response.ok) {
-                    throw new Error('문의 내역을 불러오지 못했습니다.');
+                    throw new Error('내 문의 내역을 불러오지 못했습니다.');
                 }
 
                 const result = await response.json();
                 if (!Array.isArray(result)) {
-                    throw new Error('문의 내역 응답 형식이 올바르지 않습니다.');
+                    throw new Error('내 문의 내역 응답 형식이 올바르지 않습니다.');
                 }
 
                 inquiryItems = result;
                 currentPage = 1;
                 render();
             } catch (error) {
-                showMessage(error.message || '문의 내역을 불러오지 못했습니다.', true);
+                showMessage(error.message || '내 문의 내역을 불러오지 못했습니다.', true);
                 if (pagination) pagination.replaceChildren();
                 if (totalElement) totalElement.textContent = '총 0건';
 
@@ -662,10 +648,123 @@
                 retry.className = 'btn btn-outline-secondary btn-sm mt-2';
                 retry.textContent = '다시 시도';
                 retry.addEventListener('click', loadInquiries);
-                rows.querySelector('td').appendChild(document.createElement('br'));
-                rows.querySelector('td').appendChild(retry);
+                const errorMessage = rows.querySelector('.mypage-inquiry-message');
+                errorMessage.appendChild(document.createElement('br'));
+                errorMessage.appendChild(retry);
             }
         }
+
+        async function loadInquiryAnswers(qnaId) {
+            const answerSection = document.querySelector('[data-mypage-inquiry-answer-section]');
+            const answersList = document.querySelector('[data-mypage-inquiry-answers]');
+            if (!answerSection || !answersList || !page.dataset.inquiryAnswersApiUrl) return;
+
+            answerSection.hidden = false;
+            const loading = document.createElement('p');
+            loading.className = 'mypage-inquiry-answer-message';
+            loading.textContent = '답변을 불러오는 중입니다.';
+            answersList.replaceChildren(loading);
+
+            try {
+                const response = await fetch(page.dataset.inquiryAnswersApiUrl + '/' + encodeURIComponent(qnaId) + '/answers', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) throw new Error('답변을 불러오지 못했습니다.');
+
+                const answers = await response.json();
+                if (!Array.isArray(answers) || answers.length === 0) {
+                    const empty = document.createElement('p');
+                    empty.className = 'mypage-inquiry-answer-message';
+                    empty.textContent = '등록된 답변이 없습니다.';
+                    answersList.replaceChildren(empty);
+                    return;
+                }
+
+                const answerCards = answers.map(function (answer) {
+                    const card = document.createElement('article');
+                    card.className = 'mypage-inquiry-answer';
+                    const header = document.createElement('div');
+                    header.className = 'mypage-inquiry-answer-heading';
+                    const responder = document.createElement('strong');
+                    responder.textContent = '해봄 운영팀 (' + (answer.responderName || answer.responderLoginId || '관리자') + ')';
+                    const date = document.createElement('time');
+                    const answerDate = answer.qnaAnswerCreatedAt ? String(answer.qnaAnswerCreatedAt) : '';
+                    date.dateTime = answerDate;
+                    date.textContent = answerDate ? answerDate.replace('T', ' ').substring(0, 19).replace(/-/g, '.') : '';
+                    header.append(responder, date);
+
+                    const body = document.createElement('p');
+                    body.className = 'mypage-inquiry-answer-content';
+                    body.textContent = answer.qnaAnswerContent || '';
+                    card.append(header, body);
+                    return card;
+                });
+                answersList.replaceChildren.apply(answersList, answerCards);
+            } catch (error) {
+                const message = document.createElement('p');
+                message.className = 'mypage-inquiry-answer-message is-error';
+                message.setAttribute('role', 'alert');
+                message.textContent = error.message || '답변을 불러오지 못했습니다.';
+                answersList.replaceChildren(message);
+            }
+        }
+
+        rows.addEventListener('click', async function (event) {
+            const titleLink = event.target.closest('.mypage-inquiry-title');
+            if (!titleLink) return;
+            event.preventDefault();
+
+            const row = titleLink.closest('[data-inquiry-id]');
+            const selected = row && inquiryItems.find(function (item) {
+                return String(item.qnaId) === row.dataset.inquiryId;
+            });
+            const modal = document.getElementById('mypageInquiryViewModal');
+            if (!selected || !modal) return;
+
+            let detail = selected;
+            try {
+                const response = await fetch(page.dataset.inquiryListApiUrl, {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' },
+                    credentials: 'same-origin'
+                });
+                if (!response.ok) throw new Error('문의 상세 내용을 불러오지 못했습니다.');
+                const inquiryList = await response.json();
+                detail = Array.isArray(inquiryList)
+                    ? inquiryList.find(function (item) { return String(item.qnaId) === String(selected.qnaId); })
+                    : null;
+                if (!detail) throw new Error('문의 상세 내용을 찾을 수 없습니다.');
+            } catch (error) {
+                toast(error.message || '문의 상세 내용을 불러오지 못했습니다.');
+                return;
+            }
+
+            modal.querySelector('#mypageInquiryViewTitle').textContent = detail.qnaTitle || '(제목 없음)';
+            modal.querySelector('[data-mypage-inquiry-category]').textContent = detail.qnaCategoryName || '문의';
+            const date = detail.qnaCreatedAt ? String(detail.qnaCreatedAt).substring(0, 10).replace(/-/g, '.') : '-';
+            modal.querySelector('[data-mypage-inquiry-date]').textContent = date;
+            modal.querySelector('[data-mypage-inquiry-content]').textContent = detail.qnaContent || '';
+
+            const statusBadge = modal.querySelector('[data-mypage-inquiry-status]');
+            const statusLabels = { WAITING: '답변 대기', ANSWERING: '답변 중', ANSWERED: '답변 완료' };
+            const statusClasses = {
+                WAITING: 'text-bg-warning-subtle text-warning-emphasis',
+                ANSWERING: 'text-bg-primary-subtle text-primary',
+                ANSWERED: 'text-bg-success-subtle text-success'
+            };
+            const status = detail.qnaStatus || 'WAITING';
+            statusBadge.className = 'badge rounded-pill ' + (statusClasses[status] || 'text-bg-secondary-subtle text-secondary');
+            statusBadge.textContent = statusLabels[status] || status;
+
+            const answerSection = modal.querySelector('[data-mypage-inquiry-answer-section]');
+            const answersList = modal.querySelector('[data-mypage-inquiry-answers]');
+            answerSection.hidden = status !== 'ANSWERED';
+            answersList.replaceChildren();
+            if (status === 'ANSWERED') loadInquiryAnswers(detail.qnaId);
+            openModal('#mypageInquiryViewModal');
+        });
 
         if (statusFilter) {
             statusFilter.addEventListener('change', function () {
