@@ -1,5 +1,6 @@
 package kr.co.oti.haebom.controller.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.co.oti.haebom.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.security.MemberPrincipal;
 import kr.co.oti.haebom.service.MyPageService;
@@ -26,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/mypage")
-@Tag(name = "마이페이지", description = "마이페이지 회원정보·비밀번호 변경·탈퇴 API")
+@Tag(name = "마이페이지", description = "마이페이지 문의 내역, 회원정보, 비밀번호 변경·탈퇴 API")
 public class MyPageApiController {
 
 	private final MyPageService myPageService;
@@ -81,5 +83,16 @@ public class MyPageApiController {
 	            passwordConfirm);
 
 	    return Map.of("changed", true);
+	}
+	
+	@Operation(summary = "내 문의 내역 조회", description = "로그인한 회원 본인이 작성한 삭제되지 않은 문의 목록을 조회합니다.")
+	@GetMapping("/inquiries")
+	public List<MyPageInquiryItemDTO> getMyInquiries(@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		
+		if (memberPrincipal == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		
+		return myPageService.getMyInquiries(memberPrincipal.getMemberId());
 	}
 }

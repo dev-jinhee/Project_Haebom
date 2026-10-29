@@ -1,11 +1,14 @@
 package kr.co.oti.haebom.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import kr.co.oti.haebom.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.mapper.MyPageMapper;
 import kr.co.oti.haebom.mapper.SimulationAnswerMapper;
@@ -94,5 +97,9 @@ public class MyPageService {
 	        throw new ResponseStatusException(
 	                HttpStatus.CONFLICT, "비밀번호를 변경하지 못했습니다. 다시 시도해 주세요.");
 	    }
+	}
+	
+	public List<MyPageInquiryItemDTO> getMyInquiries(Integer memberId) {
+	    return myPageMapper.selectInquiriesByMemberId(memberId);
 	}
 }
