@@ -245,37 +245,102 @@
         openModal('#passwordChangeModal');
     }
 
-    function handlePasswordChange(event) {
+    async function handlePasswordChange(event) {
         event.preventDefault();
 
+        const form = event.currentTarget;
+        const currentPasswordInput = document.getElementById('currentPassword');
         const newPasswordInput = document.getElementById('newPassword');
         const confirmPasswordInput = document.getElementById('confirmNewPassword');
+        const submitButton = form.querySelector('[data-password-submit]');
+        const apiUrl = page && page.dataset.passwordChangeApiUrl;
+        const currentPassword = currentPasswordInput ? currentPasswordInput.value : '';
         const password = newPasswordInput ? newPasswordInput.value : '';
         const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
 
-        if (password.length < 8) {
-            toast('새 비밀번호를 8자 이상 입력해 주세요.');
+        if (!currentPassword.trim()) {
+            toast('현재 비밀번호를 입력해 주세요.');
+            if (currentPasswordInput) {
+                currentPasswordInput.focus();
+            }
+            return;
+        }
 
+        if (password.length < 8 || password.length > 20 || /[><_"'-]/.test(password)) {
+            toast('새 비밀번호는 8~20자이며 사용할 수 없는 특수문자(>, <, _, -, ", \')를 포함할 수 없습니다.');
             if (newPasswordInput) {
                 newPasswordInput.focus();
             }
+            return;
+        }
 
+        if (!confirmPassword) {
+            toast('새 비밀번호 확인을 입력해 주세요.');
+            if (confirmPasswordInput) {
+                confirmPasswordInput.focus();
+            }
             return;
         }
 
         if (password !== confirmPassword) {
             toast('새 비밀번호가 서로 일치하지 않습니다.');
-
             if (confirmPasswordInput) {
                 confirmPasswordInput.focus();
             }
-
             return;
         }
 
-        closeModal('#passwordChangeModal');
-        event.currentTarget.reset();
-        toast('화면 시안입니다. 비밀번호는 실제로 변경되지 않았습니다.');
+        if (!apiUrl) {
+            toast('비밀번호 변경 요청 주소를 찾을 수 없습니다.');
+            return;
+        }
+
+        const body = new URLSearchParams();
+        body.set('currentPassword', currentPassword);
+        body.set('newPassword', password);
+        body.set('passwordConfirm', confirmPassword);
+
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                },
+                body: body.toString()
+            });
+
+            const result = await response.json().catch(() => null);
+
+            if (!response.ok || response.redirected) {
+                if (response.status === 401 || response.redirected) {
+                    throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
+                }
+                if (response.status === 400) {
+                    throw new Error('현재 비밀번호를 확인하거나 입력값을 다시 확인해 주세요.');
+                }
+                throw new Error('비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+            }
+
+            if (!result || result.changed !== true) {
+                throw new Error('비밀번호 변경 결과를 확인하지 못했습니다. 다시 시도해 주세요.');
+            }
+
+            closeModal('#passwordChangeModal');
+            form.reset();
+            toast('비밀번호를 변경했습니다.');
+        } catch (error) {
+            toast(error.message || '비밀번호 변경 중 오류가 발생했습니다.');
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
+
     }
 
     function handleDeleteAccount() {
