@@ -162,7 +162,7 @@
       tbody.innerHTML = `
         <tr>
           <td colspan="5" class="text-center py-5">
-            <i class="bi bi-shield-lock fs-1 text-secondary d-block mb-2"></i>
+            <span class="material-symbols-outlined fs-1 text-secondary d-block mb-2">lock</span>
             <h6 class="fw-bold text-dark mb-1">로그인이 필요한 서비스입니다</h6>
             <p class="text-muted small mb-3">내가 작성한 문의 내역을 확인하시려면 먼저 로그인해 주세요.</p>
             <a href="/login" class="btn btn-primary btn-sm rounded-pill px-4">로그인하기</a>
@@ -183,18 +183,18 @@
     // 데이터가 0건일 때 안내 화면
     if (filtered.length === 0) {
       const emptyActionBtn = isAdmin
-        ? '<a href="/admin#inquiries" class="btn btn-outline-primary btn-sm rounded-pill px-4"><i class="bi bi-shield-lock-fill me-1"></i>관리자 문의 관리로 이동</a>'
+        ? '<a href="/admin#inquiries" class="btn btn-outline-primary btn-sm rounded-pill px-4 d-inline-flex align-items-center"><span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">admin_panel_settings</span>관리자 문의 관리로 이동</a>'
         : '<button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-4" data-open-inquiry>문의 작성하기</button>';
 
       const emptyHtml = (currentTab === 'my')
         ? `
-          <i class="bi bi-chat-square-text fs-1 text-muted d-block mb-2"></i>
+          <span class="material-symbols-outlined fs-1 text-muted d-block mb-2">forum</span>
           <div class="fw-bold text-dark mb-1">작성하신 문의 내역이 없습니다</div>
           <p class="text-muted small mb-3">궁금한 점이 있으시다면 언제든 편하게 문의를 남겨주세요.</p>
           ${emptyActionBtn}
         `
         : `
-          <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
+          <span class="material-symbols-outlined fs-1 d-block mb-2 text-muted">inbox</span>
           일치하는 문의 내역이 없습니다.
         `;
 
@@ -237,7 +237,7 @@
       const isSecret = Boolean(qna.isSecret);
 
       // 비밀글 아이콘 및 뱃지
-      const secretIcon = isSecret ? '<i class="bi bi-lock-fill text-secondary me-1" title="비밀글"></i>' : '';
+      const secretIcon = isSecret ? '<span class="material-symbols-outlined text-secondary me-1" style="font-size: 1.05rem; vertical-align: middle;" title="비밀글">lock</span>' : '';
       const secretBadge = (isSecret && isMine)
         ? '<span class="badge rounded-pill bg-secondary-subtle text-secondary ms-1" style="font-size: .65rem;">비밀글</span>'
         : '';
@@ -426,8 +426,8 @@
         return `
           <div class="p-3 rounded-3" style="background-color: #f0fdf4; border: 1px solid #bbf7d0;">
             <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-success-subtle">
-              <span class="fw-bold text-success-emphasis small">
-                <i class="bi bi-shield-check me-1"></i>해봄 운영팀 (${escapeHtml(responder)})
+              <span class="fw-bold text-success-emphasis small d-flex align-items-center">
+                <span class="material-symbols-outlined me-1 text-success" style="font-size: 1.15rem;">verified_user</span>해봄 운영팀 (${escapeHtml(responder)})
               </span>
               <small class="text-secondary">${dateStr}</small>
             </div>

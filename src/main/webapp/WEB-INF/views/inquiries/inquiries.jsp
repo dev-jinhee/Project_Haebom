@@ -7,9 +7,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>문의 게시판 | 해봄</title>
-    <!-- Bootstrap 5.3 & Bootstrap Icons CDN -->
+    <!-- Bootstrap 5.3 CDN & Google Material Symbols -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <!-- 해봄 공통 & 페이지 전용 스타일시트 (통합 common.css 단 1개 사용) -->
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/inquiries.css" rel="stylesheet">
@@ -28,9 +28,9 @@
         
         <!-- 상단 헤딩 & 브레드크럼 -->
         <div class="subpage-heading">
-            <div class="breadcrumb-line">
+            <div class="breadcrumb-line d-flex align-items-center gap-1">
                 <a href="${pageContext.request.contextPath}/">홈</a>
-                <i class="bi bi-chevron-right"></i>
+                <span class="material-symbols-outlined" style="font-size: 0.95rem; vertical-align: middle;">chevron_right</span>
                 <span>문의 게시판</span>
             </div>
             <h1>무엇이 궁금하신가요?</h1>
@@ -42,7 +42,7 @@
             <!-- 1) 전체 문의 탭용: 친절한 이용 안내 배너 (기본 표시) -->
             <div class="inquiry-summary-banner d-flex align-items-center gap-3" id="inquiryBannerInfo">
                 <div class="inquiry-banner-icon">
-                    <i class="bi bi-headset"></i>
+                    <span class="material-symbols-outlined" style="font-size: 1.6rem;">support_agent</span>
                 </div>
                 <div class="inquiry-banner-text">
                     <strong class="d-block text-dark fw-bold mb-1">무엇이든 편하게 물어보세요!</strong>
@@ -52,16 +52,16 @@
 
             <!-- 2) 내 문의 탭용: 나의 문의 진행 현황 (내 문의 탭 클릭 시 표시) -->
             <div class="inquiry-summary-stats align-items-center gap-4 d-none" id="inquiryBannerStats">
-                <div>
-                    <i class="bi bi-chat-left-text"></i>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined text-primary" style="font-size: 1.25rem;">chat</span>
                     <span>내 문의<strong data-inquiry-total>0건</strong></span>
                 </div>
-                <div>
-                    <i class="bi bi-hourglass-split"></i>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined text-warning" style="font-size: 1.25rem;">hourglass_empty</span>
                     <span>답변 대기<strong data-inquiry-waiting>0건</strong></span>
                 </div>
-                <div>
-                    <i class="bi bi-check-circle"></i>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined text-success" style="font-size: 1.25rem;">check_circle</span>
                     <span>답변 완료<strong data-inquiry-answered>0건</strong></span>
                 </div>
             </div>
@@ -70,12 +70,12 @@
             <c:choose>
                 <c:when test="${isAdmin}">
                     <a href="${pageContext.request.contextPath}/admin#inquiries" class="btn btn-outline-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap d-inline-flex align-items-center">
-                        <i class="bi bi-shield-lock-fill me-1"></i>관리자 문의 관리
+                        <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">admin_panel_settings</span>관리자 문의 관리
                     </a>
                 </c:when>
                 <c:otherwise>
-                    <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap" data-open-inquiry>
-                        <i class="bi bi-pencil-square me-1"></i>문의 작성
+                    <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap d-inline-flex align-items-center" data-open-inquiry>
+                        <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">edit_square</span>문의 작성
                     </button>
                 </c:otherwise>
             </c:choose>
@@ -88,13 +88,13 @@
                 <div class="inquiry-tabs-wrap">
                     <ul class="nav nav-pills inquiry-nav-tabs" id="inquiryTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="tabAllInquiries" data-inquiry-tab="all" type="button" role="tab" aria-selected="true">
-                                <i class="bi bi-chat-square-text me-1"></i>전체 문의 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeAllCount">0</span>
+                            <button class="nav-link active d-inline-flex align-items-center" id="tabAllInquiries" data-inquiry-tab="all" type="button" role="tab" aria-selected="true">
+                                <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">forum</span>전체 문의 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeAllCount">0</span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="tabMyInquiries" data-inquiry-tab="my" type="button" role="tab" aria-selected="false">
-                                <i class="bi bi-person-check me-1"></i>내 문의 내역 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeMyCount">0</span>
+                            <button class="nav-link d-inline-flex align-items-center" id="tabMyInquiries" data-inquiry-tab="my" type="button" role="tab" aria-selected="false">
+                                <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">person_check</span>내 문의 내역 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeMyCount">0</span>
                             </button>
                         </li>
                     </ul>
@@ -108,7 +108,7 @@
                     </select>
                     <!-- 검색창 -->
                     <div class="input-group input-group-sm inquiry-search">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <span class="input-group-text"><span class="material-symbols-outlined" style="font-size: 1.15rem;">search</span></span>
                         <input type="text" class="form-control" id="inquirySearchInput" placeholder="문의 검색" aria-label="문의 검색">
                     </div>
                 </div>
@@ -196,8 +196,8 @@
                     <div class="p-2 bg-light rounded-3 d-flex align-items-center gap-2">
                         <div class="form-check form-switch mb-0">
                             <input class="form-check-input" type="checkbox" role="switch" id="inquiryIsSecret" name="isSecret">
-                            <label class="form-check-label small text-secondary fw-semibold cursor-pointer" for="inquiryIsSecret">
-                                <i class="bi bi-lock-fill text-warning me-1"></i>비밀글로 등록하기 <span class="text-muted fw-normal">(작성자와 관리자만 확인 가능)</span>
+                            <label class="form-check-label small text-secondary fw-semibold cursor-pointer d-flex align-items-center" for="inquiryIsSecret">
+                                <span class="material-symbols-outlined text-warning me-1" style="font-size: 1.15rem;">lock</span>비밀글로 등록하기 <span class="text-muted fw-normal ms-1">(작성자와 관리자만 확인 가능)</span>
                             </label>
                         </div>
                     </div>
@@ -229,7 +229,7 @@
 
                     <!-- 질문 본문 -->
                     <div class="mb-4">
-                        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-question-circle-fill text-primary me-1"></i>내 문의 내용</h3>
+                        <h3 class="h6 fw-bold text-dark mb-2 d-flex align-items-center"><span class="material-symbols-outlined text-primary me-1" style="font-size: 1.25rem;">help</span>내 문의 내용</h3>
                         <div class="p-3 bg-light rounded-3 text-secondary" id="inquiryViewContent" style="white-space: pre-line; line-height: 1.6;">
                             문의 내용이 여기에 표시됩니다.
                         </div>
@@ -237,7 +237,7 @@
 
                     <!-- 관리자 답변 영역 -->
                     <div id="inquiryAnswerSection">
-                        <h3 class="h6 fw-bold text-dark mb-2"><i class="bi bi-reply-fill text-success me-1"></i>관리자 답변</h3>
+                        <h3 class="h6 fw-bold text-dark mb-2 d-flex align-items-center"><span class="material-symbols-outlined text-success me-1" style="font-size: 1.25rem;">reply</span>관리자 답변</h3>
                         <div class="d-flex flex-column gap-2" id="inquiryAnswerList">
                             <!-- 답변 목록이 여기에 동적으로 추가됩니다 -->
                         </div>
@@ -246,11 +246,11 @@
                 <div class="modal-footer px-4 pb-4 pt-2 border-top-0 d-flex justify-content-between">
 				    <%-- 왼쪽: 수정 및 삭제 버튼 --%>
 				    <div class="d-flex gap-2">
-				        <button type="button" class="btn btn-outline-primary rounded-pill px-3" id="btnEditInquiry">
-				            <i class="bi bi-pencil-square me-1"></i>수정
+				        <button type="button" class="btn btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center" id="btnEditInquiry">
+				            <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">edit</span>수정
 				        </button>
-				        <button type="button" class="btn btn-outline-danger rounded-pill px-3" id="btnDeleteInquiry">
-				            <i class="bi bi-trash3 me-1"></i>삭제
+				        <button type="button" class="btn btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center" id="btnDeleteInquiry">
+				            <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">delete</span>삭제
 				        </button>
 				    </div>
 				    <%-- 오른쪽: 닫기 버튼 --%>
