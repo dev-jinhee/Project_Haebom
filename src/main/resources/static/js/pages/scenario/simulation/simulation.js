@@ -9,6 +9,11 @@ const simulationState = {
 	currentStep: null,
 	viewingStep: null
 };
+// 시뮬레이션별 대표 아이콘
+const SIMULATION_ICONS = {
+	MOVE: "home",
+	IDENTITY_REISSUE: "badge"
+};
 
 let activeStepModule = null;
 
@@ -24,6 +29,17 @@ const stepModules = {
 		4: () => import("/js/pages/scenario/simulation/move/step-4.js")
 	}
 };
+
+// 아이콘 변경 함수
+function updateSimulationIcon(scenarioCode) {
+	const icon = document.querySelector(
+		"#simulationIcon .material-symbols-outlined"
+	);
+
+	if (!icon) return;
+
+	icon.textContent = SIMULATION_ICONS[scenarioCode] ?? "info";
+}
 
 // ==============================
 // 시뮬레이션 최초 로딩
@@ -69,6 +85,8 @@ async function loadSimulation() {
 		const scenario = await scenarioResponse.json();
 
 		simulationState.scenarioCode = scenario.scenarioCode;
+
+		updateSimulationIcon(simulationState.scenarioCode);
 		// 전입신고 전용 CSS 로드
 		if (simulationState.scenarioCode === "MOVE") {
 
@@ -279,6 +297,7 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 		throw new Error("단계 화면 조회 실패");
 	}
 
+
 	const html = await response.text();
 
 	const stepContent = document.querySelector("#stepContent");
@@ -337,6 +356,11 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 			});
 		}
 	}
+	window.scrollTo({
+		top: 0,
+		behavior: "smooth"
+	});
+
 }
 
 // ==============================

@@ -12,11 +12,8 @@
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
 	rel="stylesheet">
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-	rel="stylesheet">
 <!-- 공통 / 시뮬레이션 CSS -->
-<link href="/css/app.css" rel="stylesheet">
+<link href="/css/common.css" rel="stylesheet">
 <link href="/css/pages/scenario/simulation/simulation.css"
 	rel="stylesheet">
 <link href="/css/pages/scenario/simulation/move.css" rel="stylesheet">
@@ -29,9 +26,9 @@
 	<main class="container sim-container">
 
 		<!-- 브레드크럼 -->
-		<div class="sim-breadcrumb">
-			<a href="${pageContext.request.contextPath}/scenario"> 시나리오 목록 </a> <i
-				class="bi bi-chevron-right" aria-hidden="true"></i> <span
+		<div class="breadcrumb-line">
+			<a href="${pageContext.request.contextPath}/scenario"> 시나리오 목록 </a> <span
+				class="material-symbols-outlined"> chevron_right </span> <span
 				id="breadcrumbScenarioTitle"></span>
 		</div>
 
@@ -44,9 +41,8 @@
 			</div>
 
 			<div class="sim-title-actions">
-				<span class="learning-badge"> <i
-					class="bi bi-info-circle-fill" aria-hidden="true"></i> 학습용 · 실제 신청
-					아님
+				<span class="learning-badge"> <span
+					class="material-symbols-outlined"> info </span> 학습용 · 실제 신청 아님
 				</span>
 			</div>
 		</div>
@@ -84,16 +80,12 @@
 					<!-- 현재 단계 제목 -->
 					<div class="sim-card-head">
 
-						<span class="question-icon" id="questionIcon"> <i
-							class="bi bi-info-circle" aria-hidden="true"></i>
+						<span class="simulation-icon" id="simulationIcon"> <span
+							class="material-symbols-outlined" aria-hidden="true"> info
+						</span>
 						</span>
 
-						<div>
-							<!-- <span class="eyebrow"
-                                  id="questionEyebrow"></span> -->
-
-							<h2 id="currentQuestion"></h2>
-						</div>
+						<h2 id="currentQuestion"></h2>
 					</div>
 
 					<!-- 단계별 안내 문구 -->
@@ -112,9 +104,8 @@
 					<div id="printSection" class="border-top mt-4 pt-3">
 						<button id="printBtn" type="button"
 							class="btn btn-link text-secondary
-                           text-decoration-none p-0 small">
-
-							<i class="bi bi-printer me-1" aria-hidden="true"></i> 화면 인쇄 /
+                           text-decoration-none p-0 small d-inline-flex align-items-center gap-1">
+							<span class="material-symbols-outlined"> print </span> 화면 인쇄 /
 							PDF 저장
 						</button>
 
