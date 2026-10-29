@@ -1,10 +1,13 @@
 package kr.co.oti.haebom.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import kr.co.oti.haebom.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
 
 @Mapper
@@ -43,4 +46,20 @@ public interface MyPageMapper {
 		AND member_status = 'ACTIVE'
 		""")
 	int updatePasswordByMemberId(@Param("memberId") Integer memberId, @Param("encodedPassword") String encodedPassword);
+	
+	@Select("""
+		SELECT
+			q.qna_id AS qnaId,
+			q.qna_title AS qnaTitle,
+			qc.qna_category_name AS qnaCategoryName,
+			q.qna_status AS qnaStatus,
+			q.qna_created_at AS qnaCreatedAt
+		FROM qna q
+		JOIN qna_category qc ON qc.qna_category_id = q.qna_category_id
+		WHERE q.member_id = #{memberId}
+		AND q.is_deleted = 0
+		ORDER BY q.qna_id DESC
+		    """)
+	List<MyPageInquiryItemDTO> selectInquiriesByMemberId(
+		        @Param("memberId") Integer memberId);
 }
