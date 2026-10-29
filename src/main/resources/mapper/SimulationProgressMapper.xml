@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
-	namespace="kr.co.oti.haebom.mapper.SimulationProgressMapper">
+	namespace="kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper">
 	<!-- 최근 진행한 시뮬레이션의 이력 조회 -->
 	<select id="selectLatestProgressListByMemberId"
-		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
 		select sp.*,ss.step_order
 		from simulation_progress sp
 		LEFT
@@ -27,7 +27,7 @@
 	</select>
 	<!-- 진행이력 단건 조회 -->
 	<select id="selectProgressByIdAndMemberId"
-		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
 		select *
 		from simulation_progress
 		where progress_id =
@@ -37,7 +37,7 @@
 
 	<!-- 진행 기록 삽입 -->
 	<insert id="insertProgress"
-		parameterType="kr.co.oti.haebom.dto.SimulationProgressCreateDTO"
+		parameterType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressCreateDTO"
 		useGeneratedKeys="true" keyProperty="progressId">
 		insert into
 		simulation_progress(member_id, scenario_id, step_id)
@@ -175,7 +175,7 @@
 
 	<!-- 마지막 저장일로부터 30일이 지난 진행기록 조회 -->
 	<select id="selectExpiredProgress"
-		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
 		SELECT *
 		FROM simulation_progress
 		WHERE progress_status =
@@ -185,7 +185,7 @@
 
 	<!-- 자동 삭제 대상 재확인 및 행 잠금 -->
 	<select id="selectExpiredProgressForUpdate"
-		resultType="kr.co.oti.haebom.dto.SimulationProgressDTO">
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
 		SELECT *
 		FROM simulation_progress
 		WHERE progress_id = #{progressId}
