@@ -2,12 +2,15 @@ package kr.co.oti.haebom.service;
 
 import java.util.List;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import kr.co.oti.haebom.dto.MyPageCompletedScenarioDTO;
 import kr.co.oti.haebom.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.mapper.MyPageMapper;
@@ -25,6 +28,7 @@ public class MyPageService {
 	private final SimulationFamilyMapper simulationFamilyMapper;
 	private final SimulationProgressMapper simulationProgressMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final MessageSource messageSource;
 	
 	public MyPageProfileResponseDTO getProfile(Integer memberId) {
 		
@@ -101,5 +105,22 @@ public class MyPageService {
 	
 	public List<MyPageInquiryItemDTO> getMyInquiries(Integer memberId) {
 	    return myPageMapper.selectInquiriesByMemberId(memberId);
+	}
+	
+	public List<MyPageCompletedScenarioDTO> getCompletedScenarios(Integer memberId) {
+		
+		List<MyPageCompletedScenarioDTO> records = myPageMapper.selectCompletedScenariosByMemberId(memberId);
+		
+		for (MyPageCompletedScenarioDTO record : records) {
+			String label = messageSource.getMessage(
+					"category." + record.getCategoryName(),
+					null,
+					record.getCategoryName(),
+					LocaleContextHolder.getLocale());
+			
+			record.setCategoryLabel(label);
+		}
+		
+		return records;
 	}
 }

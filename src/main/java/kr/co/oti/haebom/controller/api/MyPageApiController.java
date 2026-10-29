@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.co.oti.haebom.dto.MyPageCompletedScenarioDTO;
 import kr.co.oti.haebom.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.security.MemberPrincipal;
@@ -28,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/mypage")
-@Tag(name = "마이페이지", description = "마이페이지 문의 내역, 회원정보, 비밀번호 변경·탈퇴 API")
+@Tag(name = "마이페이지", description = "마이페이지 문의 내역·완료 내역·회원정보·비밀번호 변경·탈퇴 API")
 public class MyPageApiController {
 
 	private final MyPageService myPageService;
@@ -94,5 +95,16 @@ public class MyPageApiController {
 		}
 		
 		return myPageService.getMyInquiries(memberPrincipal.getMemberId());
+	}
+	
+	@Operation(summary = "완료한 시나리오 조회", description = "로그인한 회원이 완료한 시나리오 기록을 모두 조회합니다.")
+	@GetMapping("/completed-scenarios")
+	public List<MyPageCompletedScenarioDTO> getCompletedScenarios(@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		
+		if (memberPrincipal == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		
+		return myPageService.getCompletedScenarios(memberPrincipal.getMemberId());
 	}
 }

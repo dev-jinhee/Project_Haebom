@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import kr.co.oti.haebom.dto.MyPageCompletedScenarioDTO;
 import kr.co.oti.haebom.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.dto.MyPageProfileResponseDTO;
 
@@ -60,6 +61,21 @@ public interface MyPageMapper {
 		AND q.is_deleted = 0
 		ORDER BY q.qna_id DESC
 		    """)
-	List<MyPageInquiryItemDTO> selectInquiriesByMemberId(
-		        @Param("memberId") Integer memberId);
+	List<MyPageInquiryItemDTO> selectInquiriesByMemberId(@Param("memberId") Integer memberId);
+	
+	@Select("""
+		SELECT
+	        sp.progress_id,
+	        sp.scenario_id,
+	        s.scenario_title,
+	        c.category_name,
+	        sp.completed_at
+	    FROM simulation_progress sp
+	    JOIN scenario s ON s.scenario_id = sp.scenario_id
+	    JOIN category c ON c.category_id = s.category_id
+	    WHERE sp.member_id = #{memberId}
+		AND sp.progress_status = 'COMPLETED'
+	    ORDER BY sp.completed_at DESC, sp.progress_id DESC
+	    """)
+	List<MyPageCompletedScenarioDTO> selectCompletedScenariosByMemberId(@Param("memberId") Integer memberId);
 }

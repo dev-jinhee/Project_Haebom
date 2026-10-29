@@ -47,9 +47,10 @@
 	font-size: .78rem;
 }
 
-.inquiry-summary-stats > div i {
+.inquiry-summary-stats > div i,
+.inquiry-summary-stats > div .material-symbols-outlined {
 	color: #4785ad;
-	font-size: 1.15rem;
+	font-size: 1.25rem;
 }
 
 .inquiry-summary-stats strong {
