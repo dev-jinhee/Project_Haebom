@@ -11,9 +11,6 @@
 <link
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
 	rel="stylesheet">
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-	rel="stylesheet">
 <link href="/css/common.css" rel="stylesheet">
 <link href="/css/pages/scenario/scenario-list.css" rel="stylesheet">
 </head>
@@ -23,8 +20,8 @@
 	<main class="container subpage-container scenarios-page">
 		<div class="subpage-heading">
 			<div class="breadcrumb-line">
-				<a href="/">홈</a><i class="bi bi-chevron-right"></i><span>행정절차
-					연습</span>
+				<a href="/">홈</a><span class="material-symbols-outlined">
+					chevron_right </span><span>행정절차 연습</span>
 			</div>
 
 			<h1>어떤 절차를 연습할까요?</h1>
@@ -37,10 +34,11 @@
 				<div>
 					<h2 id="scenarioListTitle">연습할 시나리오</h2>
 				</div>
-				<label class="scenario-search"> <i class="bi bi-search"
-					aria-hidden="true"></i> <span class="visually-hidden">시나리오
-						검색</span> <input id="scenarioSearch" type="search" class="form-control"
-					placeholder="시나리오 이름으로 찾기" autocomplete="off">
+				<label class="scenario-search"> <span
+					class="material-symbols-outlined"> search </span> <span
+					class="visually-hidden">시나리오 검색</span> <input id="scenarioSearch"
+					type="search" class="form-control" placeholder="시나리오 이름으로 찾기"
+					autocomplete="off">
 				</label>
 			</div>
 
@@ -52,7 +50,8 @@
 			</div>
 
 			<div class="scenario-coming-soon">
-				<span><i class="bi bi-plus-circle" aria-hidden="true"></i></span>
+				<span><span class="material-symbols-outlined">
+						add_circle </span></span>
 				<div>
 					<strong>새로운 시나리오를 준비하고 있어요</strong>
 					<p>절차가 추가되면 이 목록에서 골라 연습할 수 있어요.</p>
@@ -61,61 +60,92 @@
 		</section>
 
 		<div class="home-bottom-note mt-4">
-			<i class="bi bi-info-circle"></i><span><strong>안전한 연습</strong>해봄의
-				시뮬레이션은 학습용이며 실제 민원은 접수되지 않습니다.</span>
+			<span class="material-symbols-outlined"> info </span><span><strong>안전한
+					연습</strong>해봄의 시뮬레이션은 학습용이며 실제 민원은 접수되지 않습니다.</span>
 		</div>
 
 		<!-- 시나리오 카드 템플릿 -->
 		<template id="scenarioCardTemplate">
+
 			<article class="scenario-card scenario-item">
-				<div class="scenario-card-icon">
-					<i class="bi bi-house-door" aria-hidden="true"></i>
-				</div>
+
+				<!-- 왼쪽 콘텐츠 -->
 				<div class="scenario-card-content">
-					<div class="scenario-card-labels">
-						<span
-							class="badge rounded-pill text-bg-primary-subtle text-primary"
-							data-scenario-category>카테고리</span> <span
-							class="scenario-state d-none" data-scenario-state></span>
+
+					<!-- 아이콘 + 카테고리 + 제목 -->
+					<div class="scenario-card-header">
+
+						<div class="scenario-card-icon">
+							<span class="material-symbols-outlined" aria-hidden="true">home</span>
+						</div>
+
+						<div class="scenario-card-heading">
+
+							<div class="scenario-card-labels">
+								<span
+									class="badge rounded-pill text-bg-primary-subtle text-primary"
+									data-scenario-category> 카테고리 </span> <span
+									class="scenario-state d-none" data-scenario-state></span>
+							</div>
+
+							<h3 data-scenario-title>시나리오 이름</h3>
+
+						</div>
 					</div>
-					<h3 data-scenario-title>시나리오 이름</h3>
+
+					<!-- 설명 -->
 					<p data-scenario-description>시나리오 설명입니다.</p>
+
+					<!-- 메타 정보 -->
 					<div class="scenario-meta">
-						<span data-scenario-step-count><i
-							class="bi bi-list-ol me-1" aria-hidden="true"></i>5단계</span><span
-							data-scenario-estimated-minutes><i
-							class="bi bi-clock me-1" aria-hidden="true"></i>예상 4분</span><span><i
-							class="bi bi-shield-check me-1" aria-hidden="true"></i>연습용 · 실제
-							접수되지 않아요</span>
+
+						<span data-scenario-step-count> <span
+							class="material-symbols-outlined" aria-hidden="true">format_list_numbered</span>
+							5단계
+						</span> <span data-scenario-estimated-minutes> <span
+							class="material-symbols-outlined" aria-hidden="true">schedule</span>
+							예상 4분
+						</span> <span> <span class="material-symbols-outlined"
+							aria-hidden="true">verified_user</span> 연습용 · 실제 접수되지 않아요
+						</span>
+
 					</div>
+
+					<!-- 진행률 -->
 					<div class="scenario-progress d-none" data-scenario-progress>
+
 						<div class="d-flex justify-content-between small">
-							<span data-scenario-progress-caption>진행 중인 연습</span><strong
+							<span data-scenario-progress-caption> 진행 중인 연습 </span> <strong
 								data-scenario-progress-percent>0%</strong>
 						</div>
+
 						<div class="progress mt-2" role="progressbar"
 							aria-label="전입신고 연습 진행률">
+
 							<div class="progress-bar" data-scenario-progress-bar
 								style="width: 0%"></div>
+
 						</div>
 					</div>
+
 				</div>
+
+				<!-- 오른쪽 버튼: 기존 위치 유지 -->
 				<div class="scenario-actions">
+
 					<button class="btn btn-primary rounded-pill scenario-start"
-						data-scenario-action>
-						연습 시작하기 <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
-					</button>
+						data-scenario-action>연습 시작하기</button>
+
 					<button class="btn btn-outline-primary rounded-pill d-none"
-						type="button" data-scenario-restart>
-						<i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>처음부터
-						하기
-					</button>
+						type="button" data-scenario-restart>처음부터 하기</button>
+
 					<button class="btn btn-outline-danger rounded-pill d-none"
-						type="button" data-scenario-delete>
-						<i class="bi bi-trash3 me-1" aria-hidden="true"></i>진행 내용 삭제
-					</button>
+						type="button" data-scenario-delete>진행 내용 삭제</button>
+
 				</div>
+
 			</article>
+
 
 		</template>
 	</main>
