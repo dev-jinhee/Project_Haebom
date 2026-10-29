@@ -6,11 +6,12 @@ import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,7 +40,15 @@ public class MoveSimulationApiController {
 	@PostMapping("/{progressId}/start")
 	public ResponseEntity<Void> startMoveSimulation(@PathVariable Integer progressId,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal,
-			@Valid @RequestBody MovePreparationRequestDTO requestdto) {
+			@Valid @ModelAttribute MovePreparationRequestDTO requestdto, BindingResult bindingResult) {
+
+		if (bindingResult.hasErrors()) {
+			bindingResult.getFieldErrors().forEach(error -> {
+				System.out.println("필드: " + error.getField() + ", 오류: " + error.getDefaultMessage());
+			});
+
+			return ResponseEntity.badRequest().build();
+		}
 
 		moveSimulationService.startMoveSimulation(progressId, memberPrincipal.getMemberId(), requestdto);
 
@@ -71,7 +80,7 @@ public class MoveSimulationApiController {
 	@PatchMapping("/{progressId}/applicant/phone")
 	public ResponseEntity<Void> updateApplicantPhone(@PathVariable Integer progressId,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal,
-			@RequestBody String phoneNum) {
+			@RequestParam String phoneNum) {
 		moveSimulationService.updateApplicantPhone(progressId, memberPrincipal.getMemberId(), phoneNum);
 		return ResponseEntity.noContent().build();
 	}
@@ -80,7 +89,7 @@ public class MoveSimulationApiController {
 	@ApiResponse(responseCode = "204", description = "가족 이사정보 저장 성공")
 	@PatchMapping("/{progressId}/family/move")
 	public ResponseEntity<Void> updateFamilyMove(@PathVariable Integer progressId,
-			@RequestBody MoveFamilyRequestDTO requestDTO,
+			@ModelAttribute MoveFamilyRequestDTO requestDTO,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
 		moveSimulationService.updateFamilyMove(progressId, memberPrincipal.getMemberId(), requestDTO);
@@ -92,7 +101,7 @@ public class MoveSimulationApiController {
 	@ApiResponse(responseCode = "204", description = "이사 가족정보 저장 성공")
 	@PatchMapping("/{progressId}/family/current")
 	public ResponseEntity<Void> updateCurrentFamily(@PathVariable Integer progressId,
-			@RequestBody MoveFamilyRequestDTO requestDTO,
+			@ModelAttribute MoveFamilyRequestDTO requestDTO,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		moveSimulationService.updateCurrentFamily(progressId, memberPrincipal.getMemberId(), requestDTO);
 

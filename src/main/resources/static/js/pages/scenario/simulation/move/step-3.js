@@ -40,23 +40,11 @@ export async function init({ root, progressId, stepId, readOnly = false }) {
 	const selectAll = root.querySelector("#selectAllMoving");
 
 	// 공통 답변 조회 API 완성 후 progressId / stepId로 주소를 복원
-
-
-
-
 	if (readOnly) {
 		sidoSelect.disabled = true;
 		sigunguSelect.disabled = true;
 		searchFamilyBtn.disabled = true;
 		selectAll.disabled = true;
-	}
-	try {
-		families = await fetchFamily(progressId);
-		familySearchCompleted = families.length > 0;
-		if (familySearchCompleted) renderFamily(root, true);
-	} catch (error) {
-		console.error("가족정보 조회 오류:", error);
-		status.textContent = "가족정보를 불러오지 못했습니다.";
 	}
 
 	sidoSelect.addEventListener("change", async () => {
@@ -622,10 +610,30 @@ export async function save({ root, progressId }) {
 		remainingHeadPhoneNum: selectedHeadId ? getHeadPhone(root) : null
 	};
 
+	const params = new URLSearchParams();
+	request.familyMembers.forEach((member, index) => {
+		params.append(`familyMembers[${index}].familyId`, member.familyId);
+		params.append(`familyMembers[${index}].moveStatus`, member.moveStatus);
+		params.append(`familyMembers[${index}].relationship`, member.relationship);
+		params.append(`familyMembers[${index}].isHouseholdHead`, member.isHouseholdHead);
+
+		if (member.phoneNum != null) {
+			params.append(`familyMembers[${index}].phoneNum`, member.phoneNum);
+		}
+	});
+
+	if (request.remainingHeadFamilyId != null) {
+		params.append("remainingHeadFamilyId", request.remainingHeadFamilyId);
+	}
+
+	if (request.remainingHeadPhoneNum != null) {
+		params.append("remainingHeadPhoneNum", request.remainingHeadPhoneNum);
+	}
+
 	const response = await fetch(`/api/simulation/move/${progressId}/family/move`, {
 		method: "PATCH",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify(request)
+		headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+		body: params
 	});
 	if (!response.ok) throw new Error("가족 이사정보 저장에 실패했습니다.");
 
