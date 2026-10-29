@@ -66,7 +66,17 @@
 				외 주소</label> <input id="newDetailAddress" class="form-control" type="text"
 				maxlength="150" autocomplete="off"
 				placeholder="예) 101동 501호 (상세주소가 있는 경우 입력)">
-			<p>※ 주소 팝업에서 입력한 상세주소가 자동 반영되며, 해봄 화면에서도 수정할 수 있습니다.</p>
+			<div class="mt-2">
+				<p class="small text-muted mb-1">※ 주소 검색 시 입력한 상세주소가 자동 반영되며,
+					해봄에서도 수정할 수 있습니다.</p>
+
+				<p class="small text-muted mb-0 mt-0">
+					※ 상세한 주소가 있다면 <strong class="text-primary">그 외 주소란</strong>에 반드시
+					기재해 주세요. <strong class="text-danger"> (미기재 시 실제 전입신고가 반려될
+						수 있음) </strong> <span class="d-block ms-2"> (건축물의 이름, 동 번호 및 호수까지
+						작성하고 호수가 없는 경우 층수를 작성) </span>
+				</p>
+			</div>
 		</div>
 
 		<!-- 참고 이미지처럼 세대 구성 라디오와 테이블을 동일한 패널 내부에 배치 -->
@@ -100,6 +110,9 @@
 					id="householdTypeExisting" value="JOIN_EXISTING"> <span>이사
 						온 곳에 기존에 살고 있는 세대주가 있는 경우</span>
 				</label>
+				<p id="existingHouseholdNotice" class="small text-muted mt-2 mb-0 d-none">
+					※ 이사 온 곳에 기존에 살고 있는 세대주와 별도 세대를 구성하려는 경우 온라인 전입신고가 불가하며, 관할 읍·면·동
+					행정복지센터에 문의하신 후 방문하여 신고하시기 바랍니다.</p>
 			</div>
 
 			<p id="newHouseholdHeadSummary"
@@ -153,6 +166,14 @@
 				</div>
 				<p class="move-step4-validation-help">세대주 한 명을 선택하고 나머지 가족의 관계 및
 					전체 연락처를 입력해 주세요.</p>
+
+				<div id="minorNewHeadNotice"
+					class="alert alert-warning small mt-3 d-none" role="status">
+					<strong>미성년자 세대주 안내</strong>
+					<p class="mb-1 mt-2">선택한 새 세대주가 미성년자입니다. 실제 전입신고에서는 법정대리인 확인 등
+						추가 절차가 필요할 수 있으며, 온라인 신청 가능 여부는 관할 행정복지센터에 확인해야 합니다.</p>
+					<p class="mb-0">해봄에서는 학습 목적으로 계속 진행할 수 있습니다.</p>
+				</div>
 			</div>
 
 			<!-- 이미 다른 세대주가 살고 있는 주소에 편입 -->
@@ -220,8 +241,9 @@
 				<p class="move-step4-validation-help">기존 세대주와 이사 가족 전원의 전화번호를 새로
 					입력해 주세요.</p>
 			</div>
-			<p class="move-step4-notice mt-3 mb-0">※ 실제 정부24의 미성년자·세대주 확인 요건은
-				본 시뮬레이션과 다를 수 있습니다. 이 화면은 실제 문자 발송이나 민원 신청을 하지 않습니다.</p>
+			<p class="move-step4-notice mt-3 mb-0">※ 실제 정부24에서는 세대 구성 방법 및 신고
+				대상자의 상황에 따라 세대주 확인이나 추가 절차가 필요할 수 있습니다. 해봄에서는 실제 문자 발송이나 민원 신청이
+				이루어지지 않습니다.</p>
 		</fieldset>
 	</section>
 
@@ -229,37 +251,41 @@
 		<h3>전입 신고와 함께 신청할 수 있는 서비스</h3>
 		<div class="gov24-service-item">
 			<div class="gov24-service-heading">
-				<label> <input type="checkbox" class="form-check-input" name="additionalService"
-					value="LEASE_REPORT"> <span>임대차계약 신고 관련 안내 확인 (선택)</span>
+				<label> <input type="checkbox" class="form-check-input"
+					name="additionalService" value="LEASE_REPORT"> <span>임대차계약
+						신고 관련 안내 확인 (선택)</span>
 				</label>
 			</div>
 		</div>
 		<div class="gov24-service-item">
 			<div class="gov24-service-heading">
-				<label> <input type="checkbox" class="form-check-input" name="additionalService"
-					value="MAIL_FORWARD"> <span>우편물 주소 이전 서비스 신청 (선택)</span>
+				<label> <input type="checkbox" class="form-check-input"
+					name="additionalService" value="MAIL_FORWARD"> <span>우편물
+						주소 이전 서비스 신청 (선택)</span>
 				</label>
 			</div>
 		</div>
 		<div class="gov24-service-item">
 			<div class="gov24-service-heading">
-				<label> <input type="checkbox" class="form-check-input" name="additionalService"
-					value="SCHOOL_ADDRESS"> <span>초등학교 배정 정보 확인 (선택)</span>
+				<label> <input type="checkbox" class="form-check-input"
+					name="additionalService" value="SCHOOL_ADDRESS"> <span>초등학교
+						배정 정보 확인 (선택)</span>
 				</label>
 			</div>
 		</div>
 		<div class="gov24-service-item">
 			<div class="gov24-service-heading">
-				<label> <input type="checkbox" class="form-check-input" name="additionalService"
-					value="UTILITY_ADDRESS"> <span>전기 사용자 명의변경 안내 확인
-						(선택)</span>
+				<label> <input type="checkbox" class="form-check-input"
+					name="additionalService" value="UTILITY_ADDRESS"> <span>전기
+						사용자 명의변경 안내 확인 (선택)</span>
 				</label>
 			</div>
 		</div>
 		<div class="gov24-service-item">
 			<div class="gov24-service-heading">
-				<label> <input type="checkbox" class="form-check-input" name="additionalService"
-					value="WELFARE_BENEFIT"> <span>복지급여 관련 안내 확인 (선택)</span>
+				<label> <input type="checkbox" class="form-check-input"
+					name="additionalService" value="WELFARE_BENEFIT"> <span>복지급여
+						관련 안내 확인 (선택)</span>
 				</label>
 			</div>
 		</div>
