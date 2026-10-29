@@ -188,6 +188,9 @@ export async function save({ root, progressId }) {
 	const phoneNum = phoneInputs
 		.map(input => input.value)
 		.join("-");
+		
+	const params = new URLSearchParams();
+	params.append("phoneNum",phoneNum);
 
 	// 신청인 휴대전화번호 UPDATE
 	const response = await fetch(
@@ -195,9 +198,9 @@ export async function save({ root, progressId }) {
 		{
 			method: "PATCH",
 			headers: {
-				"Content-Type": "text/plain"
+				"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
 			},
-			body: phoneNum
+			body: params
 		}
 	);
 

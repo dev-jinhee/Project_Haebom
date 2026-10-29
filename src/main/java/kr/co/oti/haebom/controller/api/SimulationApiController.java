@@ -6,10 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,7 +60,7 @@ public class SimulationApiController {
 	@ApiResponse(responseCode = "204", description = "이동 성공")
 	@PatchMapping("/progress/{progressId}/nextStep")
 	public ResponseEntity<Void> moveToNextStep(@PathVariable("progressId") Integer progressId,
-			@Valid @RequestBody AnswerSaveRequestListDTO request, @RequestParam("targetStepId") Integer targetStepId,
+			@Valid @ModelAttribute AnswerSaveRequestListDTO request, @RequestParam("targetStepId") Integer targetStepId,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
 		Integer memberId = memberPrincipal.getMemberId();
@@ -75,7 +75,7 @@ public class SimulationApiController {
 	@ApiResponse(responseCode = "204", description = "완료 처리 성공")
 	@PatchMapping("/progress/{progressId}/complete")
 	public ResponseEntity<Void> completeSimulation(@PathVariable("progressId") Integer progressId,
-			@Valid @RequestBody AnswerSaveRequestListDTO request,
+			@Valid @ModelAttribute AnswerSaveRequestListDTO request,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 
 		Integer memberId = memberPrincipal.getMemberId();

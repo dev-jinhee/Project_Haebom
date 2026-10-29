@@ -521,6 +521,8 @@ async function handleNextStep() {
 		? await collectStepAnswers()
 		: null;
 
+	const params = toAnswerParams(requestBody);
+
 	const steps = simulationState.displaySteps;
 	// 완료 상태일 경우
 	if (simulationState.isCompleted) {
@@ -559,9 +561,9 @@ async function handleNextStep() {
 				{
 					method: "PATCH",
 					headers: {
-						"Content-Type": "application/json"
+						"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
 					},
-					body: JSON.stringify(requestBody)
+					body: params
 				}
 			);
 			if (!completeResponse.ok) {
@@ -579,9 +581,9 @@ async function handleNextStep() {
 				{
 					method: "PATCH",
 					headers: {
-						"Content-Type": "application/json"
+						"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
 					},
-					body: JSON.stringify(requestBody)
+					body: params
 				}
 			);
 			if (!nextStepResponse.ok) {
@@ -595,6 +597,46 @@ async function handleNextStep() {
 }
 
 // ==============================
+// 입력값을 URLSearchParams로 변환
+// ==============================
+
+function toAnswerParams(requestBody) {
+
+	const params = new URLSearchParams();
+
+	requestBody?.answers?.forEach((answer, index) => {
+
+		params.append(`answers[${index}].stepId`, answer.stepId);
+
+		params.append(`answers[${index}].fieldKey`, answer.fieldKey);
+
+		params.append(`answers[${index}].answerValue`, answer.answerValue);
+	});
+
+	return params;
+}
+
+// ==============================
+// 공통 텍스트 입력 특수문자 제한
+// ==============================
+
+function filterSpecialCharacters(event) {
+
+	const input = event.target;
+
+	if (!input.matches('input[type="text"], textarea')) return;
+
+	// 상세주소는 별도 규칙 적용
+	if (input.matches("[data-address-detail]")) {
+		input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s#(),/-]/g, "");
+		return;
+	}
+
+	// 일반 텍스트: 한글, 영문, 숫자, 공백만 허용
+	input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s]/g, "");
+}
+
+// ==============================
 // 이벤트 등록
 // ==============================
 document.querySelector("#prevStep")
@@ -605,5 +647,9 @@ document.querySelector("#printBtn")
 	.addEventListener("click", () => {
 		window.print();
 	});
+document.querySelector("#stepContent").addEventListener(
+	"input",
+	filterSpecialCharacters
+);
 // 최초 실행
 loadSimulation();

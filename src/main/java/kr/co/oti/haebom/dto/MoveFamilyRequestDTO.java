@@ -4,8 +4,10 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 public class MoveFamilyRequestDTO {
 	private List<FamilyMember> familyMembers;
@@ -15,6 +17,7 @@ public class MoveFamilyRequestDTO {
     private String remainingHeadPhoneNum;
 
     @Getter
+    @Setter
     @NoArgsConstructor
     public static class FamilyMember {
 

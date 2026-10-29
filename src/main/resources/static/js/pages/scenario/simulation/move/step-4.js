@@ -450,11 +450,26 @@ export async function save({ root, progressId }) {
 			phoneNum: item.phoneNum
 		}));
 	}
-	console.log("저장할 가족정보:", JSON.stringify(familyMembers, null, 2));
+	const params = new URLSearchParams();
+
+	familyMembers.forEach((member, index) => {
+
+		params.append(`familyMembers[${index}].familyId`, member.familyId);
+
+		params.append(`familyMembers[${index}].isHouseholdHead`, member.isHouseholdHead);
+
+		if (member.relationship != null) {
+			params.append(`familyMembers[${index}].relationship`, member.relationship);
+		}
+
+		if (member.phoneNum != null) {
+			params.append(`familyMembers[${index}].phoneNum`, member.phoneNum);
+		}
+	});
 	const response = await fetch(`/api/simulation/move/${progressId}/family/current`, {
 		method: "PATCH",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ familyMembers })
+		headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+		body: params
 	});
 	if (!response.ok) {
 		const errorText = await response.text();
