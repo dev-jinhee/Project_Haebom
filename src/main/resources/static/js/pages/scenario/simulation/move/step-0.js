@@ -1,4 +1,4 @@
-
+import { calculateAge, isMinor } from "../utils/age.js";
 // ==============================
 // 전입신고 0단계 초기화
 // ==============================
@@ -132,7 +132,38 @@ export function init({ root, progressId, readOnly, reload }) {
 			// 2. 입력값 검증
 			validateFamilyMembers(familyMembers);
 
-			// 3. urlsearchparams로 변환
+			// 3. 신청인 정보 조회
+			const applicant = familyMembers.find(
+				member => member.isApplicant
+			);
+			if (!applicant) {
+				throw new Error("신청인 정보가 없습니다.");
+			}
+
+			// 4. 신청인 생년월일 검증
+			const applicantAge = calculateAge(applicant.birthDate);
+
+			if (applicantAge === null) {
+				throw new Error("신청인의 생년월일을 확인해 주세요.");
+			}
+
+			// 5. 미성년자 온라인 신청 제한 안내
+			if (isMinor(applicant.birthDate)) {
+				const message = root.querySelector(
+					"#minorApplicantMessage"
+				)?.textContent.trim();
+
+				const confirmed = window.confirm(
+					(message || "미성년자는 온라인 전입신고를 직접 신청할 수 없습니다.") +
+					"\n\n해봄에서 학습 목적으로 계속 진행하시겠습니까?"
+				);
+
+				if (!confirmed) {
+					return;
+				}
+			}
+
+			// 6. urlsearchparams로 변환
 			const params = new URLSearchParams();
 			familyMembers.forEach((member, index) => {
 				params.append(`familyMembers[${index}].familyName`, member.familyName);
@@ -143,7 +174,7 @@ export function init({ root, progressId, readOnly, reload }) {
 				params.append(`familyMembers[${index}].originalRelationship`, member.originalRelationship);
 			});
 
-			// 4. 사전정보 저장 및 1단계 이동 API
+			// 7. 사전정보 저장 및 1단계 이동 API
 			const response = await fetch(
 				`/api/simulation/move/${progressId}/start`,
 				{
@@ -163,7 +194,7 @@ export function init({ root, progressId, readOnly, reload }) {
 				);
 			}
 
-			// 5. 변경된 진행 정보 조회 및 화면 갱신
+			// 8. 변경된 진행 정보 조회 및 화면 갱신
 			await reload();
 
 		} catch (error) {
