@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="kr.co.oti.haebom.mapper.AdminDashboardMapper">
+<mapper namespace="kr.co.oti.haebom.business.admin.mapper.AdminDashboardMapper">
 
 	<!-- 1. 회원 통계 (전체 회원 수, 성별 수, 연령대별 수) -->
-	<select id="selectMemberStats" resultType="kr.co.oti.haebom.dto.AdminDashboardDTO">
+	<select id="selectMemberStats" resultType="kr.co.oti.haebom.business.admin.dto.AdminDashboardDTO">
 		SELECT 
 			COUNT(*) AS totalMemberCount,
 			COUNT(CASE WHEN gender = 'M' THEN 1 END) AS maleCount,
@@ -130,7 +130,7 @@
 	</select>
 
 	<!-- 9. 최근 운영자 활동 조회 (최신 N건) -->
-	<select id="selectRecentActivities" resultType="kr.co.oti.haebom.dto.AdminActivityDTO">
+	<select id="selectRecentActivities" resultType="kr.co.oti.haebom.business.admin.dto.AdminActivityDTO">
 		SELECT
 			l.log_id AS logId,
 			CASE 

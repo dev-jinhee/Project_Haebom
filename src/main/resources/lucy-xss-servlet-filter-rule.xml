@@ -4,7 +4,7 @@
         <!-- 🛡️ 해봄 전역 XSS 디펜더: 태그(<, >)는 막고 작은따옴표(')는 보존 -->
         <defender>
             <name>safeXssDefender</name>
-            <class>kr.co.oti.haebom.config.SafeXssDefender</class>
+            <class>kr.co.oti.haebom.system.config.SafeXssDefender</class>
         </defender>
     </defenders>
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
-	namespace="kr.co.oti.haebom.mapper.SimulationAnswerMapper">
+	namespace="kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper">
 	<!-- 입력값 저장 및 수정 (UPSERT) -->
 	<insert id="upsertAnswer">
 		insert into simulation_answer(
@@ -18,7 +18,7 @@
 	</insert>
 	<!-- 특정 단계의 입력값 조회 -->
 	<select id="findAnswerByProgressIdAndStepId"
-		resultType="kr.co.oti.haebom.dto.AnswerResponseDTO">
+		resultType="kr.co.oti.haebom.business.scenario.dto.AnswerResponseDTO">
 		select *
 		from simulation_answer
 		where progress_id =
@@ -28,7 +28,7 @@
 
 	<!-- 시뮬레이션 전체 입력값 조회 -->
 	<select id="findAnswerByProgressId"
-		resultType="kr.co.oti.haebom.dto.AnswerResponseDTO">
+		resultType="kr.co.oti.haebom.business.scenario.dto.AnswerResponseDTO">
 		select *
 		from simulation_answer
 		where progress_id =
