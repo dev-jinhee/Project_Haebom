@@ -104,8 +104,8 @@
 						<button id="printBtn" type="button"
 							class="btn btn-link text-secondary
                            text-decoration-none p-0 small d-inline-flex align-items-center gap-1">
-							<span class="material-symbols-outlined"> print </span> 화면 인쇄 /
-							PDF 저장
+							<span class="material-symbols-outlined"> print </span> <span
+								class="sim-print-text">화면 인쇄 / PDF 저장</span>
 						</button>
 
 						<p class="text-secondary mb-0 mt-1" style="font-size: .72rem;">
