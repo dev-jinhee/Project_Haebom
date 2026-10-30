@@ -73,3 +73,70 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-inquiry-footer { align-items:flex-start; flex-direction:column; gap:10px; }
     .mypage-inquiry-footer .pagination { flex-wrap:wrap; }
 }
+
+/* 마이페이지 진행·완료 시나리오 카드: 아이콘 / 내용 / 액션 3열 */
+.mypage-completed-section .scenario-card {
+    grid-template-columns:52px minmax(0, 1fr) 164px;
+    gap:20px;
+}
+
+.mypage-completed-section .scenario-card-icon {
+    grid-column:1;
+    grid-row:1;
+    flex:0 0 52px;
+}
+
+.mypage-completed-section .scenario-card-content {
+    grid-column:2;
+    grid-row:1;
+    min-width:0;
+}
+
+.mypage-completed-section .scenario-actions {
+    grid-column:3;
+    grid-row:1;
+    width:164px;
+}
+
+@media(max-width:767.98px) {
+    .mypage-completed-section .scenario-card {
+        grid-template-columns:44px minmax(0, 1fr);
+        gap:14px;
+        padding:16px;
+    }
+
+    .mypage-completed-section .scenario-card-icon {
+        grid-column:1;
+        grid-row:1 / span 2;
+        align-self:center;
+        flex-basis:44px;
+        width:44px;
+        height:44px;
+        border-radius:13px;
+    }
+
+    .mypage-completed-section .scenario-card-content {
+        grid-column:2;
+        grid-row:1;
+    }
+
+    .mypage-completed-section .scenario-actions {
+        grid-column:2;
+        grid-row:2;
+        grid-template-columns:1fr;
+        width:100%;
+        justify-self:stretch;
+    }
+}
+
+/* 마이페이지 비밀번호 변경 입력: 회원가입 화면과 같은 표시 토글 및 안내 간격 */
+.mypage-password-field { margin-bottom:18px; }
+.mypage-password-field .form-label { margin-bottom:7px; color:var(--ink); font-size:.9rem; font-weight:600; }
+.mypage-password-wrap { position:relative; }
+.mypage-password-wrap .form-control { min-height:46px; padding-right:52px; border-color:#cbd8e5; border-radius:8px; }
+.mypage-password-wrap .form-control:focus { border-color:#5792c4; box-shadow:0 0 0 .2rem rgba(23,105,170,.16); }
+.mypage-password-toggle { position:absolute; top:50%; right:11px; display:grid; width:32px; height:32px; padding:0; transform:translateY(-50%); place-items:center; border:0; color:#536273; background:transparent; }
+.mypage-password-toggle .material-symbols-outlined { font-size:1.25rem; }
+.mypage-password-status { min-height:1.35em; margin:7px 2px 0; font-size:.78rem; line-height:1.5; }
+.mypage-password-wrap .form-control[aria-invalid="true"] { border-color:#f04438; }
+.mypage-password-wrap .form-control[aria-invalid="false"] { border-color:#b7c1cc; }

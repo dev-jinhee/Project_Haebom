@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/scenario/scenario-list.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-inquiry-list-2" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-password-fields-1" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -134,7 +134,7 @@
                         <dt>비밀번호</dt>
                         <dd>
                             <button class="btn btn-outline-primary btn-sm rounded-pill" type="button" data-open-password-change>
-                                비밀번호 수정
+                                비밀번호 변경
                             </button>
                         </dd>
                     </div>
@@ -180,12 +180,35 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
                     </div>
                     <div class="modal-body">
-                        <label class="form-label" for="currentPassword">현재 비밀번호</label>
-                        <input class="form-control mb-3" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
-                        <label class="form-label" for="newPassword">새 비밀번호</label>
-                        <input class="form-control mb-3" id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="20" required>
-                        <label class="form-label" for="confirmNewPassword">새 비밀번호 확인</label>
-                        <input class="form-control" id="confirmNewPassword" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="20" required>
+                        <div class="mypage-password-field">
+                            <label class="form-label" for="currentPassword">현재 비밀번호</label>
+                            <div class="mypage-password-wrap">
+                                <input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
+                                <button class="mypage-password-toggle" type="button" data-mypage-toggle-password="currentPassword" aria-label="비밀번호 표시">
+                                    <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mypage-password-field">
+                            <label class="form-label" for="newPassword">새 비밀번호</label>
+                            <div class="mypage-password-wrap">
+                                <input class="form-control" id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="20" aria-describedby="newPasswordStatus" required>
+                                <button class="mypage-password-toggle" type="button" data-mypage-toggle-password="newPassword" aria-label="비밀번호 표시">
+                                    <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                                </button>
+                            </div>
+                            <p class="form-text mypage-password-status" id="newPasswordStatus" aria-live="polite">비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, &gt;, &lt;, _, -, &quot;, '는 사용할 수 없어요.</p>
+                        </div>
+                        <div class="mypage-password-field mb-0">
+                            <label class="form-label" for="confirmNewPassword">새 비밀번호 확인</label>
+                            <div class="mypage-password-wrap">
+                                <input class="form-control" id="confirmNewPassword" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" maxlength="20" aria-describedby="confirmNewPasswordStatus" required>
+                                <button class="mypage-password-toggle" type="button" data-mypage-toggle-password="confirmNewPassword" aria-label="비밀번호 표시">
+                                    <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                                </button>
+                            </div>
+                            <p class="form-text mypage-password-status" id="confirmNewPasswordStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-outline-secondary rounded-pill" type="button" data-bs-dismiss="modal">취소</button>
@@ -196,7 +219,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="deleteAccountTitle" aria-hidden="true">
+    <div class="modal" id="confirmModal" tabindex="-1" aria-labelledby="deleteAccountTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -205,16 +228,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
-                        탈퇴하면 기존 계정을 복구할 수 없습니다.
+                        탈퇴 후에는 계정을 복구할 수 없습니다.
                     </div>
                     <label class="form-label" for="withdrawConfirmText">
-                        계속하려면 <strong>회원 탈퇴</strong>를 입력해 주세요.
+                        계속하려면 아래 문구를 입력해 주세요.
                     </label>
                     <input class="form-control" id="withdrawConfirmText" type="text"
-                           autocomplete="off" aria-describedby="withdrawConfirmHelp">
-                    <div class="form-text" id="withdrawConfirmHelp">
-                        입력값이 정확히 일치해야 회원 탈퇴 버튼이 활성화됩니다.
-                    </div>
+                           autocomplete="off" placeholder="회원 탈퇴">
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline-secondary rounded-pill" type="button" data-bs-dismiss="modal">취소</button>
@@ -293,7 +313,7 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-completed-review-basic-info-1"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-password-fields-1"></script>
 </body>
 </html>
 
