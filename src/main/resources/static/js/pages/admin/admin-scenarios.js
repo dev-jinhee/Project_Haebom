@@ -134,13 +134,13 @@
 		const statusSelect = document.getElementById('scenarioStatus');
 		const descInput = document.getElementById('scenarioDescription');
 
-		if (titleEl) titleEl.textContent = scenario.scenarioTitle;
+		if (titleEl) titleEl.textContent = typeof decodeHtml === 'function' ? decodeHtml(scenario.scenarioTitle) : scenario.scenarioTitle;
 		if (idInput) idInput.value = scenario.scenarioId;
-		if (nameInput) nameInput.value = scenario.scenarioTitle;
+		if (nameInput) nameInput.value = typeof decodeHtml === 'function' ? decodeHtml(scenario.scenarioTitle) : scenario.scenarioTitle;
 		if (categorySelect) categorySelect.value = scenario.categoryId || '1';
 		if (minutesInput) minutesInput.value = scenario.estimatedMinutes || 5;
 		if (statusSelect) statusSelect.value = scenario.isActive ? 'true' : 'false';
-		if (descInput) descInput.value = scenario.description || '';
+		if (descInput) descInput.value = typeof decodeHtml === 'function' ? decodeHtml(scenario.description || '') : (scenario.description || '');
 
 		const descEl = document.getElementById('scenarioUsageDescription');
 		if (descEl) descEl.textContent = `${scenario.scenarioTitle} 시나리오 운영 이후의 전체 이용 흐름입니다.`;
@@ -215,20 +215,19 @@
 		const statusSelect = document.getElementById('scenarioStatus');
 		const descInput = document.getElementById('scenarioDescription');
 
-		const updatePayload = {
-			scenarioId: Number(selectedAdminScenarioId),
+		const updateParams = new URLSearchParams({
+			scenarioId: selectedAdminScenarioId,
 			scenarioTitle: nameInput.value.trim(),
 			description: descInput ? descInput.value.trim() : '',
-			categoryId: Number(categorySelect?.value || 1),
-			estimatedMinutes: Number(minutesInput.value),
+			categoryId: categorySelect?.value || 1,
+			estimatedMinutes: minutesInput.value,
 			isActive: statusSelect.value === 'true'
-		};
+		});
 
 		try {
 			const response = await fetch(`/api/admin/scenarios/${selectedAdminScenarioId}`, {
 				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(updatePayload)
+				body: updateParams
 			});
 
 			if (!response.ok) throw new Error('시나리오 정보 수정 실패');

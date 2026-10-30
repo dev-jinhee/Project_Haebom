@@ -157,8 +157,7 @@
 		try {
 			const response = await fetch(`/api/admin/members/${selectedAdminMemberId}/status`, {
 				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ memberStatus: status })
+				body: new URLSearchParams({ memberStatus: status })
 			});
 
 			if (!response.ok) throw new Error('회원 상태 변경 실패');

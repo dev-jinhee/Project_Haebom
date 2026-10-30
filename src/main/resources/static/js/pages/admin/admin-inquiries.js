@@ -159,7 +159,7 @@
 
 			return `
         <tr data-inquiry-row data-inquiry-id="${qna.qnaId}">
-          <td class="ps-3"><strong>${qna.qnaTitle}</strong> ${secretBadge}</td>
+          <td class="ps-3"><strong>${escapeAdminHtml(qna.qnaTitle)}</strong> ${secretBadge}</td>
           <td>${escapeAdminHtml(author)}</td>
           <td>${escapeAdminHtml(qna.qnaCategoryName || '일반 문의')}</td>
           <td>${dateText}</td>
@@ -218,7 +218,7 @@
             <strong>${escapeAdminHtml(responder)}</strong>
             <time>${dateStr}</time>
           </div>
-          <p class="mb-0" style="white-space: pre-line;">${ans.qnaAnswerContent}</p>
+          <p class="mb-0" style="white-space: pre-line;">${escapeAdminHtml(ans.qnaAnswerContent)}</p>
         `;
 				answersListEl.append(item);
 			});
@@ -235,11 +235,11 @@
 		const inquiry = adminInquiryCache.find(item => String(item.qnaId) === String(selectedInquiryId));
 		if (!inquiry) return;
 
-		document.getElementById('inquiryDetailTitle').innerHTML = inquiry.qnaTitle;
+		document.getElementById('inquiryDetailTitle').textContent = inquiry.qnaTitle;
 		document.querySelector('[data-inquiry-author]').textContent = inquiry.memberName || ('회원' + inquiry.memberId);
 		document.getElementById('inquiryCategorySelect').value = inquiry.qnaCategoryName || '시뮬레이션 문의';
 		document.querySelector('[data-inquiry-date]').textContent = inquiry.qnaCreatedAt ? String(inquiry.qnaCreatedAt).substring(0, 10).replace(/-/g, '.') : '';
-		document.querySelector('[data-inquiry-content]').innerHTML = inquiry.qnaContent;
+		document.querySelector('[data-inquiry-content]').textContent = inquiry.qnaContent;
 		document.getElementById('inquiryStatusSelect').value = inquiry.qnaStatus === 'ANSWERED' ? '답변 완료' : '답변 대기';
 		document.getElementById('inquiryReplyText').value = '';
 

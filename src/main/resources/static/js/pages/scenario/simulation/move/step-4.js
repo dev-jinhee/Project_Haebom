@@ -5,6 +5,7 @@
 // 추가: restore({root, data, readOnly}) - 서버 저장 답변을 읽어온 뒤 복원용
 // 주의: 4단계 DB 저장(save)은 아직 연결하지 않음.
 // ============================================================
+import { isMinor } from "../utils/age.js";
 
 const JUSO_POPUP_URL = "/address/juso/popup";
 const VIRTUAL_WELFARE_CENTER = "해봄동 행정복지센터 (가상)";
@@ -203,6 +204,29 @@ function renderKeepOriginalHeadTable(root) {
 	}
 }
 
+// ==============================
+// 새 세대주 미성년자 안내 (학습 진행은 허용)
+// ==============================
+
+function updateMinorHeadNotice(root) {
+	const notice = root.querySelector("#minorNewHeadNotice");
+	if (!notice) return;
+
+	const selectedId = root.querySelector(
+		'input[name="newHeadFamilyId"]:checked'
+	)?.value;
+
+	const selectedFamily = movingFamilies.find(
+		family => String(family.familyId) === selectedId
+	);
+
+	const show = Boolean(
+		selectedFamily && isMinor(selectedFamily.birthDate)
+	);
+
+	notice.classList.toggle("d-none", !show);
+}
+
 function renderChangeNewHeadTable(root) {
 	const tbody = $(root, "changeNewHeadTableBody");
 	tbody.replaceChildren();
@@ -218,6 +242,9 @@ function renderChangeNewHeadTable(root) {
 		radio.value = familyId;
 		radio.className = "form-check-input";
 		radio.setAttribute("aria-label", `${family.familyName} 새 세대주 선택`);
+		radio.addEventListener("change", () => {
+			updateMinorHeadNotice(root);
+		});
 		radioTd.appendChild(radio);
 		row.appendChild(radioTd);
 
@@ -343,6 +370,7 @@ function setSingleMoverPresentation(root) {
 	if (radio) {
 		radio.checked = true;
 		radio.disabled = true;
+		updateMinorHeadNotice(root);
 		// Bootstrap의 disabled 투명도로 체크 표시가 흐려지지 않도록 함.
 		radio.style.opacity = "1";
 		radio.setAttribute("aria-label", "신청인이 세대주로 자동 지정됨 (변경 불가)");
@@ -570,6 +598,7 @@ function restoreData(root, data) {
 	root.querySelectorAll('input[name="additionalService"]').forEach(input => {
 		input.checked = Array.isArray(data.additionalServices) && data.additionalServices.includes(input.value);
 	});
+	updateExistingHouseholdNotice(root);
 	updateHouseholdSections(root);
 }
 
@@ -683,7 +712,7 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 			else popup.focus();
 		});
 		root.querySelectorAll('input[name="householdType"]').forEach(input => {
-			input.addEventListener("change", () => { updateHouseholdSections(root); cacheDraft(root); });
+			input.addEventListener("change", () => { updateHouseholdSections(root); cacheDraft(root); updateExistingHouseholdNotice(root); });
 		});
 		root.querySelectorAll('input[name="emptyHeadType"]').forEach(input => {
 			input.addEventListener("change", () => { updateHouseholdSections(root); cacheDraft(root); });
@@ -724,6 +753,20 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 		$(root, "newAddressStatus").textContent = error.message;
 		if (readOnly) disableForReadOnly(root);
 	}
+}
+/* 기존 세대주가 있는 경우 선택 시 안내 문구 띄우기*/
+function updateExistingHouseholdNotice(root) {
+	const notice = root.querySelector("#existingHouseholdNotice");
+	if (!notice) return;
+
+	const selectedType = root.querySelector(
+		'input[name="householdType"]:checked'
+	)?.value;
+
+	notice.classList.toggle(
+		"d-none",
+		selectedType !== "JOIN_EXISTING"
+	);
 }
 
 function validatePhoneGroup(group, label) {

@@ -2,6 +2,12 @@ const catalog = document.getElementById("scenarioCatalog");
 const template = document.getElementById("scenarioCardTemplate");
 const scenarioSearchEmpty = document.getElementById("scenarioSearchEmpty");
 const searchInput = document.getElementById("scenarioSearch");
+// 시뮬레이션별 대표 아이콘
+const SIMULATION_ICONS = {
+	MOVE: "home",
+	IDENTITY_REISSUE: "badge"
+};
+
 async function loadScenarios() {
 	// API 호출
 	try {
@@ -25,6 +31,12 @@ async function loadScenarios() {
 
 			// 템플릿 복제
 			const card = template.content.firstElementChild.cloneNode(true);
+
+			const icon = card.querySelector(
+				".scenario-card-icon .material-symbols-outlined"
+			);
+
+			icon.textContent = SIMULATION_ICONS[scenario.scenarioCode] ?? "info";
 
 			// 시나리오 데이터 적용
 			card.dataset.scenarioId = scenario.scenarioId;
@@ -206,7 +218,7 @@ async function restartSimulation(progressId) {
 			throw new Error("시뮬레이션 재시작 실패");
 		}
 		// 새로 생성된 progressId 반환
-        return await response.json();
+		return await response.json();
 	} catch (error) {
 		console.error("시뮬레이션 재시작 삭제 오류:", error);
 		alert("시뮬레이션 재시작 중 오류가 발생했습니다.");

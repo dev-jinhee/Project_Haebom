@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config xmlns="http://www.navercorp.com/lucy-xss-servlet">
     <defenders>
-        <!-- XssPreventer: 특수문자(<, >, ", ', & 등)를 HTML Entity로 치환하여 방어 -->
+        <!-- 🛡️ 해봄 전역 XSS 디펜더: 태그(<, >)는 막고 작은따옴표(')는 보존 -->
         <defender>
-            <name>xssPreventerDefender</name>
-            <class>com.navercorp.lucy.security.xss.servletfilter.defender.XssPreventerDefender</class>
+            <name>safeXssDefender</name>
+            <class>kr.co.oti.haebom.system.config.SafeXssDefender</class>
         </defender>
     </defenders>
 
-    <!-- ⭕ Default Defender: 별도 예외가 없는 모든 파라미터는 xssPreventerDefender 적용 -->
+    <!-- Default Defender: 전역(/*) 모든 요청에 safeXssDefender 적용 -->
     <default>
-        <defender>xssPreventerDefender</defender>
+        <defender>safeXssDefender</defender>
     </default>
 
+    <!-- 전역 파라미터 예외: 주소 관련 데이터는 특수문자 원본 그대로 보존 -->
     <global>
         <params>
-            <!-- 예외 처리 파라미터가 필요한 경우 여기에 등록 -->
+            <param name="roadFullAddr" useDefender="false" />
+            <param name="roadAddrPart1" useDefender="false" />
+            <param name="addrDetail" useDefender="false" />
+            <param name="jibunAddr" useDefender="false" />
         </params>
     </global>
+
+    <!-- URL 예외: 행안부 공식 주소 팝업 콜백 URL은 필터링에서 완전 제외! -->
+    <url-rule-set>
+        <url-rule>
+            <url disable="true">/address/juso/popup</url>
+        </url-rule>
+    </url-rule-set>
 </config>

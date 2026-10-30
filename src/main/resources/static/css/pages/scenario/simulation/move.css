@@ -1,29 +1,95 @@
 /* ============================================================
    해봄(HAEBOM) | 전입신고 시나리오 전용 스타일
    ------------------------------------------------------------
+
    - 공통 레이아웃/컴포넌트: simulation.css
    - 전입신고 전용 폼/테이블: move.css
    - simulation.css 이후 로드
    - 0단계 버튼 레이아웃은 공통 .sim-card-footer 재사용
+
    ============================================================ */
 
 /* ============================================================
-   01. 공통 입력 요소 및 테이블
+
+   공통 입력 요소 및 테이블
    전입신고의 여러 단계에서 재사용되는 선택·표 스타일
+
    ============================================================ */
-.gov24-reason-grid input, .gov24-consent-options input,
-	.gov24-notice-check input {
+
+/* ============================================================
+   01. 체크박스 / 라디오 공통 디자인
+   - Bootstrap .form-check-input 기준
+   - 미전환 JSP의 기존 radio/checkbox도 같은 외관으로 표시
+   - 체크/비활성화 상태는 모든 단계에서 동일하게 관리
+   ============================================================ */
+.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"])
+	{
+	appearance: none;
+	-webkit-appearance: none;
+	box-sizing: border-box;
 	width: 19px;
 	height: 19px;
-	flex: 0 0 auto;
-	accent-color: #1769ff;
+	min-width: 19px;
+	flex: 0 0 19px;
+	border: 1px solid #9caaba;
+	border-radius: 4px;
+	background-color: #fff;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	vertical-align: middle;
+	accent-color: #164166;
+	opacity: 1;
+	cursor: pointer;
 }
 
-.gov24-household-field input, .gov24-service-heading input {
-	width: 19px;
-	height: 19px;
-	flex: 0 0 auto;
-	accent-color: #1769ff;
+.simulation-page .sim-step-content input[type="radio"] {
+	border-radius: 50%;
+}
+
+.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):checked
+	{
+	border-color: #164166;
+	background-color: #164166;
+}
+
+/* Bootstrap 체크 아이콘(체크/라디오 점) 재사용 */
+.simulation-page .sim-step-content input[type="checkbox"]:checked {
+	--bs-form-check-bg-image:
+		url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m4 8 2.5 2.5L12 5'/%3e%3c/svg%3e");
+	background-image: var(--bs-form-check-bg-image);
+}
+
+.simulation-page .sim-step-content input[type="radio"]:checked {
+	--bs-form-check-bg-image:
+		url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3ccircle cx='8' cy='8' r='3' fill='%23fff'/%3e%3c/svg%3e");
+	background-image: var(--bs-form-check-bg-image);
+}
+
+.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):disabled
+	{
+	opacity: 1;
+	cursor: default;
+}
+
+.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):disabled:checked
+	{
+	border-color: #788a9c;
+	background-color: #788a9c;
+}
+
+.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):disabled:not(:checked)
+	{
+	border-color: #b9c3cd;
+	background-color: #f1f3f5;
+	background-image: none;
+}
+
+/* 표에서 입력요소의 위치를 일정하게 */
+.simulation-page .sim-step-content .gov24-people-table input:is([type="checkbox"],
+	[type="radio"]), .simulation-page .sim-step-content .move-step4-family-table input:is([type="checkbox"],
+	[type="radio"]) {
+	margin: 0;
 }
 
 .gov24-result-table, .gov24-people-table {
@@ -64,8 +130,11 @@
 }
 
 /* ============================================================
-   02. 0단계 | 가상 세대 정보 입력
+
+   0단계 | 가상 세대 정보 입력
+
    기존 6열 기준 nth-child 너비 규칙을 제거하고 colgroup으로 통일
+
    ============================================================ */
 
 /* 열 비율: 세대주 9 / 관계 24 / 성명 30 / 생년월일 23 / 성별 14 */
@@ -151,8 +220,11 @@
 }
 
 /* ============================================================
-   03. 세대원 및 세대 정보
+
+   세대원 및 세대 정보
+
    구성원 목록/세대 정보 영역의 보조 컴포넌트
+
    ============================================================ */
 .gov24-movers {
 	margin-top: 44px;
@@ -213,8 +285,11 @@
 }
 
 /* ============================================================
-   04. 이사 사유
+
+   이사 사유
+
    사유 선택 그리드 및 기타 입력
+
    ============================================================ */
 .gov24-reason-grid {
 	display: grid;
@@ -242,8 +317,11 @@
 }
 
 /* ============================================================
-   05. 주소 입력 및 검색 결과
+
+   주소 입력 및 검색 결과
+
    현재 주소/전입 주소/건물 정보 및 검색 결과
+
    ============================================================ */
 .gov24-address-panel .gov24-form-field {
 	max-width: none;
@@ -404,8 +482,11 @@
 }
 
 /* ============================================================
-   06. 부가 서비스
+
+   부가 서비스
+
    부가 민원서비스 항목
+
    ============================================================ */
 .gov24-extra-services {
 	margin: 28px 0 8px;
@@ -463,8 +544,11 @@
 }
 
 /* ============================================================
-   07. 동의 및 유의사항
+
+   동의 및 유의사항
+
    안내문, 개인정보 동의, 확인 체크박스
+
    ============================================================ */
 .gov24-data-consent>h3 {
 	margin: 0 0 28px;
@@ -556,9 +640,184 @@
 	padding-left: 1.2rem;
 }
 
+/* move.css 맨 아래에 추가: Step1 전용, Step0/2/3/4 비영향 */
+.move-step1 {
+	--move-step1-ink: #26384b;
+	--move-step1-muted: #526579;
+	--move-step1-border: #d7dce1;
+	color: var(--move-step1-ink);
+}
+
+.move-step1 .move-step1-start {
+	padding: 25px 28px;
+	border: 1px solid var(--move-step1-border);
+	border-radius: 9px;
+	margin-bottom: 38px;
+}
+
+.move-step1 .move-step1-heading {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin: 0 0 17px;
+	color: #164166;
+	font-size: 1rem;
+	font-weight: 750;
+}
+
+/* Step1내부 Material Symbols */
+.move-step1 .material-symbols-outlined {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	font-size: 20px;
+	line-height: 1;
+}
+
+.move-step1 .move-step1-section-title {
+	margin: 0 0 25px;
+	font-size: 1.35rem;
+	font-weight: 800;
+	color: #1c2733;
+}
+
+.move-step1 .move-step1-group {
+	margin-bottom: 31px;
+}
+
+.move-step1 .move-step1-group h4 {
+	margin: 0 0 14px;
+	font-size: 1rem;
+	font-weight: 750;
+	color: #1c2733;
+}
+
+.move-step1 .move-step1-bullets {
+	margin: 0;
+	padding-left: 1.25rem;
+	color: var(--move-step1-muted);
+	font-size: .88rem;
+	line-height: 1.85;
+}
+
+.move-step1 .move-step1-bullets>li {
+	margin-bottom: 10px;
+}
+
+.move-step1 .move-step1-bullets>li:last-child {
+	margin-bottom: 0;
+}
+
+.move-step1 .move-step1-bullets ul {
+	padding-left: 1.2rem;
+	margin: 7px 0 0;
+}
+
+.move-step1 .move-step1-bullets ul li {
+	margin-bottom: 5px;
+}
+
+.move-step1 .move-step1-bullets strong {
+	color: #30475f;
+}
+
+.move-step1 .move-step1-emphasis {
+	padding: 18px 20px;
+	border: 1px solid var(--move-step1-border);
+	border-radius: 8px;
+	background: #f5f8fb;
+	font-size: .88rem;
+	line-height: 1.8;
+	margin-top: 18px;
+}
+
+.move-step1 .move-step1-emphasis>strong {
+	color: #164166;
+}
+
+.move-step1 .move-step1-emphasis ol {
+	margin: 9px 0 0;
+	padding-left: 1.4rem;
+	color: var(--move-step1-muted);
+}
+
+.move-step1 .move-step1-simulation {
+	margin: 34px 0 24px;
+	padding: 22px 25px;
+	border: 1px solid #c7d8e8;
+	border-left: 4px solid #164166;
+	border-radius: 8px;
+	background: #f2f7fc;
+}
+
+.move-step1 .move-step1-simulation h3 {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin: 0 0 13px;
+	font-size: 1rem;
+	font-weight: 750;
+	color: #164166;
+}
+
+.move-step1 .move-step1-agreement {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 11px;
+	padding: 19px 20px;
+	border: 1px solid #d7dce1;
+	border-radius: 8px;
+	background: #edf2f7;
+	margin-top: 0;
+}
+
+.move-step1 .move-step1-agreement input {
+	cursor: pointer;
+}
+
+.move-step1 .move-step1-agreement label {
+	cursor: pointer;
+	font-size: .88rem;
+	line-height: 1.55;
+	margin: 0;
+}
+
+.move-step1 a {
+	color: #1769aa;
+	text-underline-offset: 3px;
+}
+
+@media ( max-width : 720px) {
+	.move-step1 .move-step1-start {
+		padding: 20px 17px;
+		margin-bottom: 30px;
+	}
+	.move-step1 .move-step1-section-title {
+		font-size: 1.2rem;
+	}
+	.move-step1 .move-step1-emphasis {
+		padding: 15px;
+	}
+	.move-step1 .move-step1-simulation {
+		padding: 18px 16px;
+	}
+	.move-step1 .move-step1-agreement {
+		padding: 15px 13px;
+		align-items: flex-start;
+	}
+	.move-step1 .move-step1-agreement input {
+		margin-top: 3px !important;
+	}
+}
+
 /* ============================================================
+
    08. 완료 후 조회 모드
+
    작성 내역 조회 시 수정 버튼 숨김 / 폼 값 가독성 유지
+
    ============================================================ */
 .simulation-page.is-completed #addHouseholdPerson, .simulation-page.is-completed #removeHouseholdPerson
 	{
@@ -572,10 +831,15 @@
 }
 
 /* ============================================================
+
    09. 전입신고 3단계 | 이전 주소 및 세대주 선택
+
    기존 move.css의 공통 클래스 재사용:
+
    .gov24-form-panel / .gov24-address-controls /
+
    .gov24-result-table / .gov24-people-table
+
    ============================================================ */
 .move-step3 .move-step3-block+.move-step3-block {
 	margin-top: 48px;
@@ -648,8 +912,6 @@
 }
 
 .move-step3 .move-step3-people-table .form-check-input {
-	width: 19px;
-	height: 19px;
 	margin: 0;
 	vertical-align: middle;
 }
@@ -695,241 +957,406 @@
 	}
 }
 
+/* Step3 정부24형 동의 영역 */
+.move-step3 .move-step3-consents {
+	margin-top: 28px;
+}
+
+.move-step3 .move-step3-consent-section {
+	margin-top: 26px;
+}
+
+.move-step3 .move-step3-consent-section>h3 {
+	margin-bottom: 14px;
+}
+
+.move-step3 .move-step3-consent-details {
+	border: 1px solid #d7dee5;
+	background: #fff;
+}
+
+.move-step3 .move-step3-consent-details summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 16px 18px;
+	background: #edf1f5;
+	cursor: pointer;
+	list-style: none;
+}
+
+.move-step3 .move-step3-consent-details summary::-webkit-details-marker
+	{
+	display: none;
+}
+
+/* 해봄 Material Symbols 화살표 */
+.move-step3-consent-details>summary
+.material-symbols-outlined {
+	font-size: 22px;
+	line-height: 1;
+	transition: transform 0.2s ease;
+}
+
+/* 펼쳐졌을 때 화살표 회전 */
+.move-step3-consent-details[open]>summary
+.material-symbols-outlined {
+	transform: rotate(180deg);
+}
+
+.move-step3 .move-step3-consent-body {
+	padding: 22px 24px 14px;
+}
+
+.move-step3 .move-step3-consent-body p {
+	margin: 0 0 18px;
+	line-height: 1.8;
+	overflow-wrap: anywhere;
+}
+
+.move-step3 .move-step3-consent-body .move-step3-consent-label {
+	display: block;
+	font-weight: 700;
+	margin-bottom: 2px;
+}
+
+.move-step3 .move-step3-consent-options {
+	display: flex;
+	justify-content: flex-end;
+	flex-wrap: wrap;
+	gap: 20px;
+	padding: 16px 22px;
+	border-top: 1px solid #d7dee5;
+}
+
+.move-step3 .move-step3-consent-options label {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	cursor: pointer;
+}
+
+.move-step3 .move-step3-consent-options .form-check-input {
+	margin: 0;
+}
+
+.move-step3 .move-step3-consent-disagree-notice {
+	margin-top: 12px;
+}
+
+@media ( max-width : 575.98px) {
+	.move-step3 .move-step3-consent-body {
+		padding: 16px;
+	}
+	.move-step3 .move-step3-consent-options {
+		padding: 14px 16px;
+		gap: 14px;
+	}
+}
+
 /* ============================================================
+
    해봄 전입신고 4단계 전용
+
    ============================================================ */
 .move-step4 {
-    --step4-ink: #26394c;
-    --step4-border: #d8dee5;
-    --step4-muted: #607184;
-    --step4-head-bg: #eaf0f5;
-    --step4-accent: #164166;
+	--step4-ink: #26394c;
+	--step4-border: #d8dee5;
+	--step4-muted: #607184;
+	--step4-head-bg: #eaf0f5;
+	--step4-accent: #164166;
 }
-.move-step4 .move-step4-main-panel { max-width: 100%; }
-.move-step4 .move-step4-address-controls { max-width: 680px; }
+
+.move-step4 .move-step4-main-panel {
+	max-width: 100%;
+}
+
+.move-step4 .move-step4-address-controls {
+	max-width: 680px;
+}
+
 .move-step4 .move-step4-address-controls .form-control {
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 48px;
-    background: #f5f7f9;
-    border-radius: 7px;
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 48px;
+	background: #f5f7f9;
+	border-radius: 7px;
 }
+
 .move-step4 .move-step4-address-controls .btn {
-    flex: 0 0 auto;
-    min-height: 48px;
-    border-radius: 7px;
+	flex: 0 0 auto;
+	min-height: 48px;
+	border-radius: 7px;
 }
-.move-step4 .move-step4-building-fields { max-width: 650px; }
-.move-step4 .move-step4-detail-field { margin-bottom: 36px; }
+
+.move-step4 .move-step4-building-fields {
+	max-width: 650px;
+}
+
+.move-step4 .move-step4-detail-field {
+	margin-bottom: 36px;
+}
 
 /* 세대 구성: 참고 화면처럼 외곽 패널 안에 라디오만 배치, 이중 테두리 제거 */
 .move-step4 .move-step4-household-fieldset {
-    min-width: 0;
-    border: 0;
-    border-top: 1px solid #e4eaf0;
-    margin: 25px 0 0;
-    padding: 28px 0 0;
+	min-width: 0;
+	border: 0;
+	border-top: 1px solid #e4eaf0;
+	margin: 25px 0 0;
+	padding: 28px 0 0;
 }
-.move-step4 .move-step4-household-fieldset > legend {
-    float: none;
-    width: auto;
-    display: block;
-    color: #1d2f41;
-    font-size: 1rem;
-    line-height: 1.5;
-    font-weight: 750;
-    padding: 0;
-    margin: 0 0 15px;
+
+.move-step4 .move-step4-household-fieldset>legend {
+	float: none;
+	width: auto;
+	display: block;
+	color: #1d2f41;
+	font-size: 1rem;
+	line-height: 1.5;
+	font-weight: 750;
+	padding: 0;
+	margin: 0 0 15px;
 }
+
 .move-step4 .move-step4-required {
-    color: #425872;
-    font-weight: 500;
-    font-size: .84em;
+	color: #425872;
+	font-weight: 500;
+	font-size: .84em;
 }
-.move-step4 .move-step4-methods { display: grid; row-gap: 16px; }
-.move-step4 .move-step4-method-label,
-.move-step4 .move-step4-strategy-options label {
-    display: inline-flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: .94rem;
-    line-height: 1.6;
-    font-weight: 500;
-    color: #26384b;
-    cursor: pointer;
+
+.move-step4 .move-step4-methods {
+	display: grid;
+	row-gap: 16px;
 }
-.move-step4 .move-step4-method-label input[type="radio"],
-.move-step4 .move-step4-strategy-options input[type="radio"] {
-    width: 18px;
-    height: 18px;
-    min-width: 18px;
-    margin: 3px 0 0;
-    accent-color: #1769ff;
+
+.move-step4 .move-step4-method-label, .move-step4 .move-step4-strategy-options label
+	{
+	display: inline-flex;
+	align-items: flex-start;
+	gap: 10px;
+	font-size: .94rem;
+	line-height: 1.6;
+	font-weight: 500;
+	color: #26384b;
+	cursor: pointer;
 }
+
+.move-step4 .move-step4-method-label input[type="radio"], .move-step4 .move-step4-strategy-options input[type="radio"]
+	{
+	margin: 3px 0 0;
+}
+
 .move-step4 .move-step4-strategy-options {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px 30px;
-    margin: -4px 0 0 30px;
-    padding: 0 0 0 2px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px 30px;
+	margin: -4px 0 0 30px;
+	padding: 0 0 0 2px;
 }
-.move-step4 .move-step4-strategy-options.d-none { display: none !important; }
+
+.move-step4 .move-step4-strategy-options.d-none {
+	display: none !important;
+}
+
 .move-step4 .move-step4-help {
-    margin: 2px 0 0 30px;
-    color: var(--step4-muted);
-    font-size: .82rem;
-    line-height: 1.65;
+	margin: 2px 0 0 30px;
+	color: var(--step4-muted);
+	font-size: .82rem;
+	line-height: 1.65;
 }
+
 .move-step4 .move-step4-head-summary {
-    margin: 27px 0 16px;
-    padding: 10px 14px;
-    font-size: .86rem;
-    color: var(--step4-accent);
-    border-left: 3px solid #1769ff;
-    background: #f5f8fc;
+	margin: 27px 0 16px;
+	padding: 10px 14px;
+	font-size: .86rem;
+	color: var(--step4-accent);
+	border-left: 3px solid #1769ff;
+	background: #f5f8fc;
 }
+
 .move-step4 .move-step4-household-detail {
-    margin-top: 35px;
+	margin-top: 35px;
 }
+
 .move-step4 .move-step4-household-detail h4 {
-    margin: 0 0 16px;
-    color: #1c2e41;
-    font-size: .99rem;
-    font-weight: 750;
-    line-height: 1.55;
+	margin: 0 0 16px;
+	color: #1c2e41;
+	font-size: .99rem;
+	font-weight: 750;
+	line-height: 1.55;
 }
+
 .move-step4 .move-step4-household-detail .move-step4-relation-heading {
-    margin-top: 32px;
+	margin-top: 32px;
 }
 
 /* 표: 참고 화면의 연한 회색 헤더 및 고른 칸 간격 */
 .move-step4 .move-step4-family-table {
-    width: 100%;
-    min-width: 780px;
-    border-top: 1px solid #afc3d6;
-    border-collapse: collapse;
-    table-layout: auto;
-    font-size: .82rem;
+	width: 100%;
+	min-width: 780px;
+	border-top: 1px solid #afc3d6;
+	border-collapse: collapse;
+	table-layout: auto;
+	font-size: .82rem;
 }
+
 .move-step4 .move-step4-family-table thead th {
-    height: 48px;
-    padding: 11px 12px;
-    background: var(--step4-head-bg);
-    color: #25384b;
-    border: 1px solid #d2d9e1;
-    font-weight: 700;
-    text-align: center;
-    white-space: nowrap;
+	height: 48px;
+	padding: 11px 12px;
+	background: var(--step4-head-bg);
+	color: #25384b;
+	border: 1px solid #d2d9e1;
+	font-weight: 700;
+	text-align: center;
+	white-space: nowrap;
 }
+
 .move-step4 .move-step4-family-table tbody td {
-    height: 56px;
-    padding: 9px 11px;
-    border: 1px solid var(--step4-border);
-    vertical-align: middle;
-    text-align: center;
-    white-space: nowrap;
-    color: var(--step4-ink);
+	height: 56px;
+	padding: 9px 11px;
+	border: 1px solid var(--step4-border);
+	vertical-align: middle;
+	text-align: center;
+	white-space: nowrap;
+	color: var(--step4-ink);
 }
+
 .move-step4 .move-step4-family-table .form-check-input {
-    cursor: pointer;
-    width: 17px;
-    height: 17px;
-    accent-color: #1769ff;
+	cursor: pointer;
 }
-.move-step4 .move-step4-change-table th:first-child,
-.move-step4 .move-step4-change-table td:first-child { width: 60px; }
+
+.move-step4 .move-step4-change-table th:first-child, .move-step4 .move-step4-change-table td:first-child
+	{
+	width: 60px;
+}
+
 .move-step4 .move-step4-family-table .move-step4-relation-select {
-    width: 120px;
-    min-width: 120px;
-    min-height: 38px;
-    padding: 7px 25px 7px 10px;
-    margin: auto;
-    border-color: #b8c3cf;
-    border-radius: 6px;
-    font-size: .8rem;
+	width: 120px;
+	min-width: 120px;
+	min-height: 38px;
+	padding: 7px 25px 7px 10px;
+	margin: auto;
+	border-color: #b8c3cf;
+	border-radius: 6px;
+	font-size: .8rem;
 }
+
 .move-step4 .move-step4-family-table .move-step4-self-label {
-    font-weight: 700;
-    color: var(--step4-accent);
+	font-weight: 700;
+	color: var(--step4-accent);
 }
 
 /* 전화번호: 전체 필수 직접 입력, DB 자동 채움·placeholder·마스킹 없음 */
 .move-step4 .move-step4-phone-fields {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    flex-wrap: nowrap;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	flex-wrap: nowrap;
 }
-.move-step4 .move-step4-phone-fields > span {
-    color: #526474;
-    font-size: .86rem;
+
+.move-step4 .move-step4-phone-fields>span {
+	color: #526474;
+	font-size: .86rem;
 }
+
 .move-step4 .move-step4-phone-fields .form-control {
-    width: 70px;
-    min-width: 0;
-    min-height: 37px;
-    padding: 6px 5px;
-    text-align: center;
-    font-size: .83rem;
-    border: 1px solid #aeb9c5;
-    border-radius: 6px;
-    background: #fff;
+	width: 70px;
+	min-width: 0;
+	min-height: 37px;
+	padding: 6px 5px;
+	text-align: center;
+	font-size: .83rem;
+	border: 1px solid #aeb9c5;
+	border-radius: 6px;
+	background: #fff;
 }
-.move-step4 .move-step4-phone-fields .form-control:first-child { width: 59px; }
-.move-step4 .move-step4-phone-fields .form-control:focus,
-.move-step4 .move-step4-family-table .form-select:focus { border-color: var(--step4-accent); }
-.move-step4 .move-step4-existing-head-phone { justify-content: flex-start; }
-.move-step4 .move-step4-existing-head-phone .form-control { min-height: 43px; }
+
+.move-step4 .move-step4-phone-fields .form-control:first-child {
+	width: 59px;
+}
+
+.move-step4 .move-step4-phone-fields .form-control:focus, .move-step4 .move-step4-family-table .form-select:focus
+	{
+	border-color: var(--step4-accent);
+}
+
+.move-step4 .move-step4-existing-head-phone {
+	justify-content: flex-start;
+}
+
+.move-step4 .move-step4-existing-head-phone .form-control {
+	min-height: 43px;
+}
 
 .move-step4 .move-step4-existing-fields {
-    display: grid;
-    gap: 20px;
-    max-width: 760px;
+	display: grid;
+	gap: 20px;
+	max-width: 760px;
 }
-.move-step4 .move-step4-existing-fields .form-control#existingHeadName {
-    max-width: 440px;
-    min-height: 43px;
-}
-.move-step4 .move-step4-mock-verify {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 14px;
-}
-.move-step4 .move-step4-mock-id {
-    display: inline-block;
-    background: #edf1f5;
-    border: 1px solid #d9e1e9;
-    border-radius: 6px;
-    padding: 11px 18px;
-    color: #657789;
-    letter-spacing: .08em;
-    font-size: .95rem;
-}
-.move-step4 .move-step4-existing-fields .move-step4-help { margin: 6px 0 0; }
-.move-step4 .move-step4-validation-help {
-    margin: 12px 0 0;
-    color: #d13f3b;
-    font-size: .81rem;
-    line-height: 1.6;
-}
-.move-step4 .move-step4-notice {
-    color: var(--step4-muted);
-    font-size: .81rem;
-    line-height: 1.75;
-}
-/* 기타 신청 가능 서비스: 기존 move.css의 접기/선택형 카드 톤을 그대로 이용 */
-.move-step4 .gov24-service-heading { min-height: 53px; }
 
-@media (max-width: 720px) {
-    .move-step4 .move-step4-strategy-options {
-        grid-template-columns: 1fr;
-        gap: 13px;
-        margin-left: 22px;
-    }
-    .move-step4 .move-step4-address-controls { gap: 8px; }
-    .move-step4 .move-step4-address-controls .btn { padding-inline: 12px; }
-    .move-step4 .move-step4-building-fields { grid-template-columns: 1fr 1fr; }
-    .move-step4 .move-step4-mock-verify { align-items: flex-start; }
+.move-step4 .move-step4-existing-fields .form-control#existingHeadName {
+	max-width: 440px;
+	min-height: 43px;
+}
+
+.move-step4 .move-step4-mock-verify {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 14px;
+}
+
+.move-step4 .move-step4-mock-id {
+	display: inline-block;
+	background: #edf1f5;
+	border: 1px solid #d9e1e9;
+	border-radius: 6px;
+	padding: 11px 18px;
+	color: #657789;
+	letter-spacing: .08em;
+	font-size: .95rem;
+}
+
+.move-step4 .move-step4-existing-fields .move-step4-help {
+	margin: 6px 0 0;
+}
+
+.move-step4 .move-step4-validation-help {
+	margin: 12px 0 0;
+	color: #d13f3b;
+	font-size: .81rem;
+	line-height: 1.6;
+}
+
+.move-step4 .move-step4-notice {
+	color: var(--step4-muted);
+	font-size: .81rem;
+	line-height: 1.75;
+}
+
+/* 기타 신청 가능 서비스: 기존 move.css의 접기/선택형 카드 톤을 그대로 이용 */
+.move-step4 .gov24-service-heading {
+	min-height: 53px;
+}
+
+@media ( max-width : 720px) {
+	.move-step4 .move-step4-strategy-options {
+		grid-template-columns: 1fr;
+		gap: 13px;
+		margin-left: 22px;
+	}
+	.move-step4 .move-step4-address-controls {
+		gap: 8px;
+	}
+	.move-step4 .move-step4-address-controls .btn {
+		padding-inline: 12px;
+	}
+	.move-step4 .move-step4-building-fields {
+		grid-template-columns: 1fr 1fr;
+	}
+	.move-step4 .move-step4-mock-verify {
+		align-items: flex-start;
+	}
 }
