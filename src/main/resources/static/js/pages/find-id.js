@@ -16,6 +16,9 @@
     const foundLoginId = document.getElementById('foundLoginId');
     const title = document.getElementById('findIdTitle');
     const contextPath = card.dataset.contextPath || '';
+    let codeSent = false;
+    let expiryTimer = null;
+    let expiresAt = 0;
 
     codeField.addEventListener('input', function () {
         codeField.value = codeField.value.replace(/\D/g, '').slice(0, 6);
@@ -25,6 +28,36 @@
         element.textContent = message;
         element.classList.remove('text-success', 'text-danger');
         if (type) element.classList.add(type);
+    }
+
+    function clearExpiryTimer() {
+        if (expiryTimer !== null) {
+            window.clearInterval(expiryTimer);
+            expiryTimer = null;
+        }
+        expiresAt = 0;
+    }
+
+    function updateExpiryStatus() {
+        const remainingSeconds = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+        if (remainingSeconds === 0) {
+            clearExpiryTimer();
+            codeSent = false;
+            setStatus(sendStatus, '인증번호가 만료되었습니다. 다시 발송해 주세요.', 'text-danger');
+            return;
+        }
+
+        const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+        const seconds = String(remainingSeconds % 60).padStart(2, '0');
+        setStatus(sendStatus, '인증번호를 이메일로 보냈습니다. (' + minutes + ':' + seconds + ' 남음)', 'text-success');
+    }
+
+    function startExpiryTimer() {
+        clearExpiryTimer();
+        expiresAt = Date.now() + (5 * 60 * 1000);
+        codeSent = true;
+        updateExpiryStatus();
+        expiryTimer = window.setInterval(updateExpiryStatus, 1000);
     }
 
     async function postForm(path, body) {
@@ -77,11 +110,13 @@
                 email: email
             });
             if (!data.sent) {
+                clearExpiryTimer();
+                codeSent = false;
                 setStatus(sendStatus, '입력한 이름과 이메일이 가입 정보와 일치하지 않습니다.', 'text-danger');
                 return;
             }
-            setStatus(sendStatus, '인증번호를 이메일로 보냈습니다. 5분 안에 입력해 주세요.', 'text-success');
             verificationSection.hidden = false;
+            startExpiryTimer();
             codeField.focus();
         } catch (error) {
             setStatus(sendStatus, error.message, 'text-danger');
@@ -91,6 +126,10 @@
     });
 
     confirmButton.addEventListener('click', async function () {
+        if (!codeSent) {
+            setStatus(verifyStatus, '인증번호를 다시 발송해 주세요.', 'text-danger');
+            return;
+        }
         const code = codeField.value.trim();
         if (!/^[0-9]{6}$/.test(code)) {
             codeField.focus();
@@ -110,6 +149,7 @@
                 return;
             }
 
+            clearExpiryTimer();
             foundLoginId.textContent = data.loginId;
             title.textContent = '아이디 찾기 결과';
             form.hidden = true;

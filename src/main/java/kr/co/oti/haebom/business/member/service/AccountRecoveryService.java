@@ -124,16 +124,15 @@ public class AccountRecoveryService {
 		
 		String code = String.format(Locale.ROOT, "%06d", random.nextInt(1_000_000));
 		
-		SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(senderAddress);
-        message.setTo(email);
-        
         String subject = "FIND_PASSWORD".equals(purpose)
                 ? "[해봄] 비밀번호 찾기 인증번호"
                 : "[해봄] 아이디 찾기 인증번호";
-        
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(senderAddress);
+        message.setTo(email);
         message.setSubject(subject);
-        message.setText("인증번호는 " + code + " 입니다.");
+        message.setText("인증번호는 [" + code + "] 입니다.");
         mailSender.send(message);
         
         session.setAttribute(PURPOSE, purpose);
