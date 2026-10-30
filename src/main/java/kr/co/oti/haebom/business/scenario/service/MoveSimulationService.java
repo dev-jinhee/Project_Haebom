@@ -129,8 +129,6 @@ public class MoveSimulationService {
 		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
 			throw new IllegalStateException("수정 가능한 진행사항이 아닙니다.");
 		}
-		System.out.println("phoneNum null 여부: " + (phoneNum == null));
-		System.out.println("phoneNum 길이: " + (phoneNum == null ? 0 : phoneNum.length()));
 		// 전화번호 확인
 		if (phoneNum == null || !phoneNum.matches("^010-\\d{4}-\\d{4}$")) {
 			throw new IllegalArgumentException("올바른 휴대전화번호를 입력해주세요.");

@@ -1,11 +1,11 @@
 // ============================================================
 // 해봄 | 전입신고 4단계: 현재 거주지 및 세대 구성
 // 공통 simulation.js 계약: init({root, progressId, stepId, readOnly}),
-// validate({root}), getData({root})
+// validate({root}), getData({root}), save()
 // 추가: restore({root, data, readOnly}) - 서버 저장 답변을 읽어온 뒤 복원용
-// 주의: 4단계 DB 저장(save)은 아직 연결하지 않음.
 // ============================================================
 import { isMinor } from "../utils/age.js";
+import { initServices, restoreServices, getServiceDetails, validateServices } from "./step-4-services.js";
 
 const JUSO_POPUP_URL = "/address/juso/popup";
 const VIRTUAL_WELFARE_CENTER = "해봄동 행정복지센터 (가상)";
@@ -531,7 +531,8 @@ export function getData({ root }) {
 		existingHeadName: mode === "JOIN_EXISTING" ? $(root, "existingHeadName").value.trim() || null : null,
 		existingHeadPhoneNum: mode === "JOIN_EXISTING" ? readPhone($(root, "existingHeadPhoneGroup")) : null,
 		existingHeadCheck: mode === "JOIN_EXISTING" && existingHeadMockConfirmed ? "SIMULATED" : null,
-		additionalServices: [...root.querySelectorAll('input[name="additionalService"]:checked')].map(input => input.value)
+		additionalServices: [...root.querySelectorAll('input[name="additionalService"]:checked')].map(input => input.value),
+		additionalServiceDetails: getServiceDetails(root)
 	};
 }
 
@@ -600,6 +601,19 @@ function restoreData(root, data) {
 	});
 	updateExistingHouseholdNotice(root);
 	updateHouseholdSections(root);
+	//서비스 복원
+	let serviceDetails = data.additionalServiceDetails || {};
+
+	if (typeof serviceDetails === "string") {
+		try {
+			serviceDetails = JSON.parse(serviceDetails);
+		} catch (error) {
+			console.error("추가 서비스 상세 데이터 파싱 실패:", error);
+			serviceDetails = {};
+		}
+	}
+
+	restoreServices(root, serviceDetails);
 }
 
 function disableForReadOnly(root) {
@@ -676,6 +690,11 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 		renderChangeNewHeadTable(root);
 		renderExistingHouseholdTable(root);
 		setSingleMoverPresentation(root);
+		//service 초기화 호출
+		initServices(root, movingFamilies, {
+			readOnly,
+			applicantPhone: applicant.phoneNum
+		});
 		// 테이블 생성 후 최초 1회: 신청인만 저장된 연락처 자동 입력.
 		fillApplicantInitialPhone(root);
 		// 1명 이사는 세대주 자동 지정. 여러 명일 때만 기존 선택 절차 유지.
@@ -816,7 +835,7 @@ export function validate({ root }) {
 					return false;
 				}
 			}
-			return validateFamilyPhones(root, "keepOriginalHeadTableBody");
+			return validateFamilyPhones(root, "keepOriginalHeadTableBody") && validateServices(root);
 		}
 		if (strategy === "CHANGE_HEAD") {
 			if (!selectedNewHeadId || !movingFamilies.some(f => sameId(f.familyId, selectedNewHeadId))) {
@@ -833,7 +852,7 @@ export function validate({ root }) {
 					}
 				}
 			}
-			return validateFamilyPhones(root, "changeNewHeadTableBody");
+			return validateFamilyPhones(root, "changeNewHeadTableBody") && validateServices(root);
 		}
 	} else if (mode === "JOIN_EXISTING") {
 		if (!$(root, "existingHeadName").value.trim()) {
@@ -855,7 +874,8 @@ export function validate({ root }) {
 				return false;
 			}
 		}
-		return validateFamilyPhones(root, "existingHouseholdTableBody");
+		return validateFamilyPhones(root, "existingHouseholdTableBody") && validateServices(root);
 	}
-	return true;
+	alert("올바른 세대 구성 방법을 선택해 주세요.");
+	return false;
 }

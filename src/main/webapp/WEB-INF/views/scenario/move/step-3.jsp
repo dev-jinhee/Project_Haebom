@@ -109,7 +109,7 @@
 				새로운 세대주의 연락처를 정확히 입력해 주세요. <span class="move-step3-required">(필수)</span>
 			</h4>
 			<label for="newHeadPhoneFirst" class="form-label small">휴대전화번호</label>
-			<div class="move-step3-phone-group">
+			<div class="move-step3-phone-group sim-phone-group">
 				<input id="newHeadPhoneFirst" class="form-control" type="text"
 					inputmode="numeric" maxlength="3" autocomplete="off"
 					aria-label="세대주 휴대전화번호 앞자리" value="010"> <span
@@ -127,7 +127,7 @@
 		<section class="move-step3-consent-section"
 			aria-labelledby="personalConsentTitle">
 			<h3 id="personalConsentTitle">본인정보 제공요구서 및 공동이용 동의</h3>
-			<details class="move-step3-consent-details">
+			<details class="move-step3-consent-details" open>
 				<summary>
 					<span>정보 확인 동의 (필수)</span> <span class="material-symbols-outlined"
 						aria-hidden="true">expand_more</span>
@@ -219,8 +219,11 @@
 		</p>
 	</div>
 	<div class="border rounded-3 bg-light p-3">
-		<h4 class="small fw-semibold mb-2">개인정보 입력 안내</h4>
-		<p class="small text-muted mb-0">
+		<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
+		<p class="text-muted small mb-0">
+			<spring:message code="simulation.history" />
+		</p>
+		<p class="text-muted small mb-0">
 			<spring:message code="simulation.privacy" />
 		</p>
 	</div>

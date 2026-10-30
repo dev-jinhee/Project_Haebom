@@ -320,6 +320,12 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 			scenarioCode: simulationState.scenarioCode
 		});
 
+		window.scrollTo({
+			top: 0,
+			behavior: "smooth"
+		});
+
+
 		return;
 	}
 

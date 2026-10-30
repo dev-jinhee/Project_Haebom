@@ -1,135 +1,141 @@
-/* 기존 simulation.css / move.css 위에 덧씌우는 인쇄 전용 보정 */
+
+/* 인쇄 페이지 기본 레이아웃 */
 .simulation-print-page .sim-container {
-	max-width: 1040px;
+    max-width: 1040px;
 }
 
 .print-header {
-	margin: 12px 0 26px;
+    margin: 12px 0 26px;
 }
 
 .print-brand {
-	font-size: .85rem;
-	font-weight: 700;
-	color: #164166;
-	margin-bottom: 8px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: #164166;
+    margin-bottom: 8px;
 }
 
 .print-header h1 {
-	color: #164166;
-	font-size: 1.7rem;
-	font-weight: 800;
+    color: #164166;
+    font-size: 1.7rem;
+    font-weight: 800;
 }
 
 .print-header p {
-	color: #526477;
-	font-size: .9rem;
+    color: #526477;
+    font-size: .9rem;
 }
 
 .print-step {
-	margin: 0 0 25px;
-	padding: 24px 28px;
+    margin: 0 0 25px;
+    padding: 24px 28px;
 }
 
 .print-step-header {
-	border-bottom: 1px solid #e4ebf2;
-	padding-bottom: 14px;
-	margin-bottom: 18px;
+    border-bottom: 1px solid #e4ebf2;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
 }
 
 .print-step-header h2 {
-	font-size: 1.2rem;
-	font-weight: 800;
-	margin: 0;
-	color: #164166;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin: 0;
+    color: #164166;
 }
 
 .print-step-content {
-	min-width: 0;
+    min-width: 0;
 }
 
 .print-warning {
-	background: #fff6df;
-	color: #805b10;
-	border: 1px solid #ecd7a2;
-	padding: 12px;
-	border-radius: 8px;
+    background: #fff6df;
+    color: #805b10;
+    border: 1px solid #ecd7a2;
+    padding: 12px;
+    border-radius: 8px;
 }
 
 .print-actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	margin: 26px 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin: 26px 0;
 }
 
-.simulation-print-page .sim-complete-actions, .simulation-print-page #completePrintBtn
-	{
-	display: none !important;
+.simulation-print-page .sim-complete-actions,
+.simulation-print-page #completePrintBtn {
+    display: none !important;
 }
 
-.simulation-print-page .form-control:disabled, .simulation-print-page .form-select:disabled
-	{
-	opacity: 1;
-	background-color: #fff;
-	color: #212529;
-}
-
-.simulation-print-page input:disabled, .simulation-print-page textarea:disabled
-	{
-	opacity: 1;
-}
-
+/* 실제 PDF 인쇄 설정 */
 @media print {
-	@page {
-		size: A4;
-		margin: 12mm;
-	}
-	html, body {
-		background: #fff !important;
-		print-color-adjust: exact;
-		-webkit-print-color-adjust: exact;
-	}
-	.simulation-print-page .sim-container {
-		width: 100% !important;
-		max-width: none !important;
-		padding: 0 !important;
-	}
-	.print-actions, #printStatus, .sim-complete-actions {
-		display: none !important;
-	}
-	.print-header {
-		margin-top: 0;
-	}
-	.print-step {
-		box-shadow: none !important;
-		border: 0 !important;
-		border-radius: 0 !important;
-		padding: 0 !important;
-		margin: 0 !important;
-		break-after: page;
-		page-break-after: always;
-	}
-	#printCompleteContainer .print-step {
-		break-after: auto;
-		page-break-after: auto;
-	}
-	.print-step-header {
-		margin-top: 8mm;
-	}
-	.gov24-form-panel, .move-step3-block, .checklist-box, table, tr,
-		fieldset {
-		break-inside: avoid;
-		page-break-inside: avoid;
-	}
-	.table-responsive {
-		overflow: visible !important;
-	}
-	input, select, textarea {
-		print-color-adjust: exact;
-		-webkit-print-color-adjust: exact;
-	}
-	a {
-		color: inherit;
-		text-decoration: none;
-	}
+    @page {
+        size: A4;
+        margin: 12mm;
+    }
+
+    html, body {
+        background: #fff !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    .simulation-print-page .sim-container {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 0 !important;
+    }
+
+    .print-actions,
+    #printStatus,
+    .sim-complete-actions {
+        display: none !important;
+    }
+
+    .print-header {
+        margin-top: 0;
+    }
+
+    .print-step {
+        box-shadow: none !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    #printCompleteContainer .print-step {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .print-step-header {
+        margin-top: 8mm;
+    }
+
+    .gov24-form-panel,
+    .move-step3-block,
+    .checklist-box,
+    tr,
+    fieldset {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    input, select, textarea {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
 }
