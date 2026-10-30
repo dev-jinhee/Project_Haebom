@@ -95,8 +95,7 @@
 					<div class="sim-validation d-none" id="validationMessage"
 						role="alert">
 
-						<i class="bi bi-exclamation-circle-fill me-2" aria-hidden="true"></i>
-						<span></span>
+						<span class="material-symbols-outlined"> error </span><span></span>
 					</div>
 
 					<!-- 단계별 JSP 콘텐츠가 들어올 영역 -->

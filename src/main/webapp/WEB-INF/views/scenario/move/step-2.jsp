@@ -27,7 +27,7 @@
 				class="text-primary small">(필수)</span>
 			</label>
 
-			<div class="d-flex align-items-center gap-2 gap-md-3">
+			<div class="sim-phone-group">
 
 				<input type="text" class="form-control text-center" id="phoneFirst"
 					name="phoneFirst" value="010" maxlength="3" inputmode="numeric"

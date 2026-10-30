@@ -37,56 +37,56 @@ const RELATION_OPTIONS = [
 // ==============================
 const CONSENT_KEYS = ["personalInfoConsent", "administrativeInfoConsent"];
 function initConsents(root, readOnly) {
-    for (const key of CONSENT_KEYS) {
-        root.querySelectorAll(`input[name="${key}"]`).forEach(radio => {
-            radio.disabled = readOnly;
-        });
-    }
-    root.addEventListener("change", event => {
-        if (!CONSENT_KEYS.includes(event.target?.name)) return;
-        updateConsentNotice(root, event.target.name);
-    });
+	for (const key of CONSENT_KEYS) {
+		root.querySelectorAll(`input[name="${key}"]`).forEach(radio => {
+			radio.disabled = readOnly;
+		});
+	}
+	root.addEventListener("change", event => {
+		if (!CONSENT_KEYS.includes(event.target?.name)) return;
+		updateConsentNotice(root, event.target.name);
+	});
 }
 
 function updateConsentNotice(root, key) {
-    const selected = root.querySelector(`input[name="${key}"]:checked`)?.value;
-    const notice = root.querySelector(`#${key}DisagreeNotice`);
-    if (notice) notice.classList.toggle("d-none", selected !== "DISAGREE");
+	const selected = root.querySelector(`input[name="${key}"]:checked`)?.value;
+	const notice = root.querySelector(`#${key}DisagreeNotice`);
+	if (notice) notice.classList.toggle("d-none", selected !== "DISAGREE");
 }
 
 function restoreConsents(root, answers) {
-    for (const key of CONSENT_KEYS) {
-        const saved = answers.find(answer => answer.fieldKey === key);
-        if (!saved) continue;
-        let value = saved.answerValue;
-        // 공통 답변 저장 API가 문자열을 JSON으로 직렬화하는 경우도 처리
-        try { value = JSON.parse(value); } catch (_) { /* 이미 일반 문자열 */ }
-        const radio = [...root.querySelectorAll(`input[name="${key}"]`)]
-            .find(input => input.value === String(value));
-        if (radio) radio.checked = true;
-        updateConsentNotice(root, key);
-    }
+	for (const key of CONSENT_KEYS) {
+		const saved = answers.find(answer => answer.fieldKey === key);
+		if (!saved) continue;
+		let value = saved.answerValue;
+		// 공통 답변 저장 API가 문자열을 JSON으로 직렬화하는 경우도 처리
+		try { value = JSON.parse(value); } catch (_) { /* 이미 일반 문자열 */ }
+		const radio = [...root.querySelectorAll(`input[name="${key}"]`)]
+			.find(input => input.value === String(value));
+		if (radio) radio.checked = true;
+		updateConsentNotice(root, key);
+	}
 }
 
 function validateConsents(root) {
-    for (const key of CONSENT_KEYS) {
-        if (root.querySelector(`input[name="${key}"]:checked`)) continue;
-        const title = key === "personalInfoConsent"
-            ? "본인정보 제공요구서 및 공동이용 동의"
-            : "행정정보 공동이용 동의";
-        alert(`${title}의 동의 여부를 선택해 주세요.`);
-        const radio = root.querySelector(`input[name="${key}"]`);
-        radio?.closest("details")?.setAttribute("open", "");
-        radio?.focus();
-        return false;
-    }
-    return true;
+	for (const key of CONSENT_KEYS) {
+		if (root.querySelector(`input[name="${key}"]:checked`)) continue;
+		const title = key === "personalInfoConsent"
+			? "본인정보 제공요구서 및 공동이용 동의"
+			: "행정정보 공동이용 동의";
+		alert(`${title}의 동의 여부를 선택해 주세요.`);
+		const radio = root.querySelector(`input[name="${key}"]`);
+		radio?.closest("details")?.setAttribute("open", "");
+		radio?.focus();
+		return false;
+	}
+	return true;
 }
 
 function getConsentData(root) {
-    return Object.fromEntries(CONSENT_KEYS.map(key => [
-        key, root.querySelector(`input[name="${key}"]:checked`)?.value ?? ""
-    ]));
+	return Object.fromEntries(CONSENT_KEYS.map(key => [
+		key, root.querySelector(`input[name="${key}"]:checked`)?.value ?? ""
+	]));
 }
 
 export async function init({ root, progressId, stepId, readOnly = false }) {
@@ -362,12 +362,12 @@ function updateSelectAll(root) {
 // ==============================
 
 function updateMinorHeadNotice(root) {
-    const notice = root.querySelector("#minorRemainingHeadNotice");
-    if (!notice) return;
-    const selectedId = root.querySelector('input[name="remainingHead"]:checked')?.value;
-    const selectedFamily = families.find(family => String(family.familyId) === selectedId);
-    const show = Boolean(selectedFamily && isMinor(family.birthDate));
-    notice.classList.toggle("d-none", !show);
+	const notice = root.querySelector("#minorRemainingHeadNotice");
+	if (!notice) return;
+	const selectedId = root.querySelector('input[name="remainingHead"]:checked')?.value;
+	const selectedFamily = families.find(family => String(family.familyId) === selectedId);
+	const show = Boolean(selectedFamily && isMinor(selectedFamily.birthDate));
+	notice.classList.toggle("d-none", !show);
 }
 
 function renderRemainingHead(root, readOnly, restoreSaved = false) {
@@ -400,6 +400,9 @@ function renderRemainingHead(root, readOnly, restoreSaved = false) {
 		else section.appendChild(notice);
 	}
 	if (!needsNewHead) {
+		root.querySelector("#minorRemainingHeadNotice")
+			?.classList.add("d-none");
+
 		clearNewHeadPhone(root);
 		return;
 	}
