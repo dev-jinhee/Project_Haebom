@@ -219,7 +219,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="deleteAccountTitle" aria-hidden="true">
+    <div class="modal" id="confirmModal" tabindex="-1" aria-labelledby="deleteAccountTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -228,16 +228,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
-                        탈퇴하면 기존 계정을 복구할 수 없습니다.
+                        탈퇴 후에는 계정을 복구할 수 없습니다.
                     </div>
                     <label class="form-label" for="withdrawConfirmText">
-                        계속하려면 <strong>회원 탈퇴</strong>를 입력해 주세요.
+                        계속하려면 아래 문구를 입력해 주세요.
                     </label>
                     <input class="form-control" id="withdrawConfirmText" type="text"
-                           autocomplete="off" aria-describedby="withdrawConfirmHelp">
-                    <div class="form-text" id="withdrawConfirmHelp">
-                        입력값이 정확히 일치해야 회원 탈퇴 버튼이 활성화됩니다.
-                    </div>
+                           autocomplete="off" placeholder="회원 탈퇴">
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline-secondary rounded-pill" type="button" data-bs-dismiss="modal">취소</button>

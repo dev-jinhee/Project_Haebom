@@ -3,6 +3,12 @@
 
   function showLoginRequestError(message) {
     let errorElement = document.getElementById('loginFetchError');
+
+    if (!message) {
+      errorElement?.remove();
+      return;
+    }
+
     if (!errorElement && loginForm) {
       errorElement = document.createElement('p');
       errorElement.id = 'loginFetchError';
