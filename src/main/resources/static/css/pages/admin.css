@@ -8,22 +8,50 @@
 }
 
 .admin-page .sidebar-brand {
-	border-bottom-color: rgba(255, 255, 255, .1);
+	display: flex;
+	align-items: center;
+	height: 56px;
+	padding: 0 16px;
+	border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+
+.admin-page .brand-link {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 10px !important;
+	text-decoration: none !important;
+	line-height: 1 !important;
 }
 
 .admin-page .brand-image {
-	display: inline-grid;
-	place-items: center;
-	width: 32px;
-	height: 32px;
-	border-radius: 9px;
-	color: #fff;
-	background: #2c719f;
-	font-size: 1rem;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 36px !important;
+	height: 36px !important;
+	min-width: 36px !important;
+	max-width: 36px !important;
+	min-height: 36px !important;
+	max-height: 36px !important;
+	border-radius: 11px !important;
+	color: #fff !important;
+	background: linear-gradient(145deg, #2879ad, #16446c) !important;
+	font-size: 1.15rem !important;
+	line-height: 1 !important;
+	margin: 0 !important;
+	flex-shrink: 0 !important;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
 }
 
 .admin-page .brand-text {
-	color: #fff;
+	display: inline-flex !important;
+	align-items: center !important;
+	color: #ffffff !important;
+	font-family: 'Noto Sans KR', system-ui, -apple-system, sans-serif !important;
+	font-size: 1.18rem !important;
+	font-weight: 700 !important;
+	letter-spacing: -.03em !important;
+	line-height: 1 !important;
 }
 
 .admin-page .nav-link.active {
@@ -862,6 +890,33 @@
 
 .admin-activity-list>div:last-child {
 	border-bottom: 0;
+}
+
+.admin-activity-item {
+	cursor: pointer;
+	border-radius: 8px;
+	padding: 6px 8px;
+	transition: background-color 0.18s ease, transform 0.15s ease;
+}
+
+.admin-activity-item:hover,
+.admin-activity-item:focus-visible {
+	background-color: #f1f5f9;
+	outline: none;
+}
+
+.admin-activity-chevron {
+	font-size: 0.8rem;
+	opacity: 0.45;
+	transition: opacity 0.18s ease, transform 0.18s ease, color 0.18s ease;
+	margin-right: 4px;
+}
+
+.admin-activity-item:hover .admin-activity-chevron,
+.admin-activity-item:focus-visible .admin-activity-chevron {
+	opacity: 1;
+	color: #0d6efd !important;
+	transform: translateX(3px);
 }
 
 .admin-activity-empty {

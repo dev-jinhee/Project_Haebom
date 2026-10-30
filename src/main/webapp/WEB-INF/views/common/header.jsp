@@ -27,6 +27,7 @@
                 <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
                     <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
                     <li><button class="dropdown-item" type="button" data-text-size="large" aria-pressed="false">크게</button></li>
+                    <li><button class="dropdown-item" type="button" data-text-size="larger" aria-pressed="false">더 크게</button></li>
                     <li><button class="dropdown-item" type="button" data-text-size="largest" aria-pressed="false">가장 크게</button></li>
                 </ul>
             </div>

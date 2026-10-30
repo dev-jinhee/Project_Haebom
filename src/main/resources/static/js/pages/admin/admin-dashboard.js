@@ -49,6 +49,44 @@
 		}
 	}
 
+	function handleActivityClick(typeKey, targetId) {
+		const targetHash = typeKey === 'inquiry' ? '#inquiries-admin' : (typeKey === 'scenario' ? '#scenarios' : '#members');
+
+		// 1. 해당 탭으로 이동
+		if (window.location.hash !== targetHash) {
+			window.location.hash = targetHash;
+		} else if (typeof window.renderAdminPage === 'function') {
+			window.renderAdminPage();
+		}
+
+		// 2. targetId가 있는 경우 해당 상세 모달 열기 시도
+		if (targetId) {
+			let buttonSelector = '';
+			if (typeKey === 'scenario') {
+				buttonSelector = `button[data-scenario-id="${targetId}"]`;
+			} else if (typeKey === 'member') {
+				buttonSelector = `button[data-member-detail="${targetId}"]`;
+			} else if (typeKey === 'inquiry') {
+				buttonSelector = `button[data-inquiry-detail="${targetId}"]`;
+			}
+
+			if (buttonSelector) {
+				let attempts = 0;
+				const tryOpenModal = () => {
+					const btn = document.querySelector(buttonSelector);
+					if (btn) {
+						btn.click();
+						btn.closest('tr')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					} else if (attempts < 10) {
+						attempts++;
+						setTimeout(tryOpenModal, 150);
+					}
+				};
+				setTimeout(tryOpenModal, 100);
+			}
+		}
+	}
+
 	function renderAdminActivityLog(activities) {
 		const list = document.querySelector('[data-admin-activity-list]');
 		if (!list) return;
@@ -66,6 +104,11 @@
 			const typeKey = (activity.logType || 'member').toLowerCase();
 			const [color, icon] = adminActivityIcons[typeKey] || adminActivityIcons.member;
 			const row = document.createElement('div');
+			row.className = 'admin-activity-item';
+			row.setAttribute('role', 'button');
+			row.setAttribute('tabindex', '0');
+			row.title = '해당 관리 화면으로 이동';
+
 			const symbol = document.createElement('span');
 			symbol.className = `admin-activity-icon ${color}`;
 			const iconElement = document.createElement('i');
@@ -82,7 +125,23 @@
 			metadata.textContent = `운영자 ID ${activity.operatorId || 'admin'} · ${formatAdminActivityTime(activity.createdAt)}`;
 			copy.append(metadata);
 
-			row.append(symbol, copy);
+			const chevron = document.createElement('i');
+			chevron.className = 'bi bi-chevron-right admin-activity-chevron text-secondary';
+			chevron.setAttribute('aria-hidden', 'true');
+
+			row.append(symbol, copy, chevron);
+
+			row.addEventListener('click', () => {
+				handleActivityClick(typeKey, activity.targetId);
+			});
+
+			row.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					handleActivityClick(typeKey, activity.targetId);
+				}
+			});
+
 			list.append(row);
 		});
 	}

@@ -36,6 +36,8 @@
 					<li><button class="dropdown-item" type="button"
 							data-text-size="large" aria-pressed="false">크게</button></li>
 					<li><button class="dropdown-item" type="button"
+							data-text-size="larger" aria-pressed="false">더 크게</button></li>
+					<li><button class="dropdown-item" type="button"
 							data-text-size="largest" aria-pressed="false">가장 크게</button></li>
 				</ul>
 			</div>

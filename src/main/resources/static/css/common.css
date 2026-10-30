@@ -787,8 +787,12 @@ html[data-text-size="large"] {
 	font-size: 112.5%;
 }
 
-html[data-text-size="largest"] {
+html[data-text-size="larger"] {
 	font-size: 125%;
+}
+
+html[data-text-size="largest"] {
+	font-size: 137.5%;
 }
 
 body.large-text-mode :focus-visible {
@@ -1867,8 +1871,12 @@ body.large-text-mode .content-panel {
 	font-size: .95rem;
 }
 
-.text-size-menu .dropdown-item[data-text-size="largest"]::before {
+.text-size-menu .dropdown-item[data-text-size="larger"]::before {
 	font-size: 1.08rem;
+}
+
+.text-size-menu .dropdown-item[data-text-size="largest"]::before {
+	font-size: 1.20rem;
 }
 
 /* ========================================================

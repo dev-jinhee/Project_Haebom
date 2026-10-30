@@ -103,7 +103,7 @@
   // ----------------------------------------------------
   const initTextSize = () => {
     const savedTextSize = localStorage.getItem('ongyeol-text-size');
-    let textSize = ['normal', 'large', 'largest'].includes(savedTextSize)
+    let textSize = ['normal', 'large', 'larger', 'largest'].includes(savedTextSize)
       ? savedTextSize
       : (localStorage.getItem('ongyeol-access-mode') === 'on' || localStorage.getItem('ongyeol-mode') === 'easy' || savedTextSize === 'large')
         ? 'large'
@@ -115,7 +115,13 @@
         document.body.classList.toggle('large-text-mode', textSize !== 'normal');
       }
       document.querySelectorAll('[data-mode-label]').forEach((label) => {
-        label.textContent = textSize === 'largest' ? '가장 크게' : textSize === 'large' ? '크게' : '보통';
+        const labelMap = {
+          'normal': '보통',
+          'large': '크게',
+          'larger': '더 크게',
+          'largest': '가장 크게'
+        };
+        label.textContent = labelMap[textSize] || '보통';
       });
       document.querySelectorAll('[data-text-size]').forEach((option) => {
         const selected = option.dataset.textSize === textSize;

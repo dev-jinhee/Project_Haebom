@@ -69,13 +69,15 @@
             <!-- 우측: 문의 작성 버튼 (일반 사용자) vs 관리자 문의 관리 버튼 (관리자) -->
             <c:choose>
                 <c:when test="${isAdmin}">
-                    <a href="${pageContext.request.contextPath}/admin#inquiries" class="btn btn-outline-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap d-inline-flex align-items-center">
-                        <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">admin_panel_settings</span>관리자 문의 관리
+                    <a href="${pageContext.request.contextPath}/admin#inquiries" class="btn btn-outline-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap inquiry-action-btn">
+                        <span class="material-symbols-outlined">admin_panel_settings</span>
+                        <span>관리자 문의 관리</span>
                     </a>
                 </c:when>
                 <c:otherwise>
-                    <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap d-inline-flex align-items-center" data-open-inquiry>
-                        <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">edit_square</span>문의 작성
+                    <button type="button" class="btn btn-primary rounded-pill ms-auto px-4 fw-semibold text-nowrap inquiry-action-btn" data-open-inquiry>
+                        <span class="material-symbols-outlined">edit_square</span>
+                        <span>문의 작성</span>
                     </button>
                 </c:otherwise>
             </c:choose>
@@ -89,12 +91,16 @@
                     <ul class="nav nav-pills inquiry-nav-tabs" id="inquiryTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active d-inline-flex align-items-center" id="tabAllInquiries" data-inquiry-tab="all" type="button" role="tab" aria-selected="true">
-                                <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">forum</span>전체 문의 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeAllCount">0</span>
+                                <span class="material-symbols-outlined">forum</span>
+                                <span class="inquiry-tab-label">전체 문의</span>
+                                <span class="badge rounded-pill bg-light text-dark" id="badgeAllCount">0</span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link d-inline-flex align-items-center" id="tabMyInquiries" data-inquiry-tab="my" type="button" role="tab" aria-selected="false">
-                                <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">person_check</span>내 문의 내역 <span class="badge rounded-pill bg-light text-dark ms-1" id="badgeMyCount">0</span>
+                                <span class="material-symbols-outlined">person_check</span>
+                                <span class="inquiry-tab-label">내 문의 내역</span>
+                                <span class="badge rounded-pill bg-light text-dark" id="badgeMyCount">0</span>
                             </button>
                         </li>
                     </ul>
