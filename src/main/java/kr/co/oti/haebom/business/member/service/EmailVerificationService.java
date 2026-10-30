@@ -45,8 +45,8 @@ public class EmailVerificationService {
         message.setFrom(senderAddress);
         message.setTo(normalizedEmail);
         message.setSubject("[해봄] 회원가입 인증번호");
-        message.setText("인증번호는 " + code + " 입니다. 5분 안에 입력해 주세요.");
-        
+        message.setText("인증번호는 [" + code + "] 입니다.");
+
         mailSender.send(message);
 
         session.setAttribute(EMAIL_KEY, normalizedEmail);

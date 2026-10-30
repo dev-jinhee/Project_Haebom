@@ -20,15 +20,122 @@
     const verifiedSummary = document.getElementById('verifiedAccountSummary');
     const newPasswordField = document.getElementById('newPassword');
     const passwordConfirmField = document.getElementById('passwordConfirm');
+    const newPasswordStatus = document.getElementById('newPasswordStatus');
+    const passwordConfirmStatus = document.getElementById('passwordConfirmStatus');
     const contextPath = card.dataset.contextPath || '';
 
     let codeSent = false;
     let verified = false;
+    let expiryTimer = null;
+    let expiresAt = 0;
 
     function setStatus(element, message, type) {
         element.textContent = message;
-        element.classList.remove('text-success', 'text-danger');
+        element.classList.remove('text-success', 'text-danger', 'text-muted');
         if (type) element.classList.add(type);
+    }
+
+    function setPasswordStatus(input, status, message, state) {
+        setStatus(status, message, state === 'valid' ? 'text-success'
+            : state === 'invalid' ? 'text-danger' : 'text-muted');
+        input.setAttribute('aria-invalid', String(state === 'invalid'));
+    }
+
+    function showNewPasswordGuidance() {
+        setPasswordStatus(newPasswordField, newPasswordStatus,
+            '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.',
+            'neutral');
+    }
+
+    function validateNewPassword() {
+        const password = newPasswordField.value;
+        if (password.length === 0) {
+            showNewPasswordGuidance();
+            return false;
+        }
+
+        const validLength = password.length >= 8 && password.length <= 20;
+        const hasForbiddenCharacter = /[><_\-"']/.test(password);
+        const valid = validLength && !hasForbiddenCharacter;
+        const message = !validLength ? '8~20자로 입력해 주세요.'
+            : hasForbiddenCharacter ? '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.'
+                : '사용 가능한 비밀번호입니다.';
+
+        setPasswordStatus(newPasswordField, newPasswordStatus, message, valid ? 'valid' : 'invalid');
+        return valid;
+    }
+
+    function showPasswordConfirmationGuidance() {
+        setPasswordStatus(passwordConfirmField, passwordConfirmStatus,
+            '비밀번호를 다시 입력해 주세요.', 'neutral');
+    }
+
+    function validatePasswordConfirmation() {
+        const confirmation = passwordConfirmField.value;
+        const valid = confirmation.length > 0 && confirmation === newPasswordField.value;
+        const message = confirmation.length === 0 ? '비밀번호를 다시 입력해 주세요.'
+            : valid ? '비밀번호가 일치합니다.'
+                : '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.';
+
+        setPasswordStatus(passwordConfirmField, passwordConfirmStatus, message,
+            confirmation.length === 0 ? 'neutral' : valid ? 'valid' : 'invalid');
+        return valid;
+    }
+
+    document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const input = document.getElementById(button.dataset.togglePassword);
+            const icon = button.querySelector('.material-symbols-outlined');
+            if (input === null || icon === null) return;
+
+            const showPassword = input.type === 'password';
+            input.type = showPassword ? 'text' : 'password';
+            icon.textContent = showPassword ? 'visibility' : 'visibility_off';
+            button.setAttribute('aria-label', showPassword ? '비밀번호 숨기기' : '비밀번호 표시');
+        });
+    });
+
+    newPasswordField.addEventListener('focus', showNewPasswordGuidance);
+    newPasswordField.addEventListener('blur', validateNewPassword);
+    newPasswordField.addEventListener('input', function () {
+        if (newPasswordField.value.length > 0) validateNewPassword();
+        if (passwordConfirmField.value.length > 0) validatePasswordConfirmation();
+    });
+    passwordConfirmField.addEventListener('focus', showPasswordConfirmationGuidance);
+    passwordConfirmField.addEventListener('blur', validatePasswordConfirmation);
+    passwordConfirmField.addEventListener('input', function () {
+        if (passwordConfirmField.value.length > 0) validatePasswordConfirmation();
+        else showPasswordConfirmationGuidance();
+    });
+
+    function clearExpiryTimer() {
+        if (expiryTimer !== null) {
+            window.clearInterval(expiryTimer);
+            expiryTimer = null;
+        }
+        expiresAt = 0;
+    }
+
+    function updateExpiryStatus() {
+        const remainingSeconds = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+        if (remainingSeconds === 0) {
+            clearExpiryTimer();
+            codeSent = false;
+            setStatus(sendStatus, '인증번호가 만료되었습니다. 다시 발송해 주세요.', 'text-danger');
+            return;
+        }
+
+        const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+        const seconds = String(remainingSeconds % 60).padStart(2, '0');
+        setStatus(sendStatus, '인증번호를 이메일로 보냈습니다. (' + minutes + ':' + seconds + ' 남음)', 'text-success');
+    }
+
+    function startExpiryTimer() {
+        clearExpiryTimer();
+        expiresAt = Date.now() + (5 * 60 * 1000);
+        codeSent = true;
+        updateExpiryStatus();
+        expiryTimer = window.setInterval(updateExpiryStatus, 1000);
     }
 
     async function postForm(path, body) {
@@ -60,6 +167,7 @@
     }
 
     function resetVerificationUi(message) {
+        clearExpiryTimer();
         codeSent = false;
         verified = false;
         verificationSection.hidden = true;
@@ -115,18 +223,18 @@
                 email: email
             });
             if (!data.sent) {
+                clearExpiryTimer();
                 codeSent = false;
                 verificationSection.hidden = true;
                 setStatus(sendStatus, '입력한 아이디, 이름, 이메일이 가입 정보와 일치하지 않습니다.', 'text-danger');
                 return;
             }
 
-            codeSent = true;
             verified = false;
             codeField.value = '';
             verificationSection.hidden = false;
             resetSection.hidden = true;
-            setStatus(sendStatus, '인증번호를 이메일로 보냈습니다. 5분 안에 입력해 주세요.', 'text-success');
+            startExpiryTimer();
             setStatus(verifyStatus, '', null);
             codeField.focus();
         } catch (error) {
@@ -160,6 +268,7 @@
                 return;
             }
 
+            clearExpiryTimer();
             verified = true;
             loginIdField.disabled = true;
             nameField.disabled = true;
@@ -182,20 +291,17 @@
     resetButton.addEventListener('click', async function () {
         const newPassword = newPasswordField.value;
         const passwordConfirm = passwordConfirmField.value;
-        const allowedPassword = /^[^><_"'-]+$/;
 
         if (!verified) {
             setStatus(resetStatus, '이메일 인증을 먼저 완료해 주세요.', 'text-danger');
             return;
         }
-        if (newPassword.length < 8 || newPassword.length > 20 || !allowedPassword.test(newPassword)) {
+        if (!validateNewPassword()) {
             newPasswordField.focus();
-            setStatus(resetStatus, '비밀번호는 8~20자이며 사용할 수 없는 특수문자는 제외해 주세요.', 'text-danger');
             return;
         }
-        if (!passwordConfirm || newPassword !== passwordConfirm) {
+        if (!validatePasswordConfirmation()) {
             passwordConfirmField.focus();
-            setStatus(resetStatus, '새 비밀번호가 서로 일치하지 않습니다.', 'text-danger');
             return;
         }
 
