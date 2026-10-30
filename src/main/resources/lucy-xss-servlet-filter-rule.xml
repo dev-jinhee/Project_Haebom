@@ -26,6 +26,37 @@
     <!-- URL 예외: 행안부 공식 주소 팝업 콜백 URL은 필터링에서 완전 제외! -->
     <url-rule-set>
         <url-rule>
+            <url>/login</url>
+            <params>
+                <param name="password" useDefender="false" />
+            </params>
+        </url-rule>
+
+        <url-rule>
+            <url>/api/mypage/password</url>
+            <params>
+                <param name="currentPassword" useDefender="false" />
+                <param name="newPassword" useDefender="false" />
+                <param name="passwordConfirm" useDefender="false" />
+            </params>
+        </url-rule>
+
+        <url-rule>
+            <url>/api/members/join</url>
+            <params>
+                <param name="password" useDefender="false" />
+            </params>
+        </url-rule>
+
+        <url-rule>
+            <url>/api/members/recovery/find-password/reset</url>
+            <params>
+                <param name="newPassword" useDefender="false" />
+                <param name="passwordConfirm" useDefender="false" />
+            </params>
+        </url-rule>
+
+        <url-rule>
             <url disable="true">/address/juso/popup</url>
         </url-rule>
     </url-rule-set>
