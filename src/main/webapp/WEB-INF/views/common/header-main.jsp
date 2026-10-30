@@ -49,7 +49,7 @@
                     <a class="btn btn-outline-primary rounded-pill d-inline-flex align-items-center" href="${pageContext.request.contextPath}/mypage">
                         <span class="material-symbols-outlined me-1" aria-hidden="true">account_circle</span><span>마이페이지</span>
                     </a>
-                    <form class="d-inline" method="post" action="${pageContext.request.contextPath}/logout">
+                    <form class="d-inline" method="post" action="${pageContext.request.contextPath}/logout" data-logout-form>
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
                         <button class="btn btn-light rounded-pill d-inline-flex align-items-center" type="submit">
                             <span class="material-symbols-outlined me-1" aria-hidden="true">logout</span><span>로그아웃</span>

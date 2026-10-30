@@ -1,5 +1,52 @@
 (function () {
   const page = document.getElementById('main-content');
+  const logoutForm = document.querySelector('[data-logout-form]');
+
+  if (logoutForm !== null) {
+    logoutForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content
+        || 'X-CSRF-TOKEN';
+      const csrfInput = logoutForm.querySelector('input[name="_csrf"]');
+      const token = csrfToken || (csrfInput ? csrfInput.value : '');
+      const submitButton = logoutForm.querySelector('[type="submit"]');
+
+      if (!token) {
+        window.alert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.');
+        return;
+      }
+
+      if (submitButton) submitButton.disabled = true;
+      try {
+        const params = new URLSearchParams(new FormData(logoutForm));
+        const headers = {
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+          'Accept': 'text/html'
+        };
+        headers[csrfHeader] = token;
+
+        const response = await fetch(logoutForm.action, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: headers,
+          body: params.toString()
+        });
+
+        if (response.redirected) {
+          window.location.assign(response.url);
+        } else if (response.ok) {
+          window.location.reload();
+        } else {
+          throw new Error('로그아웃 요청을 처리하지 못했습니다. 다시 시도해 주세요.');
+        }
+      } catch (error) {
+        window.alert(error.message || '로그아웃 중 통신 오류가 발생했습니다.');
+        if (submitButton) submitButton.disabled = false;
+      }
+    });
+  }
 
   if (page !== null) {
     loadMainPage(page);
