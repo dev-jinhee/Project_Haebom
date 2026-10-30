@@ -786,6 +786,116 @@
         openModal('#passwordChangeModal');
     }
 
+    function setPasswordFieldStatus(input, statusId, message, state) {
+        const status = document.getElementById(statusId);
+        if (!input || !status) return;
+
+        status.textContent = message;
+        status.classList.remove('text-success', 'text-danger', 'text-muted');
+        status.classList.add(state === 'valid' ? 'text-success'
+            : state === 'invalid' ? 'text-danger' : 'text-muted');
+        input.setAttribute('aria-invalid', String(state === 'invalid'));
+    }
+
+    function showNewPasswordGuidance() {
+        const input = document.getElementById('newPassword');
+        setPasswordFieldStatus(input, 'newPasswordStatus',
+            '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.',
+            'neutral');
+    }
+
+    function validateNewPassword() {
+        const input = document.getElementById('newPassword');
+        if (!input) return false;
+
+        const password = input.value;
+        if (password.length === 0) {
+            showNewPasswordGuidance();
+            return false;
+        }
+
+        const validLength = password.length >= 8 && password.length <= 20;
+        const hasForbiddenCharacter = /[><_\-"']/.test(password);
+        const valid = validLength && !hasForbiddenCharacter;
+        const message = !validLength ? '8~20자로 입력해 주세요.'
+            : hasForbiddenCharacter ? '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.'
+                : '사용 가능한 비밀번호입니다.';
+
+        setPasswordFieldStatus(input, 'newPasswordStatus', message, valid ? 'valid' : 'invalid');
+        return valid;
+    }
+
+    function showPasswordConfirmationGuidance() {
+        const input = document.getElementById('confirmNewPassword');
+        setPasswordFieldStatus(input, 'confirmNewPasswordStatus', '비밀번호를 다시 입력해 주세요.', 'neutral');
+    }
+
+    function validatePasswordConfirmation() {
+        const passwordInput = document.getElementById('newPassword');
+        const confirmInput = document.getElementById('confirmNewPassword');
+        if (!passwordInput || !confirmInput) return false;
+
+        const confirmation = confirmInput.value;
+        const valid = confirmation.length > 0 && confirmation === passwordInput.value;
+        const message = confirmation.length === 0 ? '비밀번호를 다시 입력해 주세요.'
+            : valid ? '비밀번호가 일치합니다.' : '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.';
+
+        setPasswordFieldStatus(confirmInput, 'confirmNewPasswordStatus', message,
+            confirmation.length === 0 ? 'neutral' : valid ? 'valid' : 'invalid');
+        return valid;
+    }
+
+    function resetPasswordFormState(form) {
+        if (form) form.reset();
+        ['currentPassword', 'newPassword', 'confirmNewPassword'].forEach(function (id) {
+            const input = document.getElementById(id);
+            if (input) input.type = 'password';
+        });
+        document.querySelectorAll('[data-mypage-toggle-password] .material-symbols-outlined').forEach(function (icon) {
+            icon.textContent = 'visibility_off';
+        });
+        document.querySelectorAll('[data-mypage-toggle-password]').forEach(function (button) {
+            button.setAttribute('aria-label', '비밀번호 표시');
+        });
+        showNewPasswordGuidance();
+        showPasswordConfirmationGuidance();
+    }
+
+    function initializePasswordChangeForm() {
+        const form = document.getElementById('passwordChangeForm');
+        const modal = document.getElementById('passwordChangeModal');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmNewPassword');
+
+        document.querySelectorAll('[data-mypage-toggle-password]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const input = document.getElementById(button.dataset.mypageTogglePassword);
+                const icon = button.querySelector('.material-symbols-outlined');
+                if (!input || !icon) return;
+
+                const showPassword = input.type === 'password';
+                input.type = showPassword ? 'text' : 'password';
+                icon.textContent = showPassword ? 'visibility' : 'visibility_off';
+                button.setAttribute('aria-label', showPassword ? '비밀번호 숨기기' : '비밀번호 표시');
+            });
+        });
+
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('focus', showNewPasswordGuidance);
+            newPasswordInput.addEventListener('blur', validateNewPassword);
+            newPasswordInput.addEventListener('input', validatePasswordConfirmation);
+        }
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('focus', showPasswordConfirmationGuidance);
+            confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
+        }
+        if (modal && form) {
+            modal.addEventListener('hidden.bs.modal', function () {
+                resetPasswordFormState(form);
+            });
+        }
+    }
+
     async function handlePasswordChange(event) {
         event.preventDefault();
 
@@ -807,24 +917,16 @@
             return;
         }
 
-        if (password.length < 8 || password.length > 20 || /[><_"'-]/.test(password)) {
-            toast('새 비밀번호는 8~20자이며 사용할 수 없는 특수문자(>, <, _, -, ", \')를 포함할 수 없습니다.');
+        if (!validateNewPassword()) {
+            toast(document.getElementById('newPasswordStatus')?.textContent || '새 비밀번호를 확인해 주세요.');
             if (newPasswordInput) {
                 newPasswordInput.focus();
             }
             return;
         }
 
-        if (!confirmPassword) {
-            toast('새 비밀번호 확인을 입력해 주세요.');
-            if (confirmPasswordInput) {
-                confirmPasswordInput.focus();
-            }
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            toast('새 비밀번호가 서로 일치하지 않습니다.');
+        if (!validatePasswordConfirmation()) {
+            toast(document.getElementById('confirmNewPasswordStatus')?.textContent || '새 비밀번호 확인이 일치하지 않습니다.');
             if (confirmPasswordInput) {
                 confirmPasswordInput.focus();
             }
@@ -968,6 +1070,7 @@
         if (passwordChangeForm) {
             passwordChangeForm.addEventListener('submit', handlePasswordChange);
         }
+        initializePasswordChangeForm();
 
         document.addEventListener('click', function (event) {
             if (event.target.closest('[data-retry-completed]')) {
