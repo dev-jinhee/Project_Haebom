@@ -1,0 +1,86 @@
+/* Page-specific styles */
+/* Entry, account, and service screens for the Figma-ready prototype */
+.entry-page,.login-page { min-height:100vh; background:radial-gradient(ellipse at 15% 10%,#eaf3fa,transparent 34%),linear-gradient(145deg,#f4f7fa,#fff 55%,#f1f7f8); }
+.entry-shell,.login-shell { display:flex; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:36px 20px; }
+.entry-brand { display:flex; align-items:center; gap:12px; margin-bottom:30px; color:var(--ink); text-decoration:none; }
+.entry-brand b { display:block; font-size:1.35rem; letter-spacing:-.04em; }
+.entry-brand small { display:block; color:#718096; font-size:.75rem; }
+.entry-card,.login-card { width:min(100%,550px); padding:38px; border:1px solid #e3eaf0; border-radius:26px; background:#fff; box-shadow:0 24px 70px rgba(25,54,83,.1); }
+.entry-card h1,.login-card h1 { margin:9px 0 8px; font-size:1.8rem; font-weight:800; letter-spacing:-.05em; }
+.entry-card > p { margin-bottom:26px; }
+.mode-options { display:grid; gap:12px; margin-top:24px; }
+.mode-option { display:flex; width:100%; align-items:center; gap:14px; padding:17px; border:1px solid #e1e7ee; border-radius:16px; color:var(--ink); background:#fff; text-align:left; }
+.mode-option.selected { border:2px solid #2879b5; background:#f2f8fc; }
+.mode-option .mode-icon { display:grid; flex:0 0 44px; width:44px; height:44px; place-items:center; border-radius:13px; color:#1769aa; background:#e7f1f8; font-size:1.25rem; }
+.mode-option strong,.mode-option small { display:block; }.mode-option small { margin-top:2px; color:#718096; font-size:.78rem; }
+.mode-check { margin-left:auto; color:#1769aa; font-size:1.2rem; }
+.entry-note { display:flex; justify-content:center; gap:8px; margin-top:20px; color:#68798a; font-size:.76rem; }.entry-note i { color:#37917a; }
+.entry-footer { margin:24px 0 0; color:#8591a0; font-size:.8rem; }
+.login-card { width:min(100%,470px); }.login-heading { margin-bottom:26px; text-align:center; }.login-heading h1 { margin-top:3px; }.login-heading p { margin:0; color:#728093; }
+.login-symbol { display:grid; width:62px; height:62px; margin:0 auto 14px; place-items:center; border-radius:20px; color:#1769aa; background:#eaf3f9; font-size:1.65rem; }
+.login-divider { display:flex; align-items:center; gap:12px; margin:21px 0; color:#95a0ad; font-size:.8rem; }.login-divider::before,.login-divider::after { height:1px; flex:1; background:#e7ebef; content:''; }
+.prototype-note { color:#718096; font-size:.76rem; line-height:1.6; }.prototype-note i { margin-right:5px; color:#5584aa; }
+.back-link { margin-top:24px; color:#607287; text-decoration:none; font-size:.86rem; }
+.account-screen-tools { position:absolute; top:22px; right:24px; }
+.account-find-links { display:flex; align-items:center; gap:10px; color:#a0aab4; font-size:.82rem; }
+.account-find-links a { color:#276a9c; text-decoration:none; }
+.account-find-links a:hover { text-decoration:underline; }
+.account-find-card { position:relative; }
+.account-find-input-group .login-input-wrap { flex:1 1 auto; width:1%; min-width:0; }
+.account-find-input-group .login-input-wrap .form-control { border-radius:9px 0 0 9px; }
+.account-find-input-group .btn { min-width:104px; min-height:48px; border-radius:0 9px 9px 0; font-size:.9rem; }
+.account-find-help,.account-find-status { margin:7px 0 0; color:#718096; font-size:.8rem; line-height:1.5; }
+.account-find-status:empty { display:none; }
+.account-find-status.text-success { color:#16835d; }
+.account-find-status.text-danger { color:#c0392b; }
+.account-find-result { margin-top:24px; padding:22px; border:1px solid #dce9f0; border-radius:16px; background:#f7fbfd; text-align:center; }
+.account-result-icon { display:grid; width:44px; height:44px; margin:0 auto 10px; place-items:center; border-radius:50%; color:#fff; background:#32836a; font-size:1.25rem; }
+.account-find-result h2 { margin:0 0 5px; font-size:1.12rem; font-weight:800; }
+.account-find-result p { margin:0; color:#718096; font-size:.86rem; }
+.account-found-value { display:flex; align-items:center; justify-content:space-between; margin-top:16px; padding:13px 15px; border:1px solid #e1e8ed; border-radius:11px; background:#fff; text-align:left; }
+.account-found-value span { color:#718096; font-size:.82rem; }
+.account-found-value strong { color:#173b70; font-size:1rem; letter-spacing:.04em; }
+.account-find-result-actions { display:flex; justify-content:center; gap:10px; margin-top:18px; }
+.account-find-result-actions .btn { min-height:42px; padding:9px 16px; border-radius:999px; font-size:.86rem; }
+body.large-text-mode .account-find-help,body.large-text-mode .account-find-status { font-size:1rem; }
+body.large-text-mode .account-found-value span { font-size:1.08rem; }
+@media(max-width:575.98px) { .account-screen-tools { top:12px; right:12px; }.login-shell { padding-top:70px; }.account-find-card { padding:24px 18px; }.account-find-result-actions { flex-direction:column; } }
+
+/* Spring Security login page */
+.login-page { position:relative; }
+.login-shell { gap:0; padding:48px 20px; }
+.login-brand { display:flex; align-items:center; gap:10px; margin-bottom:24px; color:var(--ink); text-decoration:none; }
+.login-brand-mark { display:grid; width:40px; height:40px; place-items:center; border-radius:11px; color:#fff; background:linear-gradient(145deg,#2879ad,#16446c); }
+.login-brand-mark .material-symbols-outlined { font-size:23px; }
+.login-brand-copy strong,.login-brand-copy small { display:block; text-align:center; }
+.login-brand-copy strong { font-size:1.1rem; line-height:1.2; }
+.login-brand-copy small { margin-top:3px; color:#748396; font-size:.7rem; line-height:1.2; }
+.login-size-button { min-width:48px; padding:5px 10px; border:1px solid #dce5ee; border-radius:999px; color:#50657b; background:#fff; font-size:.7rem; }
+.login-size-button::after { margin-left:5px; vertical-align:.15em; }
+.login-card { width:min(100%,440px); padding:32px 34px 30px; border-radius:20px; box-shadow:0 16px 42px rgba(25,54,83,.11); }
+.login-card h1 { margin:0; font-size:1.3rem; }
+.login-heading { margin-bottom:24px; }
+.login-form { display:grid; gap:16px; }
+.login-field label { display:block; margin-bottom:7px; color:#405268; font-size:.88rem; font-weight:700; }
+.login-input-wrap { position:relative; }
+.login-input-wrap .form-control { min-height:48px; padding:9px 44px 9px 42px; border-color:#dce4ec; border-radius:9px; font-size:.9rem; }
+.login-input-wrap .form-control::placeholder { color:#a0aab5; }
+.account-find-input-group .login-input-wrap .form-control { border-radius:9px 0 0 9px; }
+.login-input-icon { position:absolute; z-index:2; top:50%; left:12px; color:#8493a3; font-size:19px; transform:translateY(-50%); pointer-events:none; }
+.login-password-toggle { position:absolute; z-index:3; top:50%; right:8px; display:grid; width:32px; height:32px; place-items:center; padding:0; border:0; border-radius:5px; color:#77879a; background:transparent; transform:translateY(-50%); }
+.login-password-toggle:hover { color:#1769aa; background:#f1f6fa; }
+.login-password-toggle .material-symbols-outlined { font-size:19px; }
+.login-help-row { display:flex; align-items:center; justify-content:flex-end; min-height:20px; margin-top:-4px; }
+.login-help-spacer { display:none; }
+.login-help-row .account-find-links { gap:9px; font-size:.78rem; }
+.login-submit { min-height:46px; border-radius:999px; font-size:.9rem; font-weight:700; }
+.login-error { margin:0 0 14px; padding:10px 12px; border:1px solid #f2c9c9; border-radius:8px; color:#b42318; background:#fff7f7; font-size:.84rem; }
+.login-divider { gap:10px; margin:17px 0; font-size:.75rem; }
+.login-signup-link { display:flex; align-items:center; justify-content:center; width:100%; min-height:46px; padding:7px 12px; border-color:#cbd6e0; border-radius:999px; color:#52657a; font-size:.9rem; font-weight:700; }
+.login-page .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 20; }
+@media(max-width:575.98px) {
+  .login-shell { padding:64px 20px 32px; }
+  .login-brand { margin-bottom:20px; }
+  .login-brand-mark { width:36px; height:36px; }
+  .login-card { padding:27px 22px 24px; }
+}

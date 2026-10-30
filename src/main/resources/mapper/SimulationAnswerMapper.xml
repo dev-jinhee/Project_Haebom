@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper">
+	<!-- 입력값 저장 및 수정 (UPSERT) -->
+	<insert id="upsertAnswer">
+		insert into simulation_answer(
+		progress_id, step_id,
+		field_key, answer_value
+		)
+		values(
+		#{progressId},
+		#{answer.stepId},
+		#{answer.fieldKey},
+		#{answer.answerValue}
+		) ON DUPLICATE KEY UPDATE
+		answer_value = VALUES(answer_value)
+	</insert>
+	<!-- 특정 단계의 입력값 조회 -->
+	<select id="findAnswerByProgressIdAndStepId"
+		resultType="kr.co.oti.haebom.business.scenario.dto.AnswerResponseDTO">
+		select *
+		from simulation_answer
+		where progress_id =
+		#{progressId}
+		and step_id = #{stepId}
+	</select>
+
+	<!-- 시뮬레이션 전체 입력값 조회 -->
+	<select id="findAnswerByProgressId"
+		resultType="kr.co.oti.haebom.business.scenario.dto.AnswerResponseDTO">
+		select *
+		from simulation_answer
+		where progress_id =
+		#{progressId}
+	</select>
+	<!-- 단계별 입력 데이터 물리 삭제 -->
+	<delete id="deleteSimulationAnswer">
+		delete from simulation_answer
+		where progress_id =
+		#{progressId}
+	</delete>
+	<!-- 사용자의 입력기록 전부 삭제 -->
+	<delete id="deleteAnswerByMemberId">
+		DELETE FROM simulation_answer
+		WHERE progress_id IN (
+		SELECT progress_id
+		FROM simulation_progress
+		WHERE member_id = #{memberId}
+		)
+	</delete>
+
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="kr.co.oti.haebom.business.scenario.mapper.SimulationFamilyMapper">
+	<!-- 가족 구성원 정보 저장 -->
+	<insert id="insertFamily">
+		insert into simulation_family(
+		progress_id,
+		family_name,
+		birth_date,
+		gender,
+		is_applicant,
+		is_original_head,
+		original_relationship
+		)
+		values(
+		#{progressId},
+		#{familyName},
+		#{birthDate},
+		#{gender},
+		#{isApplicant},
+		#{isOriginalHead},
+		#{originalRelationship}
+		)
+	</insert>
+
+	<!-- 가족 구성원 조회 -->
+	<select id="selectFamily"
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationFamilyDTO">
+		select *
+		from simulation_family
+		where progress_id =
+		#{progressId}
+	</select>
+
+	<select id="selectApplicant"
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationFamilyDTO">
+		select *
+		from simulation_family
+		where progress_id =
+		#{progressId}
+		and is_applicant = 1
+	</select>
+
+	<update id="updateApplicantPhone">
+		update simulation_family
+		set phone_num = #{phoneNum}
+		where progress_id = #{progressId}
+		and is_applicant = 1
+	</update>
+
+	<update id="updateFamilyMoveState">
+		update simulation_family
+		set move_status =
+		#{moveStatus},
+		relationship = #{relationship},
+		is_household_head =
+		#{isHouseholdHead}
+		where progress_id = #{progressId}
+		and family_id =
+		#{familyId}
+	</update>
+
+	<update id="updateFamilyPhone">
+		update simulation_family
+		set phone_num = #{phoneNum}
+		where progress_id = #{progressId}
+		and family_id = #{familyId}
+	</update>
+
+	<!-- 4단계: 이사 가족의 세대주 및 연락처 변경 -->
+	<update id="updateMovingFamilyHousehold">
+		UPDATE simulation_family
+		SET relationship = #{member.relationship},
+		is_household_head = #{member.isHouseholdHead},
+		phone_num = #{member.phoneNum}
+		WHERE progress_id = #{progressId}
+		AND family_id = #{member.familyId}
+		AND move_status = 'MOVE'
+	</update>
+	
+	<!-- 해당 진행사항의 가족정보 삭제 -->
+	<delete id="deleteByProgressId">
+		delete from simulation_family
+		where progress_id = #{progressId}
+	</delete>
+	
+	<!-- 사용자의 가족기록 전부 삭제 -->
+	<delete id="deleteFamilyByMemberId">
+    DELETE FROM simulation_family
+    WHERE progress_id IN (
+        SELECT progress_id
+        FROM simulation_progress
+        WHERE member_id = #{memberId}
+    )
+</delete>
+	
+</mapper>

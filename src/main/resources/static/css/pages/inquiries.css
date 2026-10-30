@@ -1,0 +1,233 @@
+.inquiry-summary {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	padding: 18px 24px;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	background: #f8fafc;
+}
+
+/* 1) 전체 문의 탭: 친절한 안내 배너 */
+.inquiry-banner-icon {
+	width: 44px;
+	height: 44px;
+	min-width: 44px;
+	border-radius: 12px;
+	background: #e7f2f9;
+	color: #1769aa;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.35rem;
+}
+
+.inquiry-banner-text strong {
+	color: #1e293b;
+	font-size: 0.95rem;
+}
+
+.inquiry-banner-text span {
+	font-size: 0.82rem;
+	color: #64748b;
+}
+
+/* 2) 내 문의 탭: 나의 문의 진행 현황 */
+.inquiry-summary-stats {
+	display: flex;
+	align-items: center;
+	gap: 28px;
+}
+
+.inquiry-summary-stats > div {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: #748295;
+	font-size: .78rem;
+}
+
+.inquiry-summary-stats > div i,
+.inquiry-summary-stats > div .material-symbols-outlined {
+	color: #4785ad;
+	font-size: 1.25rem;
+}
+
+.inquiry-summary-stats strong {
+	display: block;
+	color: #1e293b;
+	font-size: .92rem;
+	font-weight: 700;
+}
+
+.inquiry-summary button {
+	margin-left: auto;
+}
+
+.inquiry-search {
+	max-width: 180px;
+}
+
+.inquiry-table {
+	margin-bottom: 0;
+	font-size: .83rem;
+}
+
+.inquiry-table th {
+	color: #718096;
+	font-size: .76rem;
+	font-weight: 600;
+}
+
+.inquiry-table td {
+	padding-top: 16px;
+	padding-bottom: 16px;
+}
+
+.inquiry-table a {
+	color: #243d57;
+	text-decoration: none;
+}
+
+.inquiry-table a:hover {
+	color: #1769aa;
+	text-decoration: underline;
+}
+
+.table-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-top: 15px;
+	color: #7c8998;
+	font-size: .78rem;
+}
+
+.faq-panel {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 10px;
+	margin-top: 32px;
+}
+
+.faq-panel h2 {
+	margin: 4px 0;
+	font-size: 1.15rem;
+	font-weight: 800;
+}
+
+.faq-panel details {
+	padding: 15px 18px;
+	border: 1px solid #e5eaf0;
+	border-radius: 12px;
+	background: #fff;
+}
+
+.faq-panel summary {
+	cursor: pointer;
+	font-size: .84rem;
+	font-weight: 600;
+}
+
+.faq-panel details p {
+	margin: 12px 0 0;
+	color: #718096;
+	font-size: .8rem;
+}
+
+/* 우측 상단 액션 버튼 (관리자 문의 관리 / 문의 작성) */
+.inquiry-action-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 6px;
+	line-height: 1 !important;
+	padding-top: 7.5px;
+	padding-bottom: 8.5px;
+}
+
+.inquiry-action-btn .material-symbols-outlined {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	font-size: 1.22rem;
+	line-height: 1 !important;
+	position: relative;
+	top: 0.3px; /* 아이콘 미세 보정 */
+}
+
+.inquiry-action-btn > span:not(.material-symbols-outlined) {
+	display: inline-block;
+	position: relative;
+	top: -0.7px; /* 텍스트 기준선 미세 보정 */
+	line-height: 1 !important;
+}
+
+/* 탭 네비게이션 스타일 (전체 문의 / 내 문의 내역) */
+.inquiry-nav-tabs {
+	display: inline-flex;
+	padding: 4px;
+	border-radius: 999px;
+	background: #edf2f7;
+	gap: 4px;
+}
+
+.inquiry-nav-tabs .nav-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	border-radius: 999px;
+	padding: 5.5px 14px 6.5px; /* 파란색 알약(필) 내부 콘텐츠 수직 중앙 보정 (상단 5.5px, 하단 6.5px) */
+	font-size: .84rem;
+	font-weight: 600;
+	color: #5d6d7e;
+	line-height: 1;
+	transition: all .2s ease;
+}
+
+.inquiry-nav-tabs .nav-link:hover {
+	color: #1769aa;
+}
+
+.inquiry-nav-tabs .nav-link.active {
+	background: #1769aa;
+	color: #fff;
+	box-shadow: 0 2px 6px rgba(23, 105, 170, .25);
+}
+
+.inquiry-nav-tabs .nav-link .material-symbols-outlined {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.15rem;
+	line-height: 1;
+	position: relative;
+	top: 0.3px; /* 아이콘 미세 보정 */
+}
+
+.inquiry-nav-tabs .nav-link .inquiry-tab-label {
+	display: inline-flex;
+	align-items: center;
+	position: relative;
+	top: -0.7px; /* 한글 텍스트 기준선 미세 보정 */
+	line-height: 1;
+}
+
+.inquiry-nav-tabs .nav-link .badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: .72rem;
+	padding: 1.25px 7px 2.75px; /* 시각적 광학 중심(Optical Center) 나노 단위 보정: 상단 1.25px, 하단 2.75px */
+	line-height: 1;
+	border-radius: 999px;
+	transition: all .2s ease;
+	position: relative;
+	top: 0;
+}
+
+.inquiry-nav-tabs .nav-link.active .badge {
+	background: rgba(255, 255, 255, .25) !important;
+	color: #fff !important;
+}

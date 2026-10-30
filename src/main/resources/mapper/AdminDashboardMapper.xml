@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.oti.haebom.business.admin.mapper.AdminDashboardMapper">
+
+	<!-- 1. 회원 통계 (전체 회원 수, 성별 수, 연령대별 수) -->
+	<select id="selectMemberStats" resultType="kr.co.oti.haebom.business.admin.dto.AdminDashboardDTO">
+		SELECT 
+			COUNT(*) AS totalMemberCount,
+			COUNT(CASE WHEN gender = 'M' THEN 1 END) AS maleCount,
+			COUNT(CASE WHEN gender = 'F' THEN 1 END) AS femaleCount,
+			COUNT(CASE WHEN (YEAR(CURDATE()) - YEAR(birth_date)) BETWEEN 10 AND 19 THEN 1 END) AS age10s,
+			COUNT(CASE WHEN (YEAR(CURDATE()) - YEAR(birth_date)) BETWEEN 20 AND 29 THEN 1 END) AS age20s,
+			COUNT(CASE WHEN (YEAR(CURDATE()) - YEAR(birth_date)) BETWEEN 30 AND 39 THEN 1 END) AS age30s,
+			COUNT(CASE WHEN (YEAR(CURDATE()) - YEAR(birth_date)) BETWEEN 40 AND 49 THEN 1 END) AS age40s,
+			COUNT(CASE WHEN (YEAR(CURDATE()) - YEAR(birth_date)) BETWEEN 50 AND 59 THEN 1 END) AS age50s,
+			COUNT(CASE WHEN (YEAR(CURDATE()) - YEAR(birth_date)) >= 60 THEN 1 END) AS age60sOver
+		FROM member
+		WHERE role != 'ADMIN' AND member_status != 'WITHDRAWN'
+	</select>
+
+	<!-- 2. 이번 달 시뮬레이션 연습 시작 건수 -->
+	<select id="selectMonthlyStartCount" resultType="int">
+		SELECT COUNT(*)
+		FROM simulation_progress
+		WHERE started_at >= DATE_FORMAT(NOW(), '%Y-%m-01 00:00:00')
+	</select>
+
+	<!-- 3. 전체 시뮬레이션 연습 시작 건수 (완료율 계산용 분모) -->
+	<select id="selectTotalStartCount" resultType="int">
+		SELECT COUNT(*)
+		FROM simulation_progress
+	</select>
+
+	<!-- 4. 전체 시뮬레이션 연습 완료 건수 (완료율 계산용 분자) -->
+	<select id="selectCompletedCount" resultType="int">
+		SELECT COUNT(*)
+		FROM simulation_progress
+		WHERE progress_status = 'COMPLETED'
+	</select>
+
+	<!-- 5. 답변 대기 중인 문의 건수 -->
+	<select id="selectWaitingInquiryCount" resultType="int">
+		SELECT COUNT(*)
+		FROM qna
+		WHERE qna_status = 'WAITING'
+	</select>
+
+		<!-- 6. 기간별 연습 시작 건수 집계 -->
+	<select id="selectTrendStarts" resultType="map">
+		SELECT 
+			<choose>
+				<when test="period == 'daily'">
+					DATE_FORMAT(started_at, '%Y-%m-%d') AS dateKey,
+				</when>
+				<when test="period == 'yearly'">
+					DATE_FORMAT(started_at, '%Y') AS dateKey,
+				</when>
+				<otherwise>
+					DATE_FORMAT(started_at, '%Y-%m') AS dateKey,
+				</otherwise>
+			</choose>
+			COUNT(*) AS cnt
+		FROM simulation_progress
+		WHERE 1=1
+			<choose>
+				<when test="period == 'daily'">
+					AND started_at &gt;= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+				</when>
+				<when test="period == 'yearly'">
+					AND started_at &gt;= DATE_SUB(CURDATE(), INTERVAL 4 YEAR)
+				</when>
+				<otherwise>
+					AND started_at &gt;= DATE_SUB(CURDATE(), INTERVAL 11 MONTH)
+				</otherwise>
+			</choose>
+			<if test="scenarioId != null and scenarioId != 0">
+				AND scenario_id = #{scenarioId}
+			</if>
+		GROUP BY dateKey
+		ORDER BY dateKey ASC
+	</select>
+
+	<!-- 7. 기간별 연습 완료 건수 집계 -->
+	<select id="selectTrendCompletions" resultType="map">
+		SELECT 
+			<choose>
+				<when test="period == 'daily'">
+					DATE_FORMAT(completed_at, '%Y-%m-%d') AS dateKey,
+				</when>
+				<when test="period == 'yearly'">
+					DATE_FORMAT(completed_at, '%Y') AS dateKey,
+				</when>
+				<otherwise>
+					DATE_FORMAT(completed_at, '%Y-%m') AS dateKey,
+				</otherwise>
+			</choose>
+			COUNT(*) AS cnt
+		FROM simulation_progress
+		WHERE progress_status = 'COMPLETED'
+			<choose>
+				<when test="period == 'daily'">
+					AND completed_at &gt;= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+				</when>
+				<when test="period == 'yearly'">
+					AND completed_at &gt;= DATE_SUB(CURDATE(), INTERVAL 4 YEAR)
+				</when>
+				<otherwise>
+					AND completed_at &gt;= DATE_SUB(CURDATE(), INTERVAL 11 MONTH)
+				</otherwise>
+			</choose>
+			<if test="scenarioId != null and scenarioId != 0">
+				AND scenario_id = #{scenarioId}
+			</if>
+		GROUP BY dateKey
+		ORDER BY dateKey ASC
+	</select>
+	
+		<!-- 8. 이번 달 이용 상위 시나리오 조회 (시작 건수 1위) -->
+	<select id="selectTopScenarioThisMonth" resultType="map">
+		SELECT 
+			s.scenario_title AS scenarioTitle,
+			COUNT(sp.progress_id) AS startCount,
+			SUM(CASE WHEN sp.progress_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completeCount
+		FROM scenario s
+		LEFT JOIN simulation_progress sp ON s.scenario_id = sp.scenario_id 
+			AND sp.started_at &gt;= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+		GROUP BY s.scenario_id, s.scenario_title
+		ORDER BY startCount DESC, s.scenario_id ASC
+		LIMIT 1
+	</select>
+
+	<!-- 9. 최근 운영자 활동 조회 (최신 N건) -->
+	<select id="selectRecentActivities" resultType="kr.co.oti.haebom.business.admin.dto.AdminActivityDTO">
+		SELECT
+			l.log_id AS logId,
+			CASE 
+				WHEN UPPER(l.log_type) = 'MEMBER' THEN 'member'
+				WHEN UPPER(l.log_type) = 'SCENARIO' THEN 'scenario'
+				WHEN UPPER(l.log_type) = 'QNA' THEN 'inquiry'
+				ELSE LOWER(l.log_type)
+			END AS logType,
+			l.action_type AS actionType,
+			CASE
+				WHEN UPPER(l.log_type) = 'MEMBER' THEN
+					CONCAT(IFNULL(m_target.member_name, '회원'), ' 회원 상태를 변경했습니다.')
+				WHEN UPPER(l.log_type) = 'SCENARIO' THEN
+					CONCAT(IFNULL(s.scenario_title, '시나리오'), ' 시나리오를 수정했습니다.')
+				WHEN UPPER(l.log_type) = 'QNA' THEN
+					CONCAT(IFNULL(m_qna.member_name, '회원'), ' 회원 문의에 답변했습니다.')
+				ELSE '운영자 작업을 수행했습니다.'
+			END AS title,
+			IFNULL(m_admin.login_id, 'admin') AS operatorId,
+			COALESCE(alm.member_id, als.scenario_id, alq.qna_id) AS targetId,
+			l.created_at AS createdAt
+		FROM admin_log l
+		LEFT JOIN member m_admin ON l.admin_id = m_admin.member_id
+		LEFT JOIN admin_log_member alm ON l.log_id = alm.log_id
+		LEFT JOIN member m_target ON alm.member_id = m_target.member_id
+		LEFT JOIN admin_log_scenario als ON l.log_id = als.log_id
+		LEFT JOIN scenario s ON als.scenario_id = s.scenario_id
+		LEFT JOIN admin_log_qna alq ON l.log_id = alq.log_id
+		LEFT JOIN qna q ON alq.qna_id = q.qna_id
+		LEFT JOIN member m_qna ON q.member_id = m_qna.member_id
+		ORDER BY l.created_at DESC, l.log_id DESC
+		LIMIT #{limit}
+	</select>
+
+	<!-- 10. 관리자 활동 로그 등록 (PK 자동 생성) -->
+	<insert id="insertAdminLog" parameterType="map" useGeneratedKeys="true" keyProperty="logId" keyColumn="log_id">
+		INSERT INTO admin_log (admin_id, log_type, action_type, created_at)
+		VALUES (#{adminId}, #{logType}, #{actionType}, NOW())
+	</insert>
+
+	<!-- 11. 활동 로그 상세 등록 (시나리오) -->
+	<insert id="insertAdminLogScenario">
+		INSERT INTO admin_log_scenario (log_id, scenario_id)
+		VALUES (#{logId}, #{scenarioId})
+	</insert>
+
+	<!-- 12. 활동 로그 상세 등록 (회원) -->
+	<insert id="insertAdminLogMember">
+		INSERT INTO admin_log_member (log_id, member_id)
+		VALUES (#{logId}, #{memberId})
+	</insert>
+
+	<!-- 13. 활동 로그 상세 등록 (문의) -->
+	<insert id="insertAdminLogQna">
+		INSERT INTO admin_log_qna (log_id, qna_id)
+		VALUES (#{logId}, #{qnaId})
+	</insert>
+</mapper>

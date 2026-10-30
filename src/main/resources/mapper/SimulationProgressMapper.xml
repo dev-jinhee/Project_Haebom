@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper">
+	<!-- 최근 진행한 시뮬레이션의 이력 조회 -->
+	<select id="selectLatestProgressListByMemberId"
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
+		select sp.*,ss.step_order
+		from simulation_progress sp
+		LEFT
+		JOIN scenario_step ss
+		ON sp.step_id = ss.step_id
+		where member_id =
+		#{memberId}
+		and sp.progress_status != 'DELETED'
+		and sp.progress_id = (
+		select sp2.progress_id
+		from simulation_progress sp2
+		where sp2.member_id
+		= sp.member_id
+		and sp2.scenario_id = sp.scenario_id
+		order by
+		sp2.started_at DESC,
+		sp2.progress_id DESC
+		LIMIT 1
+		)
+	</select>
+	<!-- 진행이력 단건 조회 -->
+	<select id="selectProgressByIdAndMemberId"
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
+		select *
+		from simulation_progress
+		where progress_id =
+		#{progressId}
+		and member_id = #{memberId}
+	</select>
+
+	<!-- 진행 기록 삽입 -->
+	<insert id="insertProgress"
+		parameterType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressCreateDTO"
+		useGeneratedKeys="true" keyProperty="progressId">
+		insert into
+		simulation_progress(member_id, scenario_id, step_id)
+		values(
+		#{memberId},
+		#{scenarioId},
+		#{stepId}
+		)
+	</insert>
+	<!-- 최근 이력 진행 조회 -->
+	<select id="selectLatestProgressId" resultType="Integer">
+		select
+		progress_id
+		from simulation_progress
+		where member_id = #{memberId}
+		and
+		scenario_id = #{scenarioId}
+		order by started_at DESC, progress_id DESC
+		limit 1
+	</select>
+	<!-- 진행 단계 변경 -->
+	<update id="updateProgressStep">
+		update simulation_progress
+		set step_id = #{nextStepId}
+		where progress_id = #{progressId}
+		and member_id = #{memberId}
+		and step_id =#{currentStepId}
+		and progress_status = 'IN_PROGRESS'
+	</update>
+
+	<!-- 시뮬레이션 완료 상태 변경 -->
+	<update id="completeSimulationProgress">
+		UPDATE simulation_progress p
+		SET p.step_id = NULL,
+		p.progress_status = 'COMPLETED',
+		p.completed_at = CURRENT_TIMESTAMP
+		WHERE p.progress_id = #{progressId}
+		AND
+		p.member_id = #{memberId}
+		AND
+		p.step_id = #{currentStepId}
+		AND
+		p.progress_status = 'IN_PROGRESS'
+		AND
+		p.step_id = (
+		SELECT s.step_id
+		FROM scenario_step s
+		WHERE s.scenario_id =
+		p.scenario_id
+		AND
+		s.step_order > 0
+		ORDER BY s.step_order DESC
+		LIMIT 1
+		)
+	</update>
+
+	<!-- 이전 단계 이동 가능 여부 확인 -->
+	<select id="isPreviousStep" resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM scenario_step current_step
+		JOIN scenario_step target_step
+		ON
+		current_step.scenario_id = target_step.scenario_id
+		WHERE
+		current_step.step_id = #{currentStepId}
+		AND target_step.step_id =
+		#{targetStepId}
+		AND current_step.scenario_id = #{scenarioId}
+		AND
+		current_step.step_order > 0
+		AND target_step.step_order > 0
+		AND
+		target_step.step_order = current_step.step_order - 1
+		)
+	</select>
+
+	<!-- 다음 단계 이동 가능 여부 확인 -->
+	<select id="isNextStep" resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM
+		scenario_step current_step
+		JOIN scenario_step target_step
+		ON
+		current_step.scenario_id = target_step.scenario_id
+		WHERE
+		current_step.step_id = #{currentStepId}
+		AND target_step.step_id =
+		#{targetStepId}
+		AND current_step.scenario_id = #{scenarioId}
+		AND
+		current_step.step_order > 0
+		AND target_step.step_order > 0
+		AND
+		target_step.step_order = current_step.step_order + 1
+		)
+	</select>
+
+	<!-- 0단계 확인 및 다음 단계 ID 조회 -->
+	<select id="selectNextStepId" resultType="java.lang.Integer">
+		SELECT
+		next_step.step_id
+		FROM scenario_step current_step
+		JOIN scenario_step
+		next_step
+		ON current_step.scenario_id = next_step.scenario_id
+		AND
+		next_step.step_order = current_step.step_order + 1
+		WHERE
+		current_step.scenario_id = #{scenarioId}
+		AND current_step.step_id =
+		#{currentStepId}
+		AND current_step.step_order = 0
+	</select>
+
+	<!-- 시뮬레이션 진행기록 논리 삭제 -->
+	<update id="markProgressDeleted">
+		update simulation_progress
+		set progress_status =
+		'DELETED'
+		where progress_id = #{progressId}
+		and member_id = #{memberId}
+	</update>
+
+	<!-- 진행 상태 ABANDONED로 변경 -->
+	<update id="updateProgressAbandoned">
+		update simulation_progress
+		set progress_status =
+		'ABANDONED'
+		where progress_id = #{progressId}
+		and member_id =
+		#{memberId}
+	</update>
+
+	<!-- 마지막 저장일로부터 30일이 지난 진행기록 조회 -->
+	<select id="selectExpiredProgress"
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
+		SELECT *
+		FROM simulation_progress
+		WHERE progress_status =
+		'IN_PROGRESS'
+		AND last_saved_at &lt;= NOW() - INTERVAL 30 DAY
+	</select>
+
+	<!-- 자동 삭제 대상 재확인 및 행 잠금 -->
+	<select id="selectExpiredProgressForUpdate"
+		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
+		SELECT *
+		FROM simulation_progress
+		WHERE progress_id = #{progressId}
+		AND progress_status = 'IN_PROGRESS'
+		AND last_saved_at &lt;= NOW() - INTERVAL 30 DAY
+		FOR UPDATE
+	</select>
+	
+	<!-- 사용자의 진행기록 전부 논리적 삭제 -->
+	<update id="deleteProgressByMemberId">
+		update simulation_progress
+		set progress_status = 'DELETED'
+		where member_id = #{memberId}
+	</update>
+</mapper>

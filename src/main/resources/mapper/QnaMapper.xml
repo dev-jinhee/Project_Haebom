@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.oti.haebom.business.inquiry.mapper.QnaMapper">
+	
+    <!-- 1. 문의글 전체 목록 조회 (LEFT JOIN으로 카테고리명, 답변까지 한 번에 싹 긁어오기!) ⭐ -->
+    <select id="selectQnaList" resultType="kr.co.oti.haebom.business.inquiry.dto.QnaDTO">
+        SELECT 
+            q.qna_id, 
+            q.member_id, 
+            q.qna_category_id, 
+            q.qna_title, 
+            q.qna_content, 
+            q.qna_status, 
+            q.is_deleted, 
+            q.is_secret, 
+            q.qna_created_at, 
+            q.qna_updated_at, 
+            qc.qna_category_name, 
+            m.member_name, 
+            qa.qna_answer_content, 
+            qa.qna_answer_created_at, 
+            admin_m.login_id AS responder_login_id
+        FROM qna q
+        LEFT JOIN qna_category qc ON q.qna_category_id = qc.qna_category_id
+        LEFT JOIN member m ON q.member_id = m.member_id 
+        LEFT JOIN (
+            SELECT qa1.qna_id, qa1.qna_answer_content, qa1.qna_answer_created_at, qa1.member_id
+            FROM qna_answer qa1
+            INNER JOIN (
+                SELECT qna_id, MAX(qna_answer_id) AS max_id
+                FROM qna_answer
+                GROUP BY qna_id
+            ) latest ON qa1.qna_answer_id = latest.max_id
+        ) qa ON q.qna_id = qa.qna_id 
+        LEFT JOIN member admin_m ON qa.member_id = admin_m.member_id
+        WHERE q.is_deleted = 0 
+        ORDER BY q.qna_id DESC
+    </select>
+
+    <!-- 2. 문의글 등록 (INSERT) ⭐ -->
+    <insert id="insertQna" parameterType="kr.co.oti.haebom.business.inquiry.dto.QnaDTO" useGeneratedKeys="true" keyProperty="qnaId">
+        INSERT INTO qna (
+            member_id,
+            qna_category_id,
+            qna_title,
+            qna_content,
+            qna_status,
+            is_deleted, 
+            is_secret
+        ) VALUES (
+            #{memberId},
+            #{qnaCategoryId},
+            #{qnaTitle},
+            #{qnaContent},
+            'WAITING',
+            0, 
+            COALESCE(#{isSecret}, 0)
+        )
+    </insert>
+    
+    <!-- 3. 문의글 논리적 삭제 (UPDATE is_deleted = 1) -->
+    <update id="deleteQna" parameterType="int">
+        UPDATE qna 
+        SET is_deleted = 1,
+            qna_updated_at = NOW()
+        WHERE qna_id = #{qnaId}
+    </update>
+
+    <!-- 4. 문의글 수정 (UPDATE) ⭐ -->
+    <update id="updateQna" parameterType="kr.co.oti.haebom.business.inquiry.dto.QnaDTO">
+        UPDATE qna 
+        SET qna_category_id = #{qnaCategoryId},
+            qna_title = #{qnaTitle},
+            qna_content = #{qnaContent}, 
+            is_secret = COALESCE(#{isSecret}, is_secret), 
+            qna_updated_at = NOW()
+        WHERE qna_id = #{qnaId}
+    </update>
+
+	<!-- 5. 관리자 답변 등록 (INSERT) -->
+	<insert id="insertQnaAnswer" parameterType="kr.co.oti.haebom.business.inquiry.dto.QnaAnswerDTO" useGeneratedKeys="true" keyProperty="qnaAnswerId">
+		INSERT INTO qna_answer (
+			qna_id, 
+			member_id, 
+			qna_answer_content, 
+			qna_answer_created_at
+		) VALUES (
+			#{qnaId}, 
+			#{memberId}, 
+			#{qnaAnswerContent}, 
+			NOW()
+		)
+	</insert>
+	
+	<!-- 6. 특정 문의글의 답변 목록 조회 (시간순) -->
+	<select id="selectAnswersByQnaId" parameterType="int" resultType="kr.co.oti.haebom.business.inquiry.dto.QnaAnswerDTO">
+		SELECT
+			qa.qna_answer_id, 
+			qa.qna_id, 
+			qa.member_id, 
+			qa.qna_answer_content, 
+			qa.qna_answer_created_at, 
+			m.login_id AS responder_login_id, 
+			m.member_name AS responder_name 
+		FROM qna_answer qa 
+		LEFT JOIN member m ON qa.member_id = m.member_id 
+		WHERE qa.qna_id = #{qnaId} 
+		ORDER BY qa.qna_answer_id ASC
+	</select>
+	
+	<!-- 7. 문의글 답변 상태 변경 (WAITING / ANSWERED) -->
+	<update id="updateQnaStatus">
+		UPDATE qna 
+		SET qna_status = #{qnaStatus}, 
+			qna_updated_at = NOW() 
+		WHERE qna_id = #{qnaId}
+	</update>
+	
+	<!-- 8. 문의글 분류 및 상태 동시 변경 -->
+	<update id="updateQnaCategoryAndStatus">
+		UPDATE qna 
+		SET qna_category_id = #{qnaCategoryId}, 
+			qna_status = #{qnaStatus}, 
+			qna_updated_at = NOW() 
+		WHERE qna_id = #{qnaId}
+	</update>
+	
+</mapper>

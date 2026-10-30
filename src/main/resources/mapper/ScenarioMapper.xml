@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.oti.haebom.business.scenario.mapper.ScenarioMapper">
+
+	<!-- 공개 시나리오 목록 조회 -->
+	<select id="selectActiveScenarioList"
+		resultType="kr.co.oti.haebom.business.scenario.dto.ScenarioDTO">
+		select
+		s.scenario_id,
+		s.scenario_code,
+		s.scenario_title,
+		s.description,
+		s.estimated_minutes,
+		(select c.category_name from category c
+		where
+		c.category_id = s.category_id) AS category_name,
+		(select count(*) from
+		scenario_step ss
+		where step_order>0
+		and ss.scenario_id = s.scenario_id )
+		AS step_count
+		from scenario s
+		where s.is_active=1
+	</select>
+	
+	<!-- 시나리오 단일 조회 -->
+	<select id="selectScenarioById"
+		resultType="kr.co.oti.haebom.business.scenario.dto.ScenarioDTO">
+		select
+		s.scenario_id,
+		s.scenario_code,
+		s.scenario_title,
+		s.description,
+		s.estimated_minutes,
+		(select c.category_name from category c
+		where c.category_id = s.category_id) AS category_name
+		from scenario s
+		where s.scenario_id = #{scenarioId}
+			and s.is_active = 1
+	</select>
+
+	<!-- 시나리오 존재 여부 확인 -->
+	<select id="existsActiveScenarioById" resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM scenario
+		WHERE scenario_id = #{scenarioId}
+		AND is_active = 1
+		)
+	</select>
+
+	<!-- 시나리오 전체단계 조회 -->
+	<select id="selectScenarioStep"
+		resultType="kr.co.oti.haebom.business.scenario.dto.ScenarioStepDTO">
+		select *
+		from scenario_step
+		where scenario_id = #{scenarioId}
+	</select>
+	
+	<select id="selectScenarioStepById"
+		resultType="kr.co.oti.haebom.business.scenario.dto.ScenarioStepDTO">
+		select *
+		from scenario_step
+		where step_id = #{stepId}
+			and scenario_id = #{scenarioId}
+	</select>
+	
+	<!-- 시나리오의 첫 단계 조회 -->
+	<select id="selectFirstStepByScenarioId"
+		resultType="kr.co.oti.haebom.business.scenario.dto.ScenarioStepDTO">
+		select *
+		from scenario_step
+		where scenario_id = #{scenarioId}
+		order by step_order ASC	
+		Limit 1
+	</select>
+
+</mapper>
