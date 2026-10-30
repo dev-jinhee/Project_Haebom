@@ -27,9 +27,9 @@
         if (type) element.classList.add(type);
     }
 
-    async function postJson(path, body) {
+    async function postForm(path, body) {
         const headers = {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
             'Accept': 'application/json'
         };
         const csrf = document.getElementById('csrfToken');
@@ -37,11 +37,16 @@
             headers[csrf.dataset.header] = csrf.value;
         }
 
+        const params = new URLSearchParams();
+        Object.entries(body).forEach(function ([key, value]) {
+            params.append(key, value);
+        });
+
         const response = await fetch(contextPath + path, {
             method: 'POST',
             headers: headers,
             credentials: 'same-origin',
-            body: JSON.stringify(body)
+            body: params.toString()
         });
         const data = await response.json().catch(function () { return null; });
         if (!response.ok || data === null) {
@@ -67,7 +72,7 @@
         sendButton.disabled = true;
         setStatus(sendStatus, '인증번호를 보내고 있습니다.', null);
         try {
-            const data = await postJson('/api/members/recovery/find-id/send-code', {
+            const data = await postForm('/api/members/recovery/find-id/send-code', {
                 memberName: memberName,
                 email: email
             });
@@ -96,7 +101,7 @@
         confirmButton.disabled = true;
         setStatus(verifyStatus, '인증번호를 확인하고 있습니다.', null);
         try {
-            const data = await postJson('/api/members/recovery/find-id/confirm', {
+            const data = await postForm('/api/members/recovery/find-id/confirm', {
                 email: emailField.value.trim(),
                 code: code
             });

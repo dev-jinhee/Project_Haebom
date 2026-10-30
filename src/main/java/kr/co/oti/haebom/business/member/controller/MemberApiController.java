@@ -6,9 +6,10 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,10 +33,10 @@ public class MemberApiController {
 	private final MemberService memberService;
 	private final EmailVerificationService emailVerificationService;
 
-	@PostMapping("/join")
+	@PostMapping(value = "/join", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
 	@Operation(summary = "회원가입", description = "회원 정보를 입력받아 회원가입을 처리합니다.")
-	public void join(@Valid @RequestBody MemberJoinRequestDTO request, HttpSession session) {
+	public void join(@Valid @ModelAttribute MemberJoinRequestDTO request, HttpSession session) {
 		
 		String verifiedEmail = (String) session.getAttribute("emailVerification.verifiedEmail");
 	    memberService.join(request, verifiedEmail);
@@ -57,17 +58,17 @@ public class MemberApiController {
 	}
 	
 	@Operation(summary = "이메일 인증번호 발송", description = "회원가입에 사용할 이메일로 6자리 인증번호를 발송합니다. 이미 가입된 이메일에는 발송하지 않습니다.")
-	@PostMapping("/email-verification/send")
+	@PostMapping(value = "/email-verification/send", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public Map<String, Boolean> sendEmailCode(
-	        @Valid @RequestBody EmailVerificationSendRequestDTO request,
+	        @Valid @ModelAttribute EmailVerificationSendRequestDTO request,
 	        HttpSession session) {
 	    return Map.of("sent", emailVerificationService.sendCode(request.getEmail(), session));
 	}
 
 	@Operation(summary = "이메일 인증번호 확인", description = "이메일과 인증번호를 확인합니다. 발송 후 5분 이내에 인증에 성공하면 해당 이메일을 인증 완료 상태로 저장합니다.")
-	@PostMapping("/email-verification/confirm")
+	@PostMapping(value = "/email-verification/confirm", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public Map<String, Boolean> confirmEmailCode(
-	        @Valid @RequestBody EmailVerificationConfirmRequestDTO request,
+	        @Valid @ModelAttribute EmailVerificationConfirmRequestDTO request,
 	        HttpSession session) {
 	    boolean verified = emailVerificationService.verifyCode(
 	            request.getEmail(), request.getCode(), session);

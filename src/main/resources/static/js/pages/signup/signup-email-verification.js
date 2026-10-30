@@ -106,15 +106,19 @@ export function initEmailVerification(page) {
 
             emailSendButton.disabled = true;
             try {
+                const params = new URLSearchParams();
+                params.append('email', email);
+
                 const response = await fetch(page.dataset.contextPath
                         + '/api/members/email-verification/send', {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken.value
                     },
-                    body: JSON.stringify({ email: email })
+                    body: params.toString()
                 });
                 const result = await response.json().catch(function () {
                     return null;
@@ -174,15 +178,20 @@ export function initEmailVerification(page) {
 
             emailVerifyButton.disabled = true;
             try {
+                const params = new URLSearchParams();
+                params.append('email', email);
+                params.append('code', code);
+
                 const response = await fetch(page.dataset.contextPath
                         + '/api/members/email-verification/confirm', {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken.value
                     },
-                    body: JSON.stringify({ email: email, code: code })
+                    body: params.toString()
                 });
                 const result = await response.json().catch(function () {
                     return null;

@@ -61,13 +61,22 @@ export function initSignupSubmit(options) {
         }
 
         try {
+            const params = new URLSearchParams();
+            Object.entries(requestData).forEach(function ([key, value]) {
+                if (value !== null && value !== undefined) {
+                    params.append(key, String(value));
+                }
+            });
+
             const response = await fetch(page.dataset.contextPath + '/api/members/join', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfInput.value
                 },
-                body: JSON.stringify(requestData)
+                body: params.toString()
             });
 
             if (!response.ok) {
