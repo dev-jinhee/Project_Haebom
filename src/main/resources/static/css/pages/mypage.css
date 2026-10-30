@@ -73,3 +73,58 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-inquiry-footer { align-items:flex-start; flex-direction:column; gap:10px; }
     .mypage-inquiry-footer .pagination { flex-wrap:wrap; }
 }
+
+/* 마이페이지 진행·완료 시나리오 카드: 아이콘 / 내용 / 액션 3열 */
+.mypage-completed-section .scenario-card {
+    grid-template-columns:52px minmax(0, 1fr) 164px;
+    gap:20px;
+}
+
+.mypage-completed-section .scenario-card-icon {
+    grid-column:1;
+    grid-row:1;
+    flex:0 0 52px;
+}
+
+.mypage-completed-section .scenario-card-content {
+    grid-column:2;
+    grid-row:1;
+    min-width:0;
+}
+
+.mypage-completed-section .scenario-actions {
+    grid-column:3;
+    grid-row:1;
+    width:164px;
+}
+
+@media(max-width:767.98px) {
+    .mypage-completed-section .scenario-card {
+        grid-template-columns:44px minmax(0, 1fr);
+        gap:14px;
+        padding:16px;
+    }
+
+    .mypage-completed-section .scenario-card-icon {
+        grid-column:1;
+        grid-row:1 / span 2;
+        align-self:center;
+        flex-basis:44px;
+        width:44px;
+        height:44px;
+        border-radius:13px;
+    }
+
+    .mypage-completed-section .scenario-card-content {
+        grid-column:2;
+        grid-row:1;
+    }
+
+    .mypage-completed-section .scenario-actions {
+        grid-column:2;
+        grid-row:2;
+        grid-template-columns:1fr;
+        width:100%;
+        justify-self:stretch;
+    }
+}
