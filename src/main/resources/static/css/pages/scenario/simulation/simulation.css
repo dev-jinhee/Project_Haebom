@@ -597,6 +597,27 @@
 	font-weight: 600;
 	color: #164166;
 }
+/* 시뮬레이션 인쇄 버튼 정렬 */
+#printBtn .material-symbols-outlined {
+	font-size: 20px;
+	line-height: 20px;
+	flex-shrink: 0;
+}
+
+#printBtn .sim-print-text {
+	line-height: 20px;
+	transform: translateY(-1px);
+}
+#completePrintBtn .material-symbols-outlined {
+	font-size: 20px;
+	line-height: 20px;
+	flex-shrink: 0;
+}
+
+#completePrintBtn .sim-print-text {
+	line-height: 20px;
+	transform: translateY(-1px);
+}
 
 @media print {
 	@page {
