@@ -240,13 +240,9 @@ async function renderSimulation() {
 		);
 	}
 
-	// 완료 화면일 때 print 숨기기
-	if (isCompleteScreen) {
-		document.querySelector("#printSection")
-			.hidden = true;
-	} else {
-		document.querySelector("#printSection").hidden = false;
-	}
+	// 0단계와 완료 화면에서는 인쇄 버튼 숨김
+	document.querySelector("#printSection").hidden =
+		isCompleteScreen || Number(activeStep?.stepOrder) === 0;
 
 	// 단계 목록 동적 생성
 	const stepLabels = document.querySelector("#stepLabels");
