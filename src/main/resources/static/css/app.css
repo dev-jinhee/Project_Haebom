@@ -120,7 +120,8 @@ button, input, select { font: inherit; }
 
 /* Large text display setting */
 html[data-text-size="large"] { font-size:112.5%; }
-html[data-text-size="largest"] { font-size:125%; }
+html[data-text-size="larger"] { font-size:125%; }
+html[data-text-size="largest"] { font-size:137.5%; }
 body.large-text-mode :focus-visible { outline-width: 4px; outline-offset: 3px; }
 body.high-contrast { --ink: #090f16; --muted: #293747; }
 body.high-contrast :is(.hero-section,.site-footer,.utility-bar) { filter: contrast(1.15); }
@@ -224,4 +225,5 @@ body.high-contrast :is(.hero-section,.site-footer,.utility-bar) { filter: contra
 .text-size-menu .dropdown-item.active { color:#173b70; background:#eaf1f8; font-weight:700; }
 .text-size-menu .dropdown-item.active::before { border-color:#174d80; color:#fff; background:#174d80; }
 .text-size-menu .dropdown-item[data-text-size="large"]::before { font-size:.95rem; }
-.text-size-menu .dropdown-item[data-text-size="largest"]::before { font-size:1.08rem; }
+.text-size-menu .dropdown-item[data-text-size="larger"]::before { font-size:1.08rem; }
+.text-size-menu .dropdown-item[data-text-size="largest"]::before { font-size:1.20rem; }

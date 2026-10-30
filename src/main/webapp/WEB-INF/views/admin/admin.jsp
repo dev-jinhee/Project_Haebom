@@ -50,6 +50,8 @@
 							<li><button class="dropdown-item" type="button"
 									data-text-size="large" aria-pressed="false">크게</button></li>
 							<li><button class="dropdown-item" type="button"
+									data-text-size="larger" aria-pressed="false">더 크게</button></li>
+							<li><button class="dropdown-item" type="button"
 									data-text-size="largest" aria-pressed="false">가장 크게</button></li>
 						</ul>
 					</li>
@@ -63,9 +65,7 @@
 			<div class="sidebar-brand">
 				<a href="${pageContext.request.contextPath}/admin"
 					class="brand-link"><span class="brand-image"><i
-						class="bi bi-building-fill-check"></i></span><span class="brand-text">해봄
-						<b>관리</b>
-				</span></a>
+						class="bi bi-building-fill-check"></i></span><span class="brand-text">해봄 관리</span></a>
 			</div>
 			<div class="sidebar-wrapper">
 				<nav class="mt-2">

@@ -107,6 +107,7 @@
 
 	window.addEventListener('popstate', renderAdminPage);
 	window.addEventListener('hashchange', renderAdminPage);
+	window.renderAdminPage = renderAdminPage;
 
 	// 초기 실행
 	renderAdminPage();

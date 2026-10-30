@@ -150,6 +150,7 @@
 				ELSE '운영자 작업을 수행했습니다.'
 			END AS title,
 			IFNULL(m_admin.login_id, 'admin') AS operatorId,
+			COALESCE(alm.member_id, als.scenario_id, alq.qna_id) AS targetId,
 			l.created_at AS createdAt
 		FROM admin_log l
 		LEFT JOIN member m_admin ON l.admin_id = m_admin.member_id

@@ -252,7 +252,7 @@
           <td>${String(qna.qnaId).padStart(2, '0')}</td>
           <td>
             <a href="#" class="inquiry-item-link text-decoration-none fw-medium ${isSecret && !isAccessible ? 'text-secondary opacity-75' : 'text-dark'}" data-inquiry-id="${qna.qnaId}">
-              ${secretIcon}${escapeHtml(qna.qnaTitle)} ${isMineBadge} ${secretBadge}
+              ${secretIcon}${qna.qnaTitle || ''} ${isMineBadge} ${secretBadge}
             </a>
           </td>
           <td>${categoryText}</td>
@@ -432,7 +432,7 @@
               <small class="text-secondary">${dateStr}</small>
             </div>
             <p class="mb-0 text-dark small" style="white-space: pre-line; line-height: 1.6;">
-              ${escapeHtml(a.qnaAnswerContent)}
+              ${a.qnaAnswerContent || ''}
             </p>
           </div>
         `;
@@ -468,10 +468,10 @@
       return;
     }
 
-    document.getElementById('inquiryViewModalTitle').textContent = data.qnaTitle;
+    document.getElementById('inquiryViewModalTitle').textContent = typeof decodeHtml === 'function' ? decodeHtml(data.qnaTitle) : (data.qnaTitle || '');
     document.getElementById('inquiryViewCategory').textContent = data.qnaCategoryName || `카테고리 ${data.qnaCategoryId}`;
     document.getElementById('inquiryViewDate').textContent = data.qnaCreatedAt ? String(data.qnaCreatedAt).substring(0, 10).replace(/-/g, '.') : '';
-    document.getElementById('inquiryViewContent').textContent = data.qnaContent;
+    document.getElementById('inquiryViewContent').textContent = typeof decodeHtml === 'function' ? decodeHtml(data.qnaContent) : (data.qnaContent || '');
 
     const statusBadge = document.getElementById('inquiryViewStatus');
     const answerSection = document.getElementById('inquiryAnswerSection');
@@ -587,8 +587,8 @@
     editingQnaId = data.qnaId;
 
     document.getElementById('inquiryCategory').value = data.qnaCategoryId;
-    document.getElementById('inquiryTitle').value = data.qnaTitle;
-    document.getElementById('inquiryBody').value = data.qnaContent;
+    document.getElementById('inquiryTitle').value = typeof decodeHtml === 'function' ? decodeHtml(data.qnaTitle) : (data.qnaTitle || '');
+    document.getElementById('inquiryBody').value = typeof decodeHtml === 'function' ? decodeHtml(data.qnaContent) : (data.qnaContent || '');
     const secretToggle = document.getElementById('inquiryIsSecret');
     if (secretToggle) secretToggle.checked = Boolean(data.isSecret);
 
