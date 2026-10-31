@@ -73,6 +73,12 @@
 			<artifactId>tomcat-embed-jasper</artifactId>
 		</dependency>
 
+		<!-- JSP 화면을 공통 레이아웃으로 조립하는 Apache Tiles -->
+		<dependency>
+    		<groupId>org.apache.tiles</groupId>
+    		<artifactId>tiles-jsp</artifactId>
+    		<version>3.0.8</version>
+		</dependency>
 		<!-- JSTL -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
