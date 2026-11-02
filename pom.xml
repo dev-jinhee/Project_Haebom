@@ -137,6 +137,12 @@
 			<groupId>org.egovframe.rte</groupId>
 			<artifactId>org.egovframe.rte.psl.dataaccess</artifactId>
 			<version>${org.egovframe.rte.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax</groupId>
+					<artifactId>javaee-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.egovframe.rte</groupId>
