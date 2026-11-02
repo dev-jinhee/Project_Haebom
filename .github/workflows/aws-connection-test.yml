@@ -1,0 +1,29 @@
+name: HaeBom AWS OIDC Connection Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  aws-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-2
+
+      - name: Verify AWS Identity
+        run: |
+          aws sts get-caller-identity
+
+      - name: Verify EC2 Security Group
+        run: |
+          aws ec2 describe-security-groups \
+            --group-ids sg-0695a5ff658ec72d3 \
+            --query 'SecurityGroups[].GroupId'
