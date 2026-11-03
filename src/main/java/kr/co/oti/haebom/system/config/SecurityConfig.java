@@ -2,6 +2,9 @@ package kr.co.oti.haebom.system.config;
 
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -100,6 +103,28 @@ public class SecurityConfig {
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
+		BCryptPasswordEncoder delegate = new BCryptPasswordEncoder();
+		return new PasswordEncoder() {
+			@Override
+			public String encode(CharSequence rawPassword) {
+				return delegate.encode(decodePassword(rawPassword));
+			}
+
+			@Override
+			public boolean matches(CharSequence rawPassword, String encodedPassword) {
+				return delegate.matches(decodePassword(rawPassword), encodedPassword);
+			}
+
+			private String decodePassword(CharSequence rawPassword) {
+				if (rawPassword == null) {
+					return null;
+				}
+				try {
+					return URLDecoder.decode(rawPassword.toString(), StandardCharsets.UTF_8.name());
+				} catch (Exception e) {
+					return rawPassword.toString();
+				}
+			}
+		};
 	}
 }

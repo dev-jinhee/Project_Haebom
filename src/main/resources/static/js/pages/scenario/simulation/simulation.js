@@ -636,7 +636,9 @@ function toAnswerParams(requestBody) {
 
 		params.append(`answers[${index}].fieldKey`, answer.fieldKey);
 
-		params.append(`answers[${index}].answerValue`, answer.answerValue);
+		// Lucy XSS 필터의 특수문자 치환 방지를 위해 URL 인코딩 적용
+		const encodedValue = answer.answerValue != null ? encodeURIComponent(answer.answerValue) : "";
+		params.append(`answers[${index}].answerValue`, encodedValue);
 	});
 
 	return params;

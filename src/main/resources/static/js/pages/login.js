@@ -33,7 +33,18 @@
     if (submitButton) submitButton.disabled = true;
 
     try {
-      const params = new URLSearchParams(new FormData(loginForm));
+      const formData = new FormData(loginForm);
+      const params = new URLSearchParams();
+
+      for (const [key, value] of formData.entries()) {
+        // 비밀번호 특수문자가 Lucy XSS 필터에서 치환(&lt; 등)되는 것을 방지하기 위해 encodeURIComponent 적용
+        if (key === 'password') {
+          params.append(key, encodeURIComponent(value));
+        } else {
+          params.append(key, value);
+        }
+      }
+
       const response = await fetch(loginForm.action, {
         method: 'POST',
         credentials: 'same-origin',
