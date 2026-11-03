@@ -17,7 +17,7 @@
 <body>
 
     <!-- 1. 공통 헤더 include -->
-    <jsp:include page="/WEB-INF/views/layouts/fragments/header.jsp" />
+    <jsp:include page="/WEB-INF/views/layouts/header.jsp" />
 
     <!-- 2. 문의 게시판 본문 컨텐츠 영역 -->
     <main class="container subpage-container flex-grow-1"
@@ -267,10 +267,11 @@
     </div>
 
     <!-- 3. 공통 푸터 include (푸터 + 공통 모달 + 공통 JS 포함) -->
-    <jsp:include page="/WEB-INF/views/layouts/fragments/footer.jsp" />
+    <jsp:include page="/WEB-INF/views/layouts/footer.jsp" />
 
     <!-- 4. 문의 게시판 전용 스크립트 -->
     <script src="${pageContext.request.contextPath}/js/pages/inquiries.js"></script>
 
 </body>
 </html>
+

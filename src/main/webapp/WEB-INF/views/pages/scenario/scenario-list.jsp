@@ -15,7 +15,7 @@
 <link href="/css/pages/scenario/scenario-list.css" rel="stylesheet">
 </head>
 <body>
-	<jsp:include page="/WEB-INF/views/layouts/fragments/header.jsp" />
+	<jsp:include page="/WEB-INF/views/layouts/header.jsp" />
 
 	<main class="container subpage-container scenarios-page">
 		<div class="subpage-heading">
@@ -150,7 +150,7 @@
 		</template>
 	</main>
 
-	<jsp:include page="/WEB-INF/views/layouts/fragments/footer.jsp" />
+	<jsp:include page="/WEB-INF/views/layouts/footer.jsp" />
 	<script src="/js/pages/demo-actions.js"></script>
 	<script src="/js/pages/scenario/scenario-progress.js"></script>
 
@@ -160,3 +160,4 @@
 	</script>
 </body>
 </html>
+
