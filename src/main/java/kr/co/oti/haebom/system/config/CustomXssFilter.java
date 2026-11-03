@@ -19,18 +19,7 @@ public class CustomXssFilter extends XssEscapeServletFilter {
             FilterChain chain
     ) throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-        String path = httpRequest.getRequestURI()
-                .substring(httpRequest.getContextPath().length());
-
-        // 공통 답변 저장 API만 Lucy 적용 제외
-        if (path.startsWith("/api/simulation/progress/")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // 나머지는 기존 Lucy 필터 적용
+        // 시뮬레이션을 포함한 모든 요청에 Lucy XSS 필터 적용!
         super.doFilter(request, response, chain);
     }
 }
