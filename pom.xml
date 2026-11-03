@@ -202,6 +202,12 @@
 			<artifactId>lucy-xss-servlet</artifactId>
 			<version>2.0.1</version>
 		</dependency>
+		<!-- Jasypt Spring Boot Starter: 설정 파일 민감정보(DB 비밀번호 등) 암호화 -->
+		<dependency>
+			<groupId>com.github.ulisesbocchio</groupId>
+			<artifactId>jasypt-spring-boot-starter</artifactId>
+			<version>3.0.5</version>
+		</dependency>
 	</dependencies>
 
 	<build>
