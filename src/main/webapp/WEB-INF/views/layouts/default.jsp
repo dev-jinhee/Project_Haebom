@@ -6,13 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>해봄 | 생활 행정절차 미리연습</title>
-    <tiles:insertAttribute name="head" ignore="true" />
 </head>
 <body>
     <tiles:insertAttribute name="header" ignore="true" />
-    <tiles:insertAttribute name="sidebar" ignore="true" />
     <tiles:insertAttribute name="content" />
     <tiles:insertAttribute name="footer" ignore="true" />
-    <tiles:insertAttribute name="scripts" ignore="true" />
 </body>
 </html>

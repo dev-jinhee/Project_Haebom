@@ -1,1 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+
+    <!-- 공통 틀: 헤더, 본문, 푸터를 끼워 넣습니다. -->
+    <definition name="tiles/base" template="/WEB-INF/views/layouts/default.jsp" />
+
+    <!-- 메인 화면은 메인 전용 헤더를 사용합니다. -->
+    <definition name="tiles/main" extends="tiles/base">
+        <put-attribute name="header" value="/WEB-INF/views/layouts/header-main.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/main.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/views/layouts/footer.jsp" />
+    </definition>
+
+    <!-- 일반 사이트 화면 -->
+    <definition name="tiles/scenario-list" extends="tiles/base">
+        <put-attribute name="header" value="/WEB-INF/views/layouts/header.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/scenario/scenario-list.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/views/layouts/footer.jsp" />
+    </definition>
+
+    <definition name="tiles/inquiries" extends="tiles/base">
+        <put-attribute name="header" value="/WEB-INF/views/layouts/header.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/inquiries/inquiries.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/views/layouts/footer.jsp" />
+    </definition>
+
+    <definition name="tiles/mypage" extends="tiles/base">
+        <put-attribute name="header" value="/WEB-INF/views/layouts/header.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/mypage.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/views/layouts/footer.jsp" />
+    </definition>
+
+    <!-- 로그인·가입·계정 찾기는 헤더와 푸터 없이 본문만 표시합니다. -->
+    <definition name="tiles/login" extends="tiles/base">
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/login.jsp" />
+    </definition>
+
+    <definition name="tiles/signup" extends="tiles/base">
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/signup.jsp" />
+    </definition>
+
+    <definition name="tiles/find-id" extends="tiles/base">
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/find-id.jsp" />
+    </definition>
+
+    <definition name="tiles/find-password" extends="tiles/base">
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/find-password.jsp" />
+    </definition>
+
+</tiles-definitions>
