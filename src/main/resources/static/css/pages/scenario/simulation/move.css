@@ -1224,50 +1224,182 @@
 }
 
 .move-step4-service-note-box {
-    padding: 20px 22px;
-    border: 1px solid #d9e1e8;
-    border-radius: 16px;
-    background: #fafbfd;
+	padding: 20px 22px;
+	border: 1px solid #d9e1e8;
+	border-radius: 16px;
+	background: #fafbfd;
 }
 
 .move-step4-service-note-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 16px;
-    font-size: 1rem;
-    font-weight: 800;
-    line-height: 1.4;
-    color: #1f2d3d;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	font-size: 1rem;
+	font-weight: 800;
+	line-height: 1.4;
+	color: #1f2d3d;
 }
 
 .move-step4-service-note-title .material-symbols-outlined {
-    display: block;
-    flex-shrink: 0;
-    font-size: 20px;
-    line-height: 1;
+	display: block;
+	flex-shrink: 0;
+	font-size: 20px;
+	line-height: 1;
 }
 
 .move-step4-service-note-list {
-    margin: 0;
-    padding-left: 18px;
-    color: #4f6275;
+	margin: 0;
+	padding-left: 18px;
+	color: #4f6275;
 }
 
-.move-step4-service-note-list li + li {
-    margin-top: 14px;
+.move-step4-service-note-list li+li {
+	margin-top: 14px;
 }
 
 .move-step4-service-note-list strong {
-    color: #263b53;
-    font-weight: 700;
+	color: #263b53;
+	font-weight: 700;
+}
+
+.move-step4-detail-input {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	min-height: 48px;
+	padding: 0 12px;
+	border: 1px solid #ced4da;
+	border-radius: 6px;
+	background-color: #fff;
+}
+
+.move-step4-detail-prefix {
+	flex-shrink: 0;
+	margin-right: 6px;
+	white-space: nowrap;
+	color: #495057;
+}
+
+/* 상세주소 입력창 */
+.move-step4-detail-input .form-control {
+	flex: 1;
+	min-width: 0;
+	padding: 0;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	outline: none;
+}
+
+/* input에 포커스가 생겨도 내부 테두리 제거 */
+.move-step4-detail-input .form-control:focus {
+	border: none;
+	outline: none;
+	box-shadow: none;
+	background: transparent;
+}
+
+/* 완료된 시뮬레이션의 상세주소 전체 영역 */
+.move-step4-detail-input:has(#newDetailAddress:disabled) {
+	background-color: #e9ecef;
+}
+
+/* 비활성화된 상세주소 input */
+.move-step4-detail-input #newDetailAddress:disabled {
+	background-color: transparent !important;
+	border: none;
+	box-shadow: none;
+	opacity: 1;
+}
+
+/* 부모 박스에만 포커스 표시 */
+.move-step4-detail-input:focus-within {
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+} /* 검색 결과 전체 리스트 */
+.move-step4-address-search-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+/* 주소 결과 버튼 */
+.gov24-address-search-item {
+	display: block;
+	width: 100%;
+	padding: 12px 16px;
+	border: 1px solid #d9e2ec;
+	border-radius: 8px;
+	background-color: #fff;
+	text-align: left;
+	font-size: 15px;
+	line-height: 1.5;
+	color: #222;
+	transition: all 0.2s ease;
+}
+
+.gov24-address-search-item:hover {
+	background-color: #f8fbff;
+	border-color: #86b7fe;
+}
+
+.gov24-address-search-item:focus {
+	outline: none;
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* 참고항목(괄호 부분) 살짝 구분하고 싶으면 */
+.gov24-address-search-item .sub-text {
+	display: block;
+	margin-top: 4px;
+	font-size: 13px;
+	color: #6c757d;
+}
+
+/* 페이지네이션 */
+.move-step4-address-pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+/* 페이지 버튼 */
+.move-step4-address-pagination button {
+	min-width: 38px;
+	height: 38px;
+	padding: 0 12px;
+	border: 1px solid #cfd8e3;
+	border-radius: 8px;
+	background-color: #fff;
+	color: #164166;
+	font-size: 14px;
+	transition: all 0.2s ease;
+}
+
+.move-step4-address-pagination button:hover {
+	background-color: #f1f7ff;
+	border-color: #86b7fe;
+}
+
+/* 현재 페이지 */
+.move-step4-address-pagination button.active {
+	background-color: #164166;
+	border-color: #164166;
+	color: #fff;
+	font-weight: 600;
 }
 
 /* ============================================================
    공통 전화번호 (테이블 밖 입력만) / Step2·3·4
    기존 JSP 클래스와 .sim-phone-group 양쪽 호환
    ============================================================ */
-.sim-phone-group{
+.sim-phone-group {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -1275,7 +1407,7 @@
 	max-width: 430px;
 }
 
-.sim-phone-group .form-control{
+.sim-phone-group .form-control {
 	flex: 1 1 0;
 	width: 0;
 	min-width: 0;
@@ -1287,7 +1419,7 @@
 	border-radius: 6px;
 }
 
-.sim-phone-group > span{
+.sim-phone-group>span {
 	flex: 0 0 auto;
 	color: #6c757d;
 }
@@ -1348,11 +1480,10 @@
 		gap: 14px;
 	}
 	/* 공통 전화번호: 모바일 간격과 패딩 */
-	.sim-phone-group{
+	.sim-phone-group {
 		gap: 8px;
 	}
-	.sim-phone-group .form-control
-		{
+	.sim-phone-group .form-control {
 		padding: 8px 4px;
 	}
 	/* ============================================================

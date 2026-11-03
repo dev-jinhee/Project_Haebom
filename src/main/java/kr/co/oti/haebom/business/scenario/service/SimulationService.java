@@ -1,11 +1,18 @@
 package kr.co.oti.haebom.business.scenario.service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kr.co.oti.haebom.business.scenario.dto.AnswerSaveRequestListDTO;
 import kr.co.oti.haebom.business.scenario.dto.ScenarioStepDTO;
@@ -24,6 +31,34 @@ public class SimulationService {
 	private final SimulationProgressMapper simulationProgressMapper;
 	private final SimulationAnswerMapper answerMapper;
 	private final SimulationFamilyMapper familyMapper;
+	private final ObjectMapper objectMapper;
+
+	private static final Set<String> JSON_FIELDS = Set.of("previousAddress", "currentAddress", "additionalServices",
+			"additionalServiceDetails");
+
+	private void processJsonAnswer(AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer) {
+
+		if (!JSON_FIELDS.contains(answer.getFieldKey())) {
+			return;
+		}
+
+		String decodedValue = URLDecoder.decode(answer.getAnswerValue(), StandardCharsets.UTF_8);
+
+		try {
+			JsonNode jsonNode = objectMapper.readTree(decodedValue);
+
+			boolean isArray = "additionalServices".equals(answer.getFieldKey());
+
+			if (isArray ? !jsonNode.isArray() : !jsonNode.isObject()) {
+				throw new IllegalArgumentException("JSON 데이터 형식이 올바르지 않습니다.");
+			}
+
+			answer.setAnswerValue(decodedValue);
+
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("JSON 파싱에 실패했습니다.", e);
+		}
+	}
 
 	// 시뮬레이션 시작
 	@Transactional
@@ -51,7 +86,8 @@ public class SimulationService {
 		// 진행 이력이 존재 검증
 		SimulationProgressDTO progressDTO = simulationProgressMapper.selectProgressByIdAndMemberId(progressId,
 				memberId);
-		if (progressDTO == null || "DELETED".equals(progressDTO.getProgressStatus()) || "ABANDONED".equals(progressDTO.getProgressStatus())) {
+		if (progressDTO == null || "DELETED".equals(progressDTO.getProgressStatus())
+				|| "ABANDONED".equals(progressDTO.getProgressStatus())) {
 			throw new ResponseStatusException(// 404ERROR
 					HttpStatus.NOT_FOUND, "진행 이력을 찾을 수 없습니다.");
 		}
@@ -108,6 +144,7 @@ public class SimulationService {
 				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
 			}
 
+			processJsonAnswer(answer);
 			answerMapper.upsertAnswer(progressId, answer);
 		}
 
@@ -135,7 +172,7 @@ public class SimulationService {
 			if (!Objects.equals(progress.getStepId(), answer.getStepId())) {
 				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
 			}
-
+			processJsonAnswer(answer);
 			answerMapper.upsertAnswer(progressId, answer);
 		}
 
@@ -153,7 +190,8 @@ public class SimulationService {
 	public void deleteProgress(Integer progressId, Integer memberId) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null || "DELETED".equals(progress.getProgressStatus()) || "ABANDONED".equals(progress.getProgressStatus())) {
+		if (progress == null || "DELETED".equals(progress.getProgressStatus())
+				|| "ABANDONED".equals(progress.getProgressStatus())) {
 			throw new IllegalStateException("삭제 가능한 시뮬레이션이 아닙니다.");
 		}
 		// 시뮬레이션가족 삭제

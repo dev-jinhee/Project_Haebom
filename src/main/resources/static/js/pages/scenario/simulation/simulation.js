@@ -455,7 +455,8 @@ async function collectStepAnswers() {
 			fieldKey,
 			answerValue: typeof value === "string"
 				? value
-				: JSON.stringify(value)
+				: JSON.stringify(value),
+			isJson: typeof value === "object"
 		}));
 
 	return { answers };
@@ -631,14 +632,17 @@ function toAnswerParams(requestBody) {
 	const params = new URLSearchParams();
 
 	requestBody?.answers?.forEach((answer, index) => {
-
 		params.append(`answers[${index}].stepId`, answer.stepId);
-
 		params.append(`answers[${index}].fieldKey`, answer.fieldKey);
 
-		// Lucy XSS 필터의 특수문자 치환 방지를 위해 URL 인코딩 적용
-		const encodedValue = answer.answerValue != null ? encodeURIComponent(answer.answerValue) : "";
-		params.append(`answers[${index}].answerValue`, encodedValue);
+		const value = answer.answerValue ?? "";
+
+		params.append(
+			`answers[${index}].answerValue`,
+			answer.isJson
+				? encodeURIComponent(value)
+				: value
+		);
 	});
 
 	return params;

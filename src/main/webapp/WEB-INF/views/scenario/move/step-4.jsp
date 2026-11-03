@@ -24,8 +24,8 @@
 
 			<div class="gov24-address-controls move-step4-address-controls">
 
-				<input id="newRoadAddress" class="form-control" type="text"
-					placeholder="검색 버튼을 눌러 주소를 선택해 주세요" readonly>
+				<input type="text" id="addressKeyword" placeholder="도로명 또는 건물명 입력"
+					class="form-control">
 
 				<button id="searchNewAddressBtn" class="btn btn-outline-primary"
 					type="button">검색</button>
@@ -33,10 +33,18 @@
 			</div>
 
 			<p id="newAddressStatus" class="text-muted small mt-2 mb-0"
-				role="status" aria-live="polite">검색 버튼을 누르면 도로명주소 검색 팝업이 열립니다.</p>
+				role="status" aria-live="polite"></p>
+			<!-- 주소 검색 결과 목록 -->
+			<div id="newAddressSearchResults" class="mt-3 d-none">
+				<p id="newAddressSearchCount" class="text-muted small mb-2"></p>
 
+				<div id="newAddressSearchList"
+					class="move-step4-address-search-list"></div>
+
+				<div id="newAddressPagination"
+					class="move-step4-address-pagination mt-3"></div>
+			</div>
 			<div id="newAddressResultSection" class="mt-3 d-none">
-
 				<table class="gov24-result-table" aria-label="이사 온 곳 주소 조회 결과">
 
 					<tbody>
@@ -50,20 +58,13 @@
 						</tr>
 
 						<tr>
-
-							<th scope="row">관할 읍·면·동 행정복지센터</th>
-
-							<td id="newWelfareCenter">해봄동 행정복지센터 (가상)</td>
-
+							<th scope="row">관할 행정동</th>
+							<td id="newWelfareCenter">-</td>
 						</tr>
 
 					</tbody>
 
 				</table>
-
-				<p class="text-muted small mt-2 mb-0">※ 행정복지센터는 실제 관할 기관 조회 결과가
-
-					아닌 시뮬레이션용 가상 정보입니다.</p>
 
 			</div>
 
@@ -77,7 +78,8 @@
 
 		<input id="newBdMgtSn" type="hidden"> <input id="newSiNm"
 			type="hidden"> <input id="newSggNm" type="hidden"> <input
-			id="newEmdNm" type="hidden">
+			id="newEmdNm" type="hidden"> <input id="newHemdNm"
+			type="hidden"><input id="newRoadAddress" type="hidden">
 
 		<div class="gov24-building-fields move-step4-building-fields">
 
@@ -104,34 +106,36 @@
 
 		<div class="gov24-detail-address move-step4-detail-field">
 
-			<label class="form-label fw-semibold" for="newDetailAddress">그
+			<label class="form-label fw-semibold" for="newDetailAddress">
+				그 외 주소 </label>
 
-				외 주소</label> <input id="newDetailAddress" class="form-control" type="text"
-				maxlength="150" autocomplete="off"
-				placeholder="예) 101동 501호 (상세주소가 있는 경우 입력)">
+			<!-- 참고항목 + 상세주소를 하나의 입력창처럼 표시 -->
+			<div class="move-step4-detail-input">
 
-			<div class="mt-2">
+				<span id="newAddressPart2" class="move-step4-detail-prefix d-none"></span>
 
-				<p class="small text-muted mb-1">※ 주소 검색 시 입력한 상세주소가 자동 반영되며,
-
-					해봄에서도 수정할 수 있습니다.</p>
-
-				<p class="small text-muted mb-0 mt-0">
-
-					※ 상세한 주소가 있다면 <strong class="text-primary">그 외 주소란</strong>에 반드시
-
-					기재해 주세요. <strong class="text-danger"> (미기재 시 실제 전입신고가 반려될
-
-						수 있음) </strong> <span class="d-block ms-2"> (건축물의 이름, 동 번호 및 호수까지
-
-						작성하고 호수가 없는 경우 층수를 작성) </span>
-
-				</p>
+				<input id="newDetailAddress" class="form-control" type="text"
+					maxlength="150" autocomplete="off" placeholder="예) 101동 101호">
 
 			</div>
 
-		</div>
+			<!-- 참고항목 저장용 -->
+			<input type="hidden" id="newAddressPart2Value">
 
+			<!-- 안내 문구 -->
+			<div class="mt-2">
+				<p class="small text-muted mb-1">※ 기본주소 검색 후 상세주소(동·호수 등)를 직접
+					입력해 주세요.</p>
+
+				<p class="small text-muted mb-0">
+					※ 상세한 주소가 있다면 <strong class="text-primary">그 외 주소란</strong>에 반드시
+					기재해 주세요. <strong class="text-danger"> (미기재 시 실제 전입신고가 반려될
+						수 있음) </strong> <span class="d-block ms-2"> (건축물의 이름, 동 번호 및 호수까지
+						작성하고 호수가 없는 경우 층수를 작성) </span>
+				</p>
+			</div>
+
+		</div>
 		<!-- 참고 이미지처럼 세대 구성 라디오와 테이블을 동일한 패널 내부에 배치 -->
 
 		<fieldset class="move-step4-household-fieldset">
@@ -282,7 +286,6 @@
 				</div>
 
 				<p class="move-step4-validation-help">세대주 한 명을 선택하고 나머지 가족의 관계 및
-
 					전체 연락처를 입력해 주세요.</p>
 
 				<div id="minorNewHeadNotice"
@@ -407,19 +410,16 @@
 				</div>
 
 				<p class="move-step4-validation-help">기존 세대주와 이사 가족 전원의 전화번호를 새로
-
 					입력해 주세요.</p>
 
 			</div>
 
 			<p class="move-step4-notice mt-3 mb-0">※ 실제 정부24에서는 세대 구성 방법 및 신고
-
 				대상자의 상황에 따라 세대주 확인이나 추가 절차가 필요할 수 있습니다. 해봄에서는 실제 문자 발송이나 민원 신청이
 
 				이루어지지 않습니다.</p>
 
 		</fieldset>
-
 	</section>
 
 	<section class="gov24-extra-services mt-4">
