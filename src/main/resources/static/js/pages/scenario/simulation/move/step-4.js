@@ -427,6 +427,7 @@ function applyJusoAddress(root, data) {
 	$(root, "newAddressResultSection").classList.remove("d-none");
 	addressSelected = true;
 	const hemdName = data.hemdNm?.trim() || "";
+	$(root, "newHemdNm").value = hemdName;
 	const dongName = hemdName.split(/\s+/).pop();
 	$(root, "newWelfareCenter").textContent = dongName ? dongName : "행정동 정보 없음";
 	$(root, "newAddressStatus").textContent = "주소가 선택되었습니다. 상세주소를 입력한 후 세대 구성 정보를 확인해 주세요.";
@@ -562,11 +563,37 @@ function restoreData(root, data) {
 	for (const [id, key] of Object.entries(ADDRESS_FIELDS)) {
 		$(root, id).value = addr[key] == null ? "" : String(addr[key]);
 	}
+
 	addressSelected = Boolean(addr.roadAddress);
-	$(root, "newAddressResultSection").classList.toggle("d-none", !addressSelected);
-	$(root, "newAddressResultText").textContent = addr.roadAddress || "-";
-	$(root, "newWelfareCenter").textContent = VIRTUAL_WELFARE_CENTER;
-	if (addressSelected) $(root, "newAddressStatus").textContent = "선택한 주소를 복원했습니다.";
+
+	// 주소 선택 결과 표시
+	$(root, "newAddressResultSection")
+		.classList.toggle("d-none", !addressSelected);
+
+	$(root, "newAddressResultText").textContent =
+		addr.roadAddress || "-";
+
+	// 관할 행정동 복원
+	const hemdName = addr.hemdName?.trim() || "";
+	const dongName = hemdName.split(/\s+/).pop();
+
+	$(root, "newWelfareCenter").textContent =
+		dongName || "행정동 정보 없음";
+
+	// 도로명주소 참고항목 복원
+	const part2 = addr.addressPart2?.trim() || "";
+	const prefix = $(root, "newAddressPart2");
+
+	prefix.textContent = part2
+		? `(${part2.replace(/^\(|\)$/g, "")})`
+		: "";
+
+	prefix.classList.toggle("d-none", !part2);
+
+	if (addressSelected) {
+		$(root, "newAddressStatus").textContent =
+			"선택한 주소를 복원했습니다.";
+	}
 
 	root.querySelectorAll('input[name="householdType"]').forEach(input => {
 		input.checked = input.value === data.householdType;
@@ -664,7 +691,8 @@ async function fetchSavedAnswers(progressId, stepId) {
 	const jsonFields = [
 		"currentAddress",
 		"familyRelations",
-		"additionalServices"
+		"additionalServices",
+		"additionalServiceDetails"
 	];
 
 	const data = {};

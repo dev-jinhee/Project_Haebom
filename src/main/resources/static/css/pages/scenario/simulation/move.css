@@ -1301,6 +1301,19 @@
 	background: transparent;
 }
 
+/* 완료된 시뮬레이션의 상세주소 전체 영역 */
+.move-step4-detail-input:has(#newDetailAddress:disabled) {
+	background-color: #e9ecef;
+}
+
+/* 비활성화된 상세주소 input */
+.move-step4-detail-input #newDetailAddress:disabled {
+	background-color: transparent !important;
+	border: none;
+	box-shadow: none;
+	opacity: 1;
+}
+
 /* 부모 박스에만 포커스 표시 */
 .move-step4-detail-input:focus-within {
 	border-color: #86b7fe;
