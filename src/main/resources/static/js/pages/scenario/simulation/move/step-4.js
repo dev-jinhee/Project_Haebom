@@ -275,7 +275,9 @@ function renderExistingHouseholdTable(root) {
 		const relationTd = document.createElement("td");
 		const select = createRelationSelect(family);
 		relationTd.appendChild(select);
-		select.value = family.relationship ?? "";
+		select.value = RELATIONS.some(([code]) => code === family.relationship)
+			? family.relationship
+			: "";
 		row.appendChild(relationTd);
 		addIdentityCells(row, family);
 		addPhoneCell(row, family);
