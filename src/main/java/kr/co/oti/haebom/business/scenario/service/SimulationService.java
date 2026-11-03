@@ -18,10 +18,12 @@ import kr.co.oti.haebom.business.scenario.dto.AnswerSaveRequestListDTO;
 import kr.co.oti.haebom.business.scenario.dto.ScenarioStepDTO;
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressCreateDTO;
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO;
+import kr.co.oti.haebom.business.scenario.dto.StepValidationInfoDTO;
 import kr.co.oti.haebom.business.scenario.mapper.ScenarioMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationFamilyMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper;
+import kr.co.oti.haebom.business.scenario.validation.StepValidationManager;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class SimulationService {
 	private final SimulationAnswerMapper answerMapper;
 	private final SimulationFamilyMapper familyMapper;
 	private final ObjectMapper objectMapper;
+	private final StepValidationManager stepValidationManager;
 
 	private static final Set<String> JSON_FIELDS = Set.of("previousAddress", "currentAddress", "additionalServices",
 			"additionalServiceDetails");
@@ -58,6 +61,24 @@ public class SimulationService {
 		} catch (JsonProcessingException e) {
 			throw new IllegalArgumentException("JSON 파싱에 실패했습니다.", e);
 		}
+	}
+
+	/**
+	 * 현재 진행 단계에 등록된 입력값 검증 실행
+	 */
+	private void validateStepAnswers(Integer progressId, Integer memberId,
+			java.util.List<AnswerSaveRequestListDTO.AnswerSaveRequestDTO> answers) {
+
+		// DB에서 시나리오 코드와 단계 순서 조회
+		StepValidationInfoDTO stepInfo = simulationProgressMapper.selectStepValidationInfo(progressId, memberId);
+
+		if (stepInfo == null || stepInfo.getScenarioCode() == null || stepInfo.getStepOrder() == null) {
+
+			throw new IllegalStateException("시뮬레이션 단계 정보를 찾을 수 없습니다.");
+		}
+
+		// 현재 단계의 입력값 검증
+		stepValidationManager.validate(stepInfo.getScenarioCode(), stepInfo.getStepOrder(), answers);
 	}
 
 	// 시뮬레이션 시작
@@ -137,14 +158,23 @@ public class SimulationService {
 			throw new IllegalArgumentException("다음 단계로 이동할 수 없습니다.");
 		}
 
-		// 현재 단계 입력값 저장
-		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+		if (request == null || request.getAnswers() == null) {
+			throw new IllegalArgumentException("답변 정보가 없습니다.");
+		}
 
-			if (!Objects.equals(progress.getStepId(), answer.getStepId())) {
+		// 요청 전체의 단계/JSON을 먼저 확인한다.
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+			if (answer == null || !Objects.equals(progress.getStepId(), answer.getStepId())) {
 				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
 			}
-
 			processJsonAnswer(answer);
+		}
+
+		// 저장 전에 현재 단계의 입력값 검증
+		validateStepAnswers(progressId, memberId, request.getAnswers());
+
+		// 전부 통과한 경우에만 기존 Mapper에 저장한다.
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
 			answerMapper.upsertAnswer(progressId, answer);
 		}
 
@@ -166,13 +196,23 @@ public class SimulationService {
 			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
 		}
 
-		// 마지막 단계 입력값 저장
-		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+		if (request == null || request.getAnswers() == null) {
+			throw new IllegalArgumentException("답변 정보가 없습니다.");
+		}
 
-			if (!Objects.equals(progress.getStepId(), answer.getStepId())) {
+		// 요청 전체의 단계/JSON을 먼저 확인한다.
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
+			if (answer == null || !Objects.equals(progress.getStepId(), answer.getStepId())) {
 				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
 			}
 			processJsonAnswer(answer);
+		}
+
+		// 저장 전에 현재 단계의 입력값 검증
+		validateStepAnswers(progressId, memberId, request.getAnswers());
+		
+		// 전부 통과한 경우에만 기존 Mapper에 저장한다.
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
 			answerMapper.upsertAnswer(progressId, answer);
 		}
 

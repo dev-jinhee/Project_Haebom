@@ -64,7 +64,8 @@
 		set step_id = #{nextStepId}
 		where progress_id = #{progressId}
 		and member_id = #{memberId}
-		and step_id =#{currentStepId}
+		and
+		step_id =#{currentStepId}
 		and progress_status = 'IN_PROGRESS'
 	</update>
 
@@ -188,16 +189,39 @@
 		resultType="kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO">
 		SELECT *
 		FROM simulation_progress
-		WHERE progress_id = #{progressId}
+		WHERE progress_id =
+		#{progressId}
 		AND progress_status = 'IN_PROGRESS'
-		AND last_saved_at &lt;= NOW() - INTERVAL 30 DAY
+		AND last_saved_at
+		&lt;= NOW() - INTERVAL 30 DAY
 		FOR UPDATE
 	</select>
-	
+
 	<!-- 사용자의 진행기록 전부 논리적 삭제 -->
 	<update id="deleteProgressByMemberId">
 		update simulation_progress
-		set progress_status = 'DELETED'
+		set progress_status =
+		'DELETED'
 		where member_id = #{memberId}
 	</update>
+
+
+	<!-- 현재 진행 단계의 검증 정보 조회 -->
+	<select id="selectStepValidationInfo"
+		resultType="kr.co.oti.haebom.business.scenario.dto.StepValidationInfoDTO">
+
+		SELECT
+		s.scenario_code AS scenarioCode,
+		ss.step_order AS stepOrder
+		FROM simulation_progress sp
+		JOIN scenario s
+		ON sp.scenario_id = s.scenario_id
+		JOIN scenario_step ss
+		ON sp.step_id = ss.step_id
+		AND sp.scenario_id = ss.scenario_id
+		WHERE sp.progress_id = #{progressId}
+		AND sp.member_id = #{memberId}
+
+	</select>
+
 </mapper>
