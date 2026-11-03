@@ -14,7 +14,7 @@
     <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-password-fields-1" rel="stylesheet">
 </head>
 <body class="mypage-page">
-    <jsp:include page="/WEB-INF/views/common/header.jsp" />
+    <jsp:include page="/WEB-INF/views/layouts/fragments/header.jsp" />
 
     <main id="mypage-content"
           class="container subpage-container"
@@ -244,7 +244,7 @@
         </div>
     </div>
 
-    <jsp:include page="/WEB-INF/views/common/footer.jsp" />
+    <jsp:include page="/WEB-INF/views/layouts/fragments/footer.jsp" />
     <template id="mypageProgressScenarioTemplate">
         <article class="scenario-card scenario-item">
             <div class="scenario-card-icon" aria-hidden="true">

@@ -31,6 +31,6 @@ public class InquiryController {
             model.addAttribute("isLoggedIn", false);
             model.addAttribute("isAdmin", false);
         }
-        return "inquiries/inquiries";
+        return "pages/inquiries/inquiries";
     }
 }

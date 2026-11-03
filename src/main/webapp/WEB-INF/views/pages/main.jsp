@@ -14,7 +14,7 @@
 
 </head>
 <body>
-<jsp:include page="/WEB-INF/views/common/header-main.jsp" />
+<jsp:include page="/WEB-INF/views/layouts/fragments/header-main.jsp" />
 
 <main id="main-content" class="home-main" data-api-url="${pageContext.request.contextPath}/api/main">
     <section class="hero-section home-hero" aria-labelledby="home-title">
@@ -143,7 +143,7 @@
     </div>
 </main>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp" />
+<jsp:include page="/WEB-INF/views/layouts/fragments/footer.jsp" />
 <script src="${pageContext.request.contextPath}/js/pages/home.js"></script>
 </body>
 </html>

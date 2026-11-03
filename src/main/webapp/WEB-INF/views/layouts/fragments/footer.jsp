@@ -13,7 +13,7 @@
 </footer>
 
 <!-- 공통 알림/확인/경고 모달 팝업 include -->
-<jsp:include page="/WEB-INF/views/common/modal.jsp" />
+<jsp:include page="/WEB-INF/views/include/modal.jsp" />
 
 <!-- 공통 스크립트 라이브러리 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

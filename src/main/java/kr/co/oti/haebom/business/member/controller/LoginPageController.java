@@ -8,17 +8,17 @@ public class LoginPageController {
 	
 	@GetMapping("/login")
 	public String login() {
-		return "member/login";
+		return "pages/member/login";
 	}
 	
 	@GetMapping("/member/find-id")
     public String findId() {
-        return "member/find-id";
+        return "pages/member/find-id";
     }
 
     @GetMapping("/member/find-password")
     public String findPassword() {
-        return "member/find-password";
+        return "pages/member/find-password";
     }
 	
 }

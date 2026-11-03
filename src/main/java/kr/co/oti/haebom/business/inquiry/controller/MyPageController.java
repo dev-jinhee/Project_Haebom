@@ -8,6 +8,6 @@ public class MyPageController {
 	
 	@GetMapping("/mypage")
 	public String myPage() {
-		return "member/mypage";
+		return "pages/member/mypage";
 	}
 }

@@ -18,7 +18,7 @@ public class SimulationController {
 
 	@GetMapping
 	public String simulationPage() {
-		return "scenario/simulation";
+		return "pages/scenario/simulation";
 	}
 
 	// 단계별 JSP 반환
@@ -33,7 +33,7 @@ public class SimulationController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "지원하지 않는 시나리오입니다.");
 		}
 		// 단계별 JSP 반환
-		return "scenario/" + viewFolder + "/step-" + stepOrder;
+		return "pages/scenario/" + viewFolder + "/step-" + stepOrder;
 	}
 
 	// 시뮬레이션 완료 화면 반환
@@ -44,13 +44,13 @@ public class SimulationController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "지원하지 않는 시나리오입니다.");
 		}
 
-		return "scenario/common/step-complete";
+		return "pages/scenario/common/step-complete";
 	}
 
 	// 시뮬레이션 PDF 출력 화면
 	@GetMapping("/print")
 	public String simulationPrint() {
 
-		return "scenario/common/simulation-print";
+		return "pages/scenario/common/simulation-print";
 	}
 }

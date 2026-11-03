@@ -20,6 +20,6 @@ public class JusoPopupController {
 	public String jusoPopup(Model model) {
 		model.addAttribute("jusoConfirmKey", jusoConfirmKey);
 
-		return "address/juso-popup";
+		return "pages/address/juso-popup";
 	}
 }

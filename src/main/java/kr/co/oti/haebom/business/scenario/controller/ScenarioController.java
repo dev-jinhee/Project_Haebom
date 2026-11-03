@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ScenarioController {
 	@GetMapping
     public String list() {
-        return "scenario/scenario-list";
+        return "pages/scenario/scenario-list";
     }
 }

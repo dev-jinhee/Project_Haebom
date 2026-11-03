@@ -21,7 +21,7 @@
 <body class="simulation-page">
 	<!-- 공통 헤더 -->
 	<jsp:include
-		page="/WEB-INF/views/scenario/common/header-simulation.jsp" />
+		page="/WEB-INF/views/pages/scenario/common/header-simulation.jsp" />
 
 	<main class="container sim-container">
 
@@ -115,7 +115,7 @@
 					<!-- 공통 이전 / 다음 버튼 -->
 					<div id="simulationNavigation">
 						<jsp:include
-							page="/WEB-INF/views/scenario/common/navigation-simulation.jsp" />
+							page="/WEB-INF/views/pages/scenario/common/navigation-simulation.jsp" />
 					</div>
 
 				</section>
