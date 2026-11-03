@@ -214,20 +214,6 @@ public class SimulationService {
 				|| "COMPLETED".equals(progress.getProgressStatus()))) {
 			throw new IllegalStateException("재시작 가능한 시뮬레이션이 아닙니다.");
 		}
-		// 시뮬레이션가족 삭제
-		familyMapper.deleteByProgressId(progressId);
-		// 시물레이션 입력값 삭제
-		answerMapper.deleteSimulationAnswer(progressId);
-		// 진행 중이던 기록은 ABANDONED 처리
-		if ("IN_PROGRESS".equals(progress.getProgressStatus())) {
-
-			int updatedRows = simulationProgressMapper.updateProgressAbandoned(progressId, memberId);
-
-			if (updatedRows != 1) {
-				throw new IllegalStateException("진행 상태 변경에 실패하였습니다.");
-			}
-		}
-
 		// 새로운 시뮬레이션 시작
 		return startSimulation(progress.getScenarioId(), memberId);
 	}

@@ -108,12 +108,6 @@ async function loadScenarios() {
 				restartBtn.classList.remove("d-none");
 				deleteBtn.classList.remove("d-none");
 				restartBtn.addEventListener("click", async () => {
-					// 기존 기록 삭제 후 연습 재시작
-					const confirmed = confirm(
-						"기존 진행기록을 삭제하고 처음부터 시작하시겠습니까?"
-					);
-
-					if (!confirmed) return;
 
 					restartBtn.disabled = true;
 
@@ -220,7 +214,7 @@ async function restartSimulation(progressId) {
 		// 새로 생성된 progressId 반환
 		return await response.json();
 	} catch (error) {
-		console.error("시뮬레이션 재시작 삭제 오류:", error);
+		console.error("시뮬레이션 재시작 오류:", error);
 		alert("시뮬레이션 재시작 중 오류가 발생했습니다.");
 		return null;
 	}
