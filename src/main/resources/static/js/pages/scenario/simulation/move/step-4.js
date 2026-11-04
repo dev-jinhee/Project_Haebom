@@ -540,7 +540,6 @@ export function getData({ root }) {
 		currentAddress,
 		householdType: mode,
 		newHeadStrategy: strategy,
-		newHouseholdHeadFamilyId: headId == null ? null : Number(headId),
 		existingHeadName: mode === "JOIN_EXISTING" ? $(root, "existingHeadName").value.trim() || null : null,
 		existingHeadPhoneNum: mode === "JOIN_EXISTING" ? readPhone($(root, "existingHeadPhoneGroup")) : null,
 		existingHeadCheck: mode === "JOIN_EXISTING" && existingHeadMockConfirmed ? "SIMULATED" : null,
@@ -603,10 +602,18 @@ function restoreData(root, data) {
 	root.querySelectorAll('input[name="emptyHeadType"]').forEach(input => {
 		input.checked = input.value === strategy;
 	});
-	const requestedHeadId = data.newHouseholdHeadFamilyId;
-	selectedNewHeadId = movingFamilies.length === 1 ? String(applicant.familyId)
-		: movingFamilies.some(f => sameId(f.familyId, requestedHeadId))
-			? String(requestedHeadId) : null;
+	// 가족 테이블에 저장된 현재 세대주 조회
+	const savedHead = movingFamilies.find(
+		family => family.isHouseholdHead === true
+	);
+
+	// 세대주 선택 상태 복원
+	selectedNewHeadId = movingFamilies.length === 1
+		? String(applicant.familyId)
+		: savedHead
+			? String(savedHead.familyId)
+			: null;
+
 	updateChangeHeadRows(root);
 	$(root, "existingHeadName").value = data.existingHeadName || "";
 	existingHeadMockConfirmed = data.existingHeadCheck === "SIMULATED";

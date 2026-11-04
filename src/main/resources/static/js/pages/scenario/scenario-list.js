@@ -108,18 +108,11 @@ async function loadScenarios() {
 				restartBtn.classList.remove("d-none");
 				deleteBtn.classList.remove("d-none");
 				restartBtn.addEventListener("click", async () => {
-
+					// 기존 기록을 보존하고 새 시뮬레이션 시작
 					restartBtn.disabled = true;
 
 					try {
-						const newProgressId = await restartSimulation(
-							progress.progressId
-						);
-
-						if (newProgressId == null) return;
-
-						// 새 시뮬레이션으로 이동
-						openSimulation(newProgressId);
+						await startSimulation(scenario.scenarioId);
 
 					} finally {
 						restartBtn.disabled = false;
@@ -199,24 +192,6 @@ async function deleteProgress(progressId) {
 		console.error("시나리오 진행기록 삭제 오류:", error);
 		alert("진행기록 삭제 중 오류가 발생했습니다.");
 		return false;
-	}
-}
-
-//시뮬 재시작
-async function restartSimulation(progressId) {
-	try {
-		const response = await fetch(`/api/simulation/progress/${progressId}/restart`, {
-			method: "POST"
-		})
-		if (!response.ok) {
-			throw new Error("시뮬레이션 재시작 실패");
-		}
-		// 새로 생성된 progressId 반환
-		return await response.json();
-	} catch (error) {
-		console.error("시뮬레이션 재시작 오류:", error);
-		alert("시뮬레이션 재시작 중 오류가 발생했습니다.");
-		return null;
 	}
 }
 

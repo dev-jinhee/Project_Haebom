@@ -2,6 +2,7 @@ package kr.co.oti.haebom.business.scenario.controller;
 
 import javax.validation.Valid;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +21,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.business.scenario.dto.AnswerSaveRequestListDTO;
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO;
-import kr.co.oti.haebom.system.security.MemberPrincipal;
 import kr.co.oti.haebom.business.scenario.service.SimulationService;
+import kr.co.oti.haebom.system.security.MemberPrincipal;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -58,7 +59,7 @@ public class SimulationApiController {
 	// 다음 단계 이동
 	@Operation(summary = "다음 단계 이동", description = "입력값 저장 후 다음 단계로 이동합니다.")
 	@ApiResponse(responseCode = "204", description = "이동 성공")
-	@PatchMapping("/progress/{progressId}/nextStep")
+	@PatchMapping(value = "/progress/{progressId}/nextStep", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<Void> moveToNextStep(@PathVariable("progressId") Integer progressId,
 			@Valid @ModelAttribute AnswerSaveRequestListDTO request, @RequestParam("targetStepId") Integer targetStepId,
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
@@ -93,14 +94,5 @@ public class SimulationApiController {
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		simulationService.deleteProgress(progressId, memberPrincipal.getMemberId());
 		return ResponseEntity.noContent().build();
-	}
-
-	// 시뮬레이션 진행사항 재시작
-	@Operation(summary = "시뮬레이션 진행사항 재시작", description = "진행사항을 상태 변경하고 관련 입력값 및 가족 정보를 물리 삭제합니다.")
-	@ApiResponse(responseCode = "200", description = "재시작 처리 성공")
-	@PostMapping("/progress/{progressId}/restart")
-	public Integer restartSimulation(@PathVariable("progressId") Integer progressId,
-			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
-		return simulationService.restartSimulation(progressId, memberPrincipal.getMemberId());
 	}
 }

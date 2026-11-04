@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressCreateDTO;
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO;
+import kr.co.oti.haebom.business.scenario.dto.StepValidationInfoDTO;
 
 @Mapper
 public interface SimulationProgressMapper {
@@ -30,8 +31,8 @@ public interface SimulationProgressMapper {
 	// 시뮬레이션 완료 상태 변경
 	int completeSimulationProgress(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId,
 			@Param("currentStepId") Integer currentStepId);
-	
-	//시뮬레이션 진행 상태 변경
+
+	// 시뮬레이션 진행 상태 변경
 	int updateProgressAbandoned(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId);
 
 	// 시뮬레이션 진행기록 논리 삭제
@@ -47,13 +48,17 @@ public interface SimulationProgressMapper {
 
 	// 0단계 확인 및 다음 단계 ID 조회
 	Integer selectNextStepId(@Param("scenarioId") Integer scenarioId, @Param("currentStepId") Integer currentStepId);
-	
+
 	// 마지막 저장일로부터 30일이 지난 진행기록 조회
 	List<SimulationProgressDTO> selectExpiredProgress();
-	
+
 	// 자동 삭제 대상 재확인 및 행 잠금
 	SimulationProgressDTO selectExpiredProgressForUpdate(Integer progressId);
 
 	// 사용자의 진행 기록 전부 논리 삭제
 	int deleteProgressByMemberId(Integer memberId);
+
+	// 현재 진행 단계의 검증 정보 조회
+	StepValidationInfoDTO selectStepValidationInfo(@Param("progressId") Integer progressId,
+			@Param("memberId") Integer memberId);
 }
