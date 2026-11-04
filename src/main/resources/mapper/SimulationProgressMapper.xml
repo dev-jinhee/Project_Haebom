@@ -19,6 +19,7 @@
 		where sp2.member_id
 		= sp.member_id
 		and sp2.scenario_id = sp.scenario_id
+		and sp2.progress_status != 'DELETED'
 		order by
 		sp2.last_saved_at DESC,
 		sp2.progress_id DESC
