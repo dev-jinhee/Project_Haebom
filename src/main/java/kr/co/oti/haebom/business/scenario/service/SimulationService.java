@@ -19,6 +19,7 @@ import kr.co.oti.haebom.business.scenario.dto.ScenarioStepDTO;
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressCreateDTO;
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO;
 import kr.co.oti.haebom.business.scenario.dto.StepValidationInfoDTO;
+import kr.co.oti.haebom.business.scenario.exception.SimulationValidationException;
 import kr.co.oti.haebom.business.scenario.mapper.ScenarioMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationFamilyMapper;
@@ -41,25 +42,43 @@ public class SimulationService {
 
 	private void processJsonAnswer(AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer) {
 
+		// 1. 필드 키 검증
+		if (answer.getFieldKey() == null) {
+			throw new SimulationValidationException("필드 키가 없습니다.");
+		}
+
 		if (!JSON_FIELDS.contains(answer.getFieldKey())) {
 			return;
 		}
 
-		String decodedValue = URLDecoder.decode(answer.getAnswerValue(), StandardCharsets.UTF_8);
+		// 2. JSON 입력값 검증
+		if (answer.getAnswerValue() == null) {
+			throw new SimulationValidationException("JSON 입력값이 없습니다.");
+		}
 
+		// 3. URL 디코딩
+		String decodedValue;
+
+		try {
+			decodedValue = URLDecoder.decode(answer.getAnswerValue(), StandardCharsets.UTF_8);
+		} catch (IllegalArgumentException e) {
+			throw new SimulationValidationException("JSON 인코딩 형식이 올바르지 않습니다.", e);
+		}
+
+		// 4. JSON 형식 검증
 		try {
 			JsonNode jsonNode = objectMapper.readTree(decodedValue);
 
 			boolean isArray = "additionalServices".equals(answer.getFieldKey());
 
-			if (isArray ? !jsonNode.isArray() : !jsonNode.isObject()) {
-				throw new IllegalArgumentException("JSON 데이터 형식이 올바르지 않습니다.");
+			if (jsonNode == null || (isArray ? !jsonNode.isArray() : !jsonNode.isObject())) {
+				throw new SimulationValidationException("JSON 데이터 형식이 올바르지 않습니다.");
 			}
 
 			answer.setAnswerValue(decodedValue);
 
 		} catch (JsonProcessingException e) {
-			throw new IllegalArgumentException("JSON 파싱에 실패했습니다.", e);
+			throw new SimulationValidationException("JSON 파싱에 실패했습니다.", e);
 		}
 	}
 
@@ -129,12 +148,15 @@ public class SimulationService {
 	public void moveToStep(Integer progressId, Integer memberId, Integer targetStepId) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
-			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
+		if (progress == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 기록을 찾을 수 없습니다.");
+		}
+		if (!"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "진행 중인 시뮬레이션이 아닙니다.");
 		}
 		// 이동 가능한 이전/다음 단계인지 검증
 		if (!simulationProgressMapper.isPreviousStep(progress.getScenarioId(), progress.getStepId(), targetStepId)) {
-			throw new IllegalArgumentException("이전 단계로 이동할 수 없습니다.");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이전 단계로 이동할 수 없습니다.");
 		}
 		// updateProgressStep() 호출
 		int updatedRows = simulationProgressMapper.updateProgressStep(progressId, memberId, progress.getStepId(),
@@ -151,21 +173,24 @@ public class SimulationService {
 			AnswerSaveRequestListDTO request) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
-			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
+		if (progress == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 기록을 찾을 수 없습니다.");
+		}
+		if (!"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "진행 중인 시뮬레이션이 아닙니다.");
 		}
 		if (!simulationProgressMapper.isNextStep(progress.getScenarioId(), progress.getStepId(), targetStepId)) {
-			throw new IllegalArgumentException("다음 단계로 이동할 수 없습니다.");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "다음 단계로 이동할 수 없습니다.");
 		}
 
 		if (request == null || request.getAnswers() == null) {
-			throw new IllegalArgumentException("답변 정보가 없습니다.");
+			throw new SimulationValidationException("답변 정보가 없습니다.");
 		}
 
 		// 요청 전체의 단계/JSON을 먼저 확인한다.
 		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
 			if (answer == null || !Objects.equals(progress.getStepId(), answer.getStepId())) {
-				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
+				throw new SimulationValidationException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
 			}
 			processJsonAnswer(answer);
 		}
@@ -192,25 +217,28 @@ public class SimulationService {
 	public void completeSimulation(Integer progressId, Integer memberId, AnswerSaveRequestListDTO request) {
 		// 현재 단계 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
-			throw new IllegalStateException("진행 중인 시뮬레이션이 아닙니다.");
+		if (progress == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 기록을 찾을 수 없습니다.");
+		}
+		if (!"IN_PROGRESS".equals(progress.getProgressStatus())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "진행 중인 시뮬레이션이 아닙니다.");
 		}
 
 		if (request == null || request.getAnswers() == null) {
-			throw new IllegalArgumentException("답변 정보가 없습니다.");
+			throw new SimulationValidationException("답변 정보가 없습니다.");
 		}
 
 		// 요청 전체의 단계/JSON을 먼저 확인한다.
 		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
 			if (answer == null || !Objects.equals(progress.getStepId(), answer.getStepId())) {
-				throw new IllegalArgumentException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
+				throw new SimulationValidationException("현재 진행 단계의 입력값만 저장할 수 있습니다.");
 			}
 			processJsonAnswer(answer);
 		}
 
 		// 저장 전에 현재 단계의 입력값 검증
 		validateStepAnswers(progressId, memberId, request.getAnswers());
-		
+
 		// 전부 통과한 경우에만 기존 Mapper에 저장한다.
 		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
 			answerMapper.upsertAnswer(progressId, answer);
@@ -232,7 +260,7 @@ public class SimulationService {
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 		if (progress == null || "DELETED".equals(progress.getProgressStatus())
 				|| "ABANDONED".equals(progress.getProgressStatus())) {
-			throw new IllegalStateException("삭제 가능한 시뮬레이션이 아닙니다.");
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 기록을 찾을 수 없습니다.");
 		}
 		// 시뮬레이션가족 삭제
 		familyMapper.deleteByProgressId(progressId);
@@ -243,33 +271,6 @@ public class SimulationService {
 		if (updateRow != 1) {
 			throw new IllegalStateException("진행 기록 삭제가 실패하였습니다.");
 		}
-	}
-
-	// 시뮬레이션 재시작
-	@Transactional
-	public Integer restartSimulation(Integer progressId, Integer memberId) {
-		// 현재 단계 조회
-		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
-		if (progress == null || !("IN_PROGRESS".equals(progress.getProgressStatus())
-				|| "COMPLETED".equals(progress.getProgressStatus()))) {
-			throw new IllegalStateException("재시작 가능한 시뮬레이션이 아닙니다.");
-		}
-		// 시뮬레이션가족 삭제
-		familyMapper.deleteByProgressId(progressId);
-		// 시물레이션 입력값 삭제
-		answerMapper.deleteSimulationAnswer(progressId);
-		// 진행 중이던 기록은 ABANDONED 처리
-		if ("IN_PROGRESS".equals(progress.getProgressStatus())) {
-
-			int updatedRows = simulationProgressMapper.updateProgressAbandoned(progressId, memberId);
-
-			if (updatedRows != 1) {
-				throw new IllegalStateException("진행 상태 변경에 실패하였습니다.");
-			}
-		}
-
-		// 새로운 시뮬레이션 시작
-		return startSimulation(progress.getScenarioId(), memberId);
 	}
 
 }

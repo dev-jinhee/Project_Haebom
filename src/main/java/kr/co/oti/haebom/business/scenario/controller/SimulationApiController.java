@@ -2,12 +2,10 @@ package kr.co.oti.haebom.business.scenario.controller;
 
 import javax.validation.Valid;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -97,20 +94,5 @@ public class SimulationApiController {
 			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		simulationService.deleteProgress(progressId, memberPrincipal.getMemberId());
 		return ResponseEntity.noContent().build();
-	}
-
-	// 시뮬레이션 진행사항 재시작
-	@Operation(summary = "시뮬레이션 진행사항 재시작", description = "기존 진행 기록을 보존하고 새로운 시뮬레이션을 시작합니다.")
-	@ApiResponse(responseCode = "200", description = "재시작 처리 성공")
-	@PostMapping("/progress/{progressId}/restart")
-	public Integer restartSimulation(@PathVariable("progressId") Integer progressId,
-			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
-		return simulationService.restartSimulation(progressId, memberPrincipal.getMemberId());
-	}
-
-	// 잘못된 입력값 검증 예외 처리
-	@ExceptionHandler(IllegalArgumentException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public void handleIllegalArgumentException(IllegalArgumentException e) {
 	}
 }

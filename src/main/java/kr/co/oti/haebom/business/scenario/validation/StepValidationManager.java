@@ -11,6 +11,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 import kr.co.oti.haebom.business.scenario.dto.AnswerSaveRequestListDTO.AnswerSaveRequestDTO;
+import kr.co.oti.haebom.business.scenario.exception.SimulationValidationException;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -33,7 +34,7 @@ public class StepValidationManager {
                          List<AnswerSaveRequestDTO> answers) {
 
         if (answers == null) {
-            throw new IllegalArgumentException("답변 정보가 없습니다.");
+            throw new SimulationValidationException("답변 정보가 없습니다.");
         }
 
         // 1. 현재 시나리오와 단계의 필드 규칙 조회
@@ -57,13 +58,13 @@ public class StepValidationManager {
         }
 
         // 3. 전달된 답변 검증
-        Map<String, String> values = new HashMap<>(); //검증한 입력값 저장
-        Set<String> seen = new HashSet<>(); //중복 fieldKey 확인 용
+        Map<String, String> values = new HashMap<>(); // 검증한 입력값 저장
+        Set<String> seen = new HashSet<>(); // 중복 fieldKey 확인용
 
         for (AnswerSaveRequestDTO answer : answers) {
 
             if (answer == null || answer.getFieldKey() == null) {
-                throw new IllegalArgumentException(
+                throw new SimulationValidationException(
                         "답변 형식이 올바르지 않습니다.");
             }
 
@@ -72,14 +73,14 @@ public class StepValidationManager {
 
             // 해당 단계에서 허용되지 않은 필드
             if (rule == null) {
-                throw new IllegalArgumentException(
+                throw new SimulationValidationException(
                         "허용되지 않은 입력 항목: " + key);
             }
 
-            // 동일한 fieldKey 중복 전송 방지 
-            // -> Set은 중복 저장은 하지 않는 자료 구조라 같은 값이 추가했다면 false를 반환함
+            // 동일한 fieldKey 중복 전송 방지
+            // Set은 중복 저장을 허용하지 않으므로 이미 존재하면 false 반환
             if (!seen.add(key)) {
-                throw new IllegalArgumentException(
+                throw new SimulationValidationException(
                         "중복된 입력 항목: " + key);
             }
 
@@ -88,7 +89,7 @@ public class StepValidationManager {
             // 최대 입력 길이 검증
             if (rule.maxLength() != null && value != null
                     && value.length() > rule.maxLength()) {
-                throw new IllegalArgumentException(
+                throw new SimulationValidationException(
                         "입력 길이 초과: " + key);
             }
 
@@ -96,7 +97,7 @@ public class StepValidationManager {
             if (value != null && !value.isBlank()
                     && !rule.allowedValues().isEmpty()
                     && !rule.allowedValues().contains(value)) {
-                throw new IllegalArgumentException(
+                throw new SimulationValidationException(
                         "허용되지 않은 입력값: " + key);
             }
 
@@ -110,7 +111,7 @@ public class StepValidationManager {
 
             if (rule.required()
                     && (value == null || value.isBlank())) {
-                throw new IllegalArgumentException(
+                throw new SimulationValidationException(
                         "필수 입력 누락: " + rule.fieldKey());
             }
         }

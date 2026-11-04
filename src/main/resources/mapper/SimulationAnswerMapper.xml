@@ -16,15 +16,6 @@
 		) ON DUPLICATE KEY UPDATE
 		answer_value = VALUES(answer_value)
 	</insert>
-	<!-- 특정 단계의 입력값 조회 -->
-	<select id="findAnswerByProgressIdAndStepId"
-		resultType="kr.co.oti.haebom.business.scenario.dto.AnswerResponseDTO">
-		select *
-		from simulation_answer
-		where progress_id =
-		#{progressId}
-		and step_id = #{stepId}
-	</select>
 
 	<!-- 시뮬레이션 전체 입력값 조회 -->
 	<select id="findAnswerByProgressId"
