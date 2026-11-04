@@ -16,14 +16,14 @@
 		) ON DUPLICATE KEY UPDATE
 		answer_value = VALUES(answer_value)
 	</insert>
-
-	<!-- 시뮬레이션 전체 입력값 조회 -->
-	<select id="findAnswerByProgressId"
+	<!-- 특정 단계의 입력값 조회 -->
+	<select id="findAnswerByProgressIdAndStepId"
 		resultType="kr.co.oti.haebom.business.scenario.dto.AnswerResponseDTO">
 		select *
 		from simulation_answer
 		where progress_id =
 		#{progressId}
+		and step_id = #{stepId}
 	</select>
 	<!-- 단계별 입력 데이터 물리 삭제 -->
 	<delete id="deleteSimulationAnswer">
@@ -37,7 +37,8 @@
 		WHERE progress_id IN (
 		SELECT progress_id
 		FROM simulation_progress
-		WHERE member_id = #{memberId}
+		WHERE member_id =
+		#{memberId}
 		)
 	</delete>
 
