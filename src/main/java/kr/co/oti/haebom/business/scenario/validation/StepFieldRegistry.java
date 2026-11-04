@@ -29,6 +29,11 @@ public class StepFieldRegistry {
 		// 전입신고 2단계: 전입 사유
 		register("MOVE", 2, List.of(FieldRule.requiredChoice("moveReason", "JOB", "FAMILY", "HOUSING", "EDUCATION",
 				"LIVING_ENV", "NATURE", "OTHER"), FieldRule.optional("moveReasonDetail", 200)));
+		// 전입신고 3단계: 이전 주소
+		register("MOVE", 3, List.of(
+				FieldRule.required("previousAddress", 2000),
+				FieldRule.requiredChoice("personalInfoConsent", "AGREE", "DISAGREE"),
+				FieldRule.requiredChoice("administrativeInfoConsent", "AGREE", "DISAGREE")));
 	}
 
 	// 단계별 필드 규칙 등록
