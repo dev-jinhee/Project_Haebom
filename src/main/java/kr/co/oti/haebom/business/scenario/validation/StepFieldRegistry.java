@@ -34,6 +34,20 @@ public class StepFieldRegistry {
 				FieldRule.required("previousAddress", 2000),
 				FieldRule.requiredChoice("personalInfoConsent", "AGREE", "DISAGREE"),
 				FieldRule.requiredChoice("administrativeInfoConsent", "AGREE", "DISAGREE")));
+		// 전입신고 4단계: 이사 온 곳 주소 및 세대 구성
+		register("MOVE", 4, List.of(
+		    FieldRule.required("currentAddress", 5000),
+		    FieldRule.requiredChoice("householdType", "NEW_HOUSEHOLD", "JOIN_EXISTING"),
+
+		    FieldRule.optionalChoice("newHeadStrategy", "KEEP_ORIGINAL", "CHANGE_HEAD"),
+
+		    FieldRule.optional("existingHeadName", 50),
+		    FieldRule.optional("existingHeadPhoneNum", 13),
+		    FieldRule.optionalChoice("existingHeadCheck", "SIMULATED"),
+
+		    FieldRule.required("additionalServices", 500),
+		    FieldRule.required("additionalServiceDetails", 10000)
+		));
 	}
 
 	// 단계별 필드 규칙 등록
