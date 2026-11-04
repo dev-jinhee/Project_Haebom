@@ -20,7 +20,7 @@
 		= sp.member_id
 		and sp2.scenario_id = sp.scenario_id
 		order by
-		sp2.started_at DESC,
+		sp2.last_saved_at DESC,
 		sp2.progress_id DESC
 		LIMIT 1
 		)
@@ -55,7 +55,7 @@
 		where member_id = #{memberId}
 		and
 		scenario_id = #{scenarioId}
-		order by started_at DESC, progress_id DESC
+		order by last_saved_at DESC, progress_id DESC
 		limit 1
 	</select>
 	<!-- 진행 단계 변경 -->
