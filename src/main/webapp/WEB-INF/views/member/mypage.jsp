@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!doctype html>
 <html lang="ko">
 <head>
@@ -148,6 +149,8 @@
                     </div>
                 </dl>
 
+                <% boolean canWithdraw = request.isUserInRole("USER"); %>
+                <c:if test="<%= canWithdraw %>">
                 <div class="account-actions">
                     <div>
                         <strong>회원 탈퇴</strong>
@@ -157,6 +160,7 @@
                         회원 탈퇴
                     </button>
                 </div>
+                </c:if>
             </div>
         </section>
 
@@ -211,6 +215,7 @@
         </div>
     </div>
 
+    <c:if test="<%= canWithdraw %>">
     <div class="modal" id="confirmModal" tabindex="-1" aria-labelledby="deleteAccountTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -235,6 +240,7 @@
             </div>
         </div>
     </div>
+    </c:if>
 
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
     <template id="mypageProgressScenarioTemplate">
