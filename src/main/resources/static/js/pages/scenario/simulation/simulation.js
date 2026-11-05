@@ -543,6 +543,20 @@ async function handleNextStep() {
 		}
 	}
 
+	// 첨부파일 업로드
+	if (!simulationState.isCompleted && activeStepModule?.uploadAttachments) {
+		try {
+			await activeStepModule.uploadAttachments({
+				root: document.querySelector("#stepContent"),
+				progressId: simulationState.progressId
+			});
+		} catch (error) {
+			console.error("첨부파일 업로드 실패:", error);
+			alert("첨부파일 업로드에 실패했습니다. 다시 시도해 주세요.");
+			return;
+		}
+	}
+
 	// 입력값 저장 api 호출
 	const requestBody = !simulationState.isCompleted
 		? await collectStepAnswers()
@@ -583,19 +597,28 @@ async function handleNextStep() {
 		// 마지막 단계라면 완료 상태 변경 후 완료 페이지 이동
 		if (currentIndex === steps.length - 1) {
 			//진행 상태 완료 변경 후 step_id null 처리
-			const completeResponse = await fetch(
-				`/api/simulation/progress/${simulationState.progressId}/complete`,
-				{
-					method: "PATCH",
-					headers: {
-						"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-					},
-					body: params
+			try {
+				const completeResponse = await fetch(
+					`/api/simulation/progress/${simulationState.progressId}/complete`,
+					{
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+						},
+						body: params
+					}
+				);
+
+				if (!completeResponse.ok) {
+					throw new Error(`신청 완료 실패 (HTTP ${completeResponse.status})`);
 				}
-			);
-			if (!completeResponse.ok) {
-				throw new Error("시뮬레이션 완료 실패");
+
+			} catch (error) {
+				console.error("시뮬레이션 완료 실패:", error);
+				alert("신청 완료에 실패했습니다. 다시 시도해 주세요.");
+				return;
 			}
+
 			simulationState.currentStep = null
 			simulationState.isCompleted = true;
 			simulationState.viewingStep = null;

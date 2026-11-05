@@ -5,7 +5,7 @@
 // 추가: restore({root, data, readOnly}) - 서버 저장 답변을 읽어온 뒤 복원용
 // ============================================================
 import { isMinor } from "../utils/age.js";
-import { initServices, restoreServices, getServiceDetails, validateServices } from "./step-4-services.js";
+import { initServices, restoreServices, getServiceDetails, validateServices, uploadPendingLeaseFiles } from "./step-4-services.js";
 
 const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 const RELATIONS = [
@@ -44,6 +44,11 @@ const birthLabel = value => {
 };
 const genderLabel = value => value === "M" ? "남" : value === "F" ? "여" : "-";
 const familySignature = () => movingFamilies.map(f => String(f.familyId)).sort().join(",");
+
+// Step4 첨부파일 업로드
+export async function uploadAttachments({ root, progressId }) {
+	await uploadPendingLeaseFiles(root, progressId);
+}
 
 async function fetchMovingFamilies(progressId) {
 	const response = await fetch(`/api/simulation/move/${progressId}/family?moveStatus=MOVE`);
@@ -886,7 +891,8 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 		//service 초기화 호출
 		initServices(root, movingFamilies, {
 			readOnly,
-			applicantPhone: applicant.phoneNum
+			applicantPhone: applicant.phoneNum,
+			progressId
 		});
 		// 테이블 생성 후 최초 1회: 신청인만 저장된 연락처 자동 입력.
 		fillApplicantInitialPhone(root);

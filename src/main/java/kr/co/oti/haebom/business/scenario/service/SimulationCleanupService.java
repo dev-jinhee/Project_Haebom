@@ -4,11 +4,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationFamilyMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper;
+import kr.co.oti.haebom.system.storage.S3Service;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -17,6 +20,8 @@ public class SimulationCleanupService {
 	private final SimulationProgressMapper progressMapper;
 	private final SimulationAnswerMapper answerMapper;
 	private final SimulationFamilyMapper familyMapper;
+	private final S3Service s3Service;
+	
 	@Transactional
 	// 30일 경과한 진행기록 자동 삭제
 	public void cleanupExpiredProgress() {
@@ -37,6 +42,14 @@ public class SimulationCleanupService {
 			if (updateRow != 1) {
 				throw new IllegalStateException("진행 기록 삭제가 실패하였습니다.");
 			}
+			TransactionSynchronizationManager.registerSynchronization(
+				    new TransactionSynchronization() {
+				        @Override
+				        public void afterCommit() {
+				            s3Service.deleteLeaseFiles(progressId);
+				        }
+				    }
+				);
 		});
 	}
 
