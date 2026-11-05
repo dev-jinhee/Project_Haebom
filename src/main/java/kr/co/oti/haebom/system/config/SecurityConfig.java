@@ -13,15 +13,28 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+
+import kr.co.oti.haebom.business.admin.service.AdminMfaService;
+import kr.co.oti.haebom.system.security.AdminMfaSuccessHandler;
 
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(
+			HttpSecurity http,
+			SecurityContextRepository repository,
+			AdminMfaSuccessHandler successHandler) throws Exception {
 
 		http
+				// Spring Security 로그인 정보를 HTTP 세션에 저장하고 불러오도록 저장소를 지정합니다.
+				// 관리자 계정은 OTP 확인 전까지 인증 완료 상태가 되지 않도록 성공 처리기와 같은 저장소를 사용합니다
+				.securityContext(context ->
+		        		context.securityContextRepository(repository))
+				
 				// [배포 보안 표준] 전역 CSRF 보호 활성화: 웹 폼 및 모든 REST API(/api/**) 대상 CSRF 토큰 검증
 				// (비동기 fetch 요청은 common.js 전역 인터셉터가 X-CSRF-TOKEN 헤더를 자동 탑재)
 				// 외부 연동인 행안부 도로명주소 팝업(/address/juso/popup)만 안전하게 예외 처리
@@ -70,6 +83,10 @@ public class SecurityConfig {
 					        antMatcher(HttpMethod.GET, "/api/inquiries")
 					    ).permitAll()
 
+						 // OTP 확인 전에는 아직 ROLE_ADMIN 인증이 완료되지 않았으므로 MFA 경로는 허용합니다.
+						 // 대신 해당 화면과 요청은 컨트롤러에서 OTP 대기 세션인지 확인해야 합니다.
+					    .requestMatchers(antMatcher("/admin/mfa/**")).permitAll()
+					    
 					    // 관리자 전용
 					    .requestMatchers(
 					        antMatcher("/admin/**"),
@@ -87,15 +104,15 @@ public class SecurityConfig {
 					    .anyRequest().authenticated()
 					)
 				
-				.formLogin(form -> form.loginPage("/login").loginProcessingUrl("/login").usernameParameter("loginId")
-						.passwordParameter("password").successHandler((request, response, authentication) -> {
-							String redirect = request.getParameter("redirect");
-							if (redirect != null && !redirect.isBlank() && redirect.startsWith("/")) {
-								response.sendRedirect(redirect);
-							} else {
-								response.sendRedirect("/");
-							}
-						}).failureUrl("/login?error").permitAll())
+				.formLogin(form -> form
+						.loginPage("/login")
+					    .loginProcessingUrl("/login")
+					    .usernameParameter("loginId")
+					    .passwordParameter("password")
+					    .successHandler(successHandler)
+					    .failureUrl("/login?error")
+					    .permitAll()
+					)
 				.logout(logout -> logout.permitAll());
 
 		return http.build();
@@ -126,5 +143,21 @@ public class SecurityConfig {
 				}
 			}
 		};
+	}
+	
+	// Spring Security의 로그인 상태(SecurityContext)를 HTTP 세션에 저장하고,
+	// 다음 요청에서 다시 불러올 저장소를 등록합니다.
+	@Bean
+	public SecurityContextRepository securityContextRepository() {
+	    return new HttpSessionSecurityContextRepository();
+	}
+
+	// 로그인 성공 후 일반 회원과 관리자 흐름을 분기하는 처리기를 등록합니다.
+	// 관리자는 OTP 인증을 거치도록 AdminMfaService와 세션 저장소를 전달합니다.
+	@Bean
+	public AdminMfaSuccessHandler adminMfaSuccessHandler(
+	        AdminMfaService mfaService,
+	        SecurityContextRepository repository) {
+	    return new AdminMfaSuccessHandler(mfaService, repository);
 	}
 }
