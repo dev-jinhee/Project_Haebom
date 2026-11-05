@@ -1,5 +1,33 @@
 import { calculateAge, isMinor } from "../utils/age.js";
 // ==============================
+// 가족정보 더미 데이터
+// ==============================
+
+const dummyFamily = [
+	{
+		name: "이엑사",
+		relationship: "SPOUSE",
+		birthDate: "1996-05-05",
+		gender: "F",
+		isHouseholdHead: false
+	},
+	{
+		name: "이오티",
+		relationship: "CHILD",
+		birthDate: "2019-12-07",
+		gender: "F",
+		isHouseholdHead: false
+	},
+	{
+		name: "이아이",
+		relationship: "CHILD",
+		birthDate: "2023-02-18",
+		gender: "M",
+		isHouseholdHead: false
+	}
+];
+
+// ==============================
 // 전입신고 0단계 초기화
 // ==============================
 export function init({ root, progressId, readOnly, reload }) {
@@ -15,6 +43,11 @@ export function init({ root, progressId, readOnly, reload }) {
 	const startButton = root.querySelector("#startMoveSimulation");
 
 	loadMemberProfile(tbody);
+	const autoFillBtn = document.getElementById("autoFillFamilyBtn");
+
+	autoFillBtn?.addEventListener("click", () => {
+		fillDummyFamily(root);
+	});
 
 	// 가족 구성원 행 목록
 	const getRows = () => Array.from(
@@ -69,7 +102,9 @@ export function init({ root, progressId, readOnly, reload }) {
 	function selectHouseholdHead(selectedRow) {
 		const rows = getRows();
 
+		// 새로 선택한 행을 제외하고 기존 세대주 조회
 		const previousHead = rows.find(row =>
+			row !== selectedRow &&
 			row.querySelector('[name="householdHead"]').checked
 		);
 
@@ -83,8 +118,8 @@ export function init({ root, progressId, readOnly, reload }) {
 
 			if (isSelected) {
 				relationship.value = "SELF";
-			} else if (previousHead !== selectedRow) {
-				// 세대주 변경 시 기존 관계를 다시 선택하도록 초기화
+			} else if (previousHead) {
+				// 실제 세대주가 변경되었을 때만 관계 초기화
 				relationship.value = "";
 			}
 		});
@@ -207,6 +242,44 @@ export function init({ root, progressId, readOnly, reload }) {
 	});
 
 	updateRemoveButton();
+}
+
+// ==============================
+// 더미 가족 구성원 추가
+// ==============================
+function fillDummyFamily(root) {
+	const tbody = root.querySelector("#householdPeopleBody");
+	const addButton = root.querySelector("#addHouseholdPerson");
+
+	// 중복 불러오기 방지
+	if (tbody.querySelector("[data-dummy-family]")) {
+		alert("가족정보를 이미 불러왔습니다.");
+		return;
+	}
+	dummyFamily.forEach(family => {
+
+		// 기존 행 추가 기능 실행
+		addButton.click();
+
+		// 방금 추가된 행 가져오기
+		const newRow = tbody.lastElementChild;
+
+		// 가족정보 채우기
+		newRow.querySelector('[name="householdRelation"]').value =
+			family.relationship;
+
+		newRow.querySelector('[name="personName"]').value =
+			family.name;
+
+		newRow.querySelector('[name="personBirthdate"]').value =
+			family.birthDate;
+
+		newRow.querySelector('[name="personGender"]').value =
+			family.gender;
+
+		// 더미 데이터로 추가한 행 표시
+		newRow.dataset.dummyFamily = "true";
+	})
 }
 
 // ==============================
