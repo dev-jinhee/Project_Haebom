@@ -36,3 +36,15 @@ export async function uploadAttachment({ url, file }) {
 
     return result;
 }
+// ==============================
+// 파일 삭제
+// ==============================
+export async function deleteAttachment(url) {
+    const response = await fetch(url, {
+        method: "DELETE"
+    });
+
+    if (!response.ok) {
+        throw new Error(`첨부파일 삭제 실패 (${response.status})`);
+    }
+}

@@ -1,7 +1,7 @@
 // 전입신고 Step4 추가 서비스 5종: 조건부 표시·검증·저장·복원
 // 실제 행정기관 신청은 수행하지 않습니다. 파일은 서버 업로드 연동 전까지 브라우저 메모리에만 보관합니다.
 import { calculateAge } from "../utils/age.js";
-import { uploadAttachment } from "../utils/attachment-api.js";
+import { uploadAttachment, deleteAttachment } from "../utils/attachment-api.js";
 
 const SERVICE_CODES = ["LEASE_REPORT", "MAIL_FORWARD", "SCHOOL_ADDRESS", "UTILITY_ADDRESS", "WELFARE_BENEFIT"];
 const $ = (root, selector) => root.querySelector(selector);
@@ -183,13 +183,7 @@ function renderLeaseFiles(root, readOnly = false) {
 						remove.disabled = true;
 
 						try {
-							const response = await fetch(url, {
-								method: "DELETE"
-							});
-
-							if (!response.ok) {
-								throw new Error(`삭제 실패: ${response.status}`);
-							}
+							await deleteAttachment(url);
 
 							uploadedLeaseAttachmentsByRoot.set(
 								root,
@@ -345,6 +339,32 @@ function addLeaseFiles(root, newFiles) {
 	}
 
 	leaseFilesByRoot.set(root, [...current, ...newFiles]);
+	renderLeaseFiles(root);
+}
+
+// ==============================
+// 임대차계약서 S3 삭제
+// ==============================
+export async function deleteUploadedLeaseFiles(root, progressId) {
+	const files = getUploadedLeaseAttachments(root);
+
+	for (const file of files) {
+		const fileId = file.s3Key.split("/").pop();
+		const url = `/api/simulation/move/${progressId}/lease-files/${encodeURIComponent(fileId)}`;
+
+		try {
+			await deleteAttachment(url);
+
+			uploadedLeaseAttachmentsByRoot.set(
+				root,
+				getUploadedLeaseAttachments(root)
+					.filter(item => item.s3Key !== file.s3Key)
+			);
+		} catch (error) {
+			console.error("첨부파일 삭제 실패:", error);
+		}
+	}
+
 	renderLeaseFiles(root);
 }
 

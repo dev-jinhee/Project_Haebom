@@ -610,12 +610,25 @@ async function handleNextStep() {
 				);
 
 				if (!completeResponse.ok) {
-					throw new Error(`신청 완료 실패 (HTTP ${completeResponse.status})`);
+					// 완료 API 실패 시 S3 첨부파일 정리
+					// 4xx 검증 오류에 한해서만 자동 삭제
+					if (completeResponse.status >= 400 &&
+						completeResponse.status < 500 &&
+						activeStepModule?.cleanupAttachments) {
+
+						await activeStepModule.cleanupAttachments({
+							root: document.querySelector("#stepContent"),
+							progressId: simulationState.progressId
+						});
+					}
+
+					alert("신청 완료에 실패했습니다. 입력값을 확인하고 다시 시도해 주세요.");
+					return;
 				}
 
 			} catch (error) {
-				console.error("시뮬레이션 완료 실패:", error);
-				alert("신청 완료에 실패했습니다. 다시 시도해 주세요.");
+				console.error("시뮬레이션 완료 요청 오류:", error);
+				alert("신청 결과를 확인할 수 없습니다. 진행 상태를 확인해 주세요.");
 				return;
 			}
 
