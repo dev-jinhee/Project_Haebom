@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!doctype html>
 <html lang="ko">
 <head>
@@ -11,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/scenario/scenario-list.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-password-fields-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-inquiry-pagination-center-1" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -41,20 +42,12 @@
         </div>
 
         <nav class="mypage-tabs" aria-label="마이페이지 메뉴">
-            <button class="active" type="button" data-my-tab="overview" aria-current="page">요약</button>
-            <button type="button" data-my-tab="completed">완료 내역</button>
+            <button class="active" type="button" data-my-tab="completed" aria-current="page">완료 내역</button>
             <button type="button" data-my-tab="inquiries">내 문의 내역</button>
             <button type="button" data-my-tab="account">계정 정보</button>
         </nav>
 
-        <section data-my-panel="overview" aria-labelledby="overviewTitle">
-            <h2 class="visually-hidden" id="overviewTitle">마이페이지 요약</h2>
-            <section class="content-panel mypage-overview-placeholder" aria-label="요약 안내">
-                <p>요약 정보는 준비 중입니다.</p>
-            </section>
-        </section>
-
-        <section class="d-none" data-my-panel="completed" aria-labelledby="completedTitle">
+        <section data-my-panel="completed" aria-labelledby="completedTitle">
             <div class="content-panel">
                 <h2 class="visually-hidden" id="completedTitle">완료 내역</h2>
                 <section class="mypage-completed-section" aria-labelledby="inProgressScenariosTitle">
@@ -105,7 +98,6 @@
                 </div>
 
                 <div class="table-footer mypage-inquiry-footer">
-                    <span data-mypage-inquiry-total>총 0건</span>
                     <nav aria-label="내 문의 페이지">
                         <ul class="pagination pagination-sm mb-0" data-mypage-inquiry-pagination></ul>
                     </nav>
@@ -156,6 +148,8 @@
                     </div>
                 </dl>
 
+                <% boolean canWithdraw = request.isUserInRole("USER"); %>
+                <c:if test="<%= canWithdraw %>">
                 <div class="account-actions">
                     <div>
                         <strong>회원 탈퇴</strong>
@@ -165,6 +159,7 @@
                         회원 탈퇴
                     </button>
                 </div>
+                </c:if>
             </div>
         </section>
 
@@ -219,6 +214,7 @@
         </div>
     </div>
 
+    <c:if test="<%= canWithdraw %>">
     <div class="modal" id="confirmModal" tabindex="-1" aria-labelledby="deleteAccountTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -243,6 +239,7 @@
             </div>
         </div>
     </div>
+    </c:if>
 
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
     <template id="mypageProgressScenarioTemplate">
@@ -313,7 +310,7 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-password-fields-1"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-password-input-filter-1"></script>
 </body>
 </html>
 

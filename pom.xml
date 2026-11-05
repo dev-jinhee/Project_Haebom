@@ -112,6 +112,26 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<optional>true</optional>
 		</dependency>
+		
+		<!-- TOTP secret 생성, QR 데이터 생성, OTP 검증 -->
+		<dependency>
+		    <groupId>dev.samstevens.totp</groupId>
+		    <artifactId>totp</artifactId>
+		    <version>1.7.1</version>
+		</dependency>
+		
+		<!-- totp 라이브러리의 구버전 전이 의존성 대신 같은 버전으로 고정 -->
+		<dependency>
+		    <groupId>com.google.zxing</groupId>
+		    <artifactId>core</artifactId>
+		    <version>3.5.4</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.google.zxing</groupId>
+		    <artifactId>javase</artifactId>
+    		<version>3.5.4</version>
+		</dependency>
+
 		<!-- Spring Security -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -9,6 +9,10 @@
             <b>해봄</b>
             <p class="mb-0 mt-1">정부24 생활행정 체험 플랫폼</p>
         </div>
+        <div class="d-flex align-items-center gap-2">
+            <span>문의 이메일</span>
+            <span>haebom1592@gmail.com</span>
+        </div>
     </div>
 </footer>
 

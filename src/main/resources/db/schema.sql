@@ -1,5 +1,5 @@
 -- ========================================================
--- [해봄(HAEBOM) 프로젝트 DB 스크립트 - v5.0 최종 설계 반영 (총 14개 테이블)] 
+-- [해봄(HAEBOM) 프로젝트 DB 스크립트 - v6.0 최종 설계 반영 (총 15개 테이블)] 
 -- ========================================================
 
 -- 1. 외래키 제약조건 역순으로 기존 테이블 일괄 삭제
@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS scenario;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS scenario_category;
 
+DROP TABLE IF EXISTS admin_mfa;
 DROP TABLE IF EXISTS member;
 
 -- ========================================================
@@ -27,10 +28,10 @@ DROP TABLE IF EXISTS member;
 -- ========================================================
 CREATE TABLE member (
     member_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '회원 고유 번호',
-    login_id VARCHAR(50) UNIQUE COMMENT '로그인 아이디',
+    login_id VARCHAR(16) UNIQUE COMMENT '로그인 아이디',
     password VARCHAR(255) COMMENT '비밀번호',
     email VARCHAR(50) UNIQUE COMMENT '이메일',
-    member_name VARCHAR(50) COMMENT '회원 이름',
+    member_name VARCHAR(20) COMMENT '회원 이름',
     birth_date DATE COMMENT '생년월일',
     gender CHAR(1) COMMENT '성별 (M/F)',
     role VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '권한',
@@ -38,6 +39,20 @@ CREATE TABLE member (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '가입일시',
     withdrawn_at DATETIME COMMENT '탈퇴 일시'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='회원';
+
+-- ========================================================
+-- ⑮ 관리자 MFA 설정 (admin_mfa)
+-- ========================================================
+CREATE TABLE admin_mfa (
+    member_id INT NOT NULL COMMENT 'MFA 대상 회원 고유 번호',
+    secret_ciphertext VARCHAR(512) NOT NULL COMMENT '암호화된 TOTP 비밀키',
+    enabled_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'OTP 등록 완료 일시',
+    PRIMARY KEY (member_id),
+    CONSTRAINT fk_admin_mfa_member
+        FOREIGN KEY (member_id) REFERENCES member(member_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='관리자 MFA 설정';
 
 -- ========================================================
 -- ⑦ 시나리오 카테고리 (category)

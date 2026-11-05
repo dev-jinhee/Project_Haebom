@@ -84,3 +84,15 @@ body.large-text-mode .account-found-value span { font-size:1.08rem; }
   .login-brand-mark { width:36px; height:36px; }
   .login-card { padding:27px 22px 24px; }
 }
+
+/* 관리자 MFA 화면: 로그인 화면의 카드와 입력 스타일을 재사용합니다. */
+.mfa-description { margin:8px 0 0; color:#728093; font-size:.88rem; line-height:1.65; }
+.mfa-qr-panel { display:grid; place-items:center; margin:22px 0; padding:20px; border:1px solid #e3eaf0; border-radius:14px; background:#f8fafc; }
+.mfa-qr-image { display:block; width:min(100%,220px); height:auto; padding:8px; border:1px solid #e5eaf0; border-radius:10px; background:#fff; }
+.mfa-steps { margin:0 0 22px; padding-left:22px; color:#5d6d80; font-size:.83rem; line-height:1.75; }
+.mfa-code-field { display:grid; gap:7px; }
+.mfa-code-field label { color:#405268; font-size:.88rem; font-weight:700; }
+.mfa-code-input { min-height:52px; text-align:center; font-size:1.35rem !important; font-weight:700; letter-spacing:.35em; }
+.mfa-code-help { margin:0; color:#718096; font-size:.78rem; line-height:1.5; }
+.mfa-error { margin:0 0 14px; padding:10px 12px; border:1px solid #f2c9c9; border-radius:8px; color:#b42318; background:#fff7f7; font-size:.84rem; }
+.mfa-account { margin:0 0 18px; color:#718096; font-size:.84rem; text-align:center; }
