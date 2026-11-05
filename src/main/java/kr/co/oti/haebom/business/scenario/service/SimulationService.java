@@ -2,12 +2,16 @@ package kr.co.oti.haebom.business.scenario.service;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,7 +29,10 @@ import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationFamilyMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper;
 import kr.co.oti.haebom.business.scenario.validation.StepValidationManager;
+import kr.co.oti.haebom.system.storage.S3Service;
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @RequiredArgsConstructor
 @Service
@@ -36,6 +43,11 @@ public class SimulationService {
 	private final SimulationFamilyMapper familyMapper;
 	private final ObjectMapper objectMapper;
 	private final StepValidationManager stepValidationManager;
+	private final S3Client s3Client;
+	private final S3Service s3Service;
+
+	@Value("${haebom.s3.bucket}")
+	private String bucketName;
 
 	private static final Set<String> JSON_FIELDS = Set.of("previousAddress", "currentAddress", "additionalServices",
 			"additionalServiceDetails");
@@ -98,6 +110,71 @@ public class SimulationService {
 
 		// 현재 단계의 입력값 검증
 		stepValidationManager.validate(stepInfo.getScenarioCode(), stepInfo.getStepOrder(), answers);
+	}
+
+	// 첨부파일 검증 메서드
+	private void validateLeaseFiles(Integer progressId, Integer memberId,
+			java.util.List<AnswerSaveRequestListDTO.AnswerSaveRequestDTO> answers) {
+
+		StepValidationInfoDTO stepInfo = simulationProgressMapper.selectStepValidationInfo(progressId, memberId);
+
+		// 전입신고 4단계에서만 실행
+		if (stepInfo == null || !"MOVE".equals(stepInfo.getScenarioCode())
+				|| !Integer.valueOf(4).equals(stepInfo.getStepOrder())) {
+			return;
+		}
+
+		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : answers) {
+
+			if (!"additionalServiceDetails".equals(answer.getFieldKey())) {
+				continue;
+			}
+
+			try {
+				JsonNode details = objectMapper.readTree(answer.getAnswerValue());
+				JsonNode attachments = details.path("LEASE_REPORT").path("attachments");
+
+				// 선택하지 않았거나 첨부파일이 없는 경우
+				if (attachments.isMissingNode()) {
+					continue;
+				}
+
+				for (JsonNode file : attachments) {
+					String key = file.path("s3Key").asText();
+					String name = file.path("fileName").asText();
+					long size = file.path("fileSize").asLong();
+
+					// 현재 진행 이력의 첨부파일인지 확인
+					String prefix = "move/" + progressId + "/lease/";
+					if (!key.startsWith(prefix)
+							|| !key.substring(prefix.length()).matches("(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-"
+									+ "[0-9a-f]{4}-[0-9a-f]{12}\\.(pdf|jpg|jpeg|bmp)")) {
+						throw new SimulationValidationException("현재 진행 이력의 첨부파일이 아닙니다.");
+					}
+
+					try {
+						var info = s3Client.headObject(r -> r.bucket(bucketName).key(key));
+
+						String encodedName = Base64.getUrlEncoder().withoutPadding()
+								.encodeToString(name.getBytes(StandardCharsets.UTF_8));
+
+						if (info.contentLength() == null || info.contentLength() != size
+								|| !encodedName.equals(info.metadata().get("original-name-b64"))) {
+							throw new SimulationValidationException("첨부파일 정보가 일치하지 않습니다.");
+						}
+
+					} catch (S3Exception e) {
+						if (e.statusCode() == 404) {
+							throw new SimulationValidationException("S3에 존재하지 않는 첨부파일입니다.");
+						}
+						throw e;
+					}
+				}
+
+			} catch (JsonProcessingException e) {
+				throw new SimulationValidationException("첨부파일 정보를 읽을 수 없습니다.", e);
+			}
+		}
 	}
 
 	// 시뮬레이션 시작
@@ -239,6 +316,9 @@ public class SimulationService {
 		// 저장 전에 현재 단계의 입력값 검증
 		validateStepAnswers(progressId, memberId, request.getAnswers());
 
+		// S3 첨부파일 참조 검증
+		validateLeaseFiles(progressId, memberId, request.getAnswers());
+
 		// 전부 통과한 경우에만 기존 Mapper에 저장한다.
 		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
 			answerMapper.upsertAnswer(progressId, answer);
@@ -271,6 +351,13 @@ public class SimulationService {
 		if (updateRow != 1) {
 			throw new IllegalStateException("진행 기록 삭제가 실패하였습니다.");
 		}
+		// DB 삭제가 정상 커밋된 뒤 S3 파일 삭제
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				s3Service.deleteLeaseFiles(progressId);
+			}
+		});
 	}
 
 }

@@ -1,6 +1,7 @@
 // 전입신고 Step4 추가 서비스 5종: 조건부 표시·검증·저장·복원
-// 실제 행정기관 신청이나 파일 업로드는 수행하지 않습니다.
+// 실제 행정기관 신청은 수행하지 않습니다. 파일은 서버 업로드 연동 전까지 브라우저 메모리에만 보관합니다.
 import { calculateAge } from "../utils/age.js";
+import { uploadAttachment, deleteAttachment } from "../utils/attachment-api.js";
 
 const SERVICE_CODES = ["LEASE_REPORT", "MAIL_FORWARD", "SCHOOL_ADDRESS", "UTILITY_ADDRESS", "WELFARE_BENEFIT"];
 const $ = (root, selector) => root.querySelector(selector);
@@ -8,7 +9,21 @@ const selected = (root, code) => Boolean($(root, `input[name="additionalService"
 const checkedIds = (root, name) => [...root.querySelectorAll(`input[name="${name}"]:checked`)].map(input => Number(input.value));
 const checked = (root, name) => Boolean($(root, `[name="${name}"]`)?.checked);
 const val = (root, id) => $(root, `#${id}`)?.value?.trim() ?? "";
-const MOCK_LEASE_FILE_NAME = "가상_임대차계약서.pdf";
+// 실제 파일 업로드 API 연동 전 단계: 선택한 파일은 브라우저 메모리에만 보관
+const LEASE_MAX_FILE_BYTES = 2 * 1024 * 1024;
+const LEASE_MAX_FILES = 2;
+const LEASE_MAX_TOTAL_BYTES = 4 * 1024 * 1024;
+const leaseFilesByRoot = new WeakMap();
+// S3 업로드가 완료된 첨부파일 정보
+const uploadedLeaseAttachmentsByRoot = new WeakMap();
+// 업로드 중복 실행 방지용 변수
+const leaseUploadingByRoot = new WeakSet();
+const LEASE_MIME_TYPES = {
+	pdf: ["application/pdf"],
+	jpg: ["image/jpeg"],
+	jpeg: ["image/jpeg"],
+	bmp: ["image/bmp", "image/x-ms-bmp"]
+};
 
 function addPersonCell(row, value) {
 	const td = document.createElement("td");
@@ -66,52 +81,319 @@ function setPhoneGroup(root, groupId, phone = "", defaultFirst = "") {
 }
 
 // ==============================
-// 임대차계약서 가상 첨부
+// 임대차계약서 실제 파일 선택 UI (S3 업로드 API 연결 전)
 // ==============================
-function setLeaseMockAttachment(root, attached) {
-	const status = root.querySelector("#leaseMockFileStatus");
-	const attachButton = root.querySelector("#attachLeaseMockFileBtn");
-	const removeButton = root.querySelector("#removeLeaseMockFileBtn");
-
-	if (!status || !attachButton || !removeButton) return;
-
-	status.replaceChildren();
-
-	const message = document.createElement("span");
-	message.className = attached
-		? "text-primary small fw-semibold"
-		: "text-muted small";
-
-	message.textContent = attached
-		? MOCK_LEASE_FILE_NAME
-		: "첨부된 가상 서류가 없습니다.";
-
-	status.appendChild(message);
-
-	// 실제 파일을 선택하지 않고 상태만 변경
-	status.dataset.attached = String(attached);
-
-	attachButton.classList.toggle("d-none", attached);
-	removeButton.classList.toggle("d-none", !attached);
+function formatLeaseFileSize(bytes) {
+	if (bytes < 1024) return `${bytes} Byte`;
+	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+	return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
-export function initServices(root, movingFamilies, { readOnly = false, applicantPhone } = {}) {
-	const attachButton = root.querySelector("#attachLeaseMockFileBtn");
-	const removeButton = root.querySelector("#removeLeaseMockFileBtn");
-	if (!readOnly) {
-		attachButton?.addEventListener("click", () => {
-			setLeaseMockAttachment(root, true);
-		});
+function getLeaseFiles(root) {
+	return leaseFilesByRoot.get(root) ?? [];
+}
 
-		removeButton?.addEventListener("click", () => {
-			setLeaseMockAttachment(root, false);
+// 이후 S3 업로드 API가 완성되면 FormData 생성에 사용할 예정.
+export function getPendingLeaseFiles(root) {
+	return [...getLeaseFiles(root)];
+}
+
+// S3 업로드가 완료된 파일 정보 반환
+export function getUploadedLeaseAttachments(root) {
+	return [...(uploadedLeaseAttachmentsByRoot.get(root) ?? [])];
+}
+
+function renderLeaseFiles(root, readOnly = false) {
+	const tbody = $(root, "#leaseFileList");
+	const summary = $(root, "#leaseFileSummary");
+	const removeAll = $(root, "#removeAllLeaseFilesBtn");
+	if (!tbody || !summary || !removeAll) return;
+
+	const uploadedFiles = getUploadedLeaseAttachments(root);
+
+	const files = [
+		...uploadedFiles.map(file => ({
+			name: file.fileName,
+			size: file.fileSize,
+			isUploaded: true,
+			s3Key: file.s3Key
+		})),
+		...getLeaseFiles(root).map(file => ({
+			name: file.name,
+			size: file.size,
+			isUploaded: false,
+			originalFile: file
+		}))
+	];
+	tbody.replaceChildren();
+
+	if (files.length === 0) {
+		const row = document.createElement("tr");
+		row.id = "leaseFileEmptyRow";
+		const cell = document.createElement("td");
+		cell.colSpan = 3;
+		cell.className = "text-center text-secondary py-4";
+		const icon = document.createElement("span");
+		icon.className = "material-symbols-outlined d-block mb-2";
+		icon.setAttribute("aria-hidden", "true");
+		icon.textContent = "upload_file";
+		const message = document.createElement("span");
+		message.className = "small";
+		message.textContent = "첨부된 파일이 없습니다.";
+		cell.append(icon, message);
+		row.appendChild(cell);
+		tbody.appendChild(row);
+	}
+	else {
+		files.forEach(file => {
+			const row = document.createElement("tr");
+
+			const nameCell = document.createElement("td");
+			nameCell.className = "ps-3 text-break";
+			nameCell.textContent = file.name;
+
+			const sizeCell = document.createElement("td");
+			sizeCell.className = "text-end text-nowrap";
+			sizeCell.textContent = formatLeaseFileSize(file.size);
+
+			const actionCell = document.createElement("td");
+			actionCell.className = "text-center";
+
+
+			if (file.isUploaded) {
+				const fileId = file.s3Key.split("/").pop();
+				const progressId = root.dataset.leaseProgressId;
+				const url = `/api/simulation/move/${progressId}/lease-files/${encodeURIComponent(fileId)}`;
+
+				// 다운로드
+				const download = document.createElement("a");
+				download.className = "btn btn-outline-primary btn-sm";
+				download.textContent = "다운로드";
+				download.href = url;
+				actionCell.appendChild(download);
+
+				// 신청 완료 전에는 업로드된 파일도 삭제 가능
+				if (!readOnly) {
+					const remove = document.createElement("button");
+					remove.type = "button";
+					remove.className = "btn btn-outline-secondary btn-sm ms-2";
+					remove.textContent = "삭제";
+
+					remove.addEventListener("click", async () => {
+						remove.disabled = true;
+
+						try {
+							await deleteAttachment(url);
+
+							uploadedLeaseAttachmentsByRoot.set(
+								root,
+								getUploadedLeaseAttachments(root)
+									.filter(item => item.s3Key !== file.s3Key)
+							);
+
+							renderLeaseFiles(root, readOnly);
+
+						} catch (error) {
+							console.error(error);
+							alert("첨부파일 삭제에 실패했습니다.");
+							remove.disabled = false;
+						}
+					});
+
+					actionCell.appendChild(remove);
+				}
+
+			} else if (!readOnly) {
+				const remove = document.createElement("button");
+
+				remove.type = "button";
+				remove.className = "btn btn-outline-secondary btn-sm";
+				remove.textContent = "삭제";
+
+				remove.addEventListener("click", () => {
+					leaseFilesByRoot.set(
+						root,
+						getLeaseFiles(root).filter(item => item !== file.originalFile)
+					);
+					renderLeaseFiles(root, readOnly);
+				});
+
+				actionCell.appendChild(remove);
+			}
+
+
+			row.append(nameCell, sizeCell, actionCell);
+			tbody.appendChild(row);
+		});
+	}
+
+
+	const total = files.reduce((sum, file) => sum + file.size, 0);
+	summary.textContent = `${files.length}개 · ${formatLeaseFileSize(total)} / 최대 2개 · 4MB`;
+	removeAll.disabled =
+		readOnly || files.length === 0 || uploadedFiles.length > 0;
+}
+
+// ==============================
+// 임대차계약서 S3 업로드
+// ==============================
+export async function uploadPendingLeaseFiles(root, progressId) {
+	// 임대차계약서 서비스를 선택하지 않았다면 업로드하지 않음
+	if (!selected(root, "LEASE_REPORT")) {
+		return;
+	}
+	// 업로드 대기 중인 파일
+	const pendingFiles = getPendingLeaseFiles(root);
+
+	// 첨부파일이 없다면 업로드 생략
+	if (pendingFiles.length === 0) {
+		return;
+	}
+	if (!progressId) {
+		throw new Error("시뮬레이션 진행 ID가 없습니다.");
+	}
+
+	// 중복 업로드 요청 방지
+	if (leaseUploadingByRoot.has(root)) {
+		throw new Error("첨부파일 업로드가 이미 진행 중입니다.");
+	}
+
+	leaseUploadingByRoot.add(root);
+	try {
+		const url =
+			`/api/simulation/move/${progressId}/lease-files`;
+
+		for (const file of pendingFiles) {
+
+			// 실제 S3 업로드 API 호출
+			const result = await uploadAttachment({
+				url,
+				file
+			});
+
+			// 업로드 성공한 파일 정보 저장
+			const uploaded = getUploadedLeaseAttachments(root);
+
+			uploadedLeaseAttachmentsByRoot.set(root, [
+				...uploaded,
+				result
+			]);
+
+			// 성공한 파일만 대기 목록에서 제거
+			leaseFilesByRoot.set(
+				root,
+				getLeaseFiles(root).filter(item => item !== file)
+			);
+
+			console.log("첨부파일 업로드 성공:", result);
+		}
+
+		// 업로드 상태 화면 갱신
+		renderLeaseFiles(root);
+
+	} finally {
+		// 성공한 파일이 하나라도 있다면 목록 갱신
+		renderLeaseFiles(root);
+
+		// 업로드 중 상태 해제
+		leaseUploadingByRoot.delete(root);
+	}
+}
+
+function addLeaseFiles(root, newFiles) {
+	const current = getLeaseFiles(root);
+	if (
+		getUploadedLeaseAttachments(root).length
+		+ current.length
+		+ newFiles.length > LEASE_MAX_FILES
+	) {
+		alert("첨부파일은 최대 2개까지만 등록할 수 있습니다.");
+		return;
+	}
+
+	for (const file of newFiles) {
+		const ext = file.name.split(".").pop()?.toLowerCase();
+		const allowed = LEASE_MIME_TYPES[ext];
+		if (!allowed || (file.type && !allowed.includes(file.type))) {
+			alert("JPG, JPEG, BMP, PDF 파일만 첨부할 수 있습니다.");
+			return;
+		}
+		if (file.size === 0 || file.size > LEASE_MAX_FILE_BYTES) {
+			alert(`파일당 최대 2MB까지 첨부할 수 있습니다: ${file.name}`);
+			return;
+		}
+		if (current.some(old => old.name === file.name && old.size === file.size && old.lastModified === file.lastModified)) {
+			alert(`이미 선택된 파일입니다: ${file.name}`);
+			return;
+		}
+	}
+
+	const total =
+		[...current, ...newFiles]
+			.reduce((sum, file) => sum + file.size, 0)
+		+ getUploadedLeaseAttachments(root)
+			.reduce((sum, file) => sum + file.fileSize, 0);
+	if (total > LEASE_MAX_TOTAL_BYTES) {
+		alert("전체 첨부파일 용량은 4MB를 초과할 수 없습니다.");
+		return;
+	}
+
+	leaseFilesByRoot.set(root, [...current, ...newFiles]);
+	renderLeaseFiles(root);
+}
+
+// ==============================
+// 임대차계약서 S3 삭제
+// ==============================
+export async function deleteUploadedLeaseFiles(root, progressId) {
+	const files = getUploadedLeaseAttachments(root);
+
+	for (const file of files) {
+		const fileId = file.s3Key.split("/").pop();
+		const url = `/api/simulation/move/${progressId}/lease-files/${encodeURIComponent(fileId)}`;
+
+		try {
+			await deleteAttachment(url);
+
+			uploadedLeaseAttachmentsByRoot.set(
+				root,
+				getUploadedLeaseAttachments(root)
+					.filter(item => item.s3Key !== file.s3Key)
+			);
+		} catch (error) {
+			console.error("첨부파일 삭제 실패:", error);
+		}
+	}
+
+	renderLeaseFiles(root);
+}
+
+export function initServices(root, movingFamilies, { readOnly = false, applicantPhone, progressId } = {}) {
+	root.dataset.leaseProgressId = progressId;
+
+	const fileInput = $(root, "#leaseFileInput");
+	const removeAll = $(root, "#removeAllLeaseFilesBtn");
+	const addLabel = $(root, "#addLeaseFileBtn");
+	leaseFilesByRoot.set(root, []);
+	uploadedLeaseAttachmentsByRoot.set(root, []);
+	renderLeaseFiles(root, readOnly);
+
+	if (!readOnly) {
+		fileInput?.addEventListener("change", () => {
+			const selectedFiles = [...(fileInput.files ?? [])];
+			fileInput.value = ""; // 동일 파일 재선택 허용
+			if (selectedFiles.length > 0) addLeaseFiles(root, selectedFiles);
+		});
+		removeAll?.addEventListener("click", () => {
+			leaseFilesByRoot.set(root, []);
+			if (fileInput) fileInput.value = "";
+			renderLeaseFiles(root);
 		});
 	} else {
-		if (attachButton) attachButton.disabled = true;
-		if (removeButton) removeButton.disabled = true;
+		if (fileInput) fileInput.disabled = true;
+		if (removeAll) removeAll.disabled = true;
+		addLabel?.classList.add("d-none");
 	}
-	// 최초 진입 시 첨부되지 않은 상태
-	setLeaseMockAttachment(root, false);
 
 	const schoolCandidates = movingFamilies.filter(family => {
 		const age = calculateAge(family.birthDate);
@@ -144,10 +426,7 @@ export function getServiceDetails(root) {
 	if (selected(root, "LEASE_REPORT")) {
 		result.LEASE_REPORT = {
 			reportRequested: checked(root, "leaseReportRequested"),
-			// 개인정보 보호를 위해 파일 원본은 업로드·저장하지 않음
-			mockDocumentAttached:
-				root.querySelector("#leaseMockFileStatus")
-					?.dataset.attached === "true"
+			attachments: getUploadedLeaseAttachments(root)
 		};
 	}
 	if (selected(root, "MAIL_FORWARD")) {
@@ -170,16 +449,37 @@ export function getServiceDetails(root) {
 	}
 	return result;
 }
+
 export function restoreServices(root, details = {}) {
 	for (const code of SERVICE_CODES) {
 		const item = details?.[code] || {};
 		if (code === "LEASE_REPORT") {
 			const check = $(root, '[name="leaseReportRequested"]');
+
 			if (check) check.checked = Boolean(item.reportRequested);
-			setLeaseMockAttachment(
+
+			// DB에 저장된 첨부파일 정보 복원
+			const attachments = Array.isArray(item.attachments)
+				? item.attachments
+				: [];
+
+			uploadedLeaseAttachmentsByRoot.set(root, attachments);
+
+			// 첨부파일 목록 화면 갱신
+			renderLeaseFiles(
 				root,
-				item.mockDocumentAttached === true
+				Boolean($(root, "#leaseFileInput")?.disabled)
 			);
+
+			// 이전 가상 첨부 데이터 처리
+			if (item.mockDocumentAttached === true && attachments.length === 0) {
+				const message = $(root, "#leaseFileEmptyRow .small");
+
+				if (message) {
+					message.textContent =
+						"이전 가상 첨부 기록입니다. 실제 파일을 다시 첨부해 주세요.";
+				}
+			}
 		}
 		if (code === "MAIL_FORWARD") {
 			setPhoneGroup(root, "mailForwardLandlineGroup", item.landlinePhone || "");
@@ -207,6 +507,7 @@ export function restoreServices(root, details = {}) {
 	updateSections(root);
 }
 export function validateServices(root) {
+
 	if (selected(root, "MAIL_FORWARD")) {
 		if (!/^010-\d{4}-\d{4}$/.test(
 			getPhoneGroup(root, "mailForwardPhoneGroup")
