@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/scenario/scenario-list.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-remove-overview-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-inquiry-pagination-center-1" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -98,7 +98,6 @@
                 </div>
 
                 <div class="table-footer mypage-inquiry-footer">
-                    <span data-mypage-inquiry-total>총 0건</span>
                     <nav aria-label="내 문의 페이지">
                         <ul class="pagination pagination-sm mb-0" data-mypage-inquiry-pagination></ul>
                     </nav>

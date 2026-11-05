@@ -57,7 +57,8 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-inquiry-answer-content { margin:0; color:#243d35; font-size:.84rem; line-height:1.65; white-space:pre-line; }
 .mypage-inquiry-answer-message { margin:0; padding:14px; border-radius:10px; background:#f8fafc; color:#758395; font-size:.82rem; }
 .mypage-inquiry-answer-message.is-error { color:#a33d3d; }
-.mypage-inquiry-footer { margin-top:18px; padding-top:16px; border-top:1px solid #e4eaf0; }
+.mypage-inquiry-footer { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-top:18px; padding-top:16px; border-top:1px solid #e4eaf0; }
+.mypage-inquiry-footer > nav { grid-column:2; justify-self:center; }
 @media(max-width:575.98px) {
     .mypage-inquiries-toolbar { align-items:stretch; flex-direction:column; }
     .mypage-inquiry-controls { width:100%; }
@@ -68,7 +69,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-inquiry-metadata { flex-wrap:wrap; gap:5px 8px; font-size:.7rem; }
     .mypage-inquiry-metadata > span + time { padding-left:8px; }
     .mypage-inquiry-status { padding:5px 9px; font-size:.68rem; }
-    .mypage-inquiry-footer { align-items:flex-start; flex-direction:column; gap:10px; }
+    .mypage-inquiry-footer { align-items:center; gap:10px; }
     .mypage-inquiry-footer .pagination { flex-wrap:wrap; }
 }
 
