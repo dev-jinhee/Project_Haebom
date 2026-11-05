@@ -20,6 +20,9 @@
 	let adminInquiryCache = [];
 	let inquirySortDirection = 0; // 0: 기본, 1: 답변대기우선, -1: 답변완료우선
 	let selectedInquiryId = '';
+	// 페이징 변수 2개 추가!
+	let inquiryCurrentPage = 1;
+	const inquiryPageSize = 15;
 
 	// 1. 진짜 DB 문의 목록 불러오기
 	async function loadAdminInquiries() {
@@ -129,24 +132,47 @@
 		}
 	}
 
-	// 2. 테이블 행 렌더링 (정렬 지원)
+		// 2. 테이블 행 렌더링 (15개씩 페이징 및 정렬 지원)
 	function renderAdminInquiryRows() {
 		const tbody = document.getElementById('adminInquiryTableBody');
 		if (!tbody) return;
 
-		if (!adminInquiryCache || adminInquiryCache.length === 0) {
-			tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-secondary">등록된 문의가 없습니다.</td></tr>`;
-			return;
-		}
-
-		let displayList = [...adminInquiryCache];
+		let displayList = [...(adminInquiryCache || [])];
 		if (inquirySortDirection === 1) {
 			displayList.sort((a, b) => (a.qnaStatus === 'WAITING' ? -1 : 1));
 		} else if (inquirySortDirection === -1) {
 			displayList.sort((a, b) => (a.qnaStatus === 'ANSWERED' ? -1 : 1));
 		}
 
-		tbody.innerHTML = displayList.map(qna => {
+		const totalCount = displayList.length;
+		const totalPages = Math.ceil(totalCount / inquiryPageSize) || 1;
+
+		// 현재 페이지 범위 안전 보정
+		if (inquiryCurrentPage > totalPages) inquiryCurrentPage = totalPages;
+		if (inquiryCurrentPage < 1) inquiryCurrentPage = 1;
+
+		// 15개씩 슬라이스 계산
+		const startIndex = (inquiryCurrentPage - 1) * inquiryPageSize;
+		const endIndex = Math.min(startIndex + inquiryPageSize, totalCount);
+		const pagedList = displayList.slice(startIndex, endIndex);
+
+		// 상단/하단 안내 문구 갱신 (전체 X건 중 A - B)
+		const totalListCountEl = document.getElementById('adminInquiryTotalListCount');
+		const pageRangeEl = document.getElementById('adminInquiryPageRange');
+		if (totalListCountEl) totalListCountEl.textContent = totalCount;
+		if (pageRangeEl) {
+			pageRangeEl.textContent = totalCount === 0 ? '0 - 0' : `${startIndex + 1} - ${endIndex}`;
+		}
+
+		// 데이터 없을 때
+		if (totalCount === 0) {
+			tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-secondary">등록된 문의가 없습니다.</td></tr>`;
+			renderInquiryPagination(0, 1);
+			return;
+		}
+
+		// 15개 행만 테이블에 렌더링
+		tbody.innerHTML = pagedList.map(qna => {
 			const isAnswered = qna.qnaStatus === 'ANSWERED';
 			const statusBadge = isAnswered
 				? '<span class="badge text-bg-success">답변 완료</span>'
@@ -171,12 +197,67 @@
         </tr>
       `;
 		}).join('');
+
+		// 하단 페이징 버튼 생성 호출
+		renderInquiryPagination(totalPages, inquiryCurrentPage);
+	}
+
+	// 📌 문의 게시판 [이전] [1] [2] [다음] 버튼 생성 함수
+	function renderInquiryPagination(totalPages, currentPage) {
+		const paginationEl = document.getElementById('adminInquiryPagination');
+		if (!paginationEl) return;
+
+		if (totalPages <= 1) {
+			paginationEl.innerHTML = '';
+			return;
+		}
+
+		let html = '';
+
+		// [이전] 버튼
+		const prevDisabled = currentPage === 1 ? 'disabled' : '';
+		html += `<li class="page-item ${prevDisabled}">
+			<a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="이전">&laquo;</a>
+		</li>`;
+
+		// 번호 버튼 (5개 단위 블록)
+		const pageGroupSize = 5;
+		const currentGroup = Math.ceil(currentPage / pageGroupSize);
+		const startPage = (currentGroup - 1) * pageGroupSize + 1;
+		const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+
+		for (let p = startPage; p <= endPage; p++) {
+			const activeClass = p === currentPage ? 'active' : '';
+			html += `<li class="page-item ${activeClass}">
+				<a class="page-link" href="#" data-page="${p}">${p}</a>
+			</li>`;
+		}
+
+		// [다음] 버튼
+		const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+		html += `<li class="page-item ${nextDisabled}">
+			<a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="다음">&raquo;</a>
+		</li>`;
+
+		paginationEl.innerHTML = html;
+
+		// 클릭 시 해당 페이지로 이동
+		paginationEl.querySelectorAll('a.page-link').forEach(btn => {
+			btn.addEventListener('click', (e) => {
+				e.preventDefault();
+				const targetPage = Number(btn.dataset.page);
+				if (!targetPage || targetPage === inquiryCurrentPage || targetPage < 1 || targetPage > totalPages) return;
+				inquiryCurrentPage = targetPage;
+				renderAdminInquiryRows();
+			});
+		});
 	}
 
 	// 3. 상태순 정렬 버튼 클릭 이벤트
 	const inquiryStatusSortButton = document.querySelector('[data-inquiry-status-sort]');
 	inquiryStatusSortButton?.addEventListener('click', () => {
 		inquirySortDirection = inquirySortDirection === 1 ? -1 : 1;
+		inquiryCurrentPage = 1; // 정렬 바뀌면 1페이지로 이동이다제!
 		renderAdminInquiryRows();
 
 		const icon = inquiryStatusSortButton.querySelector('i');
@@ -344,51 +425,9 @@
 		}
 	});
 
-	// 2) 문의 게시판 목록 엑셀 다운로드 이벤트
+	// 2) 문의 게시판 목록 엑셀 다운로드 이벤트 (DB 연동 + POI)
 	document.getElementById('btnExportInquiriesExcel')?.addEventListener('click', () => {
-		if (!adminInquiryCache || adminInquiryCache.length === 0) {
-			toast('다운로드할 문의 데이터가 없습니다.');
-			return;
-		}
-
-		const categoryNames = {
-			1: '회원·계정 문의',
-			2: '시뮬레이션 문의',
-			3: '오류·버그 신고',
-			4: '기타 문의'
-		};
-
-		const excelData = adminInquiryCache.map((qna, idx) => ({
-			'순번': idx + 1,
-			'문의 번호': qna.qnaId || '',
-			'문의 제목': qna.qnaTitle || '',
-			'비밀글 여부': qna.isSecret ? '비밀글' : '공개글',
-			'문의 분류': qna.qnaCategoryName || categoryNames[qna.qnaCategoryId] || `카테고리 ${qna.qnaCategoryId}`,
-			'작성자(ID)': qna.loginId || qna.memberName || '익명',
-			'답변 상태': qna.qnaStatus === 'ANSWERED' ? '답변 완료' : '답변 대기',
-			'담당자': qna.responderLoginId || qna.responderName || (qna.qnaStatus === 'ANSWERED' ? '관리자' : '미지정'),
-			'등록일시': qna.qnaCreatedAt ? String(qna.qnaCreatedAt).replace('T', ' ').substring(0, 19) : '',
-			'문의 내용': qna.qnaContent || ''
-		}));
-
-		const colWidths = [
-			{ wch: 8 },  // 순번
-			{ wch: 12 }, // 문의 번호
-			{ wch: 30 }, // 문의 제목
-			{ wch: 12 }, // 비밀글 여부
-			{ wch: 18 }, // 문의 분류
-			{ wch: 16 }, // 작성자
-			{ wch: 12 }, // 답변 상태
-			{ wch: 14 }, // 담당자
-			{ wch: 22 }, // 등록일시
-			{ wch: 45 }  // 문의 내용
-		];
-
-		if (typeof window.exportToExcelFile === 'function') {
-			window.exportToExcelFile(excelData, '해봄_문의목록', '문의목록', colWidths);
-		} else {
-			toast('엑셀 변환 함수를 찾을 수 없습니다.');
-		}
+		window.location.href = '/api/inquiries/excel';
 	});
 
 	// 외부 노출
