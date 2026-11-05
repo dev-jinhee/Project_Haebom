@@ -56,13 +56,14 @@
 		dashboard: '이용 현황',
 		members: '회원',
 		scenarios: '시나리오',
-		inquiries: '문의 게시판'
+		inquiries: '문의 게시판',
+		admins: '관리자'
 	};
 
 	const renderAdminPage = () => {
 		if (!['/admin.html', '/admin', '/admin/'].includes(window.location.pathname) && !window.location.pathname.startsWith('/admin')) return;
 		const hash = window.location.hash.slice(1);
-		const page = ['dashboard', 'members', 'scenarios'].includes(hash) ? hash
+		const page = ['dashboard', 'members', 'scenarios', 'admins'].includes(hash) ? hash
 			: ['inquiries', 'inquiries-admin'].includes(hash) ? 'inquiries' : 'dashboard';
 
 		document.querySelectorAll('[data-admin-page]').forEach((section) => {
@@ -93,6 +94,9 @@
 		}
 		if (page === 'scenarios' && typeof window.loadAdminScenarios === 'function') {
 			window.loadAdminScenarios();
+		}
+		if (page === 'admins' && typeof window.loadAdminAccounts === 'function') {
+			window.loadAdminAccounts();
 		}
 	};
 
