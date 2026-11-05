@@ -82,10 +82,16 @@ public class SecurityConfig {
 					        antMatcher(HttpMethod.GET, "/api/scenario/**"),
 					        antMatcher(HttpMethod.GET, "/api/inquiries")
 					    ).permitAll()
-
-						 // OTP 확인 전에는 아직 ROLE_ADMIN 인증이 완료되지 않았으므로 MFA 경로는 허용합니다.
-						 // 대신 해당 화면과 요청은 컨트롤러에서 OTP 대기 세션인지 확인해야 합니다.
-					    .requestMatchers(antMatcher("/admin/mfa/**")).permitAll()
+					    
+						 // 비밀번호 인증 후 OTP를 통과하기 전에는 ROLE_ADMIN 권한이 없으므로,
+						 // MFA 등록·검증 화면(GET)과 코드 제출(POST) 경로만 Security 필터에서 허용합니다.
+						 // 실제 접근 가능 여부는 컨트롤러에서 관리자 OTP 대기 세션과 만료 시간을 확인합니다.
+					    .requestMatchers(
+					    	antMatcher(HttpMethod.GET, "/admin/mfa/setup"),
+						    antMatcher(HttpMethod.POST, "/admin/mfa/setup"),
+						    antMatcher(HttpMethod.GET, "/admin/mfa/verify"),
+						    antMatcher(HttpMethod.POST, "/admin/mfa/verify")
+						).permitAll()
 					    
 					    // 관리자 전용
 					    .requestMatchers(
