@@ -393,6 +393,18 @@
 									</tbody>
 								</table>
 							</div>
+							<!-- 회원 목록 페이징 영역 -->
+							<div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+								<div class="small text-secondary">
+									전체 <strong class="text-dark" id="adminMemberTotalCount">0</strong>명 중 
+									<span id="adminMemberPageRange">0 - 0</span>
+								</div>
+								<nav aria-label="회원 목록 페이징">
+									<ul class="pagination pagination-sm mb-0 justify-content-center" id="adminMemberPagination">
+										<!-- JS에서 버튼이 동적으로 생성됩니다 -->
+									</ul>
+								</nav>
+							</div>
 						</section>
 					</div>
 
@@ -433,6 +445,18 @@
 										</tr>
 									</tbody>
 								</table>
+							</div>
+							<!-- 문의 목록 페이징 영역 -->
+							<div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+								<div class="small text-secondary">
+									전체 <strong class="text-dark" id="adminInquiryTotalListCount">0</strong>건 중 
+									<span id="adminInquiryPageRange">0 - 0</span>
+								</div>
+								<nav aria-label="문의 목록 페이징">
+									<ul class="pagination pagination-sm mb-0 justify-content-center" id="adminInquiryPagination">
+										<!-- JS에서 버튼이 동적으로 생성됩니다 -->
+									</ul>
+								</nav>
 							</div>
 						</section>
 						<section class="card mt-4 admin-inquiry-overview"
@@ -761,10 +785,34 @@
 									class="bi bi-bookmark-check"></i></span>
 								<div>
 									<h3 class="h6 fw-bold mb-1" id="memberDraftTitle">연습 진행 및 이력</h3>
-									<p class="small text-secondary mb-0">각 시나리오별 가장 최근에 진행한 연습 내역입니다.</p>
+									<p class="small text-secondary mb-0">회원이 진행한 모든 시나리오별 연습 이력입니다.</p>
 								</div>
 							</div>
 							<span class="admin-count-badge" data-member-draft-count></span>
+						</div>
+
+						<!-- 탭 필터(전체/진행중/완료) & 시나리오 드롭다운 바 -->
+						<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+							<div class="btn-group btn-group-sm" role="group" id="memberDraftStatusTabs">
+								<button type="button" class="btn btn-primary active" data-draft-status="ALL">
+									전체 <span class="badge bg-white text-primary ms-1" id="badgeDraftTotal">0</span>
+								</button>
+								<button type="button" class="btn btn-outline-primary" data-draft-status="IN_PROGRESS">
+									진행중 <span class="badge bg-warning text-dark ms-1" id="badgeDraftWaiting">0</span>
+								</button>
+								<button type="button" class="btn btn-outline-primary" data-draft-status="COMPLETED">
+									완료 <span class="badge bg-success ms-1" id="badgeDraftCompleted">0</span>
+								</button>
+							</div>
+
+							<!-- 시나리오 드롭다운 (전입신고, 주민등록증 재발급 기본 장착!) -->
+							<div style="width: 170px;">
+								<select class="form-select form-select-sm" id="memberDraftScenarioFilter">
+									<option value="ALL">전체 시나리오</option>
+									<option value="1">전입신고</option>
+									<option value="2">주민등록증 재발급</option>
+								</select>
+							</div>
 						</div>
 						<div class="table-responsive">
 							<table class="table table-sm align-middle mb-0">
@@ -780,6 +828,18 @@
 								</thead>
 								<tbody data-member-drafts></tbody>
 							</table>
+						</div>
+						<!-- 연습 이력 5개 단위 페이징 영역 -->
+						<div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top">
+							<div class="small text-secondary">
+								전체 <strong class="text-dark" id="memberDraftTotalListCount">0</strong>건 중 
+								<span id="memberDraftPageRange">0 - 0</span>
+							</div>
+							<nav aria-label="연습 이력 페이징">
+								<ul class="pagination pagination-sm mb-0" id="memberDraftPagination">
+									<!-- JS에서 5개 단위 페이징 버튼이 동적으로 생성됩니다 -->
+								</ul>
+							</nav>
 						</div>
 					</section>
 				</div>
