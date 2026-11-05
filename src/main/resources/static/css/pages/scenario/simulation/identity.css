@@ -1,0 +1,414 @@
+/* 해봄 | 주민등록증 재발급 단일 단계 UI
+   기존 simulation.css 뒤에 로드되는 시나리오 전용 스타일 */
+
+/* 공통 시뮬레이션 영역 안에서만 적용 */
+.identity-step1 {
+	color: #1e293b;
+	font-size: 0.94rem;
+	line-height: 1.75;
+}
+
+.identity-step1 * {
+	box-sizing: border-box;
+}
+
+.identity-step1 .identity-guide-panel {
+	padding: 30px 34px;
+	margin: 0 0 26px;
+	border-radius: 12px;
+	background: #edf2f8;
+	color: #223247;
+}
+
+.identity-step1 .identity-guide-panel h3 {
+	margin: 0 0 18px;
+	font-size: 1.22rem;
+	font-weight: 800;
+}
+
+.identity-step1 .identity-guide-panel h4 {
+	margin: 26px 0 12px;
+	font-size: 1.02rem;
+	font-weight: 800;
+}
+
+.identity-step1 .identity-guide-panel h5 {
+	margin: 17px 0 7px;
+	font-size: .94rem;
+	font-weight: 750;
+}
+
+.identity-step1 .identity-guide-panel p {
+	margin: 0 0 11px;
+}
+
+.identity-step1 .identity-guide-list {
+	margin: 0;
+	padding-left: 19px;
+}
+
+.identity-step1 .identity-guide-list li {
+	padding-left: 2px;
+	margin: 0 0 9px;
+}
+
+.identity-step1 .identity-guide-last {
+	border-top: 1px dashed #b9c4d2;
+	padding-top: 18px;
+	margin-top: 20px;
+}
+
+.identity-step1 .identity-guide-footer {
+	margin-top: 14px !important;
+	color: #52647a;
+}
+
+/* 원본의 독립적인 섹션 카드 */
+.identity-step1 .gov24-form-panel {
+	margin: 20px 0;
+	padding: 34px 38px 38px;
+	border: 1px solid #c5ced9;
+	border-radius: 11px;
+	background: #fff;
+}
+
+.identity-step1 .gov24-form-panel>h3 {
+	margin: 0 0 28px;
+	font-size: 1.22rem;
+	font-weight: 800;
+	color: #182536;
+}
+
+.identity-step1 .identity-field {
+	display: block;
+	min-width: 0;
+	max-width: none;
+	margin: 0 0 32px;
+	padding: 0;
+	border: none;
+}
+
+.identity-step1 .identity-field:last-child {
+	margin-bottom: 0;
+}
+
+.identity-step1 .identity-field>label:not(.identity-checkbox-label),
+	.identity-step1 .identity-field-label, .identity-step1 .identity-field>legend {
+	display: block;
+	width: auto;
+	float: none;
+	padding: 0;
+	margin: 0 0 13px;
+	font-size: .95rem;
+	line-height: 1.5;
+	font-weight: 750;
+	color: #1d2939;
+}
+
+.identity-step1 .identity-required {
+	color: #dc3b2f;
+	font-weight: 650;
+}
+
+.identity-step1 .identity-field .form-control, .identity-step1 .identity-field .form-select
+	{
+	min-height: 43px;
+	border: 1px solid #aeb8c5;
+	border-radius: 5px;
+	background-color: #fff;
+	font-size: .94rem;
+}
+
+.identity-step1 .identity-field .form-control[readonly] {
+	background: #e4e5e7;
+}
+
+.identity-step1 .identity-applicant-panel>.identity-field>.form-control {
+	width: min(100%, 560px);
+	max-width: 560px;
+}
+
+.identity-step1 .identity-resident-row, .identity-step1 .identity-phone-row,
+	.identity-step1 .identity-address-row, .identity-step1 .identity-office-row {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	width: min(100%, 570px);
+}
+
+.identity-step1 .identity-resident-row .form-control, .identity-step1 .identity-phone-row .form-control,
+	.identity-step1 .identity-address-row .form-select {
+	min-width: 0;
+	flex: 1;
+	width: 0;
+	max-width: none;
+}
+
+.identity-step1 .identity-phone-row .form-control {
+	text-align: center;
+}
+
+.identity-step1 .identity-resident-row>span, .identity-step1 .identity-phone-row>span
+	{
+	flex: none;
+	color: #536173;
+}
+
+.identity-step1 .identity-office-row .form-control {
+	min-width: 0;
+	flex: 1;
+	max-width: none;
+}
+
+.identity-step1 .identity-office-row .btn {
+	min-height: 43px;
+	white-space: nowrap;
+}
+
+/* 발급 형태 및 재발급 사유 선택 영역 */
+.identity-step1 .identity-radio-grid {
+	display: grid;
+	gap: 18px 22px;
+	margin: 12px 0 28px;
+}
+
+.identity-step1 .identity-radio-grid-two {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	max-width: 660px;
+}
+
+.identity-step1 .identity-radio-grid-reasons {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.identity-step1 .identity-radio-grid label, .identity-step1 .identity-field>label:has(input[type="radio"]),
+	.identity-step1 .identity-checkbox-label, .identity-step1 .identity-consent-items label
+	{
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	min-width: 0;
+	margin: 0;
+	font-size: .94rem;
+	font-weight: 400;
+	line-height: 1.5;
+	cursor: pointer;
+}
+
+.identity-step1 input[type="radio"], .identity-step1 input[type="checkbox"]
+	{
+	flex: none;
+	width: 18px;
+	height: 18px;
+	margin: 2px 0 0;
+	accent-color: #2563eb;
+}
+
+.identity-step1 #identityOtherReasonOption[hidden] {
+	display: none !important;
+}
+
+.identity-step1 .identity-info-box {
+	padding: 26px 28px;
+	background: #f7f7f8;
+	border: 1px solid #dedfe3;
+	border-radius: 9px;
+	line-height: 1.85;
+}
+
+.identity-step1 .identity-info-box h4 {
+	font-size: .96rem;
+	font-weight: 800;
+	margin: 0 0 17px;
+}
+
+.identity-step1 .identity-info-box ul {
+	margin: 0;
+	padding-left: 21px;
+}
+
+.identity-step1 .identity-info-box li {
+	margin-bottom: 14px;
+}
+
+.identity-step1 .identity-info-box li:last-child {
+	margin-bottom: 0;
+}
+
+.identity-step1 .identity-field>h4 {
+	font-weight: 800;
+	font-size: 1.02rem;
+	margin: 0 0 15px;
+}
+
+.identity-step1 .identity-notice-list {
+	padding-left: 20px;
+	margin: 0 0 22px;
+}
+
+.identity-step1 .identity-notice-list li {
+	margin-bottom: 12px;
+}
+
+.identity-step1 .identity-note {
+	margin: 11px 0 0;
+	font-size: .84rem;
+	color: #657387;
+}
+
+/* 사진 첨부 */
+.identity-step1 .identity-file-guide {
+	padding: 18px 20px;
+	margin-bottom: 18px;
+	border: 1px solid #d9dde4;
+	border-radius: 6px;
+	background: #f7f7f8;
+}
+
+.identity-step1 .identity-file-guide p {
+	margin: 0 0 6px;
+}
+
+.identity-step1 .identity-file-guide p:last-child {
+	margin-bottom: 0;
+}
+
+.identity-step1 #identityPhotoInput {
+	max-width: 560px;
+}
+
+.identity-step1 .identity-photo-preview {
+	margin-top: 12px;
+}
+
+.identity-step1 .identity-photo-preview img {
+	max-width: 160px;
+	max-height: 200px;
+	object-fit: contain;
+	border: 1px solid #ccd5df;
+	border-radius: 5px;
+}
+
+/* 사전동의 */
+.identity-step1 .identity-consent-items {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 18px;
+	border-top: 1px solid #d6dbe1;
+	border-bottom: 1px solid #d6dbe1;
+	margin: 16px 0 22px;
+	padding: 22px 8px;
+}
+
+.identity-step1 .identity-consent-text {
+	margin: 0 0 12px;
+}
+
+/* 수령기관 검색 모달 */
+.identity-office-dialog {
+	width: min(760px, calc(100vw - 32px));
+	max-height: min(85vh, 760px);
+	border: 0;
+	border-radius: 12px;
+	padding: 28px;
+	box-shadow: 0 16px 50px rgba(0, 0, 0, .2);
+}
+
+.identity-office-dialog::backdrop {
+	background: rgba(0, 0, 0, .5);
+}
+
+.identity-dialog-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.identity-dialog-header h3 {
+	margin: 0;
+	font-size: 1.35rem;
+	font-weight: 800;
+}
+
+.identity-office-search-row {
+	display: flex;
+	gap: 8px;
+	margin: 16px 0;
+}
+
+.identity-office-search-row .form-control {
+	min-width: 0;
+	flex: 1;
+}
+
+.identity-office-table-wrap {
+	overflow: auto;
+	max-height: 440px;
+}
+
+.identity-office-table {
+	min-width: 480px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.identity-office-table th, .identity-office-table td {
+	padding: 12px;
+	border-bottom: 1px solid #d6dce4;
+	text-align: left;
+	vertical-align: middle;
+}
+
+.identity-office-table th {
+	background: #eef2f6;
+	position: sticky;
+	top: 0;
+}
+
+.identity-office-table td:last-child {
+	white-space: nowrap;
+}
+
+@media ( max-width : 767px) {
+	.identity-step1 .identity-guide-panel {
+		padding: 22px 20px;
+	}
+	.identity-step1 .gov24-form-panel {
+		padding: 25px 20px;
+	}
+	.identity-step1 .identity-radio-grid-reasons {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.identity-step1 .identity-consent-items {
+		grid-template-columns: 1fr;
+		gap: 15px;
+	}
+	.identity-step1 .identity-info-box {
+		padding: 20px 18px;
+	}
+}
+
+@media ( max-width : 480px) {
+	.identity-step1 .identity-radio-grid-two {
+		grid-template-columns: 1fr;
+	}
+	.identity-step1 .identity-address-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.identity-step1 .identity-address-row .form-select {
+		width: 100%;
+		flex: none;
+	}
+	.identity-step1 .identity-office-row {
+		flex-wrap: wrap;
+	}
+	.identity-step1 .identity-office-row .form-control {
+		flex-basis: 65%;
+	}
+	.identity-office-dialog {
+		padding: 18px;
+	}
+}
