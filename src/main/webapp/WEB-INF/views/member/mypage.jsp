@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/scenario/scenario-list.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-password-fields-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-remove-overview-1" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -41,20 +41,12 @@
         </div>
 
         <nav class="mypage-tabs" aria-label="마이페이지 메뉴">
-            <button class="active" type="button" data-my-tab="overview" aria-current="page">요약</button>
-            <button type="button" data-my-tab="completed">완료 내역</button>
+            <button class="active" type="button" data-my-tab="completed" aria-current="page">완료 내역</button>
             <button type="button" data-my-tab="inquiries">내 문의 내역</button>
             <button type="button" data-my-tab="account">계정 정보</button>
         </nav>
 
-        <section data-my-panel="overview" aria-labelledby="overviewTitle">
-            <h2 class="visually-hidden" id="overviewTitle">마이페이지 요약</h2>
-            <section class="content-panel mypage-overview-placeholder" aria-label="요약 안내">
-                <p>요약 정보는 준비 중입니다.</p>
-            </section>
-        </section>
-
-        <section class="d-none" data-my-panel="completed" aria-labelledby="completedTitle">
+        <section data-my-panel="completed" aria-labelledby="completedTitle">
             <div class="content-panel">
                 <h2 class="visually-hidden" id="completedTitle">완료 내역</h2>
                 <section class="mypage-completed-section" aria-labelledby="inProgressScenariosTitle">
