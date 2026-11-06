@@ -41,5 +41,14 @@
 		#{memberId}
 		)
 	</delete>
+	<!-- 전입신고 임대차계약서 첨부파일 JSON 조회 -->
+	<select id="selectLeaseAttachmentJson" resultType="string">
 
+		SELECT answer_value
+		FROM simulation_answer
+		WHERE progress_id = #{progressId}
+		AND field_key = 'additionalServiceDetails'
+		LIMIT 1
+
+	</select>
 </mapper>

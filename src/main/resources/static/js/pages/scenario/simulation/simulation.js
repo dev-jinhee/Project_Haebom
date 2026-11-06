@@ -27,6 +27,9 @@ const stepModules = {
 		2: () => import("/js/pages/scenario/simulation/move/step-2.js"),
 		3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
 		4: () => import("/js/pages/scenario/simulation/move/step-4.js")
+	},
+	IDENTITY_REISSUE : {
+		1: () => import("/js/pages/scenario/simulation/identity/step-1.js")
 	}
 };
 
@@ -98,7 +101,17 @@ async function loadSimulation() {
 				link.dataset.scenario = "MOVE";
 				document.head.appendChild(link);
 			}
+		}else if(simulationState.scenarioCode === "IDENTITY_REISSUE"){
+			// CSS 중복 로드 방지
+			if (!document.querySelector('link[data-scenario="IDENTITY_REISSUE"]')) {
+				const link = document.createElement("link");
+				link.rel = "stylesheet";
+				link.href = "/css/pages/scenario/simulation/identity.css";
+				link.dataset.scenario = "IDENTITY_REISSUE";
+				document.head.appendChild(link);
+			}
 		}
+		
 
 		// 브레드 크럼
 		document.querySelector("#breadcrumbScenarioTitle").textContent =
