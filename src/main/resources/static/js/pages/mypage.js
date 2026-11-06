@@ -804,6 +804,19 @@
             'neutral');
     }
 
+    function removeForbiddenPasswordCharacters(input) {
+        const original = input.value;
+        const caret = input.selectionStart;
+        const filtered = original.replace(/[><_\-"']/g, '');
+        if (filtered === original) return;
+
+        input.value = filtered;
+        if (typeof caret === 'number') {
+            const filteredCaret = original.slice(0, caret).replace(/[><_\-"']/g, '').length;
+            input.setSelectionRange(filteredCaret, filteredCaret);
+        }
+    }
+
     function validateNewPassword() {
         const input = document.getElementById('newPassword');
         if (!input) return false;
@@ -883,11 +896,18 @@
         if (newPasswordInput) {
             newPasswordInput.addEventListener('focus', showNewPasswordGuidance);
             newPasswordInput.addEventListener('blur', validateNewPassword);
-            newPasswordInput.addEventListener('input', validatePasswordConfirmation);
+            newPasswordInput.addEventListener('input', function () {
+                removeForbiddenPasswordCharacters(newPasswordInput);
+                validatePasswordConfirmation();
+            });
         }
         if (confirmPasswordInput) {
             confirmPasswordInput.addEventListener('focus', showPasswordConfirmationGuidance);
             confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
+            confirmPasswordInput.addEventListener('input', function () {
+                removeForbiddenPasswordCharacters(confirmPasswordInput);
+                validatePasswordConfirmation();
+            });
         }
         if (modal && form) {
             modal.addEventListener('hidden.bs.modal', function () {

@@ -1,10 +1,14 @@
 package kr.co.oti.haebom.business.inquiry.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.oti.haebom.business.inquiry.dto.QnaAnswerDTO;
 import kr.co.oti.haebom.business.inquiry.dto.QnaDTO;
-import kr.co.oti.haebom.system.security.MemberPrincipal;
 import kr.co.oti.haebom.business.inquiry.service.QnaService;
+import kr.co.oti.haebom.system.security.MemberPrincipal;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -104,6 +108,13 @@ public class InquiryApiController {
 			@RequestParam(value = "qnaStatus", required = false) String status) {	
 		qnaService.updateInquiryStatusAndCategory(qnaId, categoryId, status);
 		return ResponseEntity.ok("문의 상태가 성공적으로 변경되었습니다.");
+	}
+
+	// 8. 관리자용 문의 목록 엑셀 다운로드 API (GET /api/inquiries/excel)
+	@PreAuthorize("hasRole('ADMIN')")
+	@GetMapping("/excel")
+	public void downloadInquiryListExcel(HttpServletResponse response) throws IOException {
+		qnaService.downloadQnaListExcel(response);
 	}
 
 }

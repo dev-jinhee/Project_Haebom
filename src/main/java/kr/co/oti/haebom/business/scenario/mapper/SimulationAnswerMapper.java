@@ -16,9 +16,6 @@ public interface SimulationAnswerMapper {
 	List<AnswerResponseDTO> findAnswerByProgressIdAndStepId(@Param("progressId") Integer progressId,
 			@Param("stepId") Integer stepId);
 
-	// 시뮬레이션 전체 입력값 조회
-	List<AnswerResponseDTO> findAnswerByProgressId(Integer progressId);
-
 	// 단계별 입력 데이터 물리 삭제
 	int deleteSimulationAnswer(Integer progressId);
 

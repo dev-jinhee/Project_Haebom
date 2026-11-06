@@ -5,10 +5,8 @@
 // 추가: restore({root, data, readOnly}) - 서버 저장 답변을 읽어온 뒤 복원용
 // ============================================================
 import { isMinor } from "../utils/age.js";
-import { initServices, restoreServices, getServiceDetails, validateServices } from "./step-4-services.js";
+import { initServices, restoreServices, getServiceDetails, validateServices, uploadPendingLeaseFiles } from "./step-4-services.js";
 
-const JUSO_POPUP_URL = "/address/juso/popup";
-const VIRTUAL_WELFARE_CENTER = "해봄동 행정복지센터 (가상)";
 const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 const RELATIONS = [
 	["", "관계 선택"],
@@ -21,7 +19,8 @@ const ADDRESS_FIELDS = {
 	newJibunAddress: "jibunAddress", newAdmCd: "admCd", newRnMgtSn: "rnMgtSn",
 	newBdMgtSn: "bdMgtSn", newSiNm: "sidoName", newSggNm: "sigunguName",
 	newEmdNm: "emdName", newBuildingPosition: "buildingPosition",
-	newBuildingMainNo: "buildingMainNo", newBuildingSubNo: "buildingSubNo"
+	newBuildingMainNo: "buildingMainNo", newBuildingSubNo: "buildingSubNo", newHemdNm: "hemdName",
+	newAddressPart2Value: "addressPart2"
 };
 
 // 모듈 상태는 init 때마다 초기화. 입력값은 DOM에 유지하고, 진행 ID별 임시 답변은 drafts로 보관.
@@ -45,6 +44,11 @@ const birthLabel = value => {
 };
 const genderLabel = value => value === "M" ? "남" : value === "F" ? "여" : "-";
 const familySignature = () => movingFamilies.map(f => String(f.familyId)).sort().join(",");
+
+// Step4 첨부파일 업로드
+export async function uploadAttachments({ root, progressId }) {
+	await uploadPendingLeaseFiles(root, progressId);
+}
 
 async function fetchMovingFamilies(progressId) {
 	const response = await fetch(`/api/simulation/move/${progressId}/family?moveStatus=MOVE`);
@@ -275,7 +279,9 @@ function renderExistingHouseholdTable(root) {
 		const relationTd = document.createElement("td");
 		const select = createRelationSelect(family);
 		relationTd.appendChild(select);
-		select.value = family.relationship ?? "";
+		select.value = RELATIONS.some(([code]) => code === family.relationship)
+			? family.relationship
+			: "";
 		row.appendChild(relationTd);
 		addIdentityCells(row, family);
 		addPhoneCell(row, family);
@@ -400,9 +406,18 @@ function applyJusoAddress(root, data) {
 	if (!root.isConnected || root !== activeRoot || !data?.roadAddrPart1) return;
 	const sameAddress = $(root, "newRoadAddress").value === data.roadAddrPart1;
 	$(root, "newRoadAddress").value = data.roadAddrPart1;
+	const part2 = data.roadAddrPart2?.trim() || "";
+
+	const prefix = $(root, "newAddressPart2");
+
+	prefix.textContent = part2
+		? `(${part2.replace(/^\(|\)$/g, "")})`
+		: "";
+	prefix.classList.toggle("d-none", !part2);
 	$(root, "newZipNo").value = data.zipNo || "";
-	$(root, "newDetailAddress").value = data.addrDetail?.trim() ||
-		(sameAddress ? $(root, "newDetailAddress").value : "");
+	$(root, "newDetailAddress").value =
+		sameAddress ? $(root, "newDetailAddress").value : "";
+	$(root, "newAddressPart2Value").value = part2;
 	$(root, "newJibunAddress").value = data.jibunAddr || "";
 	$(root, "newAdmCd").value = data.admCd || "";
 	$(root, "newRnMgtSn").value = data.rnMgtSn || "";
@@ -414,10 +429,13 @@ function applyJusoAddress(root, data) {
 	$(root, "newBuildingMainNo").value = data.buldMnnm || "";
 	$(root, "newBuildingSubNo").value = data.buldSlno || "";
 	$(root, "newAddressResultText").textContent = data.roadAddrPart1;
-	$(root, "newWelfareCenter").textContent = VIRTUAL_WELFARE_CENTER;
 	$(root, "newAddressResultSection").classList.remove("d-none");
 	addressSelected = true;
-	$(root, "newAddressStatus").textContent = "주소를 선택했습니다. 세대 구성 정보를 입력해 주세요.";
+	const hemdName = data.hemdNm?.trim() || "";
+	$(root, "newHemdNm").value = hemdName;
+	const dongName = hemdName.split(/\s+/).pop();
+	$(root, "newWelfareCenter").textContent = dongName ? dongName : "행정동 정보 없음";
+	$(root, "newAddressStatus").textContent = "주소가 선택되었습니다. 상세주소를 입력한 후 세대 구성 정보를 확인해 주세요.";
 	cacheDraft(root);
 }
 
@@ -527,7 +545,6 @@ export function getData({ root }) {
 		currentAddress,
 		householdType: mode,
 		newHeadStrategy: strategy,
-		newHouseholdHeadFamilyId: headId == null ? null : Number(headId),
 		existingHeadName: mode === "JOIN_EXISTING" ? $(root, "existingHeadName").value.trim() || null : null,
 		existingHeadPhoneNum: mode === "JOIN_EXISTING" ? readPhone($(root, "existingHeadPhoneGroup")) : null,
 		existingHeadCheck: mode === "JOIN_EXISTING" && existingHeadMockConfirmed ? "SIMULATED" : null,
@@ -550,11 +567,37 @@ function restoreData(root, data) {
 	for (const [id, key] of Object.entries(ADDRESS_FIELDS)) {
 		$(root, id).value = addr[key] == null ? "" : String(addr[key]);
 	}
+
 	addressSelected = Boolean(addr.roadAddress);
-	$(root, "newAddressResultSection").classList.toggle("d-none", !addressSelected);
-	$(root, "newAddressResultText").textContent = addr.roadAddress || "-";
-	$(root, "newWelfareCenter").textContent = VIRTUAL_WELFARE_CENTER;
-	if (addressSelected) $(root, "newAddressStatus").textContent = "선택한 주소를 복원했습니다.";
+
+	// 주소 선택 결과 표시
+	$(root, "newAddressResultSection")
+		.classList.toggle("d-none", !addressSelected);
+
+	$(root, "newAddressResultText").textContent =
+		addr.roadAddress || "-";
+
+	// 관할 행정동 복원
+	const hemdName = addr.hemdName?.trim() || "";
+	const dongName = hemdName.split(/\s+/).pop();
+
+	$(root, "newWelfareCenter").textContent =
+		dongName || "행정동 정보 없음";
+
+	// 도로명주소 참고항목 복원
+	const part2 = addr.addressPart2?.trim() || "";
+	const prefix = $(root, "newAddressPart2");
+
+	prefix.textContent = part2
+		? `(${part2.replace(/^\(|\)$/g, "")})`
+		: "";
+
+	prefix.classList.toggle("d-none", !part2);
+
+	if (addressSelected) {
+		$(root, "newAddressStatus").textContent =
+			"선택한 주소를 복원했습니다.";
+	}
 
 	root.querySelectorAll('input[name="householdType"]').forEach(input => {
 		input.checked = input.value === data.householdType;
@@ -564,10 +607,18 @@ function restoreData(root, data) {
 	root.querySelectorAll('input[name="emptyHeadType"]').forEach(input => {
 		input.checked = input.value === strategy;
 	});
-	const requestedHeadId = data.newHouseholdHeadFamilyId;
-	selectedNewHeadId = movingFamilies.length === 1 ? String(applicant.familyId)
-		: movingFamilies.some(f => sameId(f.familyId, requestedHeadId))
-			? String(requestedHeadId) : null;
+	// 가족 테이블에 저장된 현재 세대주 조회
+	const savedHead = movingFamilies.find(
+		family => family.isHouseholdHead === true
+	);
+
+	// 세대주 선택 상태 복원
+	selectedNewHeadId = movingFamilies.length === 1
+		? String(applicant.familyId)
+		: savedHead
+			? String(savedHead.familyId)
+			: null;
+
 	updateChangeHeadRows(root);
 	$(root, "existingHeadName").value = data.existingHeadName || "";
 	existingHeadMockConfirmed = data.existingHeadCheck === "SIMULATED";
@@ -620,6 +671,9 @@ function disableForReadOnly(root) {
 	root.querySelectorAll("input, select, button, textarea").forEach(input => {
 		if (input.type !== "hidden") input.disabled = true;
 	});
+	// 완료 후 주소 검색 영역 숨기기
+	root.querySelector(".move-step4-address-controls").classList.add("d-none");
+	root.querySelector("#newAddressSearchResults")?.classList.add("d-none");
 }
 
 // 서버에서 읽어온 JSON을 이 함수로 전달하면 완료 후 다시보기 화면을 구성할 수 있음.
@@ -649,7 +703,8 @@ async function fetchSavedAnswers(progressId, stepId) {
 	const jsonFields = [
 		"currentAddress",
 		"familyRelations",
-		"additionalServices"
+		"additionalServices",
+		"additionalServiceDetails"
 	];
 
 	const data = {};
@@ -662,7 +717,152 @@ async function fetchSavedAnswers(progressId, stepId) {
 
 	return Object.keys(data).length > 0 ? data : null;
 }
+// 도로명주소 조회
+async function searchAddress(keyword, currentPage = 1) {
 
+	const response = await fetch(
+		`/api/address/search?keyword=${encodeURIComponent(keyword)}&currentPage=${currentPage}`
+	);
+
+	if (!response.ok) {
+		throw new Error("주소 검색 요청 실패");
+	}
+
+	const data = await response.json();
+
+	if (data.results?.common?.errorCode !== "0") {
+		throw new Error(data.results?.common?.errorMessage || "주소 검색 실패");
+	}
+
+	return data;
+}
+
+//도로명 주소 리스트 페이지네이션 생성
+function renderAddressPagination(root, keyword, currentPage = 1, totalCount) {
+
+	const pagination = $(root, "newAddressPagination");
+
+	pagination.replaceChildren();
+
+	const totalPages = Math.ceil(totalCount / 10);
+
+	const pageSize = 5; // 화면에 표시할 페이지 번호 개수
+
+	const startPage =
+		Math.floor((currentPage - 1) / pageSize) * pageSize + 1;
+
+	const endPage =
+		Math.min(startPage + pageSize - 1, totalPages);
+
+	if (startPage > 1) {
+		const prevbutton = document.createElement("button");
+
+		prevbutton.type = "button";
+		prevbutton.textContent = "<";
+		prevbutton.className = "btn btn-outline-primary";
+
+		prevbutton.addEventListener("click", async () => {
+			// 해당 페이지 주소 다시 검색
+			try {
+				await loadAddressPage(root, keyword, startPage - 1);
+			} catch (error) {
+				console.error("페이지 이동 실패:", error);
+
+				$(root, "newAddressStatus").textContent =
+					"이전페이지를 불러오지 못했습니다.";
+			}
+		});
+		pagination.appendChild(prevbutton);
+	}
+
+	for (let i = startPage; i <= endPage; i++) {
+		//페이지 버튼 생성
+		const button = document.createElement("button");
+
+		button.type = "button";
+		button.textContent = i;
+
+		button.className = i === currentPage
+			? "btn btn-primary"
+			: "btn btn-outline-primary";
+
+		if (i === currentPage) {
+			button.classList.add("active");
+			button.setAttribute("aria-current", "page");
+		}
+
+		button.addEventListener("click", async () => {
+			// 해당 페이지 주소 다시 검색
+			try {
+				await loadAddressPage(root, keyword, i);
+			} catch (error) {
+				console.error("페이지 이동 실패:", error);
+
+				$(root, "newAddressStatus").textContent =
+					"페이지를 불러오지 못했습니다.";
+			}
+		});
+		pagination.appendChild(button);
+	}
+	if (endPage < totalPages) {
+		const nextbutton = document.createElement("button");
+
+		nextbutton.type = "button";
+		nextbutton.textContent = ">";
+		nextbutton.className = "btn btn-outline-primary";
+
+		nextbutton.addEventListener("click", async () => {
+			// 해당 페이지 주소 다시 검색
+			try {
+				await loadAddressPage(root, keyword, endPage + 1);
+			} catch (error) {
+				console.error("페이지 이동 실패:", error);
+
+				$(root, "newAddressStatus").textContent =
+					"다음페이지를 불러오지 못했습니다.";
+			}
+		});
+		pagination.appendChild(nextbutton);
+	}
+}
+async function loadAddressPage(root, keyword, currentPage) {
+
+	// 1. 해당 페이지 주소 검색
+	const data = await searchAddress(keyword, currentPage);
+
+	console.log("data", data);
+	// 2. 검색 결과와 전체 건수 추출
+	const addresses = data.results.juso ?? [];
+	const totalCount = Number(data.results.common.totalCount ?? 0);
+
+	// 3. 주소 목록 다시 그리기
+	// 검색 결과 영역 가져오기
+	const resultSection = $(root, "newAddressSearchResults");
+	const resultList = $(root, "newAddressSearchList");
+	const resultCount = $(root, "newAddressSearchCount");
+	// 검색 결과 영역 표시
+	resultSection.classList.remove("d-none");
+	resultCount.textContent = `총 ${totalCount}건 검색되었습니다.`;
+	// 이전 검색 결과 제거
+	resultList.replaceChildren();
+	addresses.forEach(address => {
+		const addressItem = document.createElement("button");
+
+		addressItem.type = "button";
+		addressItem.className = "gov24-address-search-item";
+
+		addressItem.textContent = address.roadAddr;
+
+		resultList.appendChild(addressItem);
+		// 주소 선택 이벤트
+		addressItem.addEventListener("click", () => {
+			applyJusoAddress(root, address);
+			resultSection.classList.add("d-none");
+		});
+	})
+	// 4. 페이지네이션 다시 그리기
+	renderAddressPagination(root, keyword, currentPage, totalCount);
+}
 
 export async function init({ root, progressId, stepId, readOnly = false, savedData = null }) {
 	activeRoot = root;
@@ -674,8 +874,6 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 	addressSelected = false;
 	existingHeadMockConfirmed = false;
 	// 신청인만 2단계에서 저장한 전화번호를 초기값으로 사용하고, 다른 가족은 공란.
-	window.jusoCallBack = data => applyJusoAddress(root, data);
-
 	try {
 		const data = await fetchMovingFamilies(progressId);
 		if (!root.isConnected || root !== activeRoot) return;
@@ -693,7 +891,8 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 		//service 초기화 호출
 		initServices(root, movingFamilies, {
 			readOnly,
-			applicantPhone: applicant.phoneNum
+			applicantPhone: applicant.phoneNum,
+			progressId
 		});
 		// 테이블 생성 후 최초 1회: 신청인만 저장된 연락처 자동 입력.
 		fillApplicantInitialPhone(root);
@@ -725,10 +924,22 @@ export async function init({ root, progressId, stepId, readOnly = false, savedDa
 			return;
 		}
 
-		$(root, "searchNewAddressBtn").addEventListener("click", () => {
-			const popup = window.open(JUSO_POPUP_URL, "haebomJusoPopup", "width=570,height=650,scrollbars=yes,resizable=yes");
-			if (!popup) $(root, "newAddressStatus").textContent = "팝업이 차단되었습니다. 브라우저 팝업 허용을 확인해 주세요.";
-			else popup.focus();
+		$(root, "searchNewAddressBtn").addEventListener("click", async () => {
+			const keyword = $(root, "addressKeyword").value.trim();
+			if (!keyword) {
+				$(root, "newAddressStatus").textContent =
+					"검색할 주소를 입력해 주세요.";
+				return;
+			}
+			try {
+				await loadAddressPage(root, keyword, 1);
+
+			} catch (error) {
+				console.error(error);
+
+				$(root, "newAddressStatus").textContent =
+					"주소 검색에 실패했습니다.";
+			}
 		});
 		root.querySelectorAll('input[name="householdType"]').forEach(input => {
 			input.addEventListener("change", () => { updateHouseholdSections(root); cacheDraft(root); updateExistingHouseholdNotice(root); });

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AnswerSaveRequestListDTO {
-	
+
 	@NotNull
 	private List<@Valid AnswerSaveRequestDTO> answers;
 

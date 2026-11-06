@@ -20,6 +20,7 @@ public class AddressService {
 
 	@Value("${sgis.consumer-secret}")
 	private String consumerSecret;
+
 	public List<Map<String, Object>> getRegions(String cd) {
 
 		// 유효한 액세스 토큰 가져오기
@@ -53,8 +54,8 @@ public class AddressService {
 		if (!(result instanceof List<?>)) {
 			throw new IllegalStateException("SGIS 주소 조회 응답이 올바르지 않습니다.");
 		}
-		//행정구역 목록 반환
-		@SuppressWarnings("unchecked") //제너릭 형변환 억제
+		// 행정구역 목록 반환
+		@SuppressWarnings("unchecked") // 제너릭 형변환 억제
 		List<Map<String, Object>> regions = (List<Map<String, Object>>) result;
 
 		return regions;
@@ -93,5 +94,30 @@ public class AddressService {
 		}
 
 		return (String) token;
+	}
+
+	@Value("${juso.confirm-key}")
+	private String jusoConfirmKey;
+
+	public String searchAddress(String keyword, int currentPage) {
+		if (keyword == null || keyword.isBlank()) {
+			throw new IllegalArgumentException("주소 검색어를 입력해 주세요.");
+		}
+
+		if (currentPage < 1) {
+			throw new IllegalArgumentException("페이지 번호는 1 이상이어야 합니다.");
+		}
+
+		UriComponentsBuilder builder = UriComponentsBuilder
+				.fromHttpUrl("https://business.juso.go.kr/addrlink/addrLinkApi.do").queryParam("keyword", keyword)
+				.queryParam("currentPage", currentPage).queryParam("countPerPage", 10)
+				.queryParam("confmKey", jusoConfirmKey).queryParam("resultType", "json").queryParam("addInfoYn", "Y");
+		URI uri = builder.build().encode().toUri();
+		RestTemplate restTemplate = new RestTemplate();
+		String response = restTemplate.getForObject(uri, String.class);
+		if (response == null) {
+			throw new IllegalStateException("도로명주소 조회에 실패했습니다.");
+		}
+		return response;
 	}
 }

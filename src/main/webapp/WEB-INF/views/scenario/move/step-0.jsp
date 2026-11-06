@@ -10,6 +10,14 @@
 <div class="sim-step-content" data-step="0">
 	<section class="gov24-form-panel gov24-household-head-panel">
 		<h3>가상 세대 정보 입력</h3>
+		<!-- 가족정보 자동 불러오기 버튼 -->
+		<div class="d-flex justify-content-end mb-3">
+			<button type="button" id="autoFillFamilyBtn"
+				class="btn btn-outline-primary btn-sm px-3 d-flex align-items-center gap-1">
+				<span class="material-symbols-outlined" aria-hidden="true">
+					group_add </span> 가족정보 자동 불러오기
+			</button>
+		</div>
 
 		<div class="table-responsive">
 			<table class="gov24-people-table" id="householdPeopleTable">

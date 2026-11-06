@@ -57,15 +57,7 @@
 		LEFT JOIN scenario_step ss ON sp.step_id = ss.step_id
 		WHERE sp.member_id = #{memberId}
 		  AND sp.progress_status != 'DELETED'
-		  AND sp.progress_id = (
-		      SELECT sp2.progress_id
-		      FROM simulation_progress sp2
-		      WHERE sp2.member_id = sp.member_id
-		        AND sp2.scenario_id = sp.scenario_id
-		      ORDER BY sp2.started_at DESC, sp2.progress_id DESC
-		      LIMIT 1
-		  )
-		ORDER BY sp.progress_id DESC
+		ORDER BY sp.scenario_id ASC, sp.progress_id DESC
 	</select>
 	
 </mapper>

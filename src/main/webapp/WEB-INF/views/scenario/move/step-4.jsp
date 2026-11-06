@@ -24,8 +24,8 @@
 
 			<div class="gov24-address-controls move-step4-address-controls">
 
-				<input id="newRoadAddress" class="form-control" type="text"
-					placeholder="검색 버튼을 눌러 주소를 선택해 주세요" readonly>
+				<input type="text" id="addressKeyword" placeholder="도로명 또는 건물명 입력"
+					class="form-control">
 
 				<button id="searchNewAddressBtn" class="btn btn-outline-primary"
 					type="button">검색</button>
@@ -33,10 +33,18 @@
 			</div>
 
 			<p id="newAddressStatus" class="text-muted small mt-2 mb-0"
-				role="status" aria-live="polite">검색 버튼을 누르면 도로명주소 검색 팝업이 열립니다.</p>
+				role="status" aria-live="polite"></p>
+			<!-- 주소 검색 결과 목록 -->
+			<div id="newAddressSearchResults" class="mt-3 d-none">
+				<p id="newAddressSearchCount" class="text-muted small mb-2"></p>
 
+				<div id="newAddressSearchList"
+					class="move-step4-address-search-list"></div>
+
+				<div id="newAddressPagination"
+					class="move-step4-address-pagination mt-3"></div>
+			</div>
 			<div id="newAddressResultSection" class="mt-3 d-none">
-
 				<table class="gov24-result-table" aria-label="이사 온 곳 주소 조회 결과">
 
 					<tbody>
@@ -50,20 +58,13 @@
 						</tr>
 
 						<tr>
-
-							<th scope="row">관할 읍·면·동 행정복지센터</th>
-
-							<td id="newWelfareCenter">해봄동 행정복지센터 (가상)</td>
-
+							<th scope="row">관할 행정동</th>
+							<td id="newWelfareCenter">-</td>
 						</tr>
 
 					</tbody>
 
 				</table>
-
-				<p class="text-muted small mt-2 mb-0">※ 행정복지센터는 실제 관할 기관 조회 결과가
-
-					아닌 시뮬레이션용 가상 정보입니다.</p>
 
 			</div>
 
@@ -77,7 +78,8 @@
 
 		<input id="newBdMgtSn" type="hidden"> <input id="newSiNm"
 			type="hidden"> <input id="newSggNm" type="hidden"> <input
-			id="newEmdNm" type="hidden">
+			id="newEmdNm" type="hidden"> <input id="newHemdNm"
+			type="hidden"><input id="newRoadAddress" type="hidden">
 
 		<div class="gov24-building-fields move-step4-building-fields">
 
@@ -104,34 +106,36 @@
 
 		<div class="gov24-detail-address move-step4-detail-field">
 
-			<label class="form-label fw-semibold" for="newDetailAddress">그
+			<label class="form-label fw-semibold" for="newDetailAddress">
+				그 외 주소 </label>
 
-				외 주소</label> <input id="newDetailAddress" class="form-control" type="text"
-				maxlength="150" autocomplete="off"
-				placeholder="예) 101동 501호 (상세주소가 있는 경우 입력)">
+			<!-- 참고항목 + 상세주소를 하나의 입력창처럼 표시 -->
+			<div class="move-step4-detail-input">
 
-			<div class="mt-2">
+				<span id="newAddressPart2" class="move-step4-detail-prefix d-none"></span>
 
-				<p class="small text-muted mb-1">※ 주소 검색 시 입력한 상세주소가 자동 반영되며,
-
-					해봄에서도 수정할 수 있습니다.</p>
-
-				<p class="small text-muted mb-0 mt-0">
-
-					※ 상세한 주소가 있다면 <strong class="text-primary">그 외 주소란</strong>에 반드시
-
-					기재해 주세요. <strong class="text-danger"> (미기재 시 실제 전입신고가 반려될
-
-						수 있음) </strong> <span class="d-block ms-2"> (건축물의 이름, 동 번호 및 호수까지
-
-						작성하고 호수가 없는 경우 층수를 작성) </span>
-
-				</p>
+				<input id="newDetailAddress" class="form-control" type="text"
+					maxlength="150" autocomplete="off" placeholder="예) 101동 101호">
 
 			</div>
 
-		</div>
+			<!-- 참고항목 저장용 -->
+			<input type="hidden" id="newAddressPart2Value">
 
+			<!-- 안내 문구 -->
+			<div class="mt-2">
+				<p class="small text-muted mb-1">※ 기본주소 검색 후 상세주소(동·호수 등)를 직접
+					입력해 주세요.</p>
+
+				<p class="small text-muted mb-0">
+					※ 상세한 주소가 있다면 <strong class="text-primary">그 외 주소란</strong>에 반드시
+					기재해 주세요. <strong class="text-danger"> (미기재 시 실제 전입신고가 반려될
+						수 있음) </strong> <span class="d-block ms-2"> (건축물의 이름, 동 번호 및 호수까지
+						작성하고 호수가 없는 경우 층수를 작성) </span>
+				</p>
+			</div>
+
+		</div>
 		<!-- 참고 이미지처럼 세대 구성 라디오와 테이블을 동일한 패널 내부에 배치 -->
 
 		<fieldset class="move-step4-household-fieldset">
@@ -282,7 +286,6 @@
 				</div>
 
 				<p class="move-step4-validation-help">세대주 한 명을 선택하고 나머지 가족의 관계 및
-
 					전체 연락처를 입력해 주세요.</p>
 
 				<div id="minorNewHeadNotice"
@@ -407,19 +410,16 @@
 				</div>
 
 				<p class="move-step4-validation-help">기존 세대주와 이사 가족 전원의 전화번호를 새로
-
 					입력해 주세요.</p>
 
 			</div>
 
 			<p class="move-step4-notice mt-3 mb-0">※ 실제 정부24에서는 세대 구성 방법 및 신고
-
 				대상자의 상황에 따라 세대주 확인이나 추가 절차가 필요할 수 있습니다. 해봄에서는 실제 문자 발송이나 민원 신청이
 
 				이루어지지 않습니다.</p>
 
 		</fieldset>
-
 	</section>
 
 	<section class="gov24-extra-services mt-4">
@@ -472,43 +472,96 @@
 						거부되는 것은 아닙니다. 다만 별도의 임대차계약 신고 의무는 확인해야 합니다.</p>
 				</div>
 
+
 				<!-- 첨부 서류 안내 -->
 				<h5 class="fw-semibold fs-6 mb-3">서류명</h5>
+
 				<p class="fw-semibold mb-3">이·통장 등의 사후확인 생략 및 주택 임대차계약 신고를 위한 서류
 					제출</p>
 
 				<ul class="small text-secondary ps-3 mb-3">
-					<li class="mb-2">참고 파일 형식: JPG, JPEG, BMP, PDF</li>
-					<li class="mb-2">정부24 화면의 안내 기준: 파일당 2MB</li>
-					<li class="mb-2">실제 제출 시 파일 형식과 용량 제한은 해당 민원 서비스에서 다시 확인해야
-						합니다.</li>
-					<li>해봄에서는 실제 계약서나 개인정보가 포함된 파일을 업로드하지 않습니다.</li>
+					<li class="mb-2">파일 형식: JPG, JPEG, BMP, PDF</li>
+					<li class="mb-2">파일당 최대 용량: 2MB</li>
+					<li class="mb-2">최대 2개, 전체 4MB까지 첨부할 수 있습니다.</li>
+					<li class="mb-2">실제 민원 제출 시 파일 형식과 용량 제한은 해당 서비스에서 확인해야 합니다.</li>
+					<li>학습용 서비스이므로 개인정보가 포함된 실제 계약서는 첨부하지 마세요.</li>
 				</ul>
 
-				<!-- 가상 서류 첨부 -->
-				<div class="border rounded-3 p-3">
-					<div class="fw-semibold mb-2">임대차계약서 첨부 (가상 체험)</div>
+				<!-- 실제 첨부파일 영역 -->
+				<div class="border rounded-3 p-3 p-md-4">
 
-					<p class="small text-secondary mb-3">예시 임대차계약서를 첨부하는 과정을 연습합니다.
-						실제 파일은 선택하거나 전송하지 않습니다.</p>
+					<h6 class="fw-semibold mb-2">임대차계약서 등 관련 서류 첨부</h6>
 
-					<div id="leaseMockFileStatus"
-						class="bg-light border rounded-3 p-3 mb-3">
-						<span class="text-muted small"> 첨부된 가상 서류가 없습니다. </span>
+					<p class="small text-secondary mb-3">첨부할 파일을 선택해 주세요. 최대 2개까지
+						등록할 수 있습니다.</p>
+
+					<!-- 파일 선택 -->
+					<input type="file" id="leaseFileInput" name="leaseFiles"
+						class="visually-hidden"
+						accept=".jpg,.jpeg,.bmp,.pdf,image/jpeg,image/bmp,application/pdf"
+						multiple aria-label="임대차계약서 첨부파일 선택">
+
+					<!-- 첨부파일 목록 -->
+					<div class="table-responsive border rounded-3 mb-2">
+
+						<table class="table table-sm align-middle mb-0">
+
+							<thead class="table-light">
+								<tr>
+									<th scope="col" class="ps-3">파일 이름</th>
+									<th scope="col" class="text-end">파일 크기</th>
+									<th scope="col" class="text-center" style="width: 80px;">
+										관리</th>
+								</tr>
+							</thead>
+
+							<tbody id="leaseFileList">
+
+								<!-- 첨부파일이 없을 때 -->
+								<tr id="leaseFileEmptyRow">
+									<td colspan="3" class="text-center text-secondary p-0"><span
+										class="material-symbols-outlined
+                                     d-block mb-2"
+										aria-hidden="true"> upload_file </span> <span class="small">
+											첨부된 파일이 없습니다. </span></td>
+								</tr>
+
+							</tbody>
+
+						</table>
+
 					</div>
 
-					<button type="button" id="attachLeaseMockFileBtn"
-						class="btn btn-outline-primary btn-sm d-flex align-items-center">
-						<span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
-						예시 임대차계약서 첨부하기
-					</button>
+					<!-- 첨부 개수 및 용량 -->
+					<div class="d-flex justify-content-end mb-3">
+						<span id="leaseFileSummary" class="small text-secondary"
+							role="status" aria-live="polite"> 0개 · 0 Byte / 최대 2개 ·
+							4MB </span>
+					</div>
 
-					<button type="button" id="removeLeaseMockFileBtn"
-						class="btn btn-outline-secondary btn-sm d-none">첨부 삭제</button>
+					<!-- 첨부파일 관리 버튼 -->
+					<div class="d-flex align-items-center gap-2 flex-wrap">
 
-					<p class="small text-secondary mt-3 mb-0">※ 이 첨부는 학습용 가상 체험이며,
-						실제 전입신고나 임대차계약 신고가 이루어지지 않습니다.</p>
+						<label for="leaseFileInput" id="addLeaseFileBtn"
+							class="btn btn-outline-primary btn-sm
+                      d-inline-flex align-items-center gap-1 mb-0">
+
+							<span class="material-symbols-outlined" aria-hidden="true">
+								attach_file </span> 파일 추가
+						</label>
+
+						<button type="button" id="removeAllLeaseFilesBtn"
+							class="btn btn-outline-secondary btn-sm" disabled>전체 삭제
+						</button>
+
+					</div>
+
+					<!-- 안내 문구 -->
+					<p class="small text-secondary mt-3 mb-0">※ 첨부파일은 해봄의 학습용
+						시뮬레이션에서만 사용되며, 실제 전입신고나 임대차계약 신고가 이루어지지 않습니다.</p>
+
 				</div>
+
 			</div>
 
 		</div>

@@ -28,4 +28,12 @@ public class AddressApiController {
 	public List<Map<String, Object>> getRegions(@RequestParam(required = false) String cd) {
 		return addressService.getRegions(cd);
 	}
+	
+	// 도로명 주소 검색
+	@Operation(summary = "도로명주소 조회", description = "도로명주소를 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "도로명주소 조회 성공")
+	@GetMapping("/search")
+	public String searchAddress(@RequestParam String keyword, @RequestParam(defaultValue = "1") int currentPage) {
+		return addressService.searchAddress(keyword, currentPage);
+	}
 }

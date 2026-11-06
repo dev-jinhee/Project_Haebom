@@ -45,7 +45,7 @@ public class MyPageApiController {
 		return myPageService.getProfile(memberPrincipal.getMemberId());
 	}	
 	
-	@Operation(summary = "회원 탈퇴", description = "로그인한 회원의 개인정보를 비우고 탈퇴 상태로 변경한 뒤 로그아웃합니다.")
+	@Operation(summary = "회원 탈퇴", description = "일반 회원의 개인정보를 비우고 탈퇴 상태로 변경한 뒤 로그아웃합니다.")
 	@PostMapping("/withdraw")
 	public Map<String, Boolean> withdraw(
 			@AuthenticationPrincipal MemberPrincipal memberPrincipal, 
@@ -55,6 +55,11 @@ public class MyPageApiController {
 		
 		if (memberPrincipal == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+		boolean isUser = memberPrincipal.getAuthorities().stream()
+				.anyMatch(authority -> "ROLE_USER".equals(authority.getAuthority()));
+		if (!isUser) {
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "일반 회원만 탈퇴할 수 있습니다.");
 		}
 		
 		myPageService.withdraw(memberPrincipal.getMemberId());

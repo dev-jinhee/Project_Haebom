@@ -47,4 +47,10 @@ public class AdminMemberApiController {
 		List<AdminMemberProgressDTO> progressList = adminMemberService.getMemberProgressList(memberId);
 		return ResponseEntity.ok(progressList);
 	}
+	
+	// 4. 관리자용 회원 목록 엑셀 다운로드 API (GET /api/admin/members/excel)
+	@GetMapping("/excel")
+	public void downloadMemberListExcel(javax.servlet.http.HttpServletResponse response) throws java.io.IOException {
+		adminMemberService.downloadMemberListExcel(response);
+	}
 }

@@ -455,7 +455,8 @@ async function collectStepAnswers() {
 			fieldKey,
 			answerValue: typeof value === "string"
 				? value
-				: JSON.stringify(value)
+				: JSON.stringify(value),
+			isJson: typeof value === "object"
 		}));
 
 	return { answers };
@@ -542,6 +543,20 @@ async function handleNextStep() {
 		}
 	}
 
+	// 첨부파일 업로드
+	if (!simulationState.isCompleted && activeStepModule?.uploadAttachments) {
+		try {
+			await activeStepModule.uploadAttachments({
+				root: document.querySelector("#stepContent"),
+				progressId: simulationState.progressId
+			});
+		} catch (error) {
+			console.error("첨부파일 업로드 실패:", error);
+			alert("첨부파일 업로드에 실패했습니다. 다시 시도해 주세요.");
+			return;
+		}
+	}
+
 	// 입력값 저장 api 호출
 	const requestBody = !simulationState.isCompleted
 		? await collectStepAnswers()
@@ -582,19 +597,41 @@ async function handleNextStep() {
 		// 마지막 단계라면 완료 상태 변경 후 완료 페이지 이동
 		if (currentIndex === steps.length - 1) {
 			//진행 상태 완료 변경 후 step_id null 처리
-			const completeResponse = await fetch(
-				`/api/simulation/progress/${simulationState.progressId}/complete`,
-				{
-					method: "PATCH",
-					headers: {
-						"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-					},
-					body: params
+			try {
+				const completeResponse = await fetch(
+					`/api/simulation/progress/${simulationState.progressId}/complete`,
+					{
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+						},
+						body: params
+					}
+				);
+
+				if (!completeResponse.ok) {
+					// 완료 API 실패 시 S3 첨부파일 정리
+					// 4xx 검증 오류에 한해서만 자동 삭제
+					if (completeResponse.status >= 400 &&
+						completeResponse.status < 500 &&
+						activeStepModule?.cleanupAttachments) {
+
+						await activeStepModule.cleanupAttachments({
+							root: document.querySelector("#stepContent"),
+							progressId: simulationState.progressId
+						});
+					}
+
+					alert("신청 완료에 실패했습니다. 입력값을 확인하고 다시 시도해 주세요.");
+					return;
 				}
-			);
-			if (!completeResponse.ok) {
-				throw new Error("시뮬레이션 완료 실패");
+
+			} catch (error) {
+				console.error("시뮬레이션 완료 요청 오류:", error);
+				alert("신청 결과를 확인할 수 없습니다. 진행 상태를 확인해 주세요.");
+				return;
 			}
+
 			simulationState.currentStep = null
 			simulationState.isCompleted = true;
 			simulationState.viewingStep = null;
@@ -631,12 +668,17 @@ function toAnswerParams(requestBody) {
 	const params = new URLSearchParams();
 
 	requestBody?.answers?.forEach((answer, index) => {
-
 		params.append(`answers[${index}].stepId`, answer.stepId);
-
 		params.append(`answers[${index}].fieldKey`, answer.fieldKey);
 
-		params.append(`answers[${index}].answerValue`, answer.answerValue);
+		const value = answer.answerValue ?? "";
+
+		params.append(
+			`answers[${index}].answerValue`,
+			answer.isJson
+				? encodeURIComponent(value)
+				: value
+		);
 	});
 
 	return params;
