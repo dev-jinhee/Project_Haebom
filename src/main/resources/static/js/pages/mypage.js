@@ -1,7 +1,6 @@
 (function () {
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');
-    let latestProgressByScenarioId = null;
     const withdrawConfirmText = document.getElementById('withdrawConfirmText');
     const withdrawConfirmButton = document.querySelector('[data-confirm-delete]');
     const withdrawModal = document.getElementById('confirmModal');
@@ -138,7 +137,9 @@
 
     function openMyPageSimulation(progressId) {
         sessionStorage.setItem('progressId', progressId);
-        window.location.href = page.dataset.simulationUrl;
+        const simulationUrl = new URL(page.dataset.simulationUrl, window.location.href);
+        simulationUrl.searchParams.set('history', 'true');
+        window.location.href = simulationUrl.toString();
     }
 
     let scenarioHistoryPage = 1;
@@ -247,10 +248,7 @@
 
             const actions = document.createElement('div');
             actions.className = 'mypage-history-actions';
-            const latest = latestProgressByScenarioId
-                && latestProgressByScenarioId.get(String(record.scenarioId));
-            const isLatest = latest && String(latest.progressId) === String(record.progressId);
-            if (isLatest && (record.progressStatus === 'IN_PROGRESS' || record.progressStatus === 'COMPLETED')) {
+            if (record.progressStatus === 'IN_PROGRESS' || record.progressStatus === 'COMPLETED') {
                 const openButton = document.createElement('button');
                 openButton.type = 'button';
                 openButton.className = 'btn btn-outline-primary btn-sm rounded-pill';
@@ -275,30 +273,6 @@
 
         list.replaceChildren.apply(list, rows);
         renderScenarioHistoryPagination();
-    }
-
-    async function loadScenarioMetadata() {
-        if (!page || !page.dataset.scenariosApiUrl) return;
-
-        try {
-            const response = await fetch(page.dataset.scenariosApiUrl, {
-                method: 'GET',
-                headers: { Accept: 'application/json' },
-                credentials: 'same-origin'
-            });
-            if (!response.ok) throw new Error('시나리오 정보를 불러오지 못했습니다.');
-            const items = await response.json();
-            if (!Array.isArray(items)) throw new Error('시나리오 응답 형식이 올바르지 않습니다.');
-
-            latestProgressByScenarioId = new Map();
-            items.forEach(function (item) {
-                if (!item || !item.scenario || item.scenario.scenarioId == null) return;
-                const scenarioId = String(item.scenario.scenarioId);
-                if (item.progress) latestProgressByScenarioId.set(scenarioId, item.progress);
-            });
-        } catch (error) {
-            latestProgressByScenarioId = null;
-        }
     }
 
     async function loadScenarioHistory(requestedPage) {
@@ -376,7 +350,6 @@
             }
             renderScenarioHistory(scenarioHistoryItems);
 
-            await loadScenarioMetadata();
             await loadScenarioHistory(scenarioHistoryPage);
         } catch (error) {
             toast(error.message || '진행 내역 삭제 중 오류가 발생했습니다.');
@@ -405,14 +378,8 @@
             });
         }
 
-        // 진행 내역 조회는 시나리오 메타데이터 응답을 기다리지 않습니다.
-        // 메타데이터는 '이어하기' 버튼 표시 여부에만 필요하므로 별도로 불러옵니다.
+        // 각 기록의 상태에 따라 이어하기 또는 작성 내용 확인 버튼을 표시합니다.
         loadScenarioHistory(1);
-        loadScenarioMetadata().then(function () {
-            if (Array.isArray(scenarioHistoryItems)) {
-                renderScenarioHistory(scenarioHistoryItems);
-            }
-        });
     }
 
     function initializeMyInquiries() {
