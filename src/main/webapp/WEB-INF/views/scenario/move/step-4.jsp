@@ -472,43 +472,96 @@
 						거부되는 것은 아닙니다. 다만 별도의 임대차계약 신고 의무는 확인해야 합니다.</p>
 				</div>
 
+
 				<!-- 첨부 서류 안내 -->
 				<h5 class="fw-semibold fs-6 mb-3">서류명</h5>
+
 				<p class="fw-semibold mb-3">이·통장 등의 사후확인 생략 및 주택 임대차계약 신고를 위한 서류
 					제출</p>
 
 				<ul class="small text-secondary ps-3 mb-3">
-					<li class="mb-2">참고 파일 형식: JPG, JPEG, BMP, PDF</li>
-					<li class="mb-2">정부24 화면의 안내 기준: 파일당 2MB</li>
-					<li class="mb-2">실제 제출 시 파일 형식과 용량 제한은 해당 민원 서비스에서 다시 확인해야
-						합니다.</li>
-					<li>해봄에서는 실제 계약서나 개인정보가 포함된 파일을 업로드하지 않습니다.</li>
+					<li class="mb-2">파일 형식: JPG, JPEG, BMP, PDF</li>
+					<li class="mb-2">파일당 최대 용량: 2MB</li>
+					<li class="mb-2">최대 2개, 전체 4MB까지 첨부할 수 있습니다.</li>
+					<li class="mb-2">실제 민원 제출 시 파일 형식과 용량 제한은 해당 서비스에서 확인해야 합니다.</li>
+					<li>학습용 서비스이므로 개인정보가 포함된 실제 계약서는 첨부하지 마세요.</li>
 				</ul>
 
-				<!-- 가상 서류 첨부 -->
-				<div class="border rounded-3 p-3">
-					<div class="fw-semibold mb-2">임대차계약서 첨부 (가상 체험)</div>
+				<!-- 실제 첨부파일 영역 -->
+				<div class="border rounded-3 p-3 p-md-4">
 
-					<p class="small text-secondary mb-3">예시 임대차계약서를 첨부하는 과정을 연습합니다.
-						실제 파일은 선택하거나 전송하지 않습니다.</p>
+					<h6 class="fw-semibold mb-2">임대차계약서 등 관련 서류 첨부</h6>
 
-					<div id="leaseMockFileStatus"
-						class="bg-light border rounded-3 p-3 mb-3">
-						<span class="text-muted small"> 첨부된 가상 서류가 없습니다. </span>
+					<p class="small text-secondary mb-3">첨부할 파일을 선택해 주세요. 최대 2개까지
+						등록할 수 있습니다.</p>
+
+					<!-- 파일 선택 -->
+					<input type="file" id="leaseFileInput" name="leaseFiles"
+						class="visually-hidden"
+						accept=".jpg,.jpeg,.bmp,.pdf,image/jpeg,image/bmp,application/pdf"
+						multiple aria-label="임대차계약서 첨부파일 선택">
+
+					<!-- 첨부파일 목록 -->
+					<div class="table-responsive border rounded-3 mb-2">
+
+						<table class="table table-sm align-middle mb-0">
+
+							<thead class="table-light">
+								<tr>
+									<th scope="col" class="ps-3">파일 이름</th>
+									<th scope="col" class="text-end">파일 크기</th>
+									<th scope="col" class="text-center" style="width: 80px;">
+										관리</th>
+								</tr>
+							</thead>
+
+							<tbody id="leaseFileList">
+
+								<!-- 첨부파일이 없을 때 -->
+								<tr id="leaseFileEmptyRow">
+									<td colspan="3" class="text-center text-secondary p-0"><span
+										class="material-symbols-outlined
+                                     d-block mb-2"
+										aria-hidden="true"> upload_file </span> <span class="small">
+											첨부된 파일이 없습니다. </span></td>
+								</tr>
+
+							</tbody>
+
+						</table>
+
 					</div>
 
-					<button type="button" id="attachLeaseMockFileBtn"
-						class="btn btn-outline-primary btn-sm d-flex align-items-center">
-						<span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
-						예시 임대차계약서 첨부하기
-					</button>
+					<!-- 첨부 개수 및 용량 -->
+					<div class="d-flex justify-content-end mb-3">
+						<span id="leaseFileSummary" class="small text-secondary"
+							role="status" aria-live="polite"> 0개 · 0 Byte / 최대 2개 ·
+							4MB </span>
+					</div>
 
-					<button type="button" id="removeLeaseMockFileBtn"
-						class="btn btn-outline-secondary btn-sm d-none">첨부 삭제</button>
+					<!-- 첨부파일 관리 버튼 -->
+					<div class="d-flex align-items-center gap-2 flex-wrap">
 
-					<p class="small text-secondary mt-3 mb-0">※ 이 첨부는 학습용 가상 체험이며,
-						실제 전입신고나 임대차계약 신고가 이루어지지 않습니다.</p>
+						<label for="leaseFileInput" id="addLeaseFileBtn"
+							class="btn btn-outline-primary btn-sm
+                      d-inline-flex align-items-center gap-1 mb-0">
+
+							<span class="material-symbols-outlined" aria-hidden="true">
+								attach_file </span> 파일 추가
+						</label>
+
+						<button type="button" id="removeAllLeaseFilesBtn"
+							class="btn btn-outline-secondary btn-sm" disabled>전체 삭제
+						</button>
+
+					</div>
+
+					<!-- 안내 문구 -->
+					<p class="small text-secondary mt-3 mb-0">※ 첨부파일은 해봄의 학습용
+						시뮬레이션에서만 사용되며, 실제 전입신고나 임대차계약 신고가 이루어지지 않습니다.</p>
+
 				</div>
+
 			</div>
 
 		</div>
