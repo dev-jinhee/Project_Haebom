@@ -27,11 +27,6 @@ const RELATION_OPTIONS = [
 ];
 
 // ==============================
-// 초기화
-
-// ==============================
-
-// ==============================
 // Step3 행정정보 동의 (Step3 전용: 별도 모듈 사용하지 않음)
 
 // ==============================
@@ -88,7 +83,9 @@ function getConsentData(root) {
 		key, root.querySelector(`input[name="${key}"]:checked`)?.value ?? ""
 	]));
 }
-
+// ==============================
+// 초기화
+// ==============================
 export async function init({ root, progressId, stepId, readOnly = false }) {
 	families = [];
 	familySearchCompleted = false;
