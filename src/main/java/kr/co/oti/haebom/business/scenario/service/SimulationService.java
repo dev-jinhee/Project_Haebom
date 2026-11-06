@@ -31,9 +31,11 @@ import kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper;
 import kr.co.oti.haebom.business.scenario.validation.StepValidationManager;
 import kr.co.oti.haebom.system.storage.S3Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class SimulationService {
@@ -336,28 +338,48 @@ public class SimulationService {
 	// 시뮬레이션 삭제
 	@Transactional
 	public void deleteProgress(Integer progressId, Integer memberId) {
-		// 현재 단계 조회
+
+		// 1. 현재 진행 이력 조회
 		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+
 		if (progress == null || "DELETED".equals(progress.getProgressStatus())
 				|| "ABANDONED".equals(progress.getProgressStatus())) {
+
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 기록을 찾을 수 없습니다.");
 		}
-		// 시뮬레이션가족 삭제
+
+		// 2. 답변 삭제 전에 첨부파일 존재 여부 확인
+		boolean hasLeaseFile = hasLeaseAttachments(progressId);
+
+		// 3. 시뮬레이션 가족 삭제
 		familyMapper.deleteByProgressId(progressId);
-		// 시물레이션 입력값 삭제
+
+		// 4. 시뮬레이션 입력값 삭제
 		answerMapper.deleteSimulationAnswer(progressId);
-		// 시물레이션 상태 DELETED 변경
+
+		// 5. 시뮬레이션 상태 DELETED 변경
 		int updateRow = simulationProgressMapper.markProgressDeleted(progressId, memberId);
+
 		if (updateRow != 1) {
 			throw new IllegalStateException("진행 기록 삭제가 실패하였습니다.");
 		}
-		// DB 삭제가 정상 커밋된 뒤 S3 파일 삭제
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-			@Override
-			public void afterCommit() {
-				s3Service.deleteLeaseFiles(progressId);
-			}
-		});
+
+		// 6. 첨부파일이 있을 때만 DB 커밋 후 S3 삭제
+		if (hasLeaseFile) {
+
+			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+				@Override
+				public void afterCommit() {
+					try {
+						s3Service.deleteLeaseFiles(progressId);
+
+					} catch (Exception e) {
+						log.error("시뮬레이션 삭제 후 S3 파일 삭제 실패. progressId={}", progressId, e);
+					}
+				}
+			});
+		}
 	}
 	
 	//마이페이지 이력 조회
@@ -381,4 +403,27 @@ public class SimulationService {
 	    return progress;
 	}
 
+	// 임대차계약서 첨부파일 존재 여부 확인
+	private boolean hasLeaseAttachments(Integer progressId) {
+
+		String json = answerMapper.selectLeaseAttachmentJson(progressId);
+
+		if (json == null || json.isBlank()) {
+			return false;
+		}
+
+		try {
+			JsonNode details = objectMapper.readTree(json);
+
+			JsonNode attachments = details.path("LEASE_REPORT").path("attachments");
+
+			return attachments.isArray() && !attachments.isEmpty();
+
+		} catch (JsonProcessingException e) {
+			log.warn("첨부파일 JSON 파싱 실패. progressId={}", progressId, e);
+
+			// 파싱 실패 시 파일이 있을 가능성을 고려해 정리 시도
+			return true;
+		}
+	}
 }
