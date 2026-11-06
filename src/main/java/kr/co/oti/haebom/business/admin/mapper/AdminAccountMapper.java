@@ -15,6 +15,8 @@ public interface AdminAccountMapper {
 	
 	// 2. 새 관리자 등록 시 아이디 중복 검사
 	int countByLoginId(@Param("loginId") String loginId);
+	// 2-1. 새 관리자 등록 시 이메일 중복 검사
+	int countByEmail(@Param("email") String email);
 	
 	// 3. 새 관리자 계정 등록 (INSERT)
 	int insertAdmin(AdminAccountDTO adminAccountDTO);

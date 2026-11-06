@@ -31,6 +31,10 @@ public class AdminAccountService {
 		if (adminAccountMapper.countByLoginId(dto.getLoginId()) > 0) {
 			throw new IllegalArgumentException("이미 사용 중인 관리자 아이디입니다.");
 		}
+		// 1-1) 이메일 중복 검사
+		if (adminAccountMapper.countByEmail(dto.getEmail()) > 0) {
+			throw new IllegalArgumentException("이미 등록된 이메일 주소입니다.");
+		}
 		
 		// 2) 비밀번호 BCrypt 암호화 (보안 표준)
 		dto.setPassword(passwordEncoder.encode(dto.getPassword()));

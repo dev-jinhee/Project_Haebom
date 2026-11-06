@@ -23,6 +23,12 @@
 		FROM member
 		WHERE login_id = #{loginId}
 	</select>
+	<!-- 2-1. 이메일 중복 확인 -->
+	<select id="countByEmail" resultType="int">
+		SELECT COUNT(*)
+		FROM member
+		WHERE email = #{email}
+	</select>
 
 	<!-- 3. 새 관리자 계정 등록 -->
 	<insert id="insertAdmin" parameterType="kr.co.oti.haebom.business.admin.dto.AdminAccountDTO" useGeneratedKeys="true" keyProperty="memberId">
