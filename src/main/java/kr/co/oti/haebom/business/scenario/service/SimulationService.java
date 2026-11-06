@@ -359,5 +359,26 @@ public class SimulationService {
 			}
 		});
 	}
+	
+	//마이페이지 이력 조회
+	public SimulationProgressDTO getProgressForHistory(Integer progressId, Integer memberId) {
+	    SimulationProgressDTO progress =
+	            simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+
+	    if (progress == null
+	            || "DELETED".equals(progress.getProgressStatus())
+	            || "ABANDONED".equals(progress.getProgressStatus())) {
+	        throw new ResponseStatusException(
+	                HttpStatus.NOT_FOUND, "진행 이력을 찾을 수 없습니다.");
+	    }
+
+	    if ("IN_PROGRESS".equals(progress.getProgressStatus())
+	            && progress.getStepId() == null) {
+	        throw new ResponseStatusException(
+	                HttpStatus.CONFLICT, "진행 중인 단계가 존재하지 않습니다.");
+	    }
+
+	    return progress;
+	}
 
 }
