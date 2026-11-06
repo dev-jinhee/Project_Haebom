@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import kr.co.oti.haebom.business.inquiry.dto.MyPageCompletedScenarioDTO;
+import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageProfileResponseDTO;
 
@@ -77,5 +77,5 @@ public interface MyPageMapper {
 		AND sp.progress_status = 'COMPLETED'
 	    ORDER BY sp.completed_at DESC, sp.progress_id DESC
 	    """)
-	List<MyPageCompletedScenarioDTO> selectCompletedScenariosByMemberId(@Param("memberId") Integer memberId);
+	List<MyPageScenarioHistoryDTO> selectCompletedScenariosByMemberId(@Param("memberId") Integer memberId);
 }

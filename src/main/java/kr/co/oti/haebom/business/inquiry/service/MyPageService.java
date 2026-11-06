@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import kr.co.oti.haebom.business.inquiry.dto.MyPageCompletedScenarioDTO;
+import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.business.inquiry.mapper.MyPageMapper;
@@ -107,11 +107,11 @@ public class MyPageService {
 	    return myPageMapper.selectInquiriesByMemberId(memberId);
 	}
 	
-	public List<MyPageCompletedScenarioDTO> getCompletedScenarios(Integer memberId) {
+	public List<MyPageScenarioHistoryDTO> getCompletedScenarios(Integer memberId) {
 		
-		List<MyPageCompletedScenarioDTO> records = myPageMapper.selectCompletedScenariosByMemberId(memberId);
+		List<MyPageScenarioHistoryDTO> records = myPageMapper.selectCompletedScenariosByMemberId(memberId);
 		
-		for (MyPageCompletedScenarioDTO record : records) {
+		for (MyPageScenarioHistoryDTO record : records) {
 			String label = messageSource.getMessage(
 					"category." + record.getCategoryName(),
 					null,

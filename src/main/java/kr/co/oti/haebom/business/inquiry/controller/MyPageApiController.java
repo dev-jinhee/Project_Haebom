@@ -19,7 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import kr.co.oti.haebom.business.inquiry.dto.MyPageCompletedScenarioDTO;
+import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.system.security.MemberPrincipal;
@@ -104,7 +104,7 @@ public class MyPageApiController {
 	
 	@Operation(summary = "완료한 시나리오 조회", description = "로그인한 회원이 완료한 시나리오 기록을 모두 조회합니다.")
 	@GetMapping("/completed-scenarios")
-	public List<MyPageCompletedScenarioDTO> getCompletedScenarios(@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	public List<MyPageScenarioHistoryDTO> getCompletedScenarios(@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
 		
 		if (memberPrincipal == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
