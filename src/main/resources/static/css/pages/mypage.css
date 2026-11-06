@@ -3,19 +3,30 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .account-list .btn { padding:.18rem .55rem; font-size:.7rem; }
 .mypage-tabs { display:flex; gap:30px; margin:24px 0 16px; border-bottom:1px solid #e4eaf0; }
 .mypage-tabs button { padding-right:6px; padding-left:6px; }
-.completed-history-list { display:grid; gap:13px; }
-.completed-history-empty { display:grid; justify-items:center; gap:8px; padding:36px 16px; text-align:center; }
-.completed-history-empty > .material-symbols-outlined { color:#6e8297; font-size:36px; }
-.completed-history-empty strong { color:var(--ink); font-size:.9rem; }
-.completed-history-empty p { margin:0 0 4px; color:#758395; font-size:.78rem; }
-.completed-history-error { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 0; color:#8b4545; font-size:.82rem; }
-.mypage-completed-section { margin-top:24px; }
-.mypage-completed-section:first-of-type { margin-top:0; }
-.mypage-completed-section + .mypage-completed-section { padding-top:22px; border-top:1px solid #e9edf1; }
-.mypage-completed-section-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
-.mypage-completed-section-heading h3 { margin:0; color:var(--ink); font-size:1rem; font-weight:800; }
-.mypage-progress-list { gap:13px; }
-.mypage-progress-list .scenario-empty { padding:24px 12px; border:1px dashed #d5e0e8; border-radius:14px; background:#fbfcfd; }
+.mypage-history-toolbar { align-items:flex-start; gap:16px; }
+.mypage-history-toolbar h2 { margin:0; }
+.mypage-history-count { margin:4px 0 0; color:#758395; font-size:.76rem; }
+.mypage-history-retention-note { display:flex; align-items:flex-start; gap:5px; margin:7px 0 0; color:#758395; font-size:.74rem; line-height:1.5; }
+.mypage-history-retention-note .material-symbols-outlined { flex:0 0 auto; font-size:1rem; }
+.mypage-history-search { flex:0 0 330px; width:330px; max-width:100%; }
+.mypage-history-search .input-group { width:100%; }
+.mypage-history-search .input-group-text { color:#53677b; background:#f8fafc; }
+.mypage-history-list { margin-top:4px; border-top:1px solid #e4eaf0; }
+.mypage-history-item { display:flex; align-items:center; justify-content:space-between; gap:18px; min-height:84px; padding:15px 10px; border-bottom:1px solid #e8edf2; }
+.mypage-history-content { display:grid; min-width:0; gap:8px; }
+.mypage-history-heading { display:flex; align-items:center; flex-wrap:wrap; gap:9px; }
+.mypage-history-heading h3 { overflow:hidden; margin:0; color:#243d57; font-size:.92rem; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+.mypage-history-status { padding:5px 9px; border-radius:999px; font-size:.69rem; font-weight:700; white-space:nowrap; }
+.mypage-history-status.is-progress { color:#1769aa; background:#eaf4fa; }
+.mypage-history-status.is-completed { color:#287253; background:#e8f5ee; }
+.mypage-history-metadata { display:flex; flex-wrap:wrap; gap:6px 10px; color:#788697; font-size:.75rem; }
+.mypage-history-metadata > * + * { padding-left:10px; border-left:1px solid #dce3ea; }
+.mypage-history-actions { display:flex; flex:0 0 auto; align-items:center; gap:7px; }
+.mypage-history-message { margin:0; padding:40px 16px; color:#758395; text-align:center; font-size:.86rem; }
+.mypage-history-message.is-error { color:#a33d3d; }
+.mypage-history-footer { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-top:18px; padding-top:16px; border-top:1px solid #e4eaf0; }
+.mypage-history-footer > nav { grid-column:2; justify-self:center; }
+.mypage-history-footer .pagination { justify-content:center; flex-wrap:wrap; }
 .mypage-inquiry-summary { display:grid; grid-template-columns:1fr 1fr; gap:12px; }.mypage-inquiry-summary > div { display:flex; align-items:center; gap:12px; min-width:0; padding:15px; border:1px solid #e9edf1; border-radius:12px; }.mypage-inquiry-summary > div > span:nth-child(2) { display:grid; gap:3px; flex:1; min-width:0; }.mypage-inquiry-summary strong { font-size:.86rem; }.mypage-inquiry-summary small { overflow:hidden; color:#758395; font-size:.76rem; text-overflow:ellipsis; white-space:nowrap; }.mypage-inquiry-summary b { color:#53677b; font-size:.82rem; white-space:nowrap; }.inquiry-status-dot { width:10px; height:10px; flex:0 0 10px; border-radius:50%; background:#d99a35; }.inquiry-status-dot.answered { background:#45a47b; }
 @media(max-width:767.98px) { .mypage-inquiry-summary { grid-template-columns:1fr; }.mypage-single .mypage-stats .stat-card { min-height:72px; } }
 .sim-progress-card { position:static; margin-bottom:1.25rem; }.sim-progress-heading { display:flex; align-items:baseline; gap:12px; }.sim-progress-heading strong { color:var(--ink); font-size:.98rem; }.sim-progress-heading > span { font-size:.82rem; white-space:nowrap; }
@@ -60,6 +71,14 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-inquiry-footer { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-top:18px; padding-top:16px; border-top:1px solid #e4eaf0; }
 .mypage-inquiry-footer > nav { grid-column:2; justify-self:center; }
 @media(max-width:575.98px) {
+    .mypage-history-toolbar { align-items:stretch; flex-direction:column; }
+    .mypage-history-search { flex-basis:auto; width:100%; }
+    .mypage-history-item { align-items:flex-start; flex-direction:column; gap:11px; padding:13px 6px; }
+    .mypage-history-heading h3 { font-size:.84rem; }
+    .mypage-history-metadata { gap:5px 8px; font-size:.7rem; }
+    .mypage-history-metadata > * + * { padding-left:8px; }
+    .mypage-history-actions { width:100%; justify-content:flex-end; }
+    .mypage-history-footer { align-items:center; gap:10px; }
     .mypage-inquiries-toolbar { align-items:stretch; flex-direction:column; }
     .mypage-inquiry-controls { width:100%; }
     .mypage-inquiry-controls > .form-select { width:42%; }
@@ -71,61 +90,6 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-inquiry-status { padding:5px 9px; font-size:.68rem; }
     .mypage-inquiry-footer { align-items:center; gap:10px; }
     .mypage-inquiry-footer .pagination { flex-wrap:wrap; }
-}
-
-/* 마이페이지 진행·완료 시나리오 카드: 아이콘 / 내용 / 액션 3열 */
-.mypage-completed-section .scenario-card {
-    grid-template-columns:52px minmax(0, 1fr) 164px;
-    gap:20px;
-}
-
-.mypage-completed-section .scenario-card-icon {
-    grid-column:1;
-    grid-row:1;
-    flex:0 0 52px;
-}
-
-.mypage-completed-section .scenario-card-content {
-    grid-column:2;
-    grid-row:1;
-    min-width:0;
-}
-
-.mypage-completed-section .scenario-actions {
-    grid-column:3;
-    grid-row:1;
-    width:164px;
-}
-
-@media(max-width:767.98px) {
-    .mypage-completed-section .scenario-card {
-        grid-template-columns:44px minmax(0, 1fr);
-        gap:14px;
-        padding:16px;
-    }
-
-    .mypage-completed-section .scenario-card-icon {
-        grid-column:1;
-        grid-row:1 / span 2;
-        align-self:center;
-        flex-basis:44px;
-        width:44px;
-        height:44px;
-        border-radius:13px;
-    }
-
-    .mypage-completed-section .scenario-card-content {
-        grid-column:2;
-        grid-row:1;
-    }
-
-    .mypage-completed-section .scenario-actions {
-        grid-column:2;
-        grid-row:2;
-        grid-template-columns:1fr;
-        width:100%;
-        justify-self:stretch;
-    }
 }
 
 /* 마이페이지 비밀번호 변경 입력: 회원가입 화면과 같은 표시 토글 및 안내 간격 */

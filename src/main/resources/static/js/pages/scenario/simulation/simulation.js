@@ -59,9 +59,11 @@ async function loadSimulation() {
 
 	try {
 		// 진행 이력 조회 API 호출
-		const progressResponse = await fetch(
-			`/api/simulation/progress/${simulationState.progressId}`
-		);
+		const fromHistory = new URLSearchParams(window.location.search).get("history") === "true";
+		const progressUrl = fromHistory
+			? `/api/simulation/progress/${simulationState.progressId}/history`
+			: `/api/simulation/progress/${simulationState.progressId}`;
+		const progressResponse = await fetch(progressUrl);
 
 		if (!progressResponse.ok) {
 			throw new Error("진행 이력 조회 실패");

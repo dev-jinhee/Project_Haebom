@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import kr.co.oti.haebom.business.inquiry.dto.MyPageCompletedScenarioDTO;
+import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageProfileResponseDTO;
 
@@ -64,18 +64,45 @@ public interface MyPageMapper {
 	List<MyPageInquiryItemDTO> selectInquiriesByMemberId(@Param("memberId") Integer memberId);
 	
 	@Select("""
-		SELECT
-	        sp.progress_id,
-	        sp.scenario_id,
-	        s.scenario_title,
-	        c.category_name,
-	        sp.completed_at
-	    FROM simulation_progress sp
-	    JOIN scenario s ON s.scenario_id = sp.scenario_id
-	    JOIN category c ON c.category_id = s.category_id
-	    WHERE sp.member_id = #{memberId}
-		AND sp.progress_status = 'COMPLETED'
-	    ORDER BY sp.completed_at DESC, sp.progress_id DESC
-	    """)
-	List<MyPageCompletedScenarioDTO> selectCompletedScenariosByMemberId(@Param("memberId") Integer memberId);
+		    SELECT sp.progress_id,
+		           sp.scenario_id,
+		           s.scenario_title,
+		           c.category_name,
+		           sp.progress_status,
+		           sp.started_at,
+		           sp.last_saved_at,
+		           sp.completed_at
+		    FROM simulation_progress sp
+		    JOIN scenario s ON s.scenario_id = sp.scenario_id
+		    JOIN category c ON c.category_id = s.category_id
+		    WHERE sp.member_id = #{memberId}
+		    AND sp.progress_status IN ('IN_PROGRESS', 'COMPLETED')
+		    AND (#{scenarioId} IS NULL OR sp.scenario_id = #{scenarioId})
+		    AND (#{keyword} IS NULL OR #{keyword} = ''
+		    OR s.scenario_title LIKE CONCAT('%', #{keyword}, '%'))
+		    ORDER BY COALESCE(sp.completed_at, sp.last_saved_at) DESC,
+		             sp.progress_id DESC
+		    LIMIT #{size} OFFSET #{offset}
+		    """)
+	List<MyPageScenarioHistoryDTO> selectScenarioHistory(
+			@Param("memberId") Integer memberId,
+		    @Param("scenarioId") Integer scenarioId,
+		    @Param("keyword") String keyword,
+		    @Param("size") int size,
+		    @Param("offset") int offset);
+
+	@Select("""
+		SELECT COUNT(*)
+		FROM simulation_progress sp
+		JOIN scenario s ON s.scenario_id = sp.scenario_id
+		WHERE sp.member_id = #{memberId}
+		AND sp.progress_status IN ('IN_PROGRESS', 'COMPLETED')
+		AND (#{scenarioId} IS NULL OR sp.scenario_id = #{scenarioId})
+		AND (#{keyword} IS NULL OR #{keyword} = ''
+		OR s.scenario_title LIKE CONCAT('%', #{keyword}, '%'))
+		""")
+	long countScenarioHistory(
+			@Param("memberId") Integer memberId,
+		    @Param("scenarioId") Integer scenarioId,
+		    @Param("keyword") String keyword);
 }
