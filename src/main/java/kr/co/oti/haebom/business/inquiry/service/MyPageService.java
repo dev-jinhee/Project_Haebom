@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryDTO;
+import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryPageDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.business.inquiry.mapper.MyPageMapper;
@@ -107,20 +108,28 @@ public class MyPageService {
 	    return myPageMapper.selectInquiriesByMemberId(memberId);
 	}
 	
-	public List<MyPageScenarioHistoryDTO> getCompletedScenarios(Integer memberId) {
-		
-		List<MyPageScenarioHistoryDTO> records = myPageMapper.selectCompletedScenariosByMemberId(memberId);
-		
-		for (MyPageScenarioHistoryDTO record : records) {
-			String label = messageSource.getMessage(
-					"category." + record.getCategoryName(),
-					null,
-					record.getCategoryName(),
-					LocaleContextHolder.getLocale());
-			
-			record.setCategoryLabel(label);
-		}
-		
-		return records;
+	public MyPageScenarioHistoryPageDTO getScenarioHistory(
+	        Integer memberId, Integer scenarioId, String keyword, int requestedPage) {
+	    
+		int page = Math.max(requestedPage, 1);
+	    int size = 5;
+	    int offset = (page - 1) * size;
+	    String normalizedKeyword = keyword == null ? "" : keyword.trim();
+
+	    List<MyPageScenarioHistoryDTO> items = myPageMapper.selectScenarioHistory(
+	            memberId, scenarioId, normalizedKeyword, size, offset);
+	    
+	    long totalCount = myPageMapper.countScenarioHistory(
+	            memberId, scenarioId, normalizedKeyword);
+
+	    for (MyPageScenarioHistoryDTO item : items) {
+	        String label = messageSource.getMessage(
+	                "category." + item.getCategoryName(), null,
+	                item.getCategoryName(), LocaleContextHolder.getLocale());
+	        item.setCategoryLabel(label);
+	    }
+
+	    int totalPages = (int) Math.ceil((double) totalCount / size);
+	    return new MyPageScenarioHistoryPageDTO(items, page, size, totalCount, totalPages);
 	}
 }
