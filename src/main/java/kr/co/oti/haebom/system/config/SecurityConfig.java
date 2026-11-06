@@ -80,7 +80,8 @@ public class SecurityConfig {
 					        antMatcher(HttpMethod.GET, "/api/main/**"),
 					        antMatcher(HttpMethod.GET, "/api/address/**"),
 					        antMatcher(HttpMethod.GET, "/api/scenario/**"),
-					        antMatcher(HttpMethod.GET, "/api/inquiries")
+					        antMatcher(HttpMethod.GET, "/api/inquiries"),
+					        antMatcher(HttpMethod.GET, "/api/policies/**") // [진희] 정부24(보조금24) 정책 추천 조회 API (비로그인 허용)
 					    ).permitAll()
 					    
 						 // 비밀번호 인증 후 OTP를 통과하기 전에는 ROLE_ADMIN 권한이 없으므로,
