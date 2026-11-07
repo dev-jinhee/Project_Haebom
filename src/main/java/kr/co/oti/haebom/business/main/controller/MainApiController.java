@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.business.main.dto.MainPageResponseDTO;
 import kr.co.oti.haebom.business.scenario.dto.ScenarioListItemDTO;
 import kr.co.oti.haebom.business.scenario.dto.SimulationProgressDTO;
@@ -15,6 +17,7 @@ import kr.co.oti.haebom.system.security.MemberPrincipal;
 import kr.co.oti.haebom.business.scenario.service.ScenarioService;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "메인페이지", description = "메인 화면 정보 조회 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/main")
@@ -22,6 +25,7 @@ public class MainApiController {
 	
 	private final ScenarioService scenarioService; 
 	
+	@Operation(summary = "메인페이지 정보 조회", description = "로그인하지 않은 경우 비로그인 정보를 반환하고, 로그인한 경우 회원 이름과 가장 최근에 시작한 진행 중 시나리오를 반환합니다.")
 	@GetMapping
 	public MainPageResponseDTO getMainPage(@AuthenticationPrincipal MemberPrincipal principal) {
 		
