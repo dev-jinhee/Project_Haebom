@@ -100,54 +100,65 @@
             </a>
         </section>
 
-        <section class="policy-panel" aria-labelledby="policy-recommendation-title">
-            <h2 id="policy-recommendation-title">내 상황에 맞는 공공서비스 찾기</h2>
-            <p class="policy-search-intro">관심 분야와 필요한 조건을 선택하면 관련 공공서비스를 찾아드려요.</p>
+        <section class="policy-panel" aria-labelledby="policy-search-title">
+            <h2 id="policy-search-title">공공서비스 정책 검색</h2>
+            <p class="policy-search-intro">검색어와 대상 조건을 선택해 공공서비스 검색 범위를 좁혀보세요.</p>
 
-            <form id="policyRecommendationForm"
-                  class="row g-3 align-items-end"
+            <form id="policySearchForm"
+                  class="policy-search-form"
                   action="${pageContext.request.contextPath}/api/main/policies"
-                  method="get">
-                <div class="col-12 col-md-4">
-                    <label class="form-label" for="policyInterest">관심 분야</label>
-                    <select id="policyInterest" name="interest" class="form-select" required>
-                        <option value="">선택해 주세요</option>
-                        <option value="HOUSING">주거</option>
-                        <option value="PARENTING">출산·육아</option>
-                        <option value="EMPLOYMENT">취업</option>
-                        <option value="WELFARE">복지</option>
-                    </select>
+                  method="get"
+                  role="search">
+                <label class="visually-hidden" for="policySearchInput">정책명 또는 검색어</label>
+                <div class="input-group">
+                    <input id="policySearchInput" name="keyword" class="form-control" type="search"
+                           placeholder="예: 월세 지원 (선택)" autocomplete="off">
+                    <button class="btn btn-primary" type="submit">검색</button>
                 </div>
-                <div class="col-12 col-md-4">
-                    <label class="form-label" for="policyAgeGroup">연령대</label>
-                    <select id="policyAgeGroup" name="ageGroup" class="form-select">
-                        <option value="">선택 안 함</option>
-                        <option value="청년">청년</option>
-                        <option value="중장년">중장년</option>
-                        <option value="노인">노인</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-4">
-                    <label class="form-label" for="policyHouseholdType">가구 유형</label>
-                    <select id="policyHouseholdType" name="householdType" class="form-select">
-                        <option value="">선택 안 함</option>
-                        <option value="1인 가구">1인 가구</option>
-                        <option value="다자녀">다자녀</option>
-                        <option value="한부모">한부모</option>
-                    </select>
-                </div>
-                <div class="col-12">
-                    <button class="btn btn-primary" type="submit">공공서비스 찾기</button>
+
+                <div class="policy-search-filters">
+                    <div>
+                        <label for="policyServiceField" class="form-label">분야</label>
+                        <select id="policyServiceField" name="serviceField" class="form-select">
+                            <option value="">전체 분야</option>
+                            <option value="HOUSING">주거</option>
+                            <option value="PARENTING">출산·육아</option>
+                            <option value="EMPLOYMENT">취업</option>
+                            <option value="EDUCATION">교육</option>
+                            <option value="WELFARE">복지·돌봄</option>
+                            <option value="HEALTH">보건·의료</option>
+                            <option value="CULTURE">문화·여가</option>
+                            <option value="SAFETY">안전·환경</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="policyAgeGroup" class="form-label">연령대</label>
+                        <select id="policyAgeGroup" name="ageGroup" class="form-select">
+                            <option value="">전체 연령</option>
+                            <option value="0-18">18세 이하</option>
+                            <option value="19-34">19~34세</option>
+                            <option value="35-64">35~64세</option>
+                            <option value="65+">65세 이상</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="policyHouseholdType" class="form-label">가구 유형</label>
+                        <select id="policyHouseholdType" name="householdType" class="form-select">
+                            <option value="">전체 가구</option>
+                            <option value="JA0404">1인 가구</option>
+                            <option value="JA0411">다자녀 가구</option>
+                            <option value="JA0403">한부모·조손 가정</option>
+                            <option value="JA0412">무주택 가구</option>
+                            <option value="JA0413">신규 전입 가구</option>
+                        </select>
+                    </div>
                 </div>
             </form>
 
-            <p id="policyRecommendationMessage" class="small text-secondary mt-3 mb-2"
+            <p id="policySearchMessage" class="small text-secondary mt-3 mb-2"
                role="status" aria-live="polite"></p>
-            <div id="policyRecommendationResults" class="policy-search-results d-none"
+            <div id="policySearchResults" class="policy-search-results d-none"
                  aria-live="polite"></div>
-            <p class="small text-secondary mt-3 mb-0">
-                추천 결과는 참고용입니다. 실제 지원 대상과 신청 조건은 정부 공식 페이지에서 확인해 주세요.
-            </p>
         </section>
 
         <p class="policy-search-footnote">연습은 안전하게! 모든 시뮬레이션은 학습용이며 실제 민원 접수되지 않습니다.</p>

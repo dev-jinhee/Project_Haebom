@@ -53,7 +53,6 @@
   }
 
   initializePolicySearch();
-  initializePolicyRecommendation();
 
   function show(element, visible) {
     if (element !== null) {
@@ -222,121 +221,49 @@
 
   function initializePolicySearch() {
     const policyForm = document.getElementById('policySearchForm');
-
-    // 정책 검색 영역이 화면에 없으면 정책 검색만 초기화하지 않습니다.
     if (policyForm === null) {
       return;
     }
 
     const policyInput = document.getElementById('policySearchInput');
     const results = document.getElementById('policySearchResults');
-    const emptyMessage = document.getElementById('policySearchEmpty');
-    const resultCards = document.querySelectorAll('.policy-search-result');
-    const policyButtons = document.querySelectorAll('[data-policy-query]');
+    const message = document.getElementById('policySearchMessage');
+    const serviceField = document.getElementById('policyServiceField');
+    const ageGroup = document.getElementById('policyAgeGroup');
+    const householdType = document.getElementById('policyHouseholdType');
 
-    function runPolicySearch(query) {
-      const normalizedQuery = query.trim().toLowerCase();
+    async function runPolicySearch() {
+      const keyword = policyInput.value.trim();
+      const selectedFilters = {
+        serviceField: serviceField.value,
+        ageGroup: ageGroup.value,
+        householdType: householdType.value
+      };
+      const hasFilter = Object.values(selectedFilters).some(Boolean);
 
-      if (normalizedQuery === '') {
-        if (window.Haebom && typeof window.Haebom.toast === 'function') {
-          window.Haebom.toast('정책명이나 관심 분야를 입력해 주세요.');
-        }
-
-        if (policyInput !== null) {
-          policyInput.focus();
-        }
+      if (keyword === '' && hasFilter) {
+        message.textContent = '조건만으로 검색하는 기능은 백엔드 필터 연결 후 사용할 수 있습니다.';
+        results.classList.add('d-none');
         return;
       }
 
-      let matchCount = 0;
-
-      resultCards.forEach(updatePolicyResultCard);
-      updateEmptyMessage();
-
-      if (results !== null) {
-        results.classList.remove('d-none');
-        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-
-      function updatePolicyResultCard(card) {
-        const policyTerms = card.getAttribute('data-policy-terms') || '';
-        const searchableText = policyTerms + ' ' + card.textContent;
-        const matches = searchableText.toLowerCase().indexOf(normalizedQuery) !== -1;
-
-        card.classList.toggle('d-none', !matches);
-        if (matches) {
-          matchCount += 1;
-        }
-      }
-
-      function updateEmptyMessage() {
-        if (emptyMessage === null) {
-          return;
-        }
-
-        emptyMessage.classList.toggle('d-none', matchCount > 0);
-      }
-    }
-
-    function handlePolicyFormSubmit(event) {
-      event.preventDefault();
-
-      const query = policyInput === null ? '' : policyInput.value;
-      runPolicySearch(query);
-    }
-
-    function handlePolicyButtonClick(event) {
-      const button = event.currentTarget;
-      const query = button.getAttribute('data-policy-query') || '';
-
-      if (policyInput !== null) {
-        policyInput.value = query;
-      }
-
-      runPolicySearch(query);
-    }
-
-    function addPolicyButtonListener(button) {
-      button.addEventListener('click', handlePolicyButtonClick);
-    }
-
-    policyForm.addEventListener('submit', handlePolicyFormSubmit);
-    policyButtons.forEach(addPolicyButtonListener);
-  }
-
-  function initializePolicyRecommendation() {
-    const form = document.getElementById('policyRecommendationForm');
-    if (form === null) {
-      return;
-    }
-
-    const message = document.getElementById('policyRecommendationMessage');
-    const results = document.getElementById('policyRecommendationResults');
-    const submitButton = form.querySelector('[type="submit"]');
-    const interestKeywords = {
-      HOUSING: '주거',
-      PARENTING: '출산',
-      EMPLOYMENT: '취업',
-      WELFARE: '복지'
-    };
-
-    form.addEventListener('submit', async function (event) {
-      event.preventDefault();
-
-      const keyword = interestKeywords[form.elements.interest.value];
-      const ageGroup = form.elements.ageGroup.value;
-      const householdType = form.elements.householdType.value;
-
-      if (!keyword) {
-        message.textContent = '관심 분야를 선택해 주세요.';
+      if (keyword === '' && !hasFilter) {
+        message.textContent = '검색어 또는 분야·연령대·가구 유형 중 하나를 선택해 주세요.';
+        results.classList.add('d-none');
+        if (serviceField) serviceField.focus();
         return;
       }
 
-      const requestUrl = new URL(form.action, window.location.href);
-      requestUrl.searchParams.set('keyword', keyword);
-      message.textContent = '공공서비스를 찾고 있습니다.';
+      const requestUrl = new URL(policyForm.action, window.location.href);
+      if (keyword) requestUrl.searchParams.set('keyword', keyword);
+      Object.entries(selectedFilters).forEach(function (entry) {
+        if (entry[1]) requestUrl.searchParams.set(entry[0], entry[1]);
+      });
+      message.textContent = '공공서비스를 검색하고 있습니다.';
       results.replaceChildren();
       results.classList.add('d-none');
+
+      const submitButton = policyForm.querySelector('[type="submit"]');
       if (submitButton) submitButton.disabled = true;
 
       try {
@@ -345,62 +272,56 @@
           credentials: 'same-origin',
           headers: { Accept: 'application/json' }
         });
-
         if (!response.ok) {
-          throw new Error('공공서비스를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+          throw new Error('공공서비스 검색에 실패했습니다. 잠시 후 다시 시도해 주세요.');
         }
 
         const policies = await response.json();
         if (!Array.isArray(policies) || policies.length === 0) {
-          message.textContent = '검색 결과가 없습니다. 다른 관심 분야를 선택해 주세요.';
+          message.textContent = '검색 결과가 없습니다. 다른 검색어를 입력해 주세요.';
           return;
         }
 
-        // 선택 조건은 지원대상 설명과의 문자열 일치 정도로 참고 정렬합니다.
-        const conditions = [ageGroup, householdType].filter(Boolean);
-        policies.sort(function (left, right) {
-          return conditionScore(right, conditions) - conditionScore(left, conditions);
-        });
-
         policies.forEach(function (policy) {
-          results.append(createPolicyRecommendationCard(policy));
+          results.append(createPolicySearchCard(policy));
         });
-
-        message.textContent = conditions.length > 0
-          ? '관심 분야 검색 결과를 선택한 조건과 관련 있는 순서로 표시합니다. 실제 지원 자격은 공식 페이지에서 확인해 주세요.'
-          : '관심 분야와 관련된 공공서비스입니다. 실제 지원 자격은 공식 페이지에서 확인해 주세요.';
+        message.textContent = hasFilter
+          ? `검색 결과 ${policies.length}건 · 선택 조건 필터는 백엔드 연결 후 결과에 반영됩니다.`
+          : `검색 결과 ${policies.length}건`;
         results.classList.remove('d-none');
+        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } catch (error) {
-        message.textContent = error.message || '공공서비스 조회 중 오류가 발생했습니다.';
+        message.textContent = error.message || '공공서비스 검색 중 오류가 발생했습니다.';
       } finally {
         if (submitButton) submitButton.disabled = false;
       }
-    });
-
-    function conditionScore(policy, conditions) {
-      const target = (policy.target || '').toLocaleLowerCase();
-      return conditions.reduce(function (score, condition) {
-        return score + (target.includes(condition.toLocaleLowerCase()) ? 1 : 0);
-      }, 0);
     }
 
-    function createPolicyRecommendationCard(policy) {
+    function handlePolicyFormSubmit(event) {
+      event.preventDefault();
+      runPolicySearch();
+    }
+
+    policyForm.addEventListener('submit', handlePolicyFormSubmit);
+
+    function createPolicySearchCard(policy) {
       const card = document.createElement('article');
       card.className = 'policy-search-result';
 
-      const title = document.createElement('strong');
+      const title = document.createElement('h3');
       title.textContent = policy.serviceName || '서비스명 미제공';
 
-      const summary = document.createElement('span');
-      summary.textContent = policy.summary || '자세한 내용은 공식 페이지에서 확인해 주세요.';
+      const summary = document.createElement('p');
+      summary.textContent = policy.summary || '자세한 내용은 공식 상세 페이지에서 확인해 주세요.';
 
-      const target = document.createElement('span');
-      target.textContent = '지원대상: ' + (policy.target || '공식 상세 페이지에서 확인해 주세요.');
+      const target = document.createElement('p');
+      target.textContent = '지원 대상: ' + (policy.target || '공식 상세 페이지에서 확인해 주세요.');
 
-      const agency = document.createElement('span');
-      agency.textContent = '소관기관: ' + (policy.agencyName || '정보 미제공');
+      const agency = document.createElement('p');
+      agency.textContent = '소관 기관: ' + (policy.agencyName || '정보 미제공');
 
       const detailLink = document.createElement('a');
+      detailLink.className = 'btn btn-sm btn-outline-primary align-self-start';
       detailLink.textContent = '정부 공식 상세 페이지';
       detailLink.href = safePolicyDetailUrl(policy.detailUrl);
       detailLink.target = '_blank';
@@ -418,10 +339,11 @@
             return url.toString();
           }
         } catch (error) {
-          // 응답의 상세 URL이 올바른 HTTPS 주소가 아니면 기본 공식 사이트로 보냅니다.
+          // 잘못된 주소는 공식 사이트로 대체합니다.
         }
       }
       return 'https://www.gov.kr/';
     }
   }
+
 })();
