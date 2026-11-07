@@ -53,6 +53,7 @@
   }
 
   initializePolicySearch();
+  initializePolicyRecommendation();
 
   function show(element, visible) {
     if (element !== null) {
@@ -301,5 +302,126 @@
 
     policyForm.addEventListener('submit', handlePolicyFormSubmit);
     policyButtons.forEach(addPolicyButtonListener);
+  }
+
+  function initializePolicyRecommendation() {
+    const form = document.getElementById('policyRecommendationForm');
+    if (form === null) {
+      return;
+    }
+
+    const message = document.getElementById('policyRecommendationMessage');
+    const results = document.getElementById('policyRecommendationResults');
+    const submitButton = form.querySelector('[type="submit"]');
+    const interestKeywords = {
+      HOUSING: '주거',
+      PARENTING: '출산',
+      EMPLOYMENT: '취업',
+      WELFARE: '복지'
+    };
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const keyword = interestKeywords[form.elements.interest.value];
+      const ageGroup = form.elements.ageGroup.value;
+      const householdType = form.elements.householdType.value;
+
+      if (!keyword) {
+        message.textContent = '관심 분야를 선택해 주세요.';
+        return;
+      }
+
+      const requestUrl = new URL(form.action, window.location.href);
+      requestUrl.searchParams.set('keyword', keyword);
+      message.textContent = '공공서비스를 찾고 있습니다.';
+      results.replaceChildren();
+      results.classList.add('d-none');
+      if (submitButton) submitButton.disabled = true;
+
+      try {
+        const response = await fetch(requestUrl.toString(), {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' }
+        });
+
+        if (!response.ok) {
+          throw new Error('공공서비스를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        }
+
+        const policies = await response.json();
+        if (!Array.isArray(policies) || policies.length === 0) {
+          message.textContent = '검색 결과가 없습니다. 다른 관심 분야를 선택해 주세요.';
+          return;
+        }
+
+        // 선택 조건은 지원대상 설명과의 문자열 일치 정도로 참고 정렬합니다.
+        const conditions = [ageGroup, householdType].filter(Boolean);
+        policies.sort(function (left, right) {
+          return conditionScore(right, conditions) - conditionScore(left, conditions);
+        });
+
+        policies.forEach(function (policy) {
+          results.append(createPolicyRecommendationCard(policy));
+        });
+
+        message.textContent = conditions.length > 0
+          ? '관심 분야 검색 결과를 선택한 조건과 관련 있는 순서로 표시합니다. 실제 지원 자격은 공식 페이지에서 확인해 주세요.'
+          : '관심 분야와 관련된 공공서비스입니다. 실제 지원 자격은 공식 페이지에서 확인해 주세요.';
+        results.classList.remove('d-none');
+      } catch (error) {
+        message.textContent = error.message || '공공서비스 조회 중 오류가 발생했습니다.';
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
+    });
+
+    function conditionScore(policy, conditions) {
+      const target = (policy.target || '').toLocaleLowerCase();
+      return conditions.reduce(function (score, condition) {
+        return score + (target.includes(condition.toLocaleLowerCase()) ? 1 : 0);
+      }, 0);
+    }
+
+    function createPolicyRecommendationCard(policy) {
+      const card = document.createElement('article');
+      card.className = 'policy-search-result';
+
+      const title = document.createElement('strong');
+      title.textContent = policy.serviceName || '서비스명 미제공';
+
+      const summary = document.createElement('span');
+      summary.textContent = policy.summary || '자세한 내용은 공식 페이지에서 확인해 주세요.';
+
+      const target = document.createElement('span');
+      target.textContent = '지원대상: ' + (policy.target || '공식 상세 페이지에서 확인해 주세요.');
+
+      const agency = document.createElement('span');
+      agency.textContent = '소관기관: ' + (policy.agencyName || '정보 미제공');
+
+      const detailLink = document.createElement('a');
+      detailLink.textContent = '정부 공식 상세 페이지';
+      detailLink.href = safePolicyDetailUrl(policy.detailUrl);
+      detailLink.target = '_blank';
+      detailLink.rel = 'noopener noreferrer';
+
+      card.append(title, summary, target, agency, detailLink);
+      return card;
+    }
+
+    function safePolicyDetailUrl(value) {
+      if (value) {
+        try {
+          const url = new URL(value);
+          if (url.protocol === 'https:') {
+            return url.toString();
+          }
+        } catch (error) {
+          // 응답의 상세 URL이 올바른 HTTPS 주소가 아니면 기본 공식 사이트로 보냅니다.
+        }
+      }
+      return 'https://www.gov.kr/';
+    }
   }
 })();

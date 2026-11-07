@@ -2,8 +2,8 @@ package kr.co.oti.haebom.business.main.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,25 +21,25 @@ public class Gov24PolicyResponseDTO {
     @Setter
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Policy {
-        @JsonProperty("서비스ID")
+        @JsonAlias("서비스ID")
         private String serviceId;
 
-        @JsonProperty("서비스명")
+        @JsonAlias("서비스명")
         private String serviceName;
 
-        @JsonProperty("서비스목적요약")
+        @JsonAlias("서비스목적요약")
         private String summary;
 
-        @JsonProperty("지원대상")
+        @JsonAlias("지원대상")
         private String target;
 
-        @JsonProperty("신청기한")
+        @JsonAlias("신청기한")
         private String applicationDeadline;
 
-        @JsonProperty("소관기관명")
+        @JsonAlias("소관기관명")
         private String agencyName;
 
-        @JsonProperty("상세조회URL")
+        @JsonAlias("상세조회URL")
         private String detailUrl;
     }
 }

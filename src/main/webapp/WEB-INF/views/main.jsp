@@ -100,44 +100,55 @@
             </a>
         </section>
 
-        <%-- 정책 검색은 확장 기능으로, 현재는 화면에서 제외합니다.
-        <section class="policy-panel" aria-labelledby="policy-title">
-            <h2 id="policy-title">정책 검색</h2>
-            <p class="policy-search-intro">정책명이나 관심 분야를 입력해 관련 정보를 찾아보세요.</p>
-            <form id="policySearchForm" class="policy-search-form" role="search">
-                <label class="visually-hidden" for="policySearchInput">정책명 또는 관심 분야</label>
-                <div class="input-group">
-                    <input id="policySearchInput" class="form-control" type="search" placeholder="예: 청년, 주거, 장애인" autocomplete="off">
-                    <button class="btn btn-primary" type="submit">검색</button>
+        <section class="policy-panel" aria-labelledby="policy-recommendation-title">
+            <h2 id="policy-recommendation-title">내 상황에 맞는 공공서비스 찾기</h2>
+            <p class="policy-search-intro">관심 분야와 필요한 조건을 선택하면 관련 공공서비스를 찾아드려요.</p>
+
+            <form id="policyRecommendationForm"
+                  class="row g-3 align-items-end"
+                  action="${pageContext.request.contextPath}/api/main/policies"
+                  method="get">
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="policyInterest">관심 분야</label>
+                    <select id="policyInterest" name="interest" class="form-select" required>
+                        <option value="">선택해 주세요</option>
+                        <option value="HOUSING">주거</option>
+                        <option value="PARENTING">출산·육아</option>
+                        <option value="EMPLOYMENT">취업</option>
+                        <option value="WELFARE">복지</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="policyAgeGroup">연령대</label>
+                    <select id="policyAgeGroup" name="ageGroup" class="form-select">
+                        <option value="">선택 안 함</option>
+                        <option value="청년">청년</option>
+                        <option value="중장년">중장년</option>
+                        <option value="노인">노인</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="policyHouseholdType">가구 유형</label>
+                    <select id="policyHouseholdType" name="householdType" class="form-select">
+                        <option value="">선택 안 함</option>
+                        <option value="1인 가구">1인 가구</option>
+                        <option value="다자녀">다자녀</option>
+                        <option value="한부모">한부모</option>
+                    </select>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-primary" type="submit">공공서비스 찾기</button>
                 </div>
             </form>
-            <div class="policy-keywords" aria-label="인기 검색어">
-                <span>인기 검색어</span>
-                <button type="button" data-policy-query="청년">청년</button>
-                <button type="button" data-policy-query="주거">주거</button>
-                <button type="button" data-policy-query="장애인">장애인</button>
-            </div>
 
-            <div id="policySearchResults" class="policy-search-results d-none" aria-live="polite">
-                <article class="policy-search-result" data-policy-terms="청년 주거 월세">
-                    <strong>청년 월세 지원 안내</strong>
-                    <span>청년의 주거비 부담을 덜어 주는 지원 정보를 확인해 보세요.</span>
-                    <a href="${pageContext.request.contextPath}/scenario">관련 연습 보기</a>
-                </article>
-                <article class="policy-search-result" data-policy-terms="주거 전입 이사 주소">
-                    <strong>이사 후 전입신고 안내</strong>
-                    <span>전입신고에 필요한 준비와 신청 절차를 살펴보세요.</span>
-                    <a href="${pageContext.request.contextPath}/scenario">관련 연습 보기</a>
-                </article>
-                <article class="policy-search-result" data-policy-terms="장애인 복지 등록">
-                    <strong>장애인 등록 신청 안내</strong>
-                    <span>신청 전 필요한 서류와 진행 절차를 확인해 보세요.</span>
-                    <a href="${pageContext.request.contextPath}/scenario">관련 연습 보기</a>
-                </article>
-                <p id="policySearchEmpty" class="d-none mb-0 py-3 text-secondary small">검색 결과가 없습니다. 다른 검색어를 입력해 주세요.</p>
-            </div>
+            <p id="policyRecommendationMessage" class="small text-secondary mt-3 mb-2"
+               role="status" aria-live="polite"></p>
+            <div id="policyRecommendationResults" class="policy-search-results d-none"
+                 aria-live="polite"></div>
+            <p class="small text-secondary mt-3 mb-0">
+                추천 결과는 참고용입니다. 실제 지원 대상과 신청 조건은 정부 공식 페이지에서 확인해 주세요.
+            </p>
         </section>
-        --%>
 
         <p class="policy-search-footnote">연습은 안전하게! 모든 시뮬레이션은 학습용이며 실제 민원 접수되지 않습니다.</p>
     </div>
