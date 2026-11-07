@@ -20,13 +20,10 @@ import lombok.RequiredArgsConstructor;
 public class PublicPolicyApiController {
     private final PublicPolicyService publicPolicyService;
 
-    @Operation(summary = "공공서비스 정책 검색", description = "검색어와 분야·연령대·가구 유형 조건으로 공공서비스를 조회합니다.")
+    @Operation(summary = "공공서비스 검색", description = "검색어와 서비스명이 일치하는 정부24 공공서비스 목록을 조회합니다.")
     @GetMapping
     public List<Policy> searchPolicies(
-            @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(required = false) String serviceField,
-            @RequestParam(required = false) String ageGroup,
-            @RequestParam(required = false) String householdType) {
-        return publicPolicyService.search(keyword, serviceField, ageGroup, householdType);
+            @RequestParam(defaultValue = "") String keyword) {
+        return publicPolicyService.search(keyword);
     }
 }

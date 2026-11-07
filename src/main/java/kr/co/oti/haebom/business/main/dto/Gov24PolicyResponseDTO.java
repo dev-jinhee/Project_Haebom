@@ -42,7 +42,5 @@ public class Gov24PolicyResponseDTO {
         @JsonAlias("상세조회URL")
         private String detailUrl;
         
-        @JsonAlias("서비스분야")
-        private String serviceField;
     }
 }
