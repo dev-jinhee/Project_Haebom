@@ -228,37 +228,18 @@
     const policyInput = document.getElementById('policySearchInput');
     const results = document.getElementById('policySearchResults');
     const message = document.getElementById('policySearchMessage');
-    const serviceField = document.getElementById('policyServiceField');
-    const ageGroup = document.getElementById('policyAgeGroup');
-    const householdType = document.getElementById('policyHouseholdType');
 
     async function runPolicySearch() {
       const keyword = policyInput.value.trim();
-      const selectedFilters = {
-        serviceField: serviceField.value,
-        ageGroup: ageGroup.value,
-        householdType: householdType.value
-      };
-      const hasFilter = Object.values(selectedFilters).some(Boolean);
-
-      if (keyword === '' && hasFilter) {
-        message.textContent = '조건만으로 검색하는 기능은 백엔드 필터 연결 후 사용할 수 있습니다.';
+      if (keyword === '') {
+        message.textContent = '검색어를 입력해 주세요.';
         results.classList.add('d-none');
-        return;
-      }
-
-      if (keyword === '' && !hasFilter) {
-        message.textContent = '검색어 또는 분야·연령대·가구 유형 중 하나를 선택해 주세요.';
-        results.classList.add('d-none');
-        if (serviceField) serviceField.focus();
+        policyInput.focus();
         return;
       }
 
       const requestUrl = new URL(policyForm.action, window.location.href);
-      if (keyword) requestUrl.searchParams.set('keyword', keyword);
-      Object.entries(selectedFilters).forEach(function (entry) {
-        if (entry[1]) requestUrl.searchParams.set(entry[0], entry[1]);
-      });
+      requestUrl.searchParams.set('keyword', keyword);
       message.textContent = '공공서비스를 검색하고 있습니다.';
       results.replaceChildren();
       results.classList.add('d-none');
@@ -285,9 +266,7 @@
         policies.forEach(function (policy) {
           results.append(createPolicySearchCard(policy));
         });
-        message.textContent = hasFilter
-          ? `검색 결과 ${policies.length}건 · 선택 조건 필터는 백엔드 연결 후 결과에 반영됩니다.`
-          : `검색 결과 ${policies.length}건`;
+        message.textContent = `검색 결과 ${policies.length}건`;
         results.classList.remove('d-none');
         results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } catch (error) {

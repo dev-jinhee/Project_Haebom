@@ -102,7 +102,7 @@
 
         <section class="policy-panel" aria-labelledby="policy-search-title">
             <h2 id="policy-search-title">공공서비스 정책 검색</h2>
-            <p class="policy-search-intro">검색어와 대상 조건을 선택해 공공서비스 검색 범위를 좁혀보세요.</p>
+            <p class="policy-search-intro">정책명이나 서비스명을 입력해 정부24 공공서비스를 검색해보세요.</p>
 
             <form id="policySearchForm"
                   class="policy-search-form"
@@ -112,46 +112,8 @@
                 <label class="visually-hidden" for="policySearchInput">정책명 또는 검색어</label>
                 <div class="input-group">
                     <input id="policySearchInput" name="keyword" class="form-control" type="search"
-                           placeholder="예: 월세 지원 (선택)" autocomplete="off">
+                           placeholder="예: 월세 지원" autocomplete="off" required>
                     <button class="btn btn-primary" type="submit">검색</button>
-                </div>
-
-                <div class="policy-search-filters">
-                    <div>
-                        <label for="policyServiceField" class="form-label">분야</label>
-                        <select id="policyServiceField" name="serviceField" class="form-select">
-                            <option value="">전체 분야</option>
-                            <option value="HOUSING">주거</option>
-                            <option value="PARENTING">출산·육아</option>
-                            <option value="EMPLOYMENT">취업</option>
-                            <option value="EDUCATION">교육</option>
-                            <option value="WELFARE">복지·돌봄</option>
-                            <option value="HEALTH">보건·의료</option>
-                            <option value="CULTURE">문화·여가</option>
-                            <option value="SAFETY">안전·환경</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="policyAgeGroup" class="form-label">연령대</label>
-                        <select id="policyAgeGroup" name="ageGroup" class="form-select">
-                            <option value="">전체 연령</option>
-                            <option value="0-18">18세 이하</option>
-                            <option value="19-34">19~34세</option>
-                            <option value="35-64">35~64세</option>
-                            <option value="65+">65세 이상</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="policyHouseholdType" class="form-label">가구 유형</label>
-                        <select id="policyHouseholdType" name="householdType" class="form-select">
-                            <option value="">전체 가구</option>
-                            <option value="JA0404">1인 가구</option>
-                            <option value="JA0411">다자녀 가구</option>
-                            <option value="JA0403">한부모·조손 가정</option>
-                            <option value="JA0412">무주택 가구</option>
-                            <option value="JA0413">신규 전입 가구</option>
-                        </select>
-                    </div>
                 </div>
             </form>
 
