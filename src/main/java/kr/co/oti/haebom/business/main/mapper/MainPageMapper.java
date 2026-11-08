@@ -3,13 +3,16 @@ package kr.co.oti.haebom.business.main.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import kr.co.oti.haebom.business.main.dto.AdministrativeCenterDTO;
 import kr.co.oti.haebom.business.main.dto.PopularScenarioDTO;
 
 @Mapper
 public interface MainPageMapper {
-    @Select("""
+    
+	@Select("""
         SELECT
           s.scenario_id,
           s.scenario_title,
@@ -31,4 +34,24 @@ public interface MainPageMapper {
         LIMIT 5
         """)
     List<PopularScenarioDTO> selectPopularScenariosThisMonth();
+	
+	@Select("""
+		SELECT center_id AS centerId,
+			sido, 
+			sigungu,
+		    center_name,
+		    postal_code,
+			address,
+			latitude,
+			longitude
+		FROM administrative_center
+		WHERE sido = #{sido}
+		AND sigungu = #{sigungu}
+		AND latitude IS NOT NULL
+		AND longitude IS NOT NULL
+		ORDER BY center_name
+		""")
+	List<AdministrativeCenterDTO> selectCentersByRegion(
+			@Param("sido") String sido,
+			@Param("sigungu") String sigungu);
 }
