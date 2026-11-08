@@ -83,6 +83,40 @@
     </section>
 
     <div class="container home-content">
+        <section id="popular-scenarios"
+                 class="popular-scenarios-panel"
+                 aria-labelledby="popular-scenarios-title"
+                 aria-roledescription="캐러셀">
+            <div class="popular-scenarios-heading">
+                <div>
+                    <h2 id="popular-scenarios-title">이번 달 인기 시나리오</h2>
+                    <p>많이 연습한 행정절차를 확인하고 바로 시작해 보세요.</p>
+                </div>
+                <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/scenario">
+                    전체 시나리오 보기
+                </a>
+            </div>
+            <div class="popular-carousel">
+                <button class="popular-carousel-arrow" type="button" data-popular-prev aria-label="이전 시나리오">
+                    <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+                </button>
+                <div class="popular-carousel-slide" data-popular-slide aria-live="polite">
+                    <p class="popular-scenarios-status">인기 시나리오를 불러오는 중입니다.</p>
+                </div>
+                <button class="popular-carousel-arrow" type="button" data-popular-next aria-label="다음 시나리오">
+                    <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                </button>
+            </div>
+            <div class="popular-carousel-controls">
+                <span data-popular-position aria-live="polite">0 / 0</span>
+                <button class="popular-carousel-play" type="button" data-popular-toggle aria-label="자동 넘김 일시정지">
+                    <span class="material-symbols-outlined" aria-hidden="true">pause</span>
+                </button>
+                <div class="popular-carousel-dots" data-popular-dots aria-label="시나리오 선택"></div>
+            </div>
+            <p class="popular-scenarios-feedback" data-popular-feedback role="status" aria-live="polite"></p>
+        </section>
+
         <section class="home-service-grid" aria-label="주요 서비스">
             <a class="service-card service-primary home-service-card" href="${pageContext.request.contextPath}/scenario">
                 <span class="service-icon"><span class="material-symbols-outlined" aria-hidden="true">fact_check</span></span>

@@ -79,6 +79,13 @@
       const data = await response.json();
       const hasProgress = Boolean(data.recentScenario);
 
+      initializePopularScenarios(
+        document.getElementById('popular-scenarios'),
+        data.popularScenarios || [],
+        Boolean(data.loggedIn),
+        pageElement.dataset.apiUrl
+      );
+
       show(loggedOutView, !data.loggedIn);
       show(noProgressView, data.loggedIn && !hasProgress);
       show(inProgressView, data.loggedIn && hasProgress);
@@ -95,6 +102,13 @@
       }
     } catch (error) {
       console.error(error);
+      initializePopularScenarios(
+        document.getElementById('popular-scenarios'),
+        [],
+        false,
+        pageElement.dataset.apiUrl,
+        '인기 시나리오를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      );
       show(loggedOutView, true);
       show(noProgressView, false);
       show(inProgressView, false);
@@ -109,6 +123,204 @@
     if (element !== null) {
       element.textContent = memberName || '';
     }
+  }
+
+  function initializePopularScenarios(root, items, loggedIn, mainApiUrl, loadError) {
+    if (root === null) return;
+
+    const slide = root.querySelector('[data-popular-slide]');
+    const position = root.querySelector('[data-popular-position]');
+    const dots = root.querySelector('[data-popular-dots]');
+    const feedback = root.querySelector('[data-popular-feedback]');
+    const previousButton = root.querySelector('[data-popular-prev]');
+    const nextButton = root.querySelector('[data-popular-next]');
+    const toggleButton = root.querySelector('[data-popular-toggle]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const mainUrl = new URL(mainApiUrl, window.location.href);
+    const contextPath = mainUrl.pathname.replace(/\/api\/main\/?$/, '');
+    const scenarios = Array.isArray(items) ? items : [];
+    let currentIndex = 0;
+    let timerId = null;
+    let paused = reducedMotion;
+
+    function updateAutoPlayButton() {
+      const icon = toggleButton.querySelector('.material-symbols-outlined');
+      const isRunning = timerId !== null;
+      icon.textContent = isRunning ? 'pause' : 'play_arrow';
+      toggleButton.setAttribute('aria-label', isRunning ? '자동 넘김 일시정지' : '자동 넘김 시작');
+      toggleButton.setAttribute('aria-pressed', String(!isRunning));
+    }
+
+    function stopAutoPlay() {
+      if (timerId !== null) {
+        window.clearInterval(timerId);
+        timerId = null;
+      }
+      updateAutoPlayButton();
+    }
+
+    function startAutoPlay() {
+      stopAutoPlay();
+      if (paused || reducedMotion || scenarios.length < 2) return;
+      timerId = window.setInterval(function () {
+        currentIndex = (currentIndex + 1) % scenarios.length;
+        render();
+      }, 6000);
+      updateAutoPlayButton();
+    }
+
+    function render() {
+      slide.replaceChildren();
+      dots.replaceChildren();
+
+      if (loadError || scenarios.length === 0) {
+        const message = document.createElement('p');
+        message.className = 'popular-scenarios-status';
+        message.textContent = loadError || '이번 달 인기 시나리오가 아직 없습니다.';
+        slide.append(message);
+        position.textContent = '0 / 0';
+        previousButton.disabled = true;
+        nextButton.disabled = true;
+        toggleButton.disabled = true;
+        stopAutoPlay();
+        return;
+      }
+
+      const item = scenarios[currentIndex];
+      const card = document.createElement('article');
+      card.className = 'popular-scenario-card';
+
+      const copy = document.createElement('div');
+      copy.className = 'popular-scenario-copy';
+
+      const eyebrow = document.createElement('div');
+      eyebrow.className = 'popular-scenario-eyebrow';
+      const rank = document.createElement('span');
+      rank.className = 'popular-scenario-rank';
+      rank.textContent = `인기 ${currentIndex + 1}`;
+      const category = document.createElement('span');
+      category.className = 'popular-scenario-category';
+      category.textContent = item.categoryLabel || item.categoryName || '행정절차';
+      eyebrow.append(rank, category);
+
+      const title = document.createElement('h3');
+      title.textContent = item.scenarioTitle || '시나리오';
+      const description = document.createElement('p');
+      description.textContent = item.description || '단계별 행정절차를 미리 연습해 보세요.';
+
+      const duration = document.createElement('p');
+      duration.className = 'popular-scenario-duration';
+      const minutes = Number(item.estimatedMinutes);
+      duration.textContent = Number.isFinite(minutes) && minutes > 0
+        ? `예상 ${minutes}분 · 학습용 시뮬레이션`
+        : '학습용 시뮬레이션';
+      copy.append(eyebrow, title, description, duration);
+
+      const actions = document.createElement('div');
+      actions.className = 'popular-scenario-actions';
+      const startButton = document.createElement('button');
+      startButton.className = 'btn btn-light rounded-pill';
+      startButton.type = 'button';
+      startButton.textContent = loggedIn ? '연습 시작' : '로그인하고 연습하기';
+      startButton.addEventListener('click', function () {
+        startScenario(item.scenarioId, startButton);
+      });
+      const listLink = document.createElement('a');
+      listLink.className = 'popular-scenario-list-link';
+      listLink.href = `${contextPath}/scenario`;
+      listLink.textContent = '시나리오 안내 보기';
+      actions.append(startButton, listLink);
+
+      card.append(copy, actions);
+      slide.append(card);
+      position.textContent = `${currentIndex + 1} / ${scenarios.length}`;
+      previousButton.disabled = scenarios.length < 2;
+      nextButton.disabled = scenarios.length < 2;
+      toggleButton.disabled = scenarios.length < 2 || reducedMotion;
+
+      scenarios.forEach(function (scenario, index) {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'popular-carousel-dot';
+        dot.setAttribute('aria-label', `인기 시나리오 ${index + 1} 보기`);
+        dot.setAttribute('aria-current', String(index === currentIndex));
+        dot.addEventListener('click', function () {
+          currentIndex = index;
+          render();
+          startAutoPlay();
+        });
+        dots.append(dot);
+      });
+
+      updateAutoPlayButton();
+    }
+
+    async function startScenario(scenarioId, button) {
+      if (!loggedIn) {
+        const returnTo = `${contextPath}/scenario`;
+        window.location.assign(`${contextPath}/login?redirect=${encodeURIComponent(returnTo)}`);
+        return;
+      }
+      if (!Number.isInteger(Number(scenarioId))) {
+        feedback.textContent = '시나리오 정보를 확인할 수 없습니다.';
+        return;
+      }
+
+      button.disabled = true;
+      feedback.textContent = '시나리오를 준비하고 있습니다.';
+      try {
+        const response = await fetch(
+          `${contextPath}/api/scenario/${encodeURIComponent(scenarioId)}/start`,
+          { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' } }
+        );
+        if (response.redirected) {
+          window.location.assign(response.url);
+          return;
+        }
+        if (!response.ok) throw new Error('시나리오를 시작하지 못했습니다. 다시 시도해 주세요.');
+
+        const progressId = await response.json();
+        if (!Number.isInteger(Number(progressId))) {
+          throw new Error('시작 결과를 확인하지 못했습니다. 시나리오 목록에서 다시 시작해 주세요.');
+        }
+        window.sessionStorage.setItem('progressId', String(progressId));
+        window.location.assign(`${contextPath}/simulation`);
+      } catch (error) {
+        feedback.textContent = error.message || '시나리오 시작 중 오류가 발생했습니다.';
+        button.disabled = false;
+      }
+    }
+
+    previousButton.addEventListener('click', function () {
+      if (scenarios.length < 2) return;
+      currentIndex = (currentIndex - 1 + scenarios.length) % scenarios.length;
+      render();
+      startAutoPlay();
+    });
+    nextButton.addEventListener('click', function () {
+      if (scenarios.length < 2) return;
+      currentIndex = (currentIndex + 1) % scenarios.length;
+      render();
+      startAutoPlay();
+    });
+    toggleButton.addEventListener('click', function () {
+      paused = !paused;
+      if (paused) stopAutoPlay();
+      else startAutoPlay();
+    });
+    root.addEventListener('mouseenter', stopAutoPlay);
+    root.addEventListener('mouseleave', startAutoPlay);
+    root.addEventListener('focusin', stopAutoPlay);
+    root.addEventListener('focusout', function (event) {
+      if (!root.contains(event.relatedTarget)) startAutoPlay();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopAutoPlay();
+      else startAutoPlay();
+    });
+
+    render();
+    startAutoPlay();
   }
 
   async function renderRecentScenarioCard(mount, item, mainApiUrl) {
