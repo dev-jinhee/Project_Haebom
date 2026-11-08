@@ -1,5 +1,5 @@
 -- ========================================================
--- [해봄(HAEBOM) 프로젝트 DB 스크립트 - v6.0 최종 설계 반영 (총 15개 테이블)] 
+-- [해봄(HAEBOM) 프로젝트 DB 스크립트 - v7.0 최종 설계 반영 (총 16개 테이블)] 
 -- ========================================================
 
 -- 1. 외래키 제약조건 역순으로 기존 테이블 일괄 삭제
@@ -22,6 +22,8 @@ DROP TABLE IF EXISTS scenario_category;
 
 DROP TABLE IF EXISTS admin_mfa;
 DROP TABLE IF EXISTS member;
+
+DROP TABLE IF EXISTS administrative_center;
 
 -- ========================================================
 -- ① 회원 (member)
@@ -257,3 +259,18 @@ CREATE TABLE admin_log_qna (
         FOREIGN KEY (qna_id) REFERENCES qna(qna_id)
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의 관리 로그 상세';
+
+-- ========================================================
+-- ⑯ 행정복지센터 위치 정보 (administrative_center)
+-- ========================================================
+CREATE TABLE administrative_center (
+    center_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '행정기관 고유 번호',
+    sido VARCHAR(40) NOT NULL COMMENT '시도',
+    sigungu VARCHAR(40) NOT NULL COMMENT '시군구',
+    center_name VARCHAR(120) NOT NULL COMMENT '행정복지센터명',
+    postal_code VARCHAR(10) NOT NULL COMMENT '우편번호',
+    address VARCHAR(255) NOT NULL COMMENT '주소',
+    latitude DOUBLE NULL COMMENT '위도',
+    longitude DOUBLE NULL COMMENT '경도'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='행정복지센터 위치 정보';
