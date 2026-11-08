@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<spring:eval expression="@environment.getProperty('app.google.maps.browser-key', '')" var="googleMapsBrowserKey" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -115,6 +117,41 @@
                 <div class="popular-carousel-dots" data-popular-dots aria-label="시나리오 선택"></div>
             </div>
             <p class="popular-scenarios-feedback" data-popular-feedback role="status" aria-live="polite"></p>
+        </section>
+
+        <section id="center-map-section"
+                 class="center-map-panel"
+                 aria-labelledby="center-map-title"
+                 data-api-url="${pageContext.request.contextPath}/api/main/institutions"
+                 data-region-api-url="${pageContext.request.contextPath}/api/address/sgis/regions"
+                 data-map-key="${googleMapsBrowserKey}">
+            <div class="center-map-heading">
+                <div>
+                    <h2 id="center-map-title">주변 행정복지센터</h2>
+                    <p>행정구역을 선택해 방문할 기관의 위치를 확인하세요.</p>
+                </div>
+            </div>
+
+            <div class="center-map-filters">
+                <div>
+                    <label for="center-sido" class="form-label">시·도</label>
+                    <select id="center-sido" class="form-select" aria-describedby="center-map-message">
+                        <option value="">시·도를 선택하세요</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="center-sigungu" class="form-label">시·군·구</label>
+                    <select id="center-sigungu" class="form-select" disabled aria-describedby="center-map-message">
+                        <option value="">먼저 시·도를 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <p id="center-map-message" class="center-map-message" role="status" aria-live="polite">
+                지도를 불러오는 중입니다.
+            </p>
+            <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
+            <div id="center-list" class="center-map-list" aria-live="polite"></div>
         </section>
 
         <section class="home-service-grid" aria-label="주요 서비스">

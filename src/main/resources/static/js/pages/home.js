@@ -1,6 +1,7 @@
 (function () {
   const page = document.getElementById('main-content');
   const logoutForm = document.querySelector('[data-logout-form]');
+  let administrativeCenterMap = null;
 
   if (logoutForm !== null) {
     logoutForm.addEventListener('submit', async function (event) {
@@ -53,11 +54,64 @@
   }
 
   initializePolicySearch();
+  initializeAdministrativeCenterMap();
 
   function show(element, visible) {
     if (element !== null) {
       element.hidden = !visible;
     }
+  }
+
+  function initializeAdministrativeCenterMap() {
+    const section = document.getElementById('center-map-section');
+    if (section === null) return;
+
+    const mapElement = document.getElementById('center-map');
+    const message = document.getElementById('center-map-message');
+    const apiKey = (section.dataset.mapKey || '').trim();
+    if (mapElement === null || message === null) return;
+
+    if (!apiKey) {
+      message.textContent = 'Google Maps 브라우저 키가 설정되지 않아 지도를 표시할 수 없습니다.';
+      mapElement.hidden = true;
+      return;
+    }
+
+    message.textContent = '지도를 불러오는 중입니다.';
+
+    window.initHaebomCenterMap = function () {
+      if (!window.google || !window.google.maps) {
+        message.textContent = '지도를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        return;
+      }
+
+      administrativeCenterMap = new google.maps.Map(mapElement, {
+        center: { lat: 36.5, lng: 127.8 },
+        zoom: 7,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true
+      });
+      message.textContent = '지역 선택 기능은 다음 단계에서 연결합니다.';
+    };
+
+    window.gm_authFailure = function () {
+      message.textContent = 'Google Maps 인증에 실패했습니다. API 키와 허용 도메인 설정을 확인해 주세요.';
+    };
+
+    const script = document.createElement('script');
+    const query = new URLSearchParams({
+      key: apiKey,
+      callback: 'initHaebomCenterMap',
+      loading: 'async'
+    });
+    script.src = `https://maps.googleapis.com/maps/api/js?${query.toString()}`;
+    script.async = true;
+    script.defer = true;
+    script.onerror = function () {
+      message.textContent = 'Google Maps 스크립트를 불러오지 못했습니다. 네트워크와 API 키 설정을 확인해 주세요.';
+    };
+    document.head.append(script);
   }
 
   async function loadMainPage(pageElement) {
