@@ -50,6 +50,49 @@ const completionGuides = {
 
 		officialUrl:
 			"https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000016"
+	},
+	IDENTITY_REISSUE: {
+		title: "주민등록증 재발급 절차를 연습했어요!",
+		description:
+			"주민등록증 재발급의 모든 단계를 체험했습니다. " +
+			"실제 신청 전에 아래 내용을 확인해 보세요.",
+
+		checklist: [
+			"재발급 신청 사유(분실, 훼손 등) 확인",
+			"최근 6개월 이내 촬영한 규격 증명사진(3.5cm x 4.5cm) 파일 준비",
+			"수령 희망 주민센터(방문 수령처) 지정",
+			"온라인 신청을 위한 본인인증 수단(공동/금융/간편인증서) 준비",
+			"기존 신분증 훼손 재발급 시 수령 시 실물 신분증 반납 필요"
+		],
+
+		guideDescription:
+			"실제 주민등록증 재발급 시 알아두어야 할 기본 사항입니다.",
+
+		guide: [
+			{
+				label: "신청 방법",
+				value: "정부24(인터넷) 또는 주민센터 방문"
+			},
+			{
+				label: "수수료",
+				value: "5,000원 (자연훼손, 분실 제외 일부 면제)"
+			},
+			{
+				label: "처리 기간",
+				value: "약 2~3주 소요 (수령 문자 발송)"
+			},
+			{
+				label: "수령 방법",
+				value: "지정 주민센터 직접 방문 수령"
+			}
+		],
+
+		note:
+			"분실 재발급은 정부24 온라인 신청이 가능하며, " +
+			"신청 후에는 주민등록증 발급신청 확인서(임시신분증)를 출력해 사용할 수 있습니다.",
+
+		officialUrl:
+			"https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000018"
 	}
 };
 
@@ -194,12 +237,10 @@ async function loadPolicyRecommendations(root, scenarioCode) {
 	const descEl = root.querySelector("#completePolicyDescription");
 	if (descEl) {
 		const code = (scenarioCode || "").toUpperCase();
-		if (code === "MOVE" || code === "1") {
-			descEl.textContent = "방금 진행하신 전입신고와 밀접한 실생활 주거·이사 지원 정책들을 추천해 드려요.";
-		} else if (code === "ID-CARD" || code === "2") {
+		if (code.includes("IDENTITY") || code.includes("ID-CARD") || code.includes("ID_CARD") || code === "2") {
 			descEl.textContent = "방금 진행하신 주민등록증 재발급과 연관된 신분증 및 디지털 증명서 지원 정책들을 추천해 드려요.";
 		} else {
-			descEl.textContent = "방금 진행하신 연습과 관련된 맞춤 공공서비스 및 생활 지원 정책들을 추천해 드려요.";
+			descEl.textContent = "방금 진행하신 전입신고와 밀접한 실생활 주거·이사 지원 정책들을 추천해 드려요.";
 		}
 	}
 

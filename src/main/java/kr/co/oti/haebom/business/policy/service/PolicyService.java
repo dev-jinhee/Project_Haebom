@@ -41,7 +41,7 @@ public class PolicyService {
 
     /*
      * [진희] 시나리오 코드에 맞춤형 공공서비스 정책 목록 추천 (랜덤 셔플 추천)
-     * @param scenarioCode "move"(전입신고) 또는 "id-card"(주민등록증 재발급)
+     * @param scenarioCode "move"(전입신고) 또는 "identity_reissue"(주민등록증 재발급)
      * @return 무작위 추천 정책 리스트 (3건)
      */
     public List<PolicyDTO> getRecommendedPolicies(String scenarioCode) {
@@ -69,12 +69,11 @@ public class PolicyService {
      * 시나리오에 따른 검색 키워드 결정
      */
     private String resolveKeyword(String scenarioCode) {
-        if ("move".equalsIgnoreCase(scenarioCode) || "1".equals(scenarioCode)) {
-            return "주거"; // 전입신고 ➜ 주거/이사 관련 혜택
-        } else if ("id-card".equalsIgnoreCase(scenarioCode) || "2".equals(scenarioCode)) {
-            return "신분증"; // 주민등록증 재발급 ➜ 신분증/생활편의 관련 혜택
+        String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
+        if (code.contains("identity") || code.contains("id-card") || code.contains("id_card") || "2".equals(code)) {
+            return "신분증"; // 주민등록증 재발급 ➜ 신분증/디지털증명 관련 혜택
         }
-        return "주거";
+        return "주거"; // 전입신고 ➜ 주거/이사 관련 혜택
     }
 
     /*
@@ -127,8 +126,9 @@ public class PolicyService {
      */
     private List<PolicyDTO> getFallbackPolicies(String scenarioCode) {
         List<PolicyDTO> fallback = new ArrayList<>();
+        String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
 
-        if ("id-card".equalsIgnoreCase(scenarioCode) || "2".equals(scenarioCode)) {
+        if (code.contains("identity") || code.contains("id-card") || code.contains("id_card") || "2".equals(code)) {
             // 주민등록증 재발급 추천 정책
             fallback.add(PolicyDTO.builder()
                     .serviceId("FALLBACK_ID_1")
@@ -163,6 +163,15 @@ public class PolicyService {
                     .serviceSummary("인감증명서 대신 안전하게 신원을 증명할 수 있는 본인서명사실확인서를 편리하게 발급받으세요.")
                     .supportType("전자증명서")
                     .deptName("행정안전부")
+                    .detailUrl("https://www.gov.kr/")
+                    .applyPeriod("상시 신청")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_ID_5")
+                    .serviceName("여권 온라인 재발급 신청 서비스")
+                    .serviceSummary("정부24를 통해 온라인으로 편리하게 전자여권 재발급을 신청하고 희망 기관에서 수령하세요.")
+                    .supportType("신분증 발급")
+                    .deptName("외교부")
                     .detailUrl("https://www.gov.kr/")
                     .applyPeriod("상시 신청")
                     .build());
