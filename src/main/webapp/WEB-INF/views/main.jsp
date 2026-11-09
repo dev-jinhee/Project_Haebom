@@ -145,10 +145,13 @@
                         <option value="">먼저 시·도를 선택하세요</option>
                     </select>
                 </div>
+                <button id="center-map-search" type="button" class="btn btn-primary center-map-search" disabled>
+                    지역 조회
+                </button>
             </div>
 
             <p id="center-map-message" class="center-map-message" role="status" aria-live="polite">
-                지도를 불러오는 중입니다.
+                주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.
             </p>
             <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
             <div id="center-list" class="center-map-list" aria-live="polite"></div>

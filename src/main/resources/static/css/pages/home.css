@@ -141,20 +141,23 @@
 .center-map-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .center-map-heading h2 { margin: 0; color: #173b70; font-size: 1.12rem; font-weight: 800; }
 .center-map-heading p { margin: 5px 0 0; color: #718198; font-size: .82rem; }
-.center-map-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 720px; }
+.center-map-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 14px; max-width: 900px; }
 .center-map-filters .form-label { margin-bottom: 6px; color: #49627a; font-size: .82rem; font-weight: 700; }
 .center-map-filters .form-select { min-height: 42px; border-color: #dce5ef; }
+.center-map-search { min-width: 108px; min-height: 42px; }
 .center-map-message { min-height: 1.4em; margin: 12px 0 10px; color: #718198; font-size: .82rem; }
 .center-map-canvas { width: 100%; min-height: 420px; overflow: hidden; border: 1px solid #e2eaf1; border-radius: 14px; background: #eef3f8; }
 .center-map-list { display: grid; gap: 10px; margin-top: 14px; }
 .center-place-popup { width: 300px; max-width: 70vw; overflow-wrap: anywhere; color: #334155; font-size: 13px; }
-.center-place-popup > p { margin: 8px 0; }
+.center-place-popup > strong { display: block; margin-bottom: 5px; color: #173b70; }
+.center-place-popup > p { margin: 5px 0; }
 .center-place-link { display: block; margin-top: 6px; }
-.center-place-hours { margin-top: 10px; padding-top: 9px; border-top: 1px solid #e7edf3; }
-.center-place-hours-title { display: block; margin-bottom: 5px; color: #173b70; }
-.center-place-hours-row { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); gap: 8px; margin: 3px 0; line-height: 1.45; }
+.center-place-hours { margin-top: 8px; padding-top: 7px; border-top: 1px solid #e7edf3; }
+.center-place-hours-title { display: block; margin-bottom: 3px; color: #173b70; }
+.center-place-hours-row { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); gap: 8px; margin: 2px 0; line-height: 1.35; }
 .center-place-hours-day { color: #49627a; font-weight: 700; white-space: nowrap; }
 .center-place-hours-time { min-width: 0; overflow-wrap: anywhere; }
+.center-place-hours-details > summary { margin: 3px 0; color: #1769aa; cursor: pointer; }
 
 @media (max-width: 767.98px) {
   .home-main { padding-top: 0; }
@@ -181,5 +184,6 @@
   .home-service-grid { grid-template-columns: 1fr; }
   .center-map-panel { padding: 16px 12px; }
   .center-map-filters { grid-template-columns: 1fr; gap: 10px; }
+  .center-map-search { justify-self: end; }
   .center-map-canvas { min-height: 340px; }
 }

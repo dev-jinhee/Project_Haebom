@@ -70,11 +70,13 @@
     const message = document.getElementById('center-map-message');
     const sidoSelect = document.getElementById('center-sido');
     const sigunguSelect = document.getElementById('center-sigungu');
+    const regionSearchButton = document.getElementById('center-map-search');
     const centerList = document.getElementById('center-list');
     const apiKey = (section.dataset.mapKey || '').trim();
     const centersApiUrl = section.dataset.apiUrl;
     const regionsApiUrl = section.dataset.regionApiUrl;
-    if (!mapElement || !message || !sidoSelect || !sigunguSelect || !centerList) return;
+    const dataFreshnessMessage = '주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.';
+    if (!mapElement || !message || !sidoSelect || !sigunguSelect || !regionSearchButton || !centerList) return;
 
     let regionsLoaded = false;
     let regionsLoadFailed = false;
@@ -82,12 +84,28 @@
     let clustererLoaded = false;
     let centersLoaded = false;
     let centerData = [];
-    let centerDataLabel = '행정복지센터';
     let centerMarkers = [];
     let centerClusterer = null;
     let centerInfoWindow = null;
     let regionRequestId = 0;
     let centerLoadPromise = null;
+    let regionSearchRequested = false;
+    let centerMarkerIcon = null;
+
+    function getCenterMarkerIcon() {
+      if (centerMarkerIcon) return centerMarkerIcon;
+      centerMarkerIcon = {
+        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">' +
+          '<path d="M20 1C9.5 1 1 9.5 1 20c0 14.2 19 31 19 31s19-16.8 19-31C39 9.5 30.5 1 20 1Z" fill="#1769aa" stroke="#fff" stroke-width="2"/>' +
+          '<path d="M12 29h16M14.5 28V18.5L20 15l5.5 3.5V28M17.5 21v1m5-1v1m-5 3v3m5-3v3" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>' +
+          '</svg>'
+        )}`,
+        scaledSize: new google.maps.Size(28, 36),
+        anchor: new google.maps.Point(14, 35)
+      };
+      return centerMarkerIcon;
+    }
 
     sidoSelect.disabled = true;
     sigunguSelect.disabled = true;
@@ -95,6 +113,7 @@
     function updateRegionControls() {
       sidoSelect.disabled = !regionsLoaded || !mapReady;
       sigunguSelect.disabled = !regionsLoaded || !mapReady || !sidoSelect.value;
+      regionSearchButton.disabled = !regionsLoaded || !mapReady;
     }
 
     function resetSelect(select, placeholder) {
@@ -202,14 +221,7 @@
       const marker = new google.maps.Marker({
         position: { lat: center.latitude, lng: center.longitude },
         title: center.centerName || '행정복지센터',
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: '#1769aa',
-          fillOpacity: 0.9,
-          strokeColor: '#ffffff',
-          strokeWeight: 1.5,
-          scale: 6
-        }
+        icon: getCenterMarkerIcon()
       });
       marker.addListener('click', () => {
         const content = document.createElement('div');
@@ -218,12 +230,10 @@
         const address = document.createElement('p');
         title.textContent = center.centerName || '행정복지센터';
         address.textContent = center.address || '주소 정보 없음';
-        content.append(title, address);
-        if (center.postalCode) {
-          const postalCode = document.createElement('p');
-          postalCode.textContent = `우편번호 ${center.postalCode}`;
-          content.append(postalCode);
+        if (center.address && center.postalCode) {
+          address.textContent += ` (우편번호 ${center.postalCode})`;
         }
+        content.append(title, address);
 
         const placeStatus = document.createElement('p');
         placeStatus.textContent = '추가 장소 정보를 불러오는 중입니다.';
@@ -261,6 +271,9 @@
               hoursTitle.textContent = '운영시간';
               hours.append(hoursTitle);
 
+              const weekOrder = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
+              const hoursByDay = new Map();
+              const ungroupedHours = [];
               place.weekdayDescriptions.forEach(description => {
                 const separator = description.indexOf(':');
                 const day = separator >= 0
@@ -269,9 +282,16 @@
                 const time = separator >= 0
                   ? description.slice(separator + 1).trim()
                   : description;
+                if (weekOrder.includes(day)) {
+                  if (!hoursByDay.has(day)) hoursByDay.set(day, time);
+                } else {
+                  ungroupedHours.push({ day, time });
+                }
+              });
+
+              const appendHoursRow = (day, time) => {
                 const row = document.createElement('div');
                 row.className = 'center-place-hours-row';
-
                 if (day) {
                   const dayLabel = document.createElement('span');
                   dayLabel.className = 'center-place-hours-day';
@@ -284,7 +304,56 @@
                 timeLabel.textContent = time;
                 row.append(timeLabel);
                 hours.append(row);
-              });
+              };
+
+              const weekdays = weekOrder.slice(0, 5).map(day => hoursByDay.get(day));
+              const weekend = weekOrder.slice(5).map(day => hoursByDay.get(day));
+              const hasCompleteWeek = [...weekdays, ...weekend].every(time => time != null);
+              const weekdaysMatch = weekdays.every(time => time === weekdays[0]);
+              const weekendMatches = weekend.every(time => time === weekend[0]);
+
+              if (hasCompleteWeek && weekdaysMatch && weekendMatches
+                  && ungroupedHours.length === 0) {
+                appendHoursRow('평일', weekdays[0]);
+                appendHoursRow('주말', weekend[0]);
+              } else {
+                const dailyHours = document.createElement('details');
+                dailyHours.className = 'center-place-hours-details';
+                const summary = document.createElement('summary');
+                summary.textContent = '요일별 운영시간 보기';
+                dailyHours.append(summary);
+
+                weekOrder.forEach(day => {
+                  if (hoursByDay.has(day)) {
+                    const row = document.createElement('div');
+                    row.className = 'center-place-hours-row';
+                    const dayLabel = document.createElement('span');
+                    dayLabel.className = 'center-place-hours-day';
+                    dayLabel.textContent = day;
+                    const timeLabel = document.createElement('span');
+                    timeLabel.className = 'center-place-hours-time';
+                    timeLabel.textContent = hoursByDay.get(day);
+                    row.append(dayLabel, timeLabel);
+                    dailyHours.append(row);
+                  }
+                });
+                ungroupedHours.forEach(({ day, time }) => {
+                  const row = document.createElement('div');
+                  row.className = 'center-place-hours-row';
+                  if (day) {
+                    const dayLabel = document.createElement('span');
+                    dayLabel.className = 'center-place-hours-day';
+                    dayLabel.textContent = day;
+                    row.append(dayLabel);
+                  }
+                  const timeLabel = document.createElement('span');
+                  timeLabel.className = 'center-place-hours-time';
+                  timeLabel.textContent = time;
+                  row.append(timeLabel);
+                  dailyHours.append(row);
+                });
+                hours.append(dailyHours);
+              }
               content.append(hours);
             }
 
@@ -327,7 +396,7 @@
       centerMarkers = visibleCenters.map(createCenterMarker);
 
       if (centerMarkers.length === 0) {
-        message.textContent = `${centerDataLabel} ${centerData.length}곳 중 현재 지도 범위에 표시할 기관이 없습니다.`;
+        message.textContent = dataFreshnessMessage;
         return;
       }
 
@@ -337,22 +406,23 @@
           markers: centerMarkers,
           renderer: {
             render({ count, position }) {
-              const scale = count >= 100 ? 17 : count >= 10 ? 15 : 13;
+              const scale = count >= 100 ? 22 : count >= 10 ? 19 : 16;
               return new google.maps.Marker({
                 position,
                 zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+                title: `${count}개 행정복지센터`,
                 icon: {
                   path: google.maps.SymbolPath.CIRCLE,
-                  fillColor: '#075fae',
-                  fillOpacity: 0.94,
+                  fillColor: '#1769aa',
+                  fillOpacity: 0.97,
                   strokeColor: '#ffffff',
-                  strokeWeight: 2,
+                  strokeWeight: 3,
                   scale
                 },
                 label: {
                   text: String(count),
                   color: '#ffffff',
-                  fontSize: count >= 100 ? '10px' : '11px',
+                  fontSize: count >= 100 ? '11px' : '12px',
                   fontWeight: '700'
                 }
               });
@@ -361,7 +431,7 @@
         };
         if (window.markerClusterer.SuperClusterAlgorithm) {
           clusterOptions.algorithm = new window.markerClusterer.SuperClusterAlgorithm({
-            radius: 90,
+            radius: 150,
             maxZoom: 14
           });
         }
@@ -370,19 +440,14 @@
         centerMarkers.forEach(marker => marker.setMap(administrativeCenterMap));
       }
 
-      message.textContent = `${centerDataLabel} ${centerData.length}곳 중 현재 지도에 ${centerMarkers.length}곳을 표시했습니다.`;
-      if (!clustererLoaded) message.textContent += ' (클러스터 라이브러리를 불러오지 못해 개별 마커로 표시합니다.)';
+      message.textContent = dataFreshnessMessage;
     }
 
     async function loadCentersForSelection() {
       if (!mapReady) return;
-      if (centersLoaded) {
-        focusMapOnSelectedRegion();
-        return;
-      }
+      if (centersLoaded) return;
       if (centerLoadPromise) {
         await centerLoadPromise;
-        focusMapOnSelectedRegion();
         return;
       }
 
@@ -407,16 +472,12 @@
             return { ...center, latitude: lat, longitude: lng };
           }).filter(Boolean);
           centersLoaded = true;
-          centerDataLabel = '좌표가 등록된 행정복지센터';
-
           if (centerData.length === 0) {
             message.textContent = '지도에 표시할 좌표가 등록된 행정복지센터가 없습니다.';
             return;
           }
 
-          if (sidoSelect.value) {
-            focusMapOnSelectedRegion();
-          } else {
+          if (!regionSearchRequested) {
             const bounds = new google.maps.LatLngBounds();
             centerData.forEach(center => bounds.extend({
               lat: center.latitude,
@@ -437,8 +498,8 @@
     sidoSelect.addEventListener('change', async () => {
       resetSelect(sigunguSelect, '먼저 시·도를 선택하세요');
       sigunguSelect.disabled = true;
-      loadCentersForSelection();
       if (!sidoSelect.value) {
+        message.textContent = '시·도를 선택한 뒤 지역 조회를 눌러 지도를 이동하세요.';
         return;
       }
 
@@ -456,6 +517,7 @@
         });
         sigunguSelect.disabled = regions.length === 0;
         if (regions.length === 0) message.textContent = '선택한 시·도에 시·군·구 목록이 없습니다.';
+        else message.textContent = '지역을 선택한 뒤 지역 조회를 눌러 지도를 이동하세요.';
       } catch (error) {
         console.error('시·군·구 조회 오류:', error);
         if (requestId === regionRequestId) message.textContent = '시·군·구 목록을 불러오지 못했습니다.';
@@ -463,7 +525,20 @@
     });
 
     sigunguSelect.addEventListener('change', () => {
-      loadCentersForSelection();
+      message.textContent = '지역 조회를 누르면 선택한 지역으로 지도가 이동합니다.';
+    });
+
+    regionSearchButton.addEventListener('click', async () => {
+      if (!sidoSelect.value) {
+        message.textContent = '먼저 시·도를 선택해 주세요.';
+        sidoSelect.focus();
+        return;
+      }
+
+      regionSearchRequested = true;
+      if (!centersLoaded) message.textContent = '행정복지센터 위치를 불러오는 중입니다.';
+      await loadCentersForSelection();
+      focusMapOnSelectedRegion();
     });
 
     loadSidoOptions();
