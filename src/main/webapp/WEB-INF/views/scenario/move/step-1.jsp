@@ -121,21 +121,33 @@
 		</section>
 	</div>
 
+
 	<!-- 3. 해봄 시뮬레이션 안내 (실제 민원과 구분) -->
-	<aside class="move-simulation-notice move-step1-simulation"
+	<aside class="sim-notice-panel"
 		aria-labelledby="moveStep1SimTitle">
+
 		<h3 id="moveStep1SimTitle">
 			<span class="material-symbols-outlined" aria-hidden="true">school</span>
 			해봄 시뮬레이션 안내
 		</h3>
-		<ul class="move-step1-bullets">
-			<li>해봄은 실제 전입신고 절차를 연습하는 <strong>교육용 시뮬레이션</strong>입니다.
+
+		<ul>
+			<li><spring:message code="simulation.notice" /></li>
+
+			<li>입력한 정보는 정부24 또는 행정기관에 제출되지 않으며 <strong>실제 전입신고가
+					접수되지 않습니다.</strong>
 			</li>
-			<li>입력한 정보는 정부24 또는 행정기관에 제출되지 않으며 실제 신고가 접수되지 않습니다.</li>
-			<li>실제 개인정보 대신 <strong>가상의 정보</strong>를 입력해 주세요.
-			</li>
+
+			<li><spring:message code="simulation.privacy" /></li>
+
 			<li>인증서 전자서명, 세대주·전입자 본인확인, 행정기관 심사는 실제로 수행되지 않습니다.</li>
-			<li>시뮬레이션의 완료 표시는 <strong>실제 전입신고의 처리 완료를 의미하지 않습니다.</strong></li>
+
+			<li><spring:message code="simulation.history" /></li>
+
+			<li><spring:message code="simulation.history.inprogress" /></li>
+
+			<li><strong> 시뮬레이션의 완료 표시는 실제 전입신고의 처리 완료를 의미하지 않습니다. </strong>
+			</li>
 		</ul>
 	</aside>
 
