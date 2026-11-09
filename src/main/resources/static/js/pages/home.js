@@ -87,7 +87,7 @@
     let centerClusterer = null;
     let centerInfoWindow = null;
     let regionRequestId = 0;
-    let centerRequestId = 0;
+    let centerLoadPromise = null;
 
     sidoSelect.disabled = true;
     sigunguSelect.disabled = true;
@@ -159,6 +159,43 @@
         '제주특별자치도': '제주'
       };
       return sidoNames[name] || name;
+    }
+
+    function focusMapOnSelectedRegion() {
+      if (!centersLoaded || !administrativeCenterMap) return;
+
+      const sidoName = sidoSelect.value
+        ? sidoSelect.selectedOptions[0]?.textContent?.trim()
+        : '';
+      const sigunguName = sigunguSelect.value
+        ? sigunguSelect.selectedOptions[0]?.textContent?.trim()
+        : '';
+      if (!sidoName) return;
+
+      const selectedCenters = centerData.filter(center =>
+        normalizeSidoName(center.sido) === normalizeSidoName(sidoName)
+        && (!sigunguName || center.sigungu === sigunguName));
+
+      if (selectedCenters.length === 0) {
+        message.textContent = `${sidoName}${sigunguName ? ` ${sigunguName}` : ''} 지역의 좌표가 등록된 행정복지센터가 없습니다.`;
+        return;
+      }
+
+      if (selectedCenters.length === 1) {
+        administrativeCenterMap.setCenter({
+          lat: selectedCenters[0].latitude,
+          lng: selectedCenters[0].longitude
+        });
+        administrativeCenterMap.setZoom(sigunguName ? 13 : 9);
+        return;
+      }
+
+      const bounds = new google.maps.LatLngBounds();
+      selectedCenters.forEach(center => bounds.extend({
+        lat: center.latitude,
+        lng: center.longitude
+      }));
+      administrativeCenterMap.fitBounds(bounds, 40);
     }
 
     function createCenterMarker(center) {
@@ -339,87 +376,65 @@
 
     async function loadCentersForSelection() {
       if (!mapReady) return;
-
-      const sidoName = sidoSelect.value
-        ? sidoSelect.selectedOptions[0]?.textContent?.trim()
-        : '';
-      const sigunguName = sigunguSelect.value
-        ? sigunguSelect.selectedOptions[0]?.textContent?.trim()
-        : '';
-      const hasRegionFilter = Boolean(sidoName && sigunguName);
-
-      const requestId = ++centerRequestId;
-      centersLoaded = false;
-      centerData = [];
-      clearCenterMarkers();
-      message.textContent = hasRegionFilter
-        ? `${sidoName} ${sigunguName} 행정복지센터를 불러오는 중입니다.`
-        : '좌표가 등록된 전체 행정복지센터를 불러오는 중입니다.';
-
-      try {
-        const query = new URLSearchParams();
-        if (hasRegionFilter) {
-          query.set('sido', normalizeSidoName(sidoName));
-          query.set('sigungu', sigunguName);
-        }
-        const requestUrl = hasRegionFilter
-          ? `${centersApiUrl}?${query.toString()}`
-          : centersApiUrl;
-        const response = await fetch(requestUrl, {
-          credentials: 'same-origin'
-        });
-        if (!response.ok) throw new Error('행정복지센터 조회에 실패했습니다.');
-        const centers = await response.json();
-        if (!Array.isArray(centers)) throw new Error('행정복지센터 응답 형식이 올바르지 않습니다.');
-        if (requestId !== centerRequestId || !section.isConnected) return;
-
-        centerInfoWindow = centerInfoWindow || new google.maps.InfoWindow({ maxWidth: 360 });
-        centerData = centers.map(center => {
-          const lat = Number(center.latitude);
-          const lng = Number(center.longitude);
-          if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
-              lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-          return { ...center, latitude: lat, longitude: lng };
-        }).filter(Boolean);
-        centersLoaded = true;
-        centerDataLabel = hasRegionFilter
-          ? `${sidoName} ${sigunguName} 행정복지센터`
-          : '좌표가 등록된 행정복지센터';
-
-        if (centerData.length === 0) {
-          centersLoaded = true;
-          message.textContent = hasRegionFilter
-            ? '선택한 지역에 표시할 좌표가 등록된 행정복지센터가 없습니다.'
-            : '지도에 표시할 좌표가 등록된 행정복지센터가 없습니다.';
-          return;
-        }
-
-        const bounds = new google.maps.LatLngBounds();
-        centerData.forEach(center => bounds.extend({
-          lat: center.latitude,
-          lng: center.longitude
-        }));
-
-        if (centerData.length === 1) {
-          administrativeCenterMap.setCenter({
-            lat: centerData[0].latitude,
-            lng: centerData[0].longitude
-          });
-          administrativeCenterMap.setZoom(15);
-        } else {
-          administrativeCenterMap.fitBounds(bounds);
-        }
-        renderVisibleCenters();
-      } catch (error) {
-        console.error('행정복지센터 조회 오류:', error);
-        if (requestId === centerRequestId) {
-          message.textContent = '행정복지센터를 불러오지 못했습니다. 지역을 다시 선택해 주세요.';
-        }
+      if (centersLoaded) {
+        focusMapOnSelectedRegion();
+        return;
       }
+      if (centerLoadPromise) {
+        await centerLoadPromise;
+        focusMapOnSelectedRegion();
+        return;
+      }
+
+      clearCenterMarkers();
+      message.textContent = '좌표가 등록된 전체 행정복지센터를 불러오는 중입니다.';
+      centerLoadPromise = (async () => {
+        try {
+          const response = await fetch(centersApiUrl, {
+            credentials: 'same-origin'
+          });
+          if (!response.ok) throw new Error('행정복지센터 조회에 실패했습니다.');
+          const centers = await response.json();
+          if (!Array.isArray(centers)) throw new Error('행정복지센터 응답 형식이 올바르지 않습니다.');
+          if (!section.isConnected) return;
+
+          centerInfoWindow = centerInfoWindow || new google.maps.InfoWindow({ maxWidth: 360 });
+          centerData = centers.map(center => {
+            const lat = Number(center.latitude);
+            const lng = Number(center.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+                lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+            return { ...center, latitude: lat, longitude: lng };
+          }).filter(Boolean);
+          centersLoaded = true;
+          centerDataLabel = '좌표가 등록된 행정복지센터';
+
+          if (centerData.length === 0) {
+            message.textContent = '지도에 표시할 좌표가 등록된 행정복지센터가 없습니다.';
+            return;
+          }
+
+          if (sidoSelect.value) {
+            focusMapOnSelectedRegion();
+          } else {
+            const bounds = new google.maps.LatLngBounds();
+            centerData.forEach(center => bounds.extend({
+              lat: center.latitude,
+              lng: center.longitude
+            }));
+            administrativeCenterMap.fitBounds(bounds);
+          }
+          renderVisibleCenters();
+        } catch (error) {
+          console.error('행정복지센터 조회 오류:', error);
+          message.textContent = '행정복지센터를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
+          centerLoadPromise = null;
+        }
+      })();
+      await centerLoadPromise;
     }
 
     sidoSelect.addEventListener('change', async () => {
-      ++centerRequestId;
       resetSelect(sigunguSelect, '먼저 시·도를 선택하세요');
       sigunguSelect.disabled = true;
       loadCentersForSelection();
