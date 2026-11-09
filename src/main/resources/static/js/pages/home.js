@@ -928,13 +928,16 @@
         pagination.append(item);
       }
 
-      const firstPage = Math.max(1, Math.min(page - 2, totalPages - 4));
-      const lastPage = Math.min(totalPages, firstPage + 4);
-      appendPage('이전', page - 1, page <= 1, false);
+      const firstPage = Math.floor((page - 1) / 10) * 10 + 1;
+      const lastPage = Math.min(firstPage + 9, totalPages);
+      const previousGroupPage = firstPage - 10;
+      const nextGroupPage = firstPage + 10;
+
+      appendPage('이전', previousGroupPage, firstPage === 1, false);
       for (let number = firstPage; number <= lastPage; number += 1) {
         appendPage(String(number), number, false, number === page);
       }
-      appendPage('다음', page + 1, page >= totalPages, false);
+      appendPage('다음', nextGroupPage, nextGroupPage > totalPages, false);
     }
 
     policyForm.addEventListener('submit', function (event) {
@@ -956,6 +959,7 @@
     });
 
     loadCategories();
+    loadPolicies(1);
 
     function createPolicySearchCard(policy) {
       const card = document.createElement('article');

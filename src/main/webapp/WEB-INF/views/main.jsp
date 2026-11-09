@@ -208,6 +208,6 @@
 </main>
 
 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=policy-service-fields-1"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=policy-initial-results-1"></script>
 </body>
 </html>
