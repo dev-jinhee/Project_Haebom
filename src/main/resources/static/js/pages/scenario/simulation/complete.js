@@ -213,7 +213,13 @@ export async function init({
 	}
 
 	// ==============================
-	// 4. 정부24 공식 안내 링크
+	// [진희] 4. 맞춤 정부 혜택 추천 (보조금24 API)
+	// ==============================
+
+	await loadPolicyRecommendations(root, scenarioCode);
+
+	// ==============================
+	// 5. 정부24 공식 안내 링크
 	// ==============================
 
 	const officialLink = root.querySelector("#completeOfficialLink");
@@ -221,7 +227,7 @@ export async function init({
 	officialLink.href = guide?.officialUrl ?? "https://www.gov.kr/";
 
 	// ==============================
-	// 5. PDF 저장 / 인쇄
+	// 6. PDF 저장 / 인쇄
 	// ==============================
 
 	root.querySelector("#completePrintBtn")
@@ -231,4 +237,128 @@ export async function init({
 
 			window.open(printUrl, "_blank", "noopener");
 		});
+}
+
+// ==============================
+// [진희] 보조금24 맞춤 정책 추천 로드 및 렌더링
+// ==============================
+
+async function loadPolicyRecommendations(root, scenarioCode) {
+	const grid = root.querySelector("#completePolicyCardGrid");
+	if (!grid) return;
+
+	// 시나리오별 안내 문구 맞춤 조정
+	const descEl = root.querySelector("#completePolicyDescription");
+	if (descEl) {
+		const code = (scenarioCode || "").toUpperCase();
+		if (code.includes("IDENTITY") || code.includes("ID-CARD") || code.includes("ID_CARD") || code === "2") {
+			descEl.textContent = "방금 진행하신 주민등록증 재발급과 연관된 신분증 및 디지털 증명서 지원 정책들을 추천해 드려요.";
+		} else {
+			descEl.textContent = "방금 진행하신 전입신고와 밀접한 실생활 주거·이사 지원 정책들을 추천해 드려요.";
+		}
+	}
+
+	try {
+		const targetScenario = (scenarioCode || "MOVE").toLowerCase();
+		const response = await fetch(`/api/policies/recommend?scenario=${encodeURIComponent(targetScenario)}&_t=${Date.now()}`, {
+			headers: { "Accept": "application/json" }
+		});
+
+		if (!response.ok) {
+			throw new Error(`정책 추천 API 응답 오류 (상태코드: ${response.status})`);
+		}
+
+		const contentType = response.headers.get("content-type");
+		if (contentType && !contentType.includes("application/json")) {
+			throw new Error("서버 응답이 JSON 형식이 아닙니다. (서버 재시작이 필요할 수 있습니다)");
+		}
+
+		const policies = await response.json();
+
+		if (!Array.isArray(policies) || policies.length === 0) {
+			grid.innerHTML = `
+				<div class="col-12 text-center py-4 text-secondary small">
+					현재 추천 가능한 연관 정책 정보를 찾을 수 없습니다.
+				</div>
+			`;
+			return;
+		}
+
+		grid.replaceChildren();
+
+		policies.forEach(policy => {
+			const col = document.createElement("div");
+			col.className = "col-12 col-md-4";
+
+			const dept = escapeHtml(policy.deptName || "정부부처");
+			const type = escapeHtml(policy.supportType || "지원");
+			const name = escapeHtml(policy.serviceName || "공공서비스 안내");
+			const summary = escapeHtml(policy.serviceSummary || "상세 지원 내용은 정부24에서 확인하세요.");
+			const period = escapeHtml(policy.applyPeriod || "상시 신청");
+			const url = sanitizeUrl(policy.detailUrl);
+
+			col.innerHTML = `
+				<div class="card h-100 border rounded-3 p-3 d-flex flex-column justify-content-between shadow-sm bg-white policy-recommend-card" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+					<div>
+						<div class="d-flex align-items-center justify-content-between gap-1 mb-2">
+							<span class="badge bg-light text-secondary border px-2 py-1 text-truncate" style="max-width: 55%;" title="${dept}">${dept}</span>
+							<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 text-truncate" style="max-width: 45%;" title="${type}">${type}</span>
+						</div>
+						<h5 class="fw-bold fs-6 text-dark mb-2 text-truncate" title="${name}">
+							${name}
+						</h5>
+						<p class="text-secondary small mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; min-height: 4.5em;" title="${summary}">
+							${summary}
+						</p>
+					</div>
+					<div class="pt-2 border-top d-flex align-items-center justify-content-between small text-secondary mt-auto">
+						<span class="text-muted" style="font-size: .75rem;" title="${period}">${period}</span>
+						<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none fw-semibold d-inline-flex align-items-center gap-1">
+							정부24 바로가기 <span class="material-symbols-outlined" style="font-size: .9rem;">open_in_new</span>
+						</a>
+					</div>
+				</div>
+			`;
+
+			const card = col.querySelector(".policy-recommend-card");
+			if (card) {
+				card.addEventListener("mouseenter", () => {
+					card.style.transform = "translateY(-3px)";
+					card.style.boxShadow = "0 6px 16px rgba(0, 0, 0, 0.08)";
+				});
+				card.addEventListener("mouseleave", () => {
+					card.style.transform = "none";
+					card.style.boxShadow = "";
+				});
+			}
+
+			grid.appendChild(col);
+		});
+
+	} catch (error) {
+		console.error("추천 정책 불러오기 실패:", error);
+		grid.innerHTML = `
+			<div class="col-12 text-center py-4 text-secondary small">
+				정책 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해 주세요.
+			</div>
+		`;
+	}
+}
+
+function escapeHtml(str) {
+	if (!str) return "";
+	return String(str)
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;");
+}
+
+function sanitizeUrl(url) {
+	if (!url || typeof url !== "string") return "https://www.gov.kr/";
+	if (url.startsWith("http://") || url.startsWith("https://")) {
+		return url;
+	}
+	return "https://www.gov.kr/";
 }
