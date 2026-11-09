@@ -281,7 +281,6 @@ export async function uploadAttachments({ root, progressId }) {
 	// S3에 업로드된 사진으로 미리보기 전환
 	renderSavedPhotoPreview(root, result, progressId);
 
-	console.log("증명사진 S3 업로드 성공:", result);
 }
 
 export function getData({ root }) {

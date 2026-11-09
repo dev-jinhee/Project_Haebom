@@ -176,9 +176,6 @@ public class SgisRegionService {
 		// ==============================
 		// 실제 트랜잭션은 Writer에서 처리
 		regionWriter.replaceRegions(collected);
-
-		System.out.println("[SGIS] 행정구역 갱신 완료" + " / 시도: " + counts[1] + " / 시군구: " + counts[2] + " / 읍면동: " + counts[3]
-				+ " / 전체: " + collected.size());
 	}
 
 	// ==============================

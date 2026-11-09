@@ -165,8 +165,6 @@ export function initIdentityStepUi(root, { readOnly = false } = {}) {
 
 				const data = await response.json();
 
-				console.log("[SGIS 검색 응답]", data);
-
 				if (currentRequest !== requestId) return;
 
 				if (data.status === "READY") {
