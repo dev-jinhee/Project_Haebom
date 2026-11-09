@@ -704,25 +704,6 @@
 	color: var(--move-step1-muted);
 }
 
-.move-step1 .move-step1-simulation {
-	margin: 34px 0 24px;
-	padding: 22px 25px;
-	border: 1px solid #c7d8e8;
-	border-left: 4px solid #164166;
-	border-radius: 8px;
-	background: #f2f7fc;
-}
-
-.move-step1 .move-step1-simulation h3 {
-	display: flex;
-	align-items: center;
-	gap: 9px;
-	margin: 0 0 13px;
-	font-size: 1rem;
-	font-weight: 750;
-	color: #164166;
-}
-
 .move-step1 .move-step1-agreement {
 	display: flex;
 	align-items: center;

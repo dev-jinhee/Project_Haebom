@@ -63,6 +63,41 @@
 	color: #52647a;
 }
 
+/* 해봄 시뮬레이션 안내 */
+.identity-simulation-notice {
+	margin: 28px 0;
+	padding: 24px 28px;
+	background: #eef5fb;
+	border: 1px solid #cbddea;
+	border-left: 4px solid #164166;
+	border-radius: 10px;
+}
+
+.identity-simulation-notice h3 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	color: #164166;
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.identity-notice-bullets {
+	margin: 0;
+	padding-left: 22px;
+}
+
+.identity-notice-bullets li {
+	margin-bottom: 9px;
+	line-height: 1.7;
+	color: #334155;
+}
+
+.identity-notice-bullets li:last-child {
+	margin-bottom: 0;
+}
+
 /* 원본의 독립적인 섹션 카드 */
 .identity-step1 .gov24-form-panel {
 	margin: 20px 0;
@@ -93,7 +128,8 @@
 }
 
 .identity-step1 .identity-field>label:not(.identity-checkbox-label),
-	.identity-step1 .identity-field-label, .identity-step1 .identity-field>legend {
+	.identity-step1 .identity-field-label, .identity-step1 .identity-field>legend
+	{
 	display: block;
 	width: auto;
 	float: none;
@@ -123,13 +159,15 @@
 	background: #e4e5e7;
 }
 
-.identity-step1 .identity-applicant-panel>.identity-field>.form-control {
+.identity-step1 .identity-applicant-panel>.identity-field>.form-control
+	{
 	width: min(100%, 560px);
 	max-width: 560px;
 }
 
 .identity-step1 .identity-resident-row, .identity-step1 .identity-phone-row,
-	.identity-step1 .identity-address-row, .identity-step1 .identity-office-row {
+	.identity-step1 .identity-address-row, .identity-step1 .identity-office-row
+	{
 	display: flex;
 	gap: 12px;
 	align-items: center;
@@ -258,7 +296,7 @@
 
 /* 사진 첨부 */
 .identity-step1 .identity-file-guide {
-	padding: 18px 20px;
+	padding: 18px 20px 7px;
 	margin-bottom: 18px;
 	border: 1px solid #d9dde4;
 	border-radius: 6px;
@@ -266,11 +304,9 @@
 }
 
 .identity-step1 .identity-file-guide p {
-	margin: 0 0 6px;
-}
-
-.identity-step1 .identity-file-guide p:last-child {
-	margin-bottom: 0;
+	margin: 0 0 10px;
+	font-weight: 700;
+	color: #164166;
 }
 
 .identity-step1 #identityPhotoInput {

@@ -4,8 +4,8 @@
 
 // ============================================================
 import { isMinor } from "../utils/age.js";
+import { fetchRegions } from "../utils/sgis-api.js";
 
-const REGIONS_API = "/api/address/sgis/regions";
 const VIRTUAL_DONG = "해봄동";
 const VIRTUAL_DETAIL = "해봄동 101-1";
 const VIRTUAL_CENTER = "해봄동 행정복지센터";
@@ -194,22 +194,6 @@ export async function init({ root, progressId, stepId, readOnly = false }) {
 		console.error("3단계 초기화 오류:", error);
 		status.textContent = "3단계 정보를 불러오지 못했습니다.";
 	}
-}
-
-// ==============================
-// 공통 주소 API: Controller에서 result 목록만 반환하는 계약
-
-// ==============================
-async function fetchRegions(cd) {
-	const url = cd
-		? `${REGIONS_API}?cd=${encodeURIComponent(cd)}`
-		: REGIONS_API;
-	const response = await fetch(url);
-	if (!response.ok) throw new Error("행정구역 조회 실패");
-	const data = await response.json();
-	// AddressServiceImpl.getRegions() → List<Map<String, Object>> 반환
-	if (!Array.isArray(data)) throw new Error("행정구역 응답 형식 오류");
-	return data;
 }
 
 function resetSelect(select, placeholder) {
@@ -673,7 +657,6 @@ export async function save({ root, progressId }) {
 
 // ==============================
 // 공통 답변 저장용 주소 데이터
-
 // ==============================
 export function getData({ root }) {
 	const sido = root.querySelector("#sidoSelect");
@@ -681,9 +664,7 @@ export function getData({ root }) {
 	return {
 		previousAddress: {
 			sidoCode: sido.value,
-			sidoName: sido.selectedOptions[0].textContent,
 			sigunguCode: sigungu.value,
-			sigunguName: sigungu.selectedOptions[0].textContent,
 			administrativeDong: VIRTUAL_DONG,
 			detailAddress: VIRTUAL_DETAIL,
 			welfareCenter: VIRTUAL_CENTER
