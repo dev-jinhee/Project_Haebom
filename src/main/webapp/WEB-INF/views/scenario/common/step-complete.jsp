@@ -101,6 +101,17 @@
 					방금 진행하신 연습과 밀접한 실생활 복지·주거 정책들을 추천해 드려요.
 				</p>
 			</div>
+			<%-- [진희] 다른 정책 보기 (새로고침) 버튼 --%>
+			<div>
+				<button id="completePolicyRefreshBtn" type="button"
+					class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-sm bg-white"
+					style="font-size: .8rem; font-weight: 500;"
+					onclick="window.haebomRefreshPolicies &amp;&amp; window.haebomRefreshPolicies(this)"
+					title="다른 추천 정책을 확인합니다">
+					<span class="material-symbols-outlined policy-refresh-icon" style="font-size: 1rem;">refresh</span>
+					<span>다른 정책 보기</span>
+				</button>
+			</div>
 		</div>
 
 		<%-- 정책 추천 카드 목록 (JS 동적 렌더링) --%>
