@@ -2,14 +2,19 @@ package kr.co.oti.haebom.business.admin.service;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import kr.co.oti.haebom.business.admin.dto.AdminAccountDTO;
 import kr.co.oti.haebom.business.admin.mapper.AdminAccountMapper;
 import lombok.RequiredArgsConstructor;
 
+/*
+ * 관리자 계정 관리 서비스 (예외 상태코드 세분화 적용: 409 Conflict, 403 Forbidden)
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,13 +32,13 @@ public class AdminAccountService {
 	
 	// 2. 새 관리자 계정 등록
 	public void createAdmin(AdminAccountDTO dto, int currentAdminId) {
-		// 1) 아이디 중복 검사
+		// 1) 아이디 중복 검사 (409 Conflict)
 		if (adminAccountMapper.countByLoginId(dto.getLoginId()) > 0) {
-			throw new IllegalArgumentException("이미 사용 중인 관리자 아이디입니다.");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 사용 중인 관리자 아이디입니다.");
 		}
-		// 1-1) 이메일 중복 검사
+		// 1-1) 이메일 중복 검사 (409 Conflict)
 		if (adminAccountMapper.countByEmail(dto.getEmail()) > 0) {
-			throw new IllegalArgumentException("이미 등록된 이메일 주소입니다.");
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 등록된 이메일 주소입니다.");
 		}
 		
 		// 2) 비밀번호 BCrypt 암호화 (보안 표준)
@@ -48,14 +53,14 @@ public class AdminAccountService {
 	
 	// 3. 관리자 계정 상태 변경 (ACTIVE: 정상 / SUSPENDED: 이용 정지)
 	public void updateAdminStatus(int targetAdminId, String status, int currentAdminId) {
-		// [보안 방어 1] 1번 최고 관리자(admin) 계정은 비활성화/정지 불가!
+		// [보안 방어 1] 1번 최고 관리자(admin) 계정은 비활성화/정지 불가! (403 Forbidden)
 		if (targetAdminId == 1) {
-			throw new IllegalArgumentException("최고 관리자(admin) 계정은 상태를 변경할 수 없습니다.");
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "최고 관리자(admin) 계정은 상태를 변경할 수 없습니다.");
 		}
 		
-		// [보안 방어 2] 현재 로그인한 관리자 본인 계정 비활성화 불가!
+		// [보안 방어 2] 현재 로그인한 관리자 본인 계정 비활성화 불가! (403 Forbidden)
 		if (targetAdminId == currentAdminId && !"ACTIVE".equals(status)) {
-			throw new IllegalArgumentException("현재 로그인 중인 본인 계정은 정지할 수 없습니다.");
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "현재 로그인 중인 본인 계정은 정지할 수 없습니다.");
 		}
 		
 		adminAccountMapper.updateAdminStatus(targetAdminId, status);
