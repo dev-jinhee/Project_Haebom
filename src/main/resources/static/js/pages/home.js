@@ -72,11 +72,15 @@
     const sigunguSelect = document.getElementById('center-sigungu');
     const regionSearchButton = document.getElementById('center-map-search');
     const centerList = document.getElementById('center-list');
+    const centerListMessage = document.getElementById('center-list-message');
+    const centerListResults = document.getElementById('center-list-results');
+    const centerListPagination = document.getElementById('center-list-pagination');
     const apiKey = (section.dataset.mapKey || '').trim();
     const centersApiUrl = section.dataset.apiUrl;
     const regionsApiUrl = section.dataset.regionApiUrl;
     const dataFreshnessMessage = '주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.';
-    if (!mapElement || !message || !sidoSelect || !sigunguSelect || !regionSearchButton || !centerList) return;
+    if (!mapElement || !message || !sidoSelect || !sigunguSelect || !regionSearchButton
+        || !centerList || !centerListMessage || !centerListResults || !centerListPagination) return;
 
     let regionsLoaded = false;
     let regionsLoadFailed = false;
@@ -88,10 +92,15 @@
     let centerClusterer = null;
     let centerInfoWindow = null;
     let centerPopupOpen = false;
+    let regionCenterData = [];
+    let regionCenterLabel = '';
+    let regionCenterPage = 1;
     let regionRequestId = 0;
     let centerLoadPromise = null;
     let regionSearchRequested = false;
     let centerMarkerIcon = null;
+    const CENTER_LIST_PAGE_SIZE = 5;
+    const CENTER_LIST_PAGE_GROUP_SIZE = 10;
 
     function getCenterMarkerIcon() {
       if (centerMarkerIcon) return centerMarkerIcon;
@@ -164,7 +173,6 @@
       }
       centerMarkers.forEach(marker => marker.setMap(null));
       centerMarkers = [];
-      centerList.replaceChildren();
       centerPopupOpen = false;
       if (centerInfoWindow) centerInfoWindow.close();
     }
@@ -219,12 +227,173 @@
       administrativeCenterMap.fitBounds(bounds, 40);
     }
 
+    function renderCenterListForSelectedRegion() {
+      const sidoName = sidoSelect.selectedOptions[0]?.textContent?.trim();
+      const sigunguName = sigunguSelect.value
+        ? sigunguSelect.selectedOptions[0]?.textContent?.trim()
+        : '';
+
+      if (!sidoName || !centersLoaded) {
+        regionCenterData = [];
+        regionCenterLabel = '';
+        centerListMessage.hidden = false;
+        centerListMessage.textContent = centersLoaded
+          ? '시·도를 선택한 뒤 지역 조회를 눌러 주세요.'
+          : '행정복지센터 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+        centerListResults.replaceChildren();
+        centerListPagination.replaceChildren();
+        return;
+      }
+
+      regionCenterLabel = sidoName + (sigunguName ? ' ' + sigunguName : '');
+      regionCenterData = centerData.filter(center =>
+        normalizeSidoName(center.sido) === normalizeSidoName(sidoName)
+        && (!sigunguName || center.sigungu === sigunguName)
+      );
+      regionCenterPage = 1;
+      renderCenterListPage(regionCenterPage);
+    }
+
+    function focusMapOnCenter(center) {
+      if (!administrativeCenterMap || !center) return;
+
+      centerPopupOpen = false;
+      if (centerInfoWindow) centerInfoWindow.close();
+
+      const position = {
+        lat: center.latitude,
+        lng: center.longitude
+      };
+
+      const openCenterInfoWindow = () => {
+        const marker = centerMarkers.find(item =>
+          String(item.centerId) === String(center.centerId));
+        if (!marker) return false;
+        google.maps.event.trigger(marker, 'click');
+        return true;
+      };
+
+      if (administrativeCenterMap.getZoom() >= 15 && openCenterInfoWindow()) {
+        return;
+      }
+
+      let idleListener;
+      idleListener = administrativeCenterMap.addListener('idle', () => {
+        google.maps.event.removeListener(idleListener);
+        if (!openCenterInfoWindow()) {
+          renderVisibleCenters();
+          openCenterInfoWindow();
+        }
+      });
+
+      administrativeCenterMap.setZoom(15);
+      administrativeCenterMap.setCenter(position);
+    }
+
+    function renderCenterListPage(requestedPage) {
+      const totalCount = regionCenterData.length;
+      const totalPages = Math.ceil(totalCount / CENTER_LIST_PAGE_SIZE);
+
+      centerListResults.replaceChildren();
+      centerListPagination.replaceChildren();
+
+      if (totalCount === 0) {
+        centerListMessage.hidden = false;
+        centerListMessage.textContent =
+          regionCenterLabel + ' 지역에 표시할 행정복지센터가 없습니다.';
+        return;
+      }
+
+      centerListMessage.hidden = true;
+
+      regionCenterPage = Math.min(Math.max(requestedPage, 1), totalPages);
+      const start = (regionCenterPage - 1) * CENTER_LIST_PAGE_SIZE;
+      const pageItems = regionCenterData.slice(start, start + CENTER_LIST_PAGE_SIZE);
+
+      pageItems.forEach(center => {
+        const card = document.createElement('article');
+        card.className = 'center-list-card';
+
+        const title = document.createElement('h4');
+        title.textContent = center.centerName || '행정복지센터';
+
+        const address = document.createElement('p');
+        address.textContent = center.address || '주소 정보 없음';
+        if (center.address && center.postalCode) {
+          address.textContent += ' (우편번호 ' + center.postalCode + ')';
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'center-list-actions';
+
+        const mapButton = document.createElement('button');
+        mapButton.type = 'button';
+        mapButton.className = 'btn btn-sm btn-outline-primary';
+        mapButton.textContent = '지도에서 위치 보기';
+        mapButton.addEventListener('click', () => focusMapOnCenter(center));
+
+        const directionsLink = document.createElement('a');
+        directionsLink.className = 'btn btn-sm btn-primary';
+        directionsLink.href = 'https://www.google.com/maps/dir/?api=1&destination='
+          + encodeURIComponent(center.latitude + ',' + center.longitude);
+        directionsLink.target = '_blank';
+        directionsLink.rel = 'noopener noreferrer';
+        directionsLink.textContent = '길찾기';
+
+        actions.append(mapButton, directionsLink);
+        card.append(title, address, actions);
+        centerListResults.append(card);
+      });
+
+      renderCenterListPagination(regionCenterPage, totalPages);
+    }
+
+    function renderCenterListPagination(page, totalPages) {
+      centerListPagination.replaceChildren();
+      if (totalPages <= 1) return;
+
+      function appendPage(label, targetPage, disabled, active) {
+        const item = document.createElement('li');
+        item.className = 'page-item'
+          + (disabled ? ' disabled' : '')
+          + (active ? ' active' : '');
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'page-link';
+        button.textContent = label;
+        button.disabled = disabled;
+        if (active) button.setAttribute('aria-current', 'page');
+        button.addEventListener('click', () => renderCenterListPage(targetPage));
+
+        item.append(button);
+        centerListPagination.append(item);
+      }
+
+      const firstPage =
+        Math.floor((page - 1) / CENTER_LIST_PAGE_GROUP_SIZE)
+          * CENTER_LIST_PAGE_GROUP_SIZE + 1;
+      const lastPage = Math.min(
+        firstPage + CENTER_LIST_PAGE_GROUP_SIZE - 1,
+        totalPages
+      );
+      const previousGroupPage = firstPage - CENTER_LIST_PAGE_GROUP_SIZE;
+      const nextGroupPage = firstPage + CENTER_LIST_PAGE_GROUP_SIZE;
+
+      appendPage('이전', previousGroupPage, firstPage === 1, false);
+      for (let number = firstPage; number <= lastPage; number += 1) {
+        appendPage(String(number), number, false, number === page);
+      }
+      appendPage('다음', nextGroupPage, nextGroupPage > totalPages, false);
+    }
+
     function createCenterMarker(center) {
       const marker = new google.maps.Marker({
         position: { lat: center.latitude, lng: center.longitude },
         title: center.centerName || '행정복지센터',
         icon: getCenterMarkerIcon()
       });
+      marker.centerId = String(center.centerId);
       marker.addListener('click', () => {
         const content = document.createElement('div');
         content.className = 'center-place-popup';
@@ -544,6 +713,7 @@
       if (!centersLoaded) message.textContent = '행정복지센터 위치를 불러오는 중입니다.';
       await loadCentersForSelection();
       focusMapOnSelectedRegion();
+      renderCenterListForSelectedRegion();
     });
 
     loadSidoOptions();

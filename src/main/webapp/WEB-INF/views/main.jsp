@@ -154,7 +154,15 @@
                 주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.
             </p>
             <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
-            <div id="center-list" class="center-map-list" aria-live="polite"></div>
+            <div id="center-list" class="center-map-list">
+                <p id="center-list-message" class="center-list-message" role="status" aria-live="polite">
+                    지역 조회를 누르면 선택한 지역의 센터 목록이 표시됩니다.
+                </p>
+                <div id="center-list-results" class="center-list-results"></div>
+                <nav class="center-list-pagination-wrap" aria-label="행정복지센터 목록 페이지">
+                    <ul id="center-list-pagination" class="pagination justify-content-center"></ul>
+                </nav>
+            </div>
         </section>
 
         <section class="home-service-grid" aria-label="주요 서비스">

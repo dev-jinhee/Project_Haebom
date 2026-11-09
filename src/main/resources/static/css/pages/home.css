@@ -147,7 +147,16 @@
 .center-map-search { min-width: 108px; min-height: 42px; }
 .center-map-message { min-height: 1.4em; margin: 12px 0 10px; color: #718198; font-size: .82rem; }
 .center-map-canvas { width: 100%; min-height: 420px; overflow: hidden; border: 1px solid #e2eaf1; border-radius: 14px; background: #eef3f8; }
-.center-map-list { display: grid; gap: 10px; margin-top: 14px; }
+.center-map-list { margin-top: 18px; }
+.center-list-message { margin: 0 0 8px; color: #718198; font-size: .82rem; }
+.center-list-results { display: grid; }
+.center-list-card { padding: 14px 4px; border-top: 1px solid #e2eaf1; }
+.center-list-card h4 { margin: 0 0 5px; color: #173b70; font-size: .92rem; font-weight: 700; }
+.center-list-card p { margin: 0; color: #61758a; font-size: .82rem; line-height: 1.55; }
+.center-list-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+.center-list-actions .btn { font-size: .76rem; }
+.center-list-pagination-wrap { margin-top: 12px; }
+.center-list-pagination-wrap .pagination { margin-bottom: 0; }
 .center-place-popup { width: 300px; max-width: 70vw; overflow-wrap: anywhere; color: #334155; font-size: 13px; }
 .center-place-popup > strong { display: block; margin-bottom: 5px; color: #173b70; }
 .center-place-popup > p { margin: 5px 0; }
