@@ -205,12 +205,17 @@ async function loadPolicyRecommendations(root, scenarioCode) {
 
 	try {
 		const targetScenario = (scenarioCode || "MOVE").toLowerCase();
-		const response = await fetch(`/api/policies/recommend?scenario=${encodeURIComponent(targetScenario)}`, {
+		const response = await fetch(`/api/policies/recommend?scenario=${encodeURIComponent(targetScenario)}&_t=${Date.now()}`, {
 			headers: { "Accept": "application/json" }
 		});
 
 		if (!response.ok) {
 			throw new Error(`정책 추천 API 응답 오류 (상태코드: ${response.status})`);
+		}
+
+		const contentType = response.headers.get("content-type");
+		if (contentType && !contentType.includes("application/json")) {
+			throw new Error("서버 응답이 JSON 형식이 아닙니다. (서버 재시작이 필요할 수 있습니다)");
 		}
 
 		const policies = await response.json();

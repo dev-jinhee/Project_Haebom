@@ -3,6 +3,7 @@ package kr.co.oti.haebom.business.policy.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -20,6 +21,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.oti.haebom.business.policy.dto.PolicyDTO;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * [진희] 행정안전부 공공서비스(보조금24) API 연동 및 시나리오 맞춤 정책 추천 서비스
+ * 
+ * @author 진희
+ */
 @Slf4j
 @Service
 public class PolicyService {
@@ -34,26 +40,29 @@ public class PolicyService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /*
-     * 시나리오 코드에 맞춤형 공공서비스 정책 목록 추천
+     * [진희] 시나리오 코드에 맞춤형 공공서비스 정책 목록 추천 (랜덤 셔플 추천)
      * @param scenarioCode "move"(전입신고) 또는 "id-card"(주민등록증 재발급)
-     * @return 추천 정책 리스트 (최대 3건)
+     * @return 무작위 추천 정책 리스트 (3건)
      */
     public List<PolicyDTO> getRecommendedPolicies(String scenarioCode) {
         // 1. 시나리오별 알맞은 정부 정책 검색 키워드 매핑
         String keyword = resolveKeyword(scenarioCode);
 
-        // 2. 공공서비스 API 호출 시도
+        // 2. 공공서비스 API 호출 시도 (최대 20건 검색 후 무작위 3건 추출)
         try {
             List<PolicyDTO> apiResult = fetchFromGov24Api(keyword);
             if (apiResult != null && !apiResult.isEmpty()) {
-                return apiResult;
+                Collections.shuffle(apiResult);
+                return apiResult.stream().limit(3).collect(Collectors.toList());
             }
         } catch (Exception e) {
             log.warn("[공공서비스 API 호출 실패 또는 응답 지연] 기본 추천 정책(Fallback)으로 대체합니다. 사유: {}", e.getMessage());
         }
 
-        // 3. API 장애/지연/결과없음 시 안전하게 기본 추천 정책 반환 (화면 보호 안전장치)
-        return getFallbackPolicies(scenarioCode);
+        // 3. API 장애/지연/결과없음 시 안전하게 기본 추천 정책 반환 (화면 보호 안전장치 + 셔플)
+        List<PolicyDTO> fallback = getFallbackPolicies(scenarioCode);
+        Collections.shuffle(fallback);
+        return fallback.stream().limit(3).collect(Collectors.toList());
     }
 
     /*
@@ -74,7 +83,7 @@ public class PolicyService {
     private List<PolicyDTO> fetchFromGov24Api(String keyword) throws Exception {
         String url = UriComponentsBuilder.fromHttpUrl(baseUrl + "/serviceList")
                 .queryParam("page", 1)
-                .queryParam("perPage", 3)
+                .queryParam("perPage", 20)
                 .queryParam("cond[서비스명::LIKE]", keyword)
                 .queryParam("returnType", "json")
                 .build(false)
@@ -94,9 +103,12 @@ public class PolicyService {
 
             if (dataArray.isArray()) {
                 for (JsonNode item : dataArray) {
+                    String name = item.path("서비스명").asText("").trim();
+                    if (name.isEmpty()) continue;
+
                     PolicyDTO dto = PolicyDTO.builder()
                             .serviceId(item.path("서비스ID").asText(""))
-                            .serviceName(item.path("서비스명").asText("공공서비스"))
+                            .serviceName(name)
                             .serviceSummary(item.path("서비스목적요약").asText("정부24에서 상세 지원 내용을 확인해 보세요."))
                             .supportType(item.path("지원유형").asText("공공서비스"))
                             .deptName(item.path("소관기관명").asText("정부24"))
@@ -145,6 +157,15 @@ public class PolicyService {
                     .detailUrl("https://pd.fss.or.kr/")
                     .applyPeriod("연중 접수")
                     .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_ID_4")
+                    .serviceName("본인서명사실확인서 온라인 발급 서비스")
+                    .serviceSummary("인감증명서 대신 안전하게 신원을 증명할 수 있는 본인서명사실확인서를 편리하게 발급받으세요.")
+                    .supportType("전자증명서")
+                    .deptName("행정안전부")
+                    .detailUrl("https://www.gov.kr/")
+                    .applyPeriod("상시 신청")
+                    .build());
         } else {
             // 전입신고 추천 정책 (기본값)
             fallback.add(PolicyDTO.builder()
@@ -173,6 +194,24 @@ public class PolicyService {
                     .deptName("지방자치단체")
                     .detailUrl("https://www.gov.kr/")
                     .applyPeriod("연중 접수")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_MOVE_4")
+                    .serviceName("버팀목 전세자금 대출 이자 지원")
+                    .serviceSummary("무주택 서민 및 청년의 전세자금 대출에 대해 연 1.5%~2.1%의 저금리 혜택을 지원합니다.")
+                    .supportType("금융 지원")
+                    .deptName("국토교통부")
+                    .detailUrl("https://nhuf.molit.go.kr/")
+                    .applyPeriod("상시 신청")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_MOVE_5")
+                    .serviceName("청년 및 신혼부부 행복주택 공급")
+                    .serviceSummary("직주근접이 가능한 대중교통 편리 부지에 주변 시세의 60~80% 수준으로 저렴하게 공급하는 공공임대주택입니다.")
+                    .supportType("공공임대")
+                    .deptName("한국토지주택공사")
+                    .detailUrl("https://apply.lh.or.kr/")
+                    .applyPeriod("모집 공고 시")
                     .build());
         }
         return fallback;
