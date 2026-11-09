@@ -848,6 +848,61 @@
 		overflow-wrap: anywhere;
 	}
 }
+/* ========================================
+   시뮬레이션 공통 안내 패널
+======================================== */
+
+/* 정부24 절차 안내 */
+.sim-guide-panel {
+    background: #f3f5f7;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+}
+
+/* 해봄 교육용 시뮬레이션 안내 */
+.sim-notice-panel {
+    /* 기존 #fff에서 변경 */
+    background: #f5f8fc;
+    border: 1px solid #c7d5e2;
+    border-left: 4px solid #164166;
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin: 20px 0 28px;
+}
+
+.sim-notice-panel h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    color: #164166;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.sim-notice-panel ul {
+    margin: 0;
+    padding-left: 22px;
+}
+
+.sim-notice-panel li {
+    margin-bottom: 9px;
+    color: #334155;
+    line-height: 1.7;
+}
+
+.sim-notice-panel li:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .sim-guide-panel,
+    .sim-notice-panel {
+        padding: 18px 16px;
+    }
+}
 
 /* Keep the previously defined print layout intact. */
 @media print {

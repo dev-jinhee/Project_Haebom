@@ -37,12 +37,6 @@ public class SecurityConfig {
 				
 				// [배포 보안 표준] 전역 CSRF 보호 활성화: 웹 폼 및 모든 REST API(/api/**) 대상 CSRF 토큰 검증
 				// (비동기 fetch 요청은 common.js 전역 인터셉터가 X-CSRF-TOKEN 헤더를 자동 탑재)
-				// 외부 연동인 행안부 도로명주소 팝업(/address/juso/popup)만 안전하게 예외 처리
-				.csrf(csrf -> csrf
-						.ignoringRequestMatchers(
-								antMatcher("/address/juso/popup")
-						)
-				)
 
 				// URL별 인증·권한은 계속 검사합니다.
 				.authorizeHttpRequests(auth -> auth
@@ -59,7 +53,6 @@ public class SecurityConfig {
 					        antMatcher("/js/**"),
 					        antMatcher("/images/**"),
 					        antMatcher("/favicon.ico"),
-					        antMatcher("/address/juso/popup"),
 					        antMatcher("/swagger-ui.html"),
 					        antMatcher("/swagger-ui/**"),
 					        antMatcher("/v3/api-docs"),

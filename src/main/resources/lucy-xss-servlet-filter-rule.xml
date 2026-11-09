@@ -22,11 +22,4 @@
             <param name="jibunAddr" useDefender="false" />
         </params>
     </global>
-
-    <!-- URL 예외: 행안부 공식 주소 팝업 콜백 URL은 필터링에서 완전 제외! -->
-    <url-rule-set>
-        <url-rule>
-            <url disable="true">/address/juso/popup</url>
-        </url-rule>
-    </url-rule-set>
 </config>
