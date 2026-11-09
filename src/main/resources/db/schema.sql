@@ -44,7 +44,15 @@ CREATE TABLE member (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='회원';
 
 -- ========================================================
--- ② 시나리오 (scenario)
+-- ② 시나리오 카테고리 (category)
+-- ========================================================
+CREATE TABLE category (
+    category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오카테고리 고유번호',
+    category_name VARCHAR(50) NOT NULL COMMENT '시나리오 카테고리 이름'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 카테고리';
+
+-- ========================================================
+-- ③ 시나리오 (scenario)
 -- ========================================================
 CREATE TABLE scenario (
     scenario_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오 고유번호',
@@ -60,7 +68,7 @@ CREATE TABLE scenario (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오';
 
 -- ========================================================
--- ③ 시나리오 단계 (scenario_step)
+-- ④ 시나리오 단계 (scenario_step)
 -- ========================================================
 CREATE TABLE scenario_step (
     step_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오단계 고유번호',
@@ -75,7 +83,7 @@ CREATE TABLE scenario_step (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 단계';
 
 -- ========================================================
--- ④ 시뮬레이션 진행 이력 (simulation_progress)
+-- ⑤ 시뮬레이션 진행 이력 (simulation_progress)
 -- ========================================================
 CREATE TABLE simulation_progress (
     progress_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '진행 고유 번호',
@@ -98,7 +106,7 @@ CREATE TABLE simulation_progress (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 진행 이력';
 
 -- ========================================================
--- ⑤ 시뮬레이션 입력정보 (simulation_answer)
+-- ⑥ 시뮬레이션 입력정보 (simulation_answer)
 -- ========================================================
 CREATE TABLE simulation_answer (
     answer_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '입력 정보 고유 번호',
@@ -116,7 +124,7 @@ CREATE TABLE simulation_answer (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 입력정보';
 
 -- ========================================================
--- ⑥ 시뮬레이션 가족정보 (simulation_family)
+-- ⑦ 시뮬레이션 가족정보 (simulation_family)
 -- ========================================================
 CREATE TABLE simulation_family (
     family_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '가족 고유 번호',
@@ -137,15 +145,14 @@ CREATE TABLE simulation_family (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 가족정보';
 
 -- ========================================================
--- ⑦ 시나리오 카테고리 (category)
+-- ⑧ 문의 카테고리 (qna_category)
 -- ========================================================
-CREATE TABLE category (
-    category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오카테고리 고유번호',
-    category_name VARCHAR(50) NOT NULL COMMENT '시나리오 카테고리 이름'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 카테고리';
-
+CREATE TABLE qna_category (
+    qna_category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '문의 카테고리 고유 번호',
+    qna_category_name VARCHAR(50) NOT NULL COMMENT '문의 카테고리 이름'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의 카테고리';
 -- ========================================================
--- ⑧ 문의게시판 (qna) - [논리적 삭제 is_deleted 반영]
+-- ⑨ 문의게시판 (qna) - [논리적 삭제 is_deleted 반영]
 -- ========================================================
 CREATE TABLE qna (
     qna_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '문의 고유 번호',
@@ -165,14 +172,6 @@ CREATE TABLE qna (
         FOREIGN KEY (qna_category_id) REFERENCES qna_category(qna_category_id)
         ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의게시판';
-
--- ========================================================
--- ⑨ 문의 카테고리 (qna_category)
--- ========================================================
-CREATE TABLE qna_category (
-    qna_category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '문의 카테고리 고유 번호',
-    qna_category_name VARCHAR(50) NOT NULL COMMENT '문의 카테고리 이름'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의 카테고리';
 
 -- ========================================================
 -- ⑩ 문의 답변 (qna_answer)
