@@ -87,6 +87,7 @@
     let centerMarkers = [];
     let centerClusterer = null;
     let centerInfoWindow = null;
+    let centerPopupOpen = false;
     let regionRequestId = 0;
     let centerLoadPromise = null;
     let regionSearchRequested = false;
@@ -164,6 +165,7 @@
       centerMarkers.forEach(marker => marker.setMap(null));
       centerMarkers = [];
       centerList.replaceChildren();
+      centerPopupOpen = false;
       if (centerInfoWindow) centerInfoWindow.close();
     }
 
@@ -239,6 +241,7 @@
         placeStatus.textContent = '추가 장소 정보를 불러오는 중입니다.';
         content.append(placeStatus);
         centerInfoWindow.setContent(content);
+        centerPopupOpen = true;
         centerInfoWindow.open({ map: administrativeCenterMap, anchor: marker });
 
         fetch(`${centersApiUrl}/${encodeURIComponent(center.centerId)}/place-info`, {
@@ -386,6 +389,8 @@
     }
 
     function renderVisibleCenters() {
+      // InfoWindow의 자동 화면 이동으로 발생한 idle에서 클릭한 핀을 다시 만들지 않습니다.
+      if (centerPopupOpen) return;
       if (!mapReady || !centersLoaded || !administrativeCenterMap) return;
       const bounds = administrativeCenterMap.getBounds();
       if (!bounds) return;
@@ -568,6 +573,10 @@
       administrativeCenterMap.addListener('zoom_changed', clearCenterMarkers);
       administrativeCenterMap.addListener('dragstart', clearCenterMarkers);
       centerInfoWindow = new google.maps.InfoWindow({ maxWidth: 360 });
+      centerInfoWindow.addListener('closeclick', () => {
+        centerPopupOpen = false;
+        renderVisibleCenters();
+      });
 
       const clusterScript = document.createElement('script');
       clusterScript.src = 'https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js';
