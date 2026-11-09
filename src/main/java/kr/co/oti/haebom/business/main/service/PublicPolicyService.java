@@ -22,7 +22,7 @@ public class PublicPolicyService {
     private final String serviceKey;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public PublicPolicyService(@Value("${app.gov24.service-key:}") String serviceKey) {
+    public PublicPolicyService(@Value("${gov24.api.service-key}") String serviceKey) {
         this.serviceKey = serviceKey;
     }
 
