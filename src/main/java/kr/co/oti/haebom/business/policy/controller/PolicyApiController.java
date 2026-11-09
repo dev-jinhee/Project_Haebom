@@ -21,7 +21,11 @@ public class PolicyApiController {
 
     /*
      * 시나리오 및 주소(지역) 맞춤 공공서비스 정책 추천 API
+     * - progressId 기반 고정 추천 (PDF 저장 및 재조회 일관성 보장)
+     * - refresh 파라미터로 다음 추천 세트 순환 갱신 지원
+     * 
      * GET /api/policies/recommend?scenario=move&progressId=123
+     * GET /api/policies/recommend?scenario=move&progressId=123&refresh=1
      * GET /api/policies/recommend?scenario=move&region=수영구
      * GET /api/policies/recommend?scenario=identity_reissue
      */
@@ -29,9 +33,10 @@ public class PolicyApiController {
     public ResponseEntity<List<PolicyDTO>> getRecommendedPolicies(
             @RequestParam(name = "scenario", defaultValue = "move") String scenario,
             @RequestParam(name = "progressId", required = false) Integer progressId,
-            @RequestParam(name = "region", required = false) String region) {
+            @RequestParam(name = "region", required = false) String region,
+            @RequestParam(name = "refresh", required = false, defaultValue = "0") Integer refresh) {
 
-        List<PolicyDTO> policies = policyService.getRecommendedPolicies(scenario, progressId, region);
+        List<PolicyDTO> policies = policyService.getRecommendedPolicies(scenario, progressId, region, refresh);
         return ResponseEntity.ok(policies);
     }
 }

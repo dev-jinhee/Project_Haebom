@@ -99,98 +99,89 @@ const completionGuides = {
 		],
 
 		note:
-			"재발급 사유와 IC칩 포함 여부에 따라 수수료 및 준비 서류가 " +
-			"달라질 수 있습니다. 온라인으로 신청하더라도 주민등록증 수령을 " +
-			"위한 방문이 필요하며, 실제 발급 및 수령 일정은 신청기관에 " +
-			"확인해 주세요. 정확한 사항은 정부24 공식 안내를 참고하세요.",
+			"분실 재발급 시 기존 주민등록증 효력은 즉시 정지됩니다. " +
+			"발급 진행 상황은 정부24에서 확인할 수 있습니다.",
 
 		officialUrl:
 			"https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000018"
 	}
-
 };
 
+// [진희] 전역 새로고침 상태 추적
+let currentRefreshCount = 0;
+let currentProgressIdRef = null;
+let currentScenarioCodeRef = null;
+let currentRootRef = null;
+
 // ==============================
-// 공통 완료 화면 초기화
+// 완료 화면 초기화
 // ==============================
 
-export async function init({
-	root,
-	progressId,
-	scenarioId,
-	scenarioCode
-}) {
+export async function init({ root, scenarioCode, progressId }) {
+	currentRootRef = root || document.querySelector("#stepContent") || document;
+	currentProgressIdRef = progressId;
+	currentScenarioCodeRef = scenarioCode;
 
 	const guide = completionGuides[scenarioCode];
 
 	// ==============================
-	// 1. 완료 메시지
+	// 1. 제목 / 설명 설정
 	// ==============================
 
-	const title = root.querySelector("#completeTitle");
-	const description = root.querySelector("#completeDescription");
+	if (guide?.title) {
+		currentRootRef.querySelector("#completeTitle")?.replaceChildren(document.createTextNode(guide.title));
+	}
 
-	title.textContent =
-		guide?.title ?? "행정절차 연습을 완료했어요!";
-
-	description.textContent =
-		guide?.description ??
-		"모든 연습 단계를 마쳤습니다. 실제 신청 전 필요한 사항을 확인해 보세요.";
-
-	// ==============================
-	// 2. 실제 신청 전 준비사항
-	// ==============================
-
-	const checklist = root.querySelector("#completeChecklistList");
-	const checklistEmpty = root.querySelector("#completeChecklistEmpty");
-
-	checklist.replaceChildren();
-
-	const checklistItems = guide?.checklist ?? [];
-
-	checklistItems.forEach(item => {
-		const li = document.createElement("li");
-
-		li.className = "text-secondary mb-2";
-		li.textContent = item;
-
-		checklist.appendChild(li);
-	});
-
-	checklistEmpty.classList.toggle(
-		"d-none",
-		checklistItems.length > 0
-	);
-
-	if (checklistItems.length === 0) {
-		checklistEmpty.textContent =
-			"현재 등록된 준비사항이 없습니다. 공식 민원 안내를 확인해 주세요.";
+	if (guide?.description) {
+		currentRootRef.querySelector("#completeDescription")?.replaceChildren(document.createTextNode(guide.description));
 	}
 
 	// ==============================
-	// 3. 실제 신청 시 알아둘 사항
+	// 2. 체크리스트 렌더링
 	// ==============================
 
-	const guideSection = root.querySelector("#completeGuideSection");
-	const guideList = root.querySelector("#completeGuideList");
+	const checklistEl = currentRootRef.querySelector("#completeChecklistList");
+	const checklistEmpty = currentRootRef.querySelector("#completeChecklistEmpty");
 
-	guideList.replaceChildren();
+	if (checklistEl) {
+		if (guide?.checklist?.length) {
+			checklistEmpty?.classList.add("d-none");
+			checklistEl.replaceChildren();
 
-	if (guide?.guide?.length) {
+			guide.checklist.forEach(text => {
+				const li = document.createElement("li");
+				li.className = "text-secondary small mb-1";
+				li.textContent = text;
+				checklistEl.appendChild(li);
+			});
+		} else if (checklistEmpty) {
+			checklistEmpty.textContent = "확인할 준비사항이 없습니다.";
+			checklistEmpty.classList.remove("d-none");
+		}
+	}
 
+	// ==============================
+	// 3. 실제 신청 안내 렌더링
+	// ==============================
+
+	const guideSection = currentRootRef.querySelector("#completeGuideSection");
+	const guideList = currentRootRef.querySelector("#completeGuideList");
+
+	if (guide?.guide?.length && guideSection && guideList) {
 		guideSection.classList.remove("d-none");
+		guideList.replaceChildren();
 
-		root.querySelector("#completeGuideDescription").textContent =
-			guide.guideDescription ?? "";
+		const guideDescEl = currentRootRef.querySelector("#completeGuideDescription");
+		if (guideDescEl) guideDescEl.textContent = guide.guideDescription ?? "";
 
 		guide.guide.forEach(item => {
-
 			const col = document.createElement("div");
 			col.className = "col-12 col-md-6";
 
 			const box = document.createElement("div");
-			box.className = "h-100 rounded-3 p-3";
-			box.style.backgroundColor = "#f4f7fa";
+			box.className = "p-2 px-3 rounded-3";
+			box.style.backgroundColor = "#f8fafc";
+			box.style.border = "1px solid #edf2f7";
 
 			const label = document.createElement("p");
 			label.className = "text-secondary small mb-1";
@@ -205,53 +196,132 @@ export async function init({
 			guideList.appendChild(col);
 		});
 
-		root.querySelector("#completeGuideNote").textContent =
-			guide.note ?? "";
-
-	} else {
+		const noteEl = currentRootRef.querySelector("#completeGuideNote");
+		if (noteEl) noteEl.textContent = guide.note ?? "";
+	} else if (guideSection) {
 		guideSection.classList.add("d-none");
 	}
 
 	// ==============================
-	// [진희] 4. 맞춤 정부 혜택 추천 (보조금24 API - 지역 맞춤 연동)
+	// [진희] 4. 맞춤 정부 혜택 추천 (보조금24 API - 지역 맞춤 + 결정론적 고정/새로고침)
 	// ==============================
 
-	await loadPolicyRecommendations(root, scenarioCode, progressId);
+	const urlParams = new URLSearchParams(window.location.search);
+	if (urlParams.has("refresh")) {
+		currentRefreshCount = parseInt(urlParams.get("refresh"), 10) || 0;
+	} else if (progressId) {
+		const cached = sessionStorage.getItem(`haebom_policy_refresh_${progressId}`);
+		if (cached !== null) {
+			currentRefreshCount = parseInt(cached, 10) || 0;
+		}
+	}
+
+	await loadPolicyRecommendations(currentRootRef, scenarioCode, progressId, currentRefreshCount);
+
+	// 새로고침 버튼 핸들러 연결
+	bindPolicyRefreshAction();
 
 	// ==============================
 	// 5. 정부24 공식 안내 링크
 	// ==============================
 
-	const officialLink = root.querySelector("#completeOfficialLink");
-
-	officialLink.href = guide?.officialUrl ?? "https://www.gov.kr/";
+	const officialLink = currentRootRef.querySelector("#completeOfficialLink");
+	if (officialLink) {
+		officialLink.href = guide?.officialUrl ?? "https://www.gov.kr/";
+	}
 
 	// ==============================
-	// 6. PDF 저장 / 인쇄
+	// [진희] 6. PDF 저장 / 인쇄 (현재 선택된 정책 추천 상태 함께 전달)
 	// ==============================
 
-	root.querySelector("#completePrintBtn")
-		.addEventListener("click", () => {
-			const printUrl =
+	currentRootRef.querySelector("#completePrintBtn")
+		?.addEventListener("click", () => {
+			let printUrl =
 				`/simulation/print?progressId=${encodeURIComponent(progressId)}`;
+			if (currentRefreshCount > 0) {
+				printUrl += `&refresh=${encodeURIComponent(currentRefreshCount)}`;
+			}
 
 			window.open(printUrl, "_blank", "noopener");
 		});
 }
 
 // ==============================
-// [진희] 보조금24 맞춤 정책 추천 로드 및 렌더링 (지역 맞춤 + 랜덤 셔플)
+// [진희] 전역 새로고침 실행 함수 (이벤트 위임 & HTML onclick 이중 지원)
+// ==============================
+window.haebomRefreshPolicies = async function(buttonEl) {
+	const btn = buttonEl || document.querySelector("#completePolicyRefreshBtn");
+	if (!btn || btn.disabled) return;
+
+	currentRefreshCount++;
+	if (currentProgressIdRef) {
+		sessionStorage.setItem(`haebom_policy_refresh_${currentProgressIdRef}`, String(currentRefreshCount));
+	}
+
+	// 버튼 시각 피드백
+	const icon = btn.querySelector(".policy-refresh-icon");
+	if (icon) {
+		icon.style.transition = "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)";
+		icon.style.transform = `rotate(${currentRefreshCount * 360}deg)`;
+	}
+	btn.disabled = true;
+
+	const targetRoot = currentRootRef || document.querySelector("#stepContent") || document;
+
+	try {
+		await loadPolicyRecommendations(
+			targetRoot,
+			currentScenarioCodeRef,
+			currentProgressIdRef,
+			currentRefreshCount
+		);
+	} finally {
+		btn.disabled = false;
+	}
+};
+
+// [진희] 새로고침 버튼 바인딩
+function bindPolicyRefreshAction() {
+	const root = currentRootRef || document;
+	const refreshBtn = root.querySelector("#completePolicyRefreshBtn");
+	const isPrintPage = window.location.pathname.includes("/simulation/print") || Boolean(root.closest?.(".print-complete-page"));
+
+	if (refreshBtn) {
+		if (isPrintPage) {
+			refreshBtn.classList.add("d-none");
+		} else {
+			// 기존 리스너 중복 방지 및 직접 바인딩
+			refreshBtn.onclick = function(e) {
+				e.preventDefault();
+				window.haebomRefreshPolicies(this);
+			};
+		}
+	}
+}
+
+// ==============================
+// [진희] 보조금24 맞춤 정책 추천 로드 및 렌더링
 // ==============================
 
-async function loadPolicyRecommendations(root, scenarioCode, progressId) {
+async function loadPolicyRecommendations(root, scenarioCode, progressId, refreshIndex = 0) {
 	const grid = root.querySelector("#completePolicyCardGrid");
 	if (!grid) return;
 
 	const descEl = root.querySelector("#completePolicyDescription");
 
+	// 로딩 상태 피드백
+	grid.innerHTML = `
+		<div class="col-12 text-center py-4 text-secondary small">
+			<div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			연관 맞춤 정책을 불러오는 중입니다...
+		</div>
+	`;
+
 	try {
 		const targetScenario = (scenarioCode || "MOVE").toLowerCase();
-		let requestUrl = `/api/policies/recommend?scenario=${encodeURIComponent(targetScenario)}&_t=${Date.now()}`;
+		let requestUrl = `/api/policies/recommend?scenario=${encodeURIComponent(targetScenario)}&refresh=${encodeURIComponent(refreshIndex)}&_t=${Date.now()}`;
 		if (progressId) {
 			requestUrl += `&progressId=${encodeURIComponent(progressId)}`;
 		}
@@ -266,7 +336,7 @@ async function loadPolicyRecommendations(root, scenarioCode, progressId) {
 
 		const contentType = response.headers.get("content-type");
 		if (contentType && !contentType.includes("application/json")) {
-			throw new Error("서버 응답이 JSON 형식이 아닙니다. (서버 재시작이 필요할 수 있습니다)");
+			throw new Error("서버 응답이 JSON 형식이 아닙니다.");
 		}
 
 		const policies = await response.json();

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,18 +45,33 @@ public class PolicyService {
      * 기본 시나리오 코드 기반 추천 (하위 호환)
      */
     public List<PolicyDTO> getRecommendedPolicies(String scenarioCode) {
-        return getRecommendedPolicies(scenarioCode, null, null);
+        return getRecommendedPolicies(scenarioCode, null, null, 0);
     }
 
     /*
-     * 시나리오 및 진행 ID(주소 기반 지역 맞춤) 정책 목록 추천 (랜덤 셔플 + 지자체 우선 매칭)
+     * 시나리오 및 진행 ID(주소 기반 지역 맞춤) 정책 목록 추천 (기본 고정 추천)
      * 
      * @param scenarioCode "move"(전입신고) 또는 "identity_reissue"(주민등록증 재발급)
      * @param progressId 시뮬레이션 진행 ID (전입신고 새 주소 추출용, nullable)
      * @param directRegion 직접 전달된 지역명 (선택사항, nullable)
-     * @return 지역 맞춤 + 무작위 추천 정책 리스트 (3건)
+     * @return 지역 맞춤 추천 정책 리스트 (3건)
      */
     public List<PolicyDTO> getRecommendedPolicies(String scenarioCode, Integer progressId, String directRegion) {
+        return getRecommendedPolicies(scenarioCode, progressId, directRegion, 0);
+    }
+
+    /*
+     * 시나리오 및 진행 ID 기반 고정 정책 목록 추천 및 새로고침 지원 (결정론적 시드 기반)
+     * - progressId가 동일할 경우 언제 조회하든(PDF 인쇄, 마이페이지 재조회 등) 항상 동일한 3개의 정책이 고정 반환됩니다.
+     * - refreshIndex를 증가시키면 다음 추천 정책 세트로 순환 갱신됩니다.
+     * 
+     * @param scenarioCode 시나리오 코드
+     * @param progressId 시뮬레이션 진행 ID
+     * @param directRegion 직접 전달된 지역명
+     * @param refreshIndex 새로고침 인덱스 (0: 기본 고정, 1 이상: 다른 추천 세트)
+     * @return 지역 맞춤 + 시드 기반 추천 정책 리스트 (최대 3건)
+     */
+    public List<PolicyDTO> getRecommendedPolicies(String scenarioCode, Integer progressId, String directRegion, Integer refreshIndex) {
         // 1. 시나리오별 알맞은 정부 정책 검색 키워드 매핑
         String keyword = resolveKeyword(scenarioCode);
 
@@ -72,48 +88,88 @@ public class PolicyService {
             }
         }
 
-        // 3. 공공서비스 API 호출 시도 (지역 맞춤 우선 검색 ➜ 전국 공통 보충 ➜ 최대 3건 반환)
+        // 3. progressId와 refreshIndex 기반의 결정론적 Random 생성 (일관성 및 다채로운 순환 보장)
+        int refresh = (refreshIndex != null && refreshIndex >= 0) ? refreshIndex : 0;
+        Random random = (progressId != null)
+                ? new Random((long) progressId * 31L + (long) refresh * 10007L)
+                : new Random();
+
+        // 4. 공공서비스 API 호출 시도 (지역 맞춤 + 전국 정책 풀 구성 후 스마트 선택)
         try {
-            List<PolicyDTO> candidates = new ArrayList<>();
+            List<PolicyDTO> localPool = new ArrayList<>();
             Set<String> seenIds = new HashSet<>();
 
-            // (1) 지자체 맞춤 정책 검색 (1순위: 시·군·구 / 2순위: 시·도)
+            // (1) 지자체 맞춤 정책 수집 (시·군·구 / 시·도)
             for (String region : regionKeywords) {
-                if (candidates.size() >= 3) break;
-                List<PolicyDTO> localList = fetchFromGov24Api(keyword, region);
-                if (localList != null && !localList.isEmpty()) {
-                    Collections.shuffle(localList);
-                    for (PolicyDTO dto : localList) {
+                List<PolicyDTO> list = fetchFromGov24Api(keyword, region);
+                if (list != null && !list.isEmpty()) {
+                    for (PolicyDTO dto : list) {
                         if (seenIds.add(dto.getServiceId())) {
-                            candidates.add(dto);
+                            localPool.add(dto);
                         }
                     }
                 }
             }
 
-            // (2) 3건 미만일 경우 전국 단위 공통 정책으로 보충
-            if (candidates.size() < 3) {
-                List<PolicyDTO> nationalList = fetchFromGov24Api(keyword, null);
-                if (nationalList != null && !nationalList.isEmpty()) {
-                    Collections.shuffle(nationalList);
-                    for (PolicyDTO dto : nationalList) {
-                        if (seenIds.add(dto.getServiceId())) {
-                            candidates.add(dto);
-                        }
+            // (2) 전국 단위 공통 정책 수집
+            List<PolicyDTO> nationalPool = new ArrayList<>();
+            List<PolicyDTO> natList = fetchFromGov24Api(keyword, null);
+            if (natList != null && !natList.isEmpty()) {
+                for (PolicyDTO dto : natList) {
+                    if (seenIds.add(dto.getServiceId())) {
+                        nationalPool.add(dto);
                     }
                 }
             }
 
-            if (!candidates.isEmpty()) {
-                return candidates.stream().limit(3).collect(Collectors.toList());
+            // (3) Fallback 기본 정책도 전국 풀에 보충 (풍부한 후보군 확보)
+            List<PolicyDTO> fallbackPool = getFallbackPolicies(scenarioCode);
+            for (PolicyDTO dto : fallbackPool) {
+                if (seenIds.add(dto.getServiceId())) {
+                    nationalPool.add(dto);
+                }
+            }
+
+            // (4) 시드 기반 셔플
+            Collections.shuffle(localPool, random);
+            Collections.shuffle(nationalPool, random);
+
+            List<PolicyDTO> selected = new ArrayList<>();
+
+            // 기본(refresh == 0): 지자체 맞춤 정책을 최대 2개까지 우선 배치
+            // 새로고침(refresh > 0): 지자체 정책 1개 유지 + 전국/기타 정책 풀에서 새로운 정책 2개 순환 교체!
+            int localTargetCount = (refresh == 0) ? 2 : 1;
+            for (PolicyDTO dto : localPool) {
+                if (selected.size() >= localTargetCount) break;
+                selected.add(dto);
+            }
+
+            // 나머지 자리를 nationalPool에서 순서대로 채우기
+            for (PolicyDTO dto : nationalPool) {
+                if (selected.size() >= 3) break;
+                if (!selected.contains(dto)) {
+                    selected.add(dto);
+                }
+            }
+
+            // 여전히 3건 미만이면 남은 localPool에서 보충
+            for (PolicyDTO dto : localPool) {
+                if (selected.size() >= 3) break;
+                if (!selected.contains(dto)) {
+                    selected.add(dto);
+                }
+            }
+
+            if (!selected.isEmpty()) {
+                return selected;
             }
         } catch (Exception e) {
             log.warn("[공공서비스 API 호출 실패 또는 응답 지연] 기본 추천 정책(Fallback)으로 대체합니다. 사유: {}", e.getMessage());
         }
 
-        // 4. API 장애/지연/결과없음 시 안전하게 기본 추천 정책 반환 (화면 보호 안전장치 + 셔플)
+        // 5. API 장애 시 기본 추천 정책 풀에서 시드 기반 순환 반환
         List<PolicyDTO> fallback = getFallbackPolicies(scenarioCode);
-        Collections.shuffle(fallback);
+        Collections.shuffle(fallback, random);
         return fallback.stream().limit(3).collect(Collectors.toList());
     }
 
