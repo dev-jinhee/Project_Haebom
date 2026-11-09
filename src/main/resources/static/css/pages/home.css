@@ -147,6 +147,14 @@
 .center-map-message { min-height: 1.4em; margin: 12px 0 10px; color: #718198; font-size: .82rem; }
 .center-map-canvas { width: 100%; min-height: 420px; overflow: hidden; border: 1px solid #e2eaf1; border-radius: 14px; background: #eef3f8; }
 .center-map-list { display: grid; gap: 10px; margin-top: 14px; }
+.center-place-popup { width: 300px; max-width: 70vw; overflow-wrap: anywhere; color: #334155; font-size: 13px; }
+.center-place-popup > p { margin: 8px 0; }
+.center-place-link { display: block; margin-top: 6px; }
+.center-place-hours { margin-top: 10px; padding-top: 9px; border-top: 1px solid #e7edf3; }
+.center-place-hours-title { display: block; margin-bottom: 5px; color: #173b70; }
+.center-place-hours-row { display: grid; grid-template-columns: 4.5em minmax(0, 1fr); gap: 8px; margin: 3px 0; line-height: 1.45; }
+.center-place-hours-day { color: #49627a; font-weight: 700; white-space: nowrap; }
+.center-place-hours-time { min-width: 0; overflow-wrap: anywhere; }
 
 @media (max-width: 767.98px) {
   .home-main { padding-top: 0; }

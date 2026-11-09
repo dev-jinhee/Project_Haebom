@@ -176,6 +176,7 @@
       });
       marker.addListener('click', () => {
         const content = document.createElement('div');
+        content.className = 'center-place-popup';
         const title = document.createElement('strong');
         const address = document.createElement('p');
         title.textContent = center.centerName || '행정복지센터';
@@ -186,8 +187,94 @@
           postalCode.textContent = `우편번호 ${center.postalCode}`;
           content.append(postalCode);
         }
+
+        const placeStatus = document.createElement('p');
+        placeStatus.textContent = '추가 장소 정보를 불러오는 중입니다.';
+        content.append(placeStatus);
         centerInfoWindow.setContent(content);
         centerInfoWindow.open({ map: administrativeCenterMap, anchor: marker });
+
+        fetch(`${centersApiUrl}/${encodeURIComponent(center.centerId)}/place-info`, {
+          headers: { Accept: 'application/json' }
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Places lookup failed: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(place => {
+            placeStatus.textContent = '';
+
+            const appendText = (label, value) => {
+              if (!value) return;
+              const row = document.createElement('p');
+              row.textContent = `${label}: ${value}`;
+              content.append(row);
+            };
+
+            appendText('전화번호', place.phoneNumber);
+
+            if (Array.isArray(place.weekdayDescriptions)
+                && place.weekdayDescriptions.length > 0) {
+              const hours = document.createElement('div');
+              hours.className = 'center-place-hours';
+              const hoursTitle = document.createElement('strong');
+              hoursTitle.className = 'center-place-hours-title';
+              hoursTitle.textContent = '운영시간';
+              hours.append(hoursTitle);
+
+              place.weekdayDescriptions.forEach(description => {
+                const separator = description.indexOf(':');
+                const day = separator >= 0
+                  ? description.slice(0, separator).trim()
+                  : '';
+                const time = separator >= 0
+                  ? description.slice(separator + 1).trim()
+                  : description;
+                const row = document.createElement('div');
+                row.className = 'center-place-hours-row';
+
+                if (day) {
+                  const dayLabel = document.createElement('span');
+                  dayLabel.className = 'center-place-hours-day';
+                  dayLabel.textContent = day;
+                  row.append(dayLabel);
+                }
+
+                const timeLabel = document.createElement('span');
+                timeLabel.className = 'center-place-hours-time';
+                timeLabel.textContent = time;
+                row.append(timeLabel);
+                hours.append(row);
+              });
+              content.append(hours);
+            }
+
+            [
+              ['홈페이지 열기', place.websiteUri],
+              ['Google 지도에서 보기', place.googleMapsUri]
+            ].forEach(([label, url]) => {
+              if (!url) return;
+              const link = document.createElement('a');
+              link.className = 'center-place-link';
+              link.href = url;
+              link.target = '_blank';
+              link.rel = 'noopener noreferrer';
+              link.textContent = label;
+              content.append(link);
+            });
+
+            if (!place.phoneNumber && !place.websiteUri
+                && (!Array.isArray(place.weekdayDescriptions)
+                    || place.weekdayDescriptions.length === 0)) {
+              placeStatus.textContent = '추가 연락처·운영시간 정보가 등록되어 있지 않습니다.';
+            }
+          })
+          .catch(() => {
+            placeStatus.textContent =
+              '추가 정보를 불러오지 못했습니다. 기본 기관 정보를 확인해 주세요.';
+          });
       });
       return marker;
     }
@@ -286,7 +373,7 @@
         if (!Array.isArray(centers)) throw new Error('행정복지센터 응답 형식이 올바르지 않습니다.');
         if (requestId !== centerRequestId || !section.isConnected) return;
 
-        centerInfoWindow = centerInfoWindow || new google.maps.InfoWindow();
+        centerInfoWindow = centerInfoWindow || new google.maps.InfoWindow({ maxWidth: 360 });
         centerData = centers.map(center => {
           const lat = Number(center.latitude);
           const lng = Number(center.longitude);
@@ -390,7 +477,7 @@
       administrativeCenterMap.addListener('idle', renderVisibleCenters);
       administrativeCenterMap.addListener('zoom_changed', clearCenterMarkers);
       administrativeCenterMap.addListener('dragstart', clearCenterMarkers);
-      centerInfoWindow = new google.maps.InfoWindow();
+      centerInfoWindow = new google.maps.InfoWindow({ maxWidth: 360 });
 
       const clusterScript = document.createElement('script');
       clusterScript.src = 'https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js';
