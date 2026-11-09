@@ -808,30 +808,67 @@
 
   function initializePolicySearch() {
     const policyForm = document.getElementById('policySearchForm');
-    if (policyForm === null) {
-      return;
-    }
-
+    if (!policyForm) return;
     const policyInput = document.getElementById('policySearchInput');
+    const categories = document.getElementById('policySearchCategories');
     const results = document.getElementById('policySearchResults');
     const message = document.getElementById('policySearchMessage');
+    const pagination = document.getElementById('policySearchPagination');
+    const submitButton = policyForm.querySelector('[type="submit"]');
+    if (!policyInput || !categories || !results || !message || !pagination) return;
 
-    async function runPolicySearch() {
-      const keyword = policyInput.value.trim();
-      if (keyword === '') {
-        message.textContent = '검색어를 입력해 주세요.';
-        results.classList.add('d-none');
-        policyInput.focus();
-        return;
+    let selectedCategory = 'ALL';
+    let latestRequestId = 0;
+
+    async function loadCategories() {
+      const categoriesUrl = new URL(
+        policyForm.action.replace(/\/$/, '') + '/categories',
+        window.location.href
+      );
+
+      try {
+        const response = await fetch(categoriesUrl.toString(), {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) {
+          throw new Error('정책 분야 목록을 불러오지 못했습니다.');
+        }
+
+        const fields = await response.json();
+        categories.replaceChildren(createCategoryButton('전체', 'ALL', true));
+        (Array.isArray(fields) ? fields : []).forEach(function (field) {
+          if (typeof field === 'string' && field.trim()) {
+            categories.append(createCategoryButton(field.trim(), field.trim(), false));
+          }
+        });
+      } catch (error) {
+        message.textContent = error.message || '정책 분야 목록을 불러오지 못했습니다.';
       }
+    }
 
+    function createCategoryButton(label, value, active) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'policy-category-button' + (active ? ' active' : '');
+      button.dataset.policyCategory = value;
+      button.setAttribute('aria-pressed', String(active));
+      button.textContent = label;
+      return button;
+    }
+
+    async function loadPolicies(page) {
+      const requestId = ++latestRequestId;
       const requestUrl = new URL(policyForm.action, window.location.href);
-      requestUrl.searchParams.set('keyword', keyword);
+      requestUrl.searchParams.set('keyword', policyInput.value.trim());
+      requestUrl.searchParams.set('category', selectedCategory);
+      requestUrl.searchParams.set('page', String(Math.max(1, page)));
       message.textContent = '공공서비스를 검색하고 있습니다.';
       results.replaceChildren();
       results.classList.add('d-none');
+      pagination.replaceChildren();
 
-      const submitButton = policyForm.querySelector('[type="submit"]');
       if (submitButton) submitButton.disabled = true;
 
       try {
@@ -844,31 +881,81 @@
           throw new Error('공공서비스 검색에 실패했습니다. 잠시 후 다시 시도해 주세요.');
         }
 
-        const policies = await response.json();
-        if (!Array.isArray(policies) || policies.length === 0) {
-          message.textContent = '검색 결과가 없습니다. 다른 검색어를 입력해 주세요.';
+        const pageData = await response.json();
+        if (requestId !== latestRequestId) return;
+        const items = Array.isArray(pageData.items) ? pageData.items : [];
+        if (items.length === 0) {
+          message.textContent = '검색 결과가 없습니다. 다른 분야나 검색어를 선택해 주세요.';
           return;
         }
 
-        policies.forEach(function (policy) {
+        items.forEach(function (policy) {
           results.append(createPolicySearchCard(policy));
         });
-        message.textContent = `검색 결과 ${policies.length}건`;
+        message.textContent = `검색 결과 ${pageData.totalCount}건`;
         results.classList.remove('d-none');
-        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        renderPagination(pageData.page, pageData.totalPages);
       } catch (error) {
-        message.textContent = error.message || '공공서비스 검색 중 오류가 발생했습니다.';
+        if (requestId === latestRequestId) {
+          message.textContent = error.message || '공공서비스 검색 중 오류가 발생했습니다.';
+        }
       } finally {
-        if (submitButton) submitButton.disabled = false;
+        if (requestId === latestRequestId && submitButton) submitButton.disabled = false;
       }
     }
 
-    function handlePolicyFormSubmit(event) {
-      event.preventDefault();
-      runPolicySearch();
+    function renderPagination(page, totalPages) {
+      pagination.replaceChildren();
+      if (totalPages <= 1) return;
+
+      function appendPage(label, targetPage, disabled, active) {
+        const item = document.createElement('li');
+        item.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'page-link';
+        button.textContent = label;
+        button.disabled = disabled;
+        button.setAttribute('aria-label',
+          label === '이전' || label === '다음' ? label + ' 페이지' : label + ' 페이지로 이동');
+        if (active) button.setAttribute('aria-current', 'page');
+        button.addEventListener('click', function () {
+          loadPolicies(targetPage);
+        });
+
+        item.append(button);
+        pagination.append(item);
+      }
+
+      const firstPage = Math.max(1, Math.min(page - 2, totalPages - 4));
+      const lastPage = Math.min(totalPages, firstPage + 4);
+      appendPage('이전', page - 1, page <= 1, false);
+      for (let number = firstPage; number <= lastPage; number += 1) {
+        appendPage(String(number), number, false, number === page);
+      }
+      appendPage('다음', page + 1, page >= totalPages, false);
     }
 
-    policyForm.addEventListener('submit', handlePolicyFormSubmit);
+    policyForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      loadPolicies(1);
+    });
+
+    categories.addEventListener('click', function (event) {
+      const button = event.target.closest('[data-policy-category]');
+      if (!button) return;
+
+      selectedCategory = button.dataset.policyCategory;
+      categories.querySelectorAll('[data-policy-category]').forEach(function (categoryButton) {
+        const active = categoryButton === button;
+        categoryButton.classList.toggle('active', active);
+        categoryButton.setAttribute('aria-pressed', String(active));
+      });
+      loadPolicies(1);
+    });
+
+    loadCategories();
 
     function createPolicySearchCard(policy) {
       const card = document.createElement('article');

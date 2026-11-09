@@ -1,5 +1,7 @@
 package kr.co.oti.haebom.business.main.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,9 +22,15 @@ public class PublicPolicyApiController {
     private final PublicPolicyService publicPolicyService;
 
     @Operation(
-        summary = "분야별 공공서비스 검색",
-        description = "검색어와 정책 분야로 공공서비스를 검색하고 페이지당 5건씩 반환합니다."
+        summary = "공공서비스 분야 목록 조회",
+        description = "공공서비스 목록의 서비스분야 값에서 중복을 제거해 분야 선택 목록을 반환합니다."
     )
+    @GetMapping("/categories")
+    public Mono<List<String>> getPolicyCategories() {
+        return publicPolicyService.getCategories();
+    }
+
+    @Operation(summary = "분야별 공공서비스 검색", description = "검색어와 정책 분야로 공공서비스를 검색하고 페이지당 5건씩 반환합니다.")
     @GetMapping
     public Mono<PolicySearchPageDTO> searchPolicies(
             @RequestParam(defaultValue = "") String keyword,

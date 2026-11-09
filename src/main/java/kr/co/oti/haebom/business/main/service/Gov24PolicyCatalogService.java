@@ -21,7 +21,10 @@ public class Gov24PolicyCatalogService {
     private static final int API_PAGE_SIZE = 100;
     private final String baseUrl;
     private final String serviceKey;
-    private final WebClient webClient = WebClient.builder().build();
+    private final WebClient webClient = WebClient.builder()
+            .codecs(configurer -> configurer.defaultCodecs()
+                    .maxInMemorySize(5 * 1024 * 1024))
+            .build();
     private volatile Mono<List<Policy>> catalogCache;
 
     public Gov24PolicyCatalogService(
