@@ -1,4 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<spring:eval expression="@environment.getProperty('app.google.maps.browser-key', '')" var="googleMapsBrowserKey" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -83,6 +85,75 @@
     </section>
 
     <div class="container home-content">
+        <section id="popular-scenarios"
+                 class="popular-scenarios-panel"
+                 aria-labelledby="popular-scenarios-title"
+                 aria-roledescription="캐러셀">
+            <div class="popular-scenarios-heading">
+                <div>
+                    <h2 id="popular-scenarios-title">이번 달 인기 시나리오</h2>
+                    <p>많이 연습한 행정절차를 확인하고 바로 시작해 보세요.</p>
+                </div>
+                <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/scenario">
+                    전체 시나리오 보기
+                </a>
+            </div>
+            <div class="popular-carousel">
+                <button class="popular-carousel-arrow" type="button" data-popular-prev aria-label="이전 시나리오">
+                    <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+                </button>
+                <div class="popular-carousel-slide" data-popular-slide aria-live="polite">
+                    <p class="popular-scenarios-status">인기 시나리오를 불러오는 중입니다.</p>
+                </div>
+                <button class="popular-carousel-arrow" type="button" data-popular-next aria-label="다음 시나리오">
+                    <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                </button>
+            </div>
+            <div class="popular-carousel-controls">
+                <span data-popular-position aria-live="polite">0 / 0</span>
+                <button class="popular-carousel-play" type="button" data-popular-toggle aria-label="자동 넘김 일시정지">
+                    <span class="material-symbols-outlined" aria-hidden="true">pause</span>
+                </button>
+                <div class="popular-carousel-dots" data-popular-dots aria-label="시나리오 선택"></div>
+            </div>
+            <p class="popular-scenarios-feedback" data-popular-feedback role="status" aria-live="polite"></p>
+        </section>
+
+        <section id="center-map-section"
+                 class="center-map-panel"
+                 aria-labelledby="center-map-title"
+                 data-api-url="${pageContext.request.contextPath}/api/main/institutions"
+                 data-region-api-url="${pageContext.request.contextPath}/api/address/sgis/regions"
+                 data-map-key="${googleMapsBrowserKey}">
+            <div class="center-map-heading">
+                <div>
+                    <h2 id="center-map-title">주변 행정복지센터</h2>
+                    <p>행정구역을 선택해 방문할 기관의 위치를 확인하세요.</p>
+                </div>
+            </div>
+
+            <div class="center-map-filters">
+                <div>
+                    <label for="center-sido" class="form-label">시·도</label>
+                    <select id="center-sido" class="form-select" aria-describedby="center-map-message">
+                        <option value="">시·도를 선택하세요</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="center-sigungu" class="form-label">시·군·구</label>
+                    <select id="center-sigungu" class="form-select" disabled aria-describedby="center-map-message">
+                        <option value="">먼저 시·도를 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <p id="center-map-message" class="center-map-message" role="status" aria-live="polite">
+                지도를 불러오는 중입니다.
+            </p>
+            <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
+            <div id="center-list" class="center-map-list" aria-live="polite"></div>
+        </section>
+
         <section class="home-service-grid" aria-label="주요 서비스">
             <a class="service-card service-primary home-service-card" href="${pageContext.request.contextPath}/scenario">
                 <span class="service-icon"><span class="material-symbols-outlined" aria-hidden="true">fact_check</span></span>
@@ -100,50 +171,34 @@
             </a>
         </section>
 
-        <%-- 정책 검색은 확장 기능으로, 현재는 화면에서 제외합니다.
-        <section class="policy-panel" aria-labelledby="policy-title">
-            <h2 id="policy-title">정책 검색</h2>
-            <p class="policy-search-intro">정책명이나 관심 분야를 입력해 관련 정보를 찾아보세요.</p>
-            <form id="policySearchForm" class="policy-search-form" role="search">
-                <label class="visually-hidden" for="policySearchInput">정책명 또는 관심 분야</label>
+        <section class="policy-panel" aria-labelledby="policy-search-title">
+            <h2 id="policy-search-title">공공서비스 정책 검색</h2>
+            <p class="policy-search-intro">정책명이나 서비스명을 입력해 정부24 공공서비스를 검색해보세요.</p>
+
+            <form id="policySearchForm"
+                  class="policy-search-form"
+                  action="${pageContext.request.contextPath}/api/main/policies"
+                  method="get"
+                  role="search">
+                <label class="visually-hidden" for="policySearchInput">정책명 또는 검색어</label>
                 <div class="input-group">
-                    <input id="policySearchInput" class="form-control" type="search" placeholder="예: 청년, 주거, 장애인" autocomplete="off">
+                    <input id="policySearchInput" name="keyword" class="form-control" type="search"
+                           placeholder="예: 월세 지원" autocomplete="off" required>
                     <button class="btn btn-primary" type="submit">검색</button>
                 </div>
             </form>
-            <div class="policy-keywords" aria-label="인기 검색어">
-                <span>인기 검색어</span>
-                <button type="button" data-policy-query="청년">청년</button>
-                <button type="button" data-policy-query="주거">주거</button>
-                <button type="button" data-policy-query="장애인">장애인</button>
-            </div>
 
-            <div id="policySearchResults" class="policy-search-results d-none" aria-live="polite">
-                <article class="policy-search-result" data-policy-terms="청년 주거 월세">
-                    <strong>청년 월세 지원 안내</strong>
-                    <span>청년의 주거비 부담을 덜어 주는 지원 정보를 확인해 보세요.</span>
-                    <a href="${pageContext.request.contextPath}/scenario">관련 연습 보기</a>
-                </article>
-                <article class="policy-search-result" data-policy-terms="주거 전입 이사 주소">
-                    <strong>이사 후 전입신고 안내</strong>
-                    <span>전입신고에 필요한 준비와 신청 절차를 살펴보세요.</span>
-                    <a href="${pageContext.request.contextPath}/scenario">관련 연습 보기</a>
-                </article>
-                <article class="policy-search-result" data-policy-terms="장애인 복지 등록">
-                    <strong>장애인 등록 신청 안내</strong>
-                    <span>신청 전 필요한 서류와 진행 절차를 확인해 보세요.</span>
-                    <a href="${pageContext.request.contextPath}/scenario">관련 연습 보기</a>
-                </article>
-                <p id="policySearchEmpty" class="d-none mb-0 py-3 text-secondary small">검색 결과가 없습니다. 다른 검색어를 입력해 주세요.</p>
-            </div>
+            <p id="policySearchMessage" class="small text-secondary mt-3 mb-2"
+               role="status" aria-live="polite"></p>
+            <div id="policySearchResults" class="policy-search-results d-none"
+                 aria-live="polite"></div>
         </section>
-        --%>
 
         <p class="policy-search-footnote">연습은 안전하게! 모든 시뮬레이션은 학습용이며 실제 민원 접수되지 않습니다.</p>
     </div>
 </main>
 
 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-<script src="${pageContext.request.contextPath}/js/pages/home.js"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=map-viewport-markers-2"></script>
 </body>
 </html>
