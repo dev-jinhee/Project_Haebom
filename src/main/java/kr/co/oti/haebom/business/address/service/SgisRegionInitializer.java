@@ -13,31 +13,21 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SgisRegionInitializer implements ApplicationRunner {
 
-    private final SgisRegionService sgisRegionService;
-    private final SgisRegionMapper regionMapper;
+	private final SgisRegionService sgisRegionService;
+	private final SgisRegionMapper regionMapper;
 
-    @Override
-    public void run(ApplicationArguments args) {
+	@Override
+	public void run(ApplicationArguments args) {
 
-        // DB에 이미 데이터가 있으면 수집하지 않음
-        if (regionMapper.countRegions() > 0) {
-            log.info("[SGIS] 기존 행정구역 데이터 사용");
-            return;
-        }
+		// DB에 이미 데이터가 있으면 수집하지 않음
+		if (regionMapper.countRegions() > 0) {
+			log.info("[SGIS] 기존 행정구역 데이터 사용");
+			return;
+		}
 
-        log.info("[SGIS] 최초 행정구역 데이터 수집 시작");
+		log.info("[SGIS] 최초 행정구역 데이터 수집 시작");
 
-        // 서버 시작을 막지 않도록 별도 스레드에서 실행
-        Thread worker = new Thread(() -> {
-            try {
-                sgisRegionService.refreshRegions();
-                log.info("[SGIS] 최초 행정구역 데이터 수집 완료");
-            } catch (Exception e) {
-                log.error("[SGIS] 최초 행정구역 데이터 수집 실패", e);
-            }
-        }, "sgis-initializer");
-
-        worker.setDaemon(true);
-        worker.start();
-    }
+		sgisRegionService.refreshRegions().subscribe(unused -> {
+		}, error -> log.error("[SGIS] 최초 행정구역 데이터 수집 실패", error), () -> log.info("[SGIS] 최초 행정구역 데이터 수집 완료"));
+	}
 }

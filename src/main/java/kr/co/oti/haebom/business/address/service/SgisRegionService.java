@@ -7,18 +7,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import kr.co.oti.haebom.business.address.dto.SgisRegionDto;
 import kr.co.oti.haebom.business.address.mapper.SgisRegionMapper;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -27,22 +32,24 @@ public class SgisRegionService {
 	private final SgisRegionMapper regionMapper;
 	private final SgisRegionWriter regionWriter;
 
+	private final AtomicBoolean refreshing = new AtomicBoolean(false);
+
 	@Value("${sgis.consumer-key}")
 	private String consumerKey;
 
 	@Value("${sgis.consumer-secret}")
 	private String consumerSecret;
 
-	private final RestTemplate restTemplate = new RestTemplate();
+	private final WebClient webClient;
 
 	// ==============================
 	// 1. SGIS 외부 API 조회
 	// ==============================
-	public List<Map<String, Object>> fetchRegionsFromSgis(String cd) {
-		return fetchRegionsFromSgis(cd, getAccessToken());
+	public Mono<List<Map<String, Object>>> fetchRegionsFromSgis(String cd) {
+		return getAccessToken().flatMap(accessToken -> fetchRegionsFromSgis(cd, accessToken));
 	}
 
-	private List<Map<String, Object>> fetchRegionsFromSgis(String cd, String accessToken) {
+	private Mono<List<Map<String, Object>>> fetchRegionsFromSgis(String cd, String accessToken) {
 
 		UriComponentsBuilder builder = UriComponentsBuilder
 				.fromHttpUrl("https://sgisapi.mods.go.kr/OpenAPI3/addr/stage.json")
@@ -54,116 +61,143 @@ public class SgisRegionService {
 
 		URI uri = builder.build().encode().toUri();
 
-		Map<?, ?> response;
+		return webClient.get().uri(uri).retrieve().bodyToMono(Map.class)
+				.switchIfEmpty(
+						Mono.error(new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 응답이 비어 있습니다.")))
+				.map(response -> {
 
-		try {
-			response = restTemplate.getForObject(uri, Map.class);
-		} catch (RestClientException e) {
-			throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 서비스 연결에 실패했습니다.", e);
-		}
+					if (!"0".equals(String.valueOf(response.get("errCd")))) {
+						throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 조회에 실패했습니다. cd=" + cd);
+					}
 
-		if (response == null || !"0".equals(String.valueOf(response.get("errCd")))) {
+					Object result = response.get("result");
 
-			throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 조회에 실패했습니다. cd=" + cd);
-		}
+					if (!(result instanceof List<?>)) {
+						throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 응답 형식이 올바르지 않습니다.");
+					}
 
-		Object result = response.get("result");
+					List<Map<String, Object>> regions = new ArrayList<>();
 
-		if (!(result instanceof List<?>)) {
-			throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 응답 형식이 올바르지 않습니다.");
-		}
+					for (Object item : (List<?>) result) {
+						if (!(item instanceof Map<?, ?>)) {
+							throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 데이터 형식이 올바르지 않습니다.");
+						}
 
-		@SuppressWarnings("unchecked")
-		List<Map<String, Object>> regions = (List<Map<String, Object>>) result;
+						@SuppressWarnings("unchecked")
+						Map<String, Object> region = (Map<String, Object>) item;
 
-		return regions;
+						regions.add(region);
+					}
+
+					return regions;
+				})
+				.onErrorMap(WebClientRequestException.class,
+						e -> new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 서비스 연결에 실패했습니다.", e))
+				.onErrorMap(WebClientResponseException.class,
+						e -> new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 서비스에서 오류가 발생했습니다.", e));
 	}
 
 	// ==============================
 	// 2. SGIS 액세스 토큰 발급
 	// ==============================
-	private String getAccessToken() {
+	private Mono<String> getAccessToken() {
 
 		URI tokenUri = UriComponentsBuilder.fromHttpUrl("https://sgisapi.mods.go.kr/OpenAPI3/auth/authentication.json")
 				.queryParam("consumer_key", consumerKey).queryParam("consumer_secret", consumerSecret).build().encode()
 				.toUri();
 
-		Map<?, ?> response = restTemplate.getForObject(tokenUri, Map.class);
+		return webClient.get().uri(tokenUri).retrieve().bodyToMono(Map.class)
+				.switchIfEmpty(Mono.error(new IllegalStateException("SGIS 인증 응답이 비어 있습니다."))).map(response -> {
 
-		if (response == null || !"0".equals(String.valueOf(response.get("errCd")))) {
-			throw new IllegalStateException("SGIS 인증 실패");
-		}
+					if (!"0".equals(String.valueOf(response.get("errCd")))) {
+						throw new IllegalStateException("SGIS 인증 실패");
+					}
 
-		Object result = response.get("result");
+					Object result = response.get("result");
 
-		if (!(result instanceof Map<?, ?>)) {
-			throw new IllegalStateException("SGIS 인증 응답 오류");
-		}
+					if (!(result instanceof Map<?, ?>)) {
+						throw new IllegalStateException("SGIS 인증 응답 오류");
+					}
 
-		Object token = ((Map<?, ?>) result).get("accessToken");
+					Object token = ((Map<?, ?>) result).get("accessToken");
 
-		if (!(token instanceof String) || ((String) token).isBlank()) {
-			throw new IllegalStateException("SGIS 액세스 토큰이 없습니다.");
-		}
+					if (!(token instanceof String) || ((String) token).isBlank()) {
+						throw new IllegalStateException("SGIS 액세스 토큰이 없습니다.");
+					}
 
-		return (String) token;
+					return (String) token;
+				}).onErrorMap(WebClientRequestException.class, e -> new IllegalStateException("SGIS 인증 서버 연결 실패", e))
+				.onErrorMap(WebClientResponseException.class, e -> new IllegalStateException("SGIS 인증 서버 응답 오류", e));
 	}
 
 	// ==============================
 	// 3. 전국 행정구역 수집 및 갱신
 	// ==============================
-	public synchronized void refreshRegions() {
 
-		List<SgisRegionDto> collected = new ArrayList<>();
+	public Mono<Void> refreshRegions() {
+
+		return Mono.defer(() -> {
+
+			if (!refreshing.compareAndSet(false, true)) {
+				return Mono.error(new IllegalStateException("SGIS 행정구역 갱신이 이미 진행 중입니다."));
+			}
+
+			return getAccessToken().flatMapMany(this::collectAllRegions).collectList()
+					.flatMap(collected -> Mono.fromRunnable(() -> saveRegions(collected))
+							.subscribeOn(Schedulers.boundedElastic()).then())
+					.doFinally(signal -> refreshing.set(false));
+		});
+	}
+
+	private Flux<SgisRegionDto> collectAllRegions(String accessToken) {
+
+		return fetchRegionsFromSgis(null, accessToken).flatMapIterable(regions -> regions)
+				.concatMap(sido -> collectSido(sido, accessToken));
+	}
+
+	private Flux<SgisRegionDto> collectSido(Map<String, Object> sido, String accessToken) {
+
+		SgisRegionDto sidoDto = toDto(sido, null, 1, null);
+
+		return fetchRegionsFromSgis(sidoDto.getRegionCode(), accessToken).flatMapMany(Flux::fromIterable)
+				.concatMap(district -> collectDistrict(district, sidoDto, accessToken)).startWith(sidoDto);
+	}
+
+	private Flux<SgisRegionDto> collectDistrict(Map<String, Object> district, SgisRegionDto sidoDto,
+			String accessToken) {
+
+		SgisRegionDto districtDto = toDto(district, sidoDto.getRegionCode(), 2, sidoDto.getFullAddr());
+
+		return fetchRegionsFromSgis(districtDto.getRegionCode(), accessToken).flatMapMany(Flux::fromIterable)
+				.map(town -> toDto(town, districtDto.getRegionCode(), 3, districtDto.getFullAddr()))
+				.startWith(districtDto);
+	}
+
+	private void saveRegions(List<SgisRegionDto> collected) {
+
 		Set<String> codes = new HashSet<>();
-
 		int[] counts = new int[4];
 
-		// 수집 작업에서 토큰을 한 번 발급
-		String accessToken = getAccessToken();
+		for (SgisRegionDto region : collected) {
 
-		// 1단계: 시·도
-		List<Map<String, Object>> sidos = fetchRegionsFromSgis(null, accessToken);
-
-		for (Map<String, Object> sido : sidos) {
-
-			SgisRegionDto sidoDto = toDto(sido, null, 1, null);
-
-			addRegion(collected, codes, sidoDto);
-			counts[1]++;
-
-			// 2단계: 시·군·구
-			List<Map<String, Object>> districts = fetchRegionsFromSgis(sidoDto.getRegionCode(), accessToken);
-
-			for (Map<String, Object> district : districts) {
-
-				SgisRegionDto districtDto = toDto(district, sidoDto.getRegionCode(), 2, sidoDto.getFullAddr());
-
-				addRegion(collected, codes, districtDto);
-				counts[2]++;
-
-				// 3단계: 읍·면·동
-				List<Map<String, Object>> towns = fetchRegionsFromSgis(districtDto.getRegionCode(), accessToken);
-
-				for (Map<String, Object> town : towns) {
-
-					SgisRegionDto townDto = toDto(town, districtDto.getRegionCode(), 3, districtDto.getFullAddr());
-
-					addRegion(collected, codes, townDto);
-					counts[3]++;
-				}
+			if (!codes.add(region.getRegionCode())) {
+				throw new IllegalStateException("SGIS 행정구역 코드 중복: " + region.getRegionCode());
 			}
+
+			int level = region.getRegionLevel();
+
+			if (level < 1 || level > 3) {
+				throw new IllegalStateException("올바르지 않은 SGIS 행정구역 단계: " + level);
+			}
+
+			counts[level]++;
 		}
 
-		// ==============================
-		// 4. 수집 결과 검증
-		// ==============================
 		if (counts[1] == 0 || counts[2] == 0 || counts[3] == 0) {
 
 			throw new IllegalStateException("SGIS 행정구역 수집 결과가 불완전합니다.");
 		}
 
-		// 기존 데이터가 있을 경우 급격한 감소 방지
 		int existingCount = regionMapper.countRegions();
 
 		if (existingCount > 0 && collected.size() < existingCount * 0.9) {
@@ -171,10 +205,6 @@ public class SgisRegionService {
 			throw new IllegalStateException("기존 데이터보다 수집 건수가 크게 감소했습니다.");
 		}
 
-		// ==============================
-		// 5. DB 반영
-		// ==============================
-		// 실제 트랜잭션은 Writer에서 처리
 		regionWriter.replaceRegions(collected);
 	}
 
@@ -214,15 +244,6 @@ public class SgisRegionService {
 		}
 
 		return value.toString().trim();
-	}
-
-	private void addRegion(List<SgisRegionDto> collected, Set<String> codes, SgisRegionDto region) {
-
-		if (!codes.add(region.getRegionCode())) {
-			throw new IllegalStateException("SGIS 행정구역 코드 중복: " + region.getRegionCode());
-		}
-
-		collected.add(region);
 	}
 
 	// ==============================
