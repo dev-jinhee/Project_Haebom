@@ -199,6 +199,6 @@
 </main>
 
 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-<script src="${pageContext.request.contextPath}/js/pages/home.js"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=map-viewport-markers-2"></script>
 </body>
 </html>

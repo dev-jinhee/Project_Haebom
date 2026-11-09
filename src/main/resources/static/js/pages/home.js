@@ -68,8 +68,303 @@
 
     const mapElement = document.getElementById('center-map');
     const message = document.getElementById('center-map-message');
+    const sidoSelect = document.getElementById('center-sido');
+    const sigunguSelect = document.getElementById('center-sigungu');
+    const centerList = document.getElementById('center-list');
     const apiKey = (section.dataset.mapKey || '').trim();
-    if (mapElement === null || message === null) return;
+    const centersApiUrl = section.dataset.apiUrl;
+    const regionsApiUrl = section.dataset.regionApiUrl;
+    if (!mapElement || !message || !sidoSelect || !sigunguSelect || !centerList) return;
+
+    let regionsLoaded = false;
+    let regionsLoadFailed = false;
+    let mapReady = false;
+    let clustererLoaded = false;
+    let centersLoaded = false;
+    let centerData = [];
+    let centerDataLabel = '행정복지센터';
+    let centerMarkers = [];
+    let centerClusterer = null;
+    let centerInfoWindow = null;
+    let regionRequestId = 0;
+    let centerRequestId = 0;
+
+    sidoSelect.disabled = true;
+    sigunguSelect.disabled = true;
+
+    function updateRegionControls() {
+      sidoSelect.disabled = !regionsLoaded || !mapReady;
+      sigunguSelect.disabled = !regionsLoaded || !mapReady || !sidoSelect.value;
+    }
+
+    function resetSelect(select, placeholder) {
+      select.replaceChildren(new Option(placeholder, ''));
+    }
+
+    async function fetchRegions(cd) {
+      const url = new URL(regionsApiUrl, window.location.origin);
+      if (cd) url.searchParams.set('cd', cd);
+      const response = await fetch(url, { credentials: 'same-origin' });
+      if (!response.ok) throw new Error('행정구역 조회에 실패했습니다.');
+      const regions = await response.json();
+      if (!Array.isArray(regions)) throw new Error('행정구역 응답 형식이 올바르지 않습니다.');
+      return regions;
+    }
+
+    async function loadSidoOptions() {
+      const requestId = ++regionRequestId;
+      message.textContent = '시·도 목록을 불러오는 중입니다.';
+      try {
+        const regions = await fetchRegions();
+        if (requestId !== regionRequestId || !section.isConnected) return;
+        resetSelect(sidoSelect, '시·도를 선택하세요');
+        regions.forEach(region => {
+          if (region.cd != null && region.addr_name) {
+            sidoSelect.add(new Option(region.addr_name, String(region.cd)));
+          }
+        });
+        regionsLoaded = true;
+        regionsLoadFailed = false;
+        updateRegionControls();
+        if (mapReady && !centersLoaded) message.textContent = '시·도와 시·군·구를 선택해 주세요.';
+      } catch (error) {
+        console.error('시·도 조회 오류:', error);
+        if (requestId === regionRequestId) {
+          regionsLoadFailed = true;
+          message.textContent = '시·도 목록을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
+        }
+      }
+    }
+
+    function clearCenterMarkers() {
+      if (centerClusterer) {
+        centerClusterer.clearMarkers();
+        centerClusterer.setMap(null);
+        centerClusterer = null;
+      }
+      centerMarkers.forEach(marker => marker.setMap(null));
+      centerMarkers = [];
+      centerList.replaceChildren();
+      if (centerInfoWindow) centerInfoWindow.close();
+    }
+
+    function normalizeSidoName(name) {
+      const sidoNames = {
+        '서울특별시': '서울', '부산광역시': '부산', '대구광역시': '대구',
+        '인천광역시': '인천', '광주광역시': '광주', '대전광역시': '대전',
+        '울산광역시': '울산', '세종특별자치시': '세종', '경기도': '경기',
+        '강원도': '강원', '강원특별자치도': '강원', '충청북도': '충북',
+        '충청남도': '충남', '전라북도': '전북', '전북특별자치도': '전북',
+        '전라남도': '전남', '경상북도': '경북', '경상남도': '경남',
+        '제주특별자치도': '제주'
+      };
+      return sidoNames[name] || name;
+    }
+
+    function createCenterMarker(center) {
+      const marker = new google.maps.Marker({
+        position: { lat: center.latitude, lng: center.longitude },
+        title: center.centerName || '행정복지센터',
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          fillColor: '#1769aa',
+          fillOpacity: 0.9,
+          strokeColor: '#ffffff',
+          strokeWeight: 1.5,
+          scale: 6
+        }
+      });
+      marker.addListener('click', () => {
+        const content = document.createElement('div');
+        const title = document.createElement('strong');
+        const address = document.createElement('p');
+        title.textContent = center.centerName || '행정복지센터';
+        address.textContent = center.address || '주소 정보 없음';
+        content.append(title, address);
+        if (center.postalCode) {
+          const postalCode = document.createElement('p');
+          postalCode.textContent = `우편번호 ${center.postalCode}`;
+          content.append(postalCode);
+        }
+        centerInfoWindow.setContent(content);
+        centerInfoWindow.open({ map: administrativeCenterMap, anchor: marker });
+      });
+      return marker;
+    }
+
+    function renderVisibleCenters() {
+      if (!mapReady || !centersLoaded || !administrativeCenterMap) return;
+      const bounds = administrativeCenterMap.getBounds();
+      if (!bounds) return;
+
+      clearCenterMarkers();
+      const visibleCenters = centerData.filter(center =>
+        bounds.contains({ lat: center.latitude, lng: center.longitude }));
+      centerMarkers = visibleCenters.map(createCenterMarker);
+
+      if (centerMarkers.length === 0) {
+        message.textContent = `${centerDataLabel} ${centerData.length}곳 중 현재 지도 범위에 표시할 기관이 없습니다.`;
+        return;
+      }
+
+      if (clustererLoaded && window.markerClusterer?.MarkerClusterer) {
+        const clusterOptions = {
+          map: administrativeCenterMap,
+          markers: centerMarkers,
+          renderer: {
+            render({ count, position }) {
+              const scale = count >= 100 ? 17 : count >= 10 ? 15 : 13;
+              return new google.maps.Marker({
+                position,
+                zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillColor: '#075fae',
+                  fillOpacity: 0.94,
+                  strokeColor: '#ffffff',
+                  strokeWeight: 2,
+                  scale
+                },
+                label: {
+                  text: String(count),
+                  color: '#ffffff',
+                  fontSize: count >= 100 ? '10px' : '11px',
+                  fontWeight: '700'
+                }
+              });
+            }
+          }
+        };
+        if (window.markerClusterer.SuperClusterAlgorithm) {
+          clusterOptions.algorithm = new window.markerClusterer.SuperClusterAlgorithm({
+            radius: 90,
+            maxZoom: 14
+          });
+        }
+        centerClusterer = new window.markerClusterer.MarkerClusterer(clusterOptions);
+      } else {
+        centerMarkers.forEach(marker => marker.setMap(administrativeCenterMap));
+      }
+
+      message.textContent = `${centerDataLabel} ${centerData.length}곳 중 현재 지도에 ${centerMarkers.length}곳을 표시했습니다.`;
+      if (!clustererLoaded) message.textContent += ' (클러스터 라이브러리를 불러오지 못해 개별 마커로 표시합니다.)';
+    }
+
+    async function loadCentersForSelection() {
+      if (!mapReady) return;
+
+      const sidoName = sidoSelect.value
+        ? sidoSelect.selectedOptions[0]?.textContent?.trim()
+        : '';
+      const sigunguName = sigunguSelect.value
+        ? sigunguSelect.selectedOptions[0]?.textContent?.trim()
+        : '';
+      const hasRegionFilter = Boolean(sidoName && sigunguName);
+
+      const requestId = ++centerRequestId;
+      centersLoaded = false;
+      centerData = [];
+      clearCenterMarkers();
+      message.textContent = hasRegionFilter
+        ? `${sidoName} ${sigunguName} 행정복지센터를 불러오는 중입니다.`
+        : '좌표가 등록된 전체 행정복지센터를 불러오는 중입니다.';
+
+      try {
+        const query = new URLSearchParams();
+        if (hasRegionFilter) {
+          query.set('sido', normalizeSidoName(sidoName));
+          query.set('sigungu', sigunguName);
+        }
+        const requestUrl = hasRegionFilter
+          ? `${centersApiUrl}?${query.toString()}`
+          : centersApiUrl;
+        const response = await fetch(requestUrl, {
+          credentials: 'same-origin'
+        });
+        if (!response.ok) throw new Error('행정복지센터 조회에 실패했습니다.');
+        const centers = await response.json();
+        if (!Array.isArray(centers)) throw new Error('행정복지센터 응답 형식이 올바르지 않습니다.');
+        if (requestId !== centerRequestId || !section.isConnected) return;
+
+        centerInfoWindow = centerInfoWindow || new google.maps.InfoWindow();
+        centerData = centers.map(center => {
+          const lat = Number(center.latitude);
+          const lng = Number(center.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+              lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+          return { ...center, latitude: lat, longitude: lng };
+        }).filter(Boolean);
+        centersLoaded = true;
+        centerDataLabel = hasRegionFilter
+          ? `${sidoName} ${sigunguName} 행정복지센터`
+          : '좌표가 등록된 행정복지센터';
+
+        if (centerData.length === 0) {
+          centersLoaded = true;
+          message.textContent = hasRegionFilter
+            ? '선택한 지역에 표시할 좌표가 등록된 행정복지센터가 없습니다.'
+            : '지도에 표시할 좌표가 등록된 행정복지센터가 없습니다.';
+          return;
+        }
+
+        const bounds = new google.maps.LatLngBounds();
+        centerData.forEach(center => bounds.extend({
+          lat: center.latitude,
+          lng: center.longitude
+        }));
+
+        if (centerData.length === 1) {
+          administrativeCenterMap.setCenter({
+            lat: centerData[0].latitude,
+            lng: centerData[0].longitude
+          });
+          administrativeCenterMap.setZoom(15);
+        } else {
+          administrativeCenterMap.fitBounds(bounds);
+        }
+        renderVisibleCenters();
+      } catch (error) {
+        console.error('행정복지센터 조회 오류:', error);
+        if (requestId === centerRequestId) {
+          message.textContent = '행정복지센터를 불러오지 못했습니다. 지역을 다시 선택해 주세요.';
+        }
+      }
+    }
+
+    sidoSelect.addEventListener('change', async () => {
+      ++centerRequestId;
+      resetSelect(sigunguSelect, '먼저 시·도를 선택하세요');
+      sigunguSelect.disabled = true;
+      loadCentersForSelection();
+      if (!sidoSelect.value) {
+        return;
+      }
+
+      const requestId = ++regionRequestId;
+      const selectedSido = sidoSelect.value;
+      message.textContent = '시·군·구 목록을 불러오는 중입니다.';
+      try {
+        const regions = await fetchRegions(selectedSido);
+        if (requestId !== regionRequestId || sidoSelect.value !== selectedSido || !section.isConnected) return;
+        resetSelect(sigunguSelect, '시·군·구를 선택하세요');
+        regions.forEach(region => {
+          if (region.cd != null && region.addr_name) {
+            sigunguSelect.add(new Option(region.addr_name, String(region.cd)));
+          }
+        });
+        sigunguSelect.disabled = regions.length === 0;
+        if (regions.length === 0) message.textContent = '선택한 시·도에 시·군·구 목록이 없습니다.';
+      } catch (error) {
+        console.error('시·군·구 조회 오류:', error);
+        if (requestId === regionRequestId) message.textContent = '시·군·구 목록을 불러오지 못했습니다.';
+      }
+    });
+
+    sigunguSelect.addEventListener('change', () => {
+      loadCentersForSelection();
+    });
+
+    loadSidoOptions();
 
     if (!apiKey) {
       message.textContent = 'Google Maps 브라우저 키가 설정되지 않아 지도를 표시할 수 없습니다.';
@@ -92,7 +387,33 @@
         streetViewControl: false,
         fullscreenControl: true
       });
-      message.textContent = '지역 선택 기능은 다음 단계에서 연결합니다.';
+      administrativeCenterMap.addListener('idle', renderVisibleCenters);
+      administrativeCenterMap.addListener('zoom_changed', clearCenterMarkers);
+      administrativeCenterMap.addListener('dragstart', clearCenterMarkers);
+      centerInfoWindow = new google.maps.InfoWindow();
+
+      const clusterScript = document.createElement('script');
+      clusterScript.src = 'https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js';
+      clusterScript.async = true;
+      clusterScript.onload = function () {
+        clustererLoaded = !!window.markerClusterer?.MarkerClusterer;
+        mapReady = true;
+        updateRegionControls();
+        message.textContent = regionsLoadFailed
+          ? '시·도 목록을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.'
+          : clustererLoaded
+            ? '전체 행정복지센터 위치를 불러오는 중입니다.'
+            : '클러스터를 불러오지 못했습니다. 지역을 선택하면 개별 마커로 표시합니다.';
+        loadCentersForSelection();
+      };
+      clusterScript.onerror = function () {
+        clustererLoaded = false;
+        mapReady = true;
+        updateRegionControls();
+        message.textContent = '클러스터 라이브러리를 불러오지 못했습니다. 마커는 개별 표시합니다.';
+        loadCentersForSelection();
+      };
+      document.head.append(clusterScript);
     };
 
     window.gm_authFailure = function () {

@@ -54,4 +54,20 @@ public interface MainPageMapper {
 	List<AdministrativeCenterDTO> selectCentersByRegion(
 			@Param("sido") String sido,
 			@Param("sigungu") String sigungu);
+
+	@Select("""
+		SELECT center_id AS centerId,
+			sido,
+			sigungu,
+			center_name,
+			postal_code,
+			address,
+			latitude,
+			longitude
+		FROM administrative_center
+		WHERE latitude IS NOT NULL
+		AND longitude IS NOT NULL
+		ORDER BY sido, sigungu, center_name
+		""")
+	List<AdministrativeCenterDTO> selectAllCentersWithCoordinates();
 }

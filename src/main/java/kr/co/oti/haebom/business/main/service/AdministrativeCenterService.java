@@ -14,6 +14,9 @@ public class AdministrativeCenterService {
     private final MainPageMapper mainPageMapper;
 
     public List<AdministrativeCenterDTO> getCenters(String sido, String sigungu) {
+        if (sido == null || sido.isBlank() || sigungu == null || sigungu.isBlank()) {
+            return mainPageMapper.selectAllCentersWithCoordinates();
+        }
         return mainPageMapper.selectCentersByRegion(sido, sigungu);
     }
 }
