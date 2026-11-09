@@ -20,15 +20,18 @@ public class PolicyApiController {
     private final PolicyService policyService;
 
     /*
-     * 시나리오 맞춤 공공서비스 정책 추천 API
-     * GET /api/policies/recommend?scenario=move
-     * GET /api/policies/recommend?scenario=id-card
+     * 시나리오 및 주소(지역) 맞춤 공공서비스 정책 추천 API
+     * GET /api/policies/recommend?scenario=move&progressId=123
+     * GET /api/policies/recommend?scenario=move&region=수영구
+     * GET /api/policies/recommend?scenario=identity_reissue
      */
     @GetMapping("/recommend")
     public ResponseEntity<List<PolicyDTO>> getRecommendedPolicies(
-            @RequestParam(name = "scenario", defaultValue = "move") String scenario) {
-        
-        List<PolicyDTO> policies = policyService.getRecommendedPolicies(scenario);
+            @RequestParam(name = "scenario", defaultValue = "move") String scenario,
+            @RequestParam(name = "progressId", required = false) Integer progressId,
+            @RequestParam(name = "region", required = false) String region) {
+
+        List<PolicyDTO> policies = policyService.getRecommendedPolicies(scenario, progressId, region);
         return ResponseEntity.ok(policies);
     }
 }

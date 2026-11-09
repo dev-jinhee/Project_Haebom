@@ -213,10 +213,10 @@ export async function init({
 	}
 
 	// ==============================
-	// [진희] 4. 맞춤 정부 혜택 추천 (보조금24 API)
+	// [진희] 4. 맞춤 정부 혜택 추천 (보조금24 API - 지역 맞춤 연동)
 	// ==============================
 
-	await loadPolicyRecommendations(root, scenarioCode);
+	await loadPolicyRecommendations(root, scenarioCode, progressId);
 
 	// ==============================
 	// 5. 정부24 공식 안내 링크
@@ -240,27 +240,23 @@ export async function init({
 }
 
 // ==============================
-// [진희] 보조금24 맞춤 정책 추천 로드 및 렌더링
+// [진희] 보조금24 맞춤 정책 추천 로드 및 렌더링 (지역 맞춤 + 랜덤 셔플)
 // ==============================
 
-async function loadPolicyRecommendations(root, scenarioCode) {
+async function loadPolicyRecommendations(root, scenarioCode, progressId) {
 	const grid = root.querySelector("#completePolicyCardGrid");
 	if (!grid) return;
 
-	// 시나리오별 안내 문구 맞춤 조정
 	const descEl = root.querySelector("#completePolicyDescription");
-	if (descEl) {
-		const code = (scenarioCode || "").toUpperCase();
-		if (code.includes("IDENTITY") || code.includes("ID-CARD") || code.includes("ID_CARD") || code === "2") {
-			descEl.textContent = "방금 진행하신 주민등록증 재발급과 연관된 신분증 및 디지털 증명서 지원 정책들을 추천해 드려요.";
-		} else {
-			descEl.textContent = "방금 진행하신 전입신고와 밀접한 실생활 주거·이사 지원 정책들을 추천해 드려요.";
-		}
-	}
 
 	try {
 		const targetScenario = (scenarioCode || "MOVE").toLowerCase();
-		const response = await fetch(`/api/policies/recommend?scenario=${encodeURIComponent(targetScenario)}&_t=${Date.now()}`, {
+		let requestUrl = `/api/policies/recommend?scenario=${encodeURIComponent(targetScenario)}&_t=${Date.now()}`;
+		if (progressId) {
+			requestUrl += `&progressId=${encodeURIComponent(progressId)}`;
+		}
+
+		const response = await fetch(requestUrl, {
 			headers: { "Accept": "application/json" }
 		});
 
@@ -282,6 +278,22 @@ async function loadPolicyRecommendations(root, scenarioCode) {
 				</div>
 			`;
 			return;
+		}
+
+		// 시나리오 및 추천된 지자체 지역에 맞춘 안내 문구 반영
+		if (descEl) {
+			const code = (scenarioCode || "").toUpperCase();
+			if (code.includes("IDENTITY") || code.includes("ID-CARD") || code.includes("ID_CARD") || code === "2") {
+				descEl.textContent = "방금 진행하신 주민등록증 재발급과 연관된 신분증 및 디지털 증명서 지원 정책들을 추천해 드려요.";
+			} else {
+				// 지자체(시·군·구 / 시·도) 맞춤 정책이 포함되어 있는지 확인
+				const localPolicy = policies.find(p => p.deptName && (p.deptName.includes("시") || p.deptName.includes("구") || p.deptName.includes("군")));
+				if (localPolicy && localPolicy.deptName && !localPolicy.deptName.includes("행정안전부") && !localPolicy.deptName.includes("국토교통부") && !localPolicy.deptName.includes("농림축산식품부")) {
+					descEl.innerHTML = `방금 전입신고하신 <strong>${escapeHtml(localPolicy.deptName)}</strong> 지역 및 실생활 주거·이사 지원 정책들을 추천해 드려요.`;
+				} else {
+					descEl.textContent = "방금 진행하신 전입신고와 밀접한 실생활 주거·이사 지원 정책들을 추천해 드려요.";
+				}
+			}
 		}
 
 		grid.replaceChildren();
