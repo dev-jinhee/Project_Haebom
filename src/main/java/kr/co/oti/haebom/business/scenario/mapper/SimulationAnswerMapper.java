@@ -24,4 +24,7 @@ public interface SimulationAnswerMapper {
 
 	// 전입신고 임대차계약서 첨부파일 JSON 조회
 	String selectLeaseAttachmentJson(Integer progressId);
+
+	// [진희] 특정 진행 기록(progressId)과 fieldKey로 answer_value 단건 조회 (예: 전입신고 새 주소 currentAddress)
+	String selectAnswerValueByFieldKey(@Param("progressId") Integer progressId, @Param("fieldKey") String fieldKey);
 }

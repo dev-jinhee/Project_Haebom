@@ -2,7 +2,9 @@ package kr.co.oti.haebom.business.policy.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -19,15 +21,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kr.co.oti.haebom.business.policy.dto.PolicyDTO;
+import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * [진희] 행정안전부 공공서비스(보조금24) API 연동 및 시나리오 맞춤 정책 추천 서비스
- * 
- * @author 진희
- */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PolicyService {
 
     @Value("${gov24.api.base-url}")
@@ -36,33 +36,93 @@ public class PolicyService {
     @Value("${gov24.api.service-key}")
     private String serviceKey;
 
+    private final SimulationAnswerMapper simulationAnswerMapper;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /*
-     * [진희] 시나리오 코드에 맞춤형 공공서비스 정책 목록 추천 (랜덤 셔플 추천)
-     * @param scenarioCode "move"(전입신고) 또는 "identity_reissue"(주민등록증 재발급)
-     * @return 무작위 추천 정책 리스트 (3건)
+     * 기본 시나리오 코드 기반 추천 (하위 호환)
      */
     public List<PolicyDTO> getRecommendedPolicies(String scenarioCode) {
+        return getRecommendedPolicies(scenarioCode, null, null);
+    }
+
+    /*
+     * 시나리오 및 진행 ID(주소 기반 지역 맞춤) 정책 목록 추천 (랜덤 셔플 + 지자체 우선 매칭)
+     * 
+     * @param scenarioCode "move"(전입신고) 또는 "identity_reissue"(주민등록증 재발급)
+     * @param progressId 시뮬레이션 진행 ID (전입신고 새 주소 추출용, nullable)
+     * @param directRegion 직접 전달된 지역명 (선택사항, nullable)
+     * @return 지역 맞춤 + 무작위 추천 정책 리스트 (3건)
+     */
+    public List<PolicyDTO> getRecommendedPolicies(String scenarioCode, Integer progressId, String directRegion) {
         // 1. 시나리오별 알맞은 정부 정책 검색 키워드 매핑
         String keyword = resolveKeyword(scenarioCode);
 
-        // 2. 공공서비스 API 호출 시도 (최대 20건 검색 후 무작위 3건 추출)
+        // 2. 전입신고 시나리오인 경우 입력한 새 주소 기반 지역 키워드 추출 (시·군·구, 시·도)
+        List<String> regionKeywords = new ArrayList<>();
+        if (directRegion != null && !directRegion.isBlank()) {
+            regionKeywords.add(directRegion.trim());
+        } else if (isMoveScenario(scenarioCode) && progressId != null) {
+            String[] extracted = extractRegionKeywords(progressId);
+            for (String kw : extracted) {
+                if (!regionKeywords.contains(kw)) {
+                    regionKeywords.add(kw);
+                }
+            }
+        }
+
+        // 3. 공공서비스 API 호출 시도 (지역 맞춤 우선 검색 ➜ 전국 공통 보충 ➜ 최대 3건 반환)
         try {
-            List<PolicyDTO> apiResult = fetchFromGov24Api(keyword);
-            if (apiResult != null && !apiResult.isEmpty()) {
-                Collections.shuffle(apiResult);
-                return apiResult.stream().limit(3).collect(Collectors.toList());
+            List<PolicyDTO> candidates = new ArrayList<>();
+            Set<String> seenIds = new HashSet<>();
+
+            // (1) 지자체 맞춤 정책 검색 (1순위: 시·군·구 / 2순위: 시·도)
+            for (String region : regionKeywords) {
+                if (candidates.size() >= 3) break;
+                List<PolicyDTO> localList = fetchFromGov24Api(keyword, region);
+                if (localList != null && !localList.isEmpty()) {
+                    Collections.shuffle(localList);
+                    for (PolicyDTO dto : localList) {
+                        if (seenIds.add(dto.getServiceId())) {
+                            candidates.add(dto);
+                        }
+                    }
+                }
+            }
+
+            // (2) 3건 미만일 경우 전국 단위 공통 정책으로 보충
+            if (candidates.size() < 3) {
+                List<PolicyDTO> nationalList = fetchFromGov24Api(keyword, null);
+                if (nationalList != null && !nationalList.isEmpty()) {
+                    Collections.shuffle(nationalList);
+                    for (PolicyDTO dto : nationalList) {
+                        if (seenIds.add(dto.getServiceId())) {
+                            candidates.add(dto);
+                        }
+                    }
+                }
+            }
+
+            if (!candidates.isEmpty()) {
+                return candidates.stream().limit(3).collect(Collectors.toList());
             }
         } catch (Exception e) {
             log.warn("[공공서비스 API 호출 실패 또는 응답 지연] 기본 추천 정책(Fallback)으로 대체합니다. 사유: {}", e.getMessage());
         }
 
-        // 3. API 장애/지연/결과없음 시 안전하게 기본 추천 정책 반환 (화면 보호 안전장치 + 셔플)
+        // 4. API 장애/지연/결과없음 시 안전하게 기본 추천 정책 반환 (화면 보호 안전장치 + 셔플)
         List<PolicyDTO> fallback = getFallbackPolicies(scenarioCode);
         Collections.shuffle(fallback);
         return fallback.stream().limit(3).collect(Collectors.toList());
+    }
+
+    /*
+     * 전입신고 시나리오 여부 확인
+     */
+    private boolean isMoveScenario(String scenarioCode) {
+        String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
+        return code.contains("move") || "1".equals(code) || code.isEmpty();
     }
 
     /*
@@ -77,16 +137,63 @@ public class PolicyService {
     }
 
     /*
-     * 행정안전부 공공서비스 API(ODCloud) 호출 및 DTO 변환
+     * 시뮬레이션 답변(simulation_answer)에서 사용자가 선택한 새 주소의 지역 키워드 추출
+     * 반환 예: ["수영구", "부산"] 또는 ["강남구", "서울"]
      */
-    private List<PolicyDTO> fetchFromGov24Api(String keyword) throws Exception {
-        String url = UriComponentsBuilder.fromHttpUrl(baseUrl + "/serviceList")
+    private String[] extractRegionKeywords(Integer progressId) {
+        try {
+            String addressJson = simulationAnswerMapper.selectAnswerValueByFieldKey(progressId, "currentAddress");
+            if (addressJson == null || addressJson.isBlank()) {
+                return new String[0];
+            }
+
+            JsonNode node = objectMapper.readTree(addressJson);
+            String sigunguName = node.path("sigunguName").asText("").trim();
+            String sidoName = node.path("sidoName").asText("").trim();
+
+            List<String> keywords = new ArrayList<>();
+            // 1) 시·군·구 (예: "수영구", "강남구", "성남시 분당구" -> 세부 구 단위 추출)
+            if (!sigunguName.isEmpty()) {
+                String[] parts = sigunguName.split("\\s+");
+                for (String part : parts) {
+                    if (part.length() >= 2) {
+                        keywords.add(part);
+                    }
+                }
+            }
+
+            // 2) 시·도 (예: "부산광역시" -> "부산", "서울특별시" -> "서울", "경기도" -> "경기")
+            if (!sidoName.isEmpty()) {
+                String shortSido = sidoName.replaceAll("(특별시|광역시|특별자치시|특별자치도|도)$", "");
+                if (shortSido.length() >= 2 && !keywords.contains(shortSido)) {
+                    keywords.add(shortSido);
+                }
+            }
+
+            return keywords.toArray(new String[0]);
+        } catch (Exception e) {
+            log.warn("[주소 지역 키워드 추출 실패] progressId={}: {}", progressId, e.getMessage());
+            return new String[0];
+        }
+    }
+
+    /*
+     * 행정안전부 공공서비스 API(ODCloud) 호출 및 DTO 변환
+     * @param keyword 검색어 (서비스명 LIKE)
+     * @param regionKeyword 소관기관 필터 (소관기관명 LIKE, null이면 전국 대상)
+     */
+    private List<PolicyDTO> fetchFromGov24Api(String keyword, String regionKeyword) throws Exception {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl + "/serviceList")
                 .queryParam("page", 1)
                 .queryParam("perPage", 20)
                 .queryParam("cond[서비스명::LIKE]", keyword)
-                .queryParam("returnType", "json")
-                .build(false)
-                .toUriString();
+                .queryParam("returnType", "json");
+
+        if (regionKeyword != null && !regionKeyword.isBlank()) {
+            builder.queryParam("cond[소관기관명::LIKE]", regionKeyword.trim());
+        }
+
+        String url = builder.build(false).toUriString();
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Infuser " + serviceKey);

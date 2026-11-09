@@ -51,4 +51,13 @@
 		LIMIT 1
 
 	</select>
+
+	<!-- [진희] 특정 progressId와 fieldKey로 answer_value 단건 조회 (예: 전입신고 새 주소 currentAddress) -->
+	<select id="selectAnswerValueByFieldKey" resultType="string">
+		SELECT answer_value
+		FROM simulation_answer
+		WHERE progress_id = #{progressId}
+		AND field_key = #{fieldKey}
+		LIMIT 1
+	</select>
 </mapper>
