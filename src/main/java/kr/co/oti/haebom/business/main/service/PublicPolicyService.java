@@ -1,61 +1,67 @@
 package kr.co.oti.haebom.business.main.service;
 
-import java.net.URI;
-import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import kr.co.oti.haebom.business.main.dto.Gov24PolicyResponseDTO;
 import kr.co.oti.haebom.business.main.dto.Gov24PolicyResponseDTO.Policy;
+import kr.co.oti.haebom.business.main.dto.PolicySearchPageDTO;
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @Service
+@RequiredArgsConstructor
 public class PublicPolicyService {
-    
-	private static final String API_URL = "https://api.odcloud.kr/api/gov24/v3/serviceList";
+    private static final int PAGE_SIZE = 5;
 
-    private final String serviceKey;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private static final Map<String, Set<String>> CATEGORY_FIELDS = Map.of(
+        "LIFE_FAMILY", Set.of("실제 분야값"),
+        "BIRTH_CHILDCARE", Set.of("실제 분야값"),
+        "WELFARE_FINANCE", Set.of("실제 분야값"),
+        "EDUCATION_JOB_BUSINESS", Set.of("실제 분야값")
+    );
 
-    public PublicPolicyService(@Value("${gov24.api.service-key}") String serviceKey) {
-        this.serviceKey = serviceKey;
-    }
+    private final Gov24PolicyCatalogService catalogService;
 
-    public List<Policy> search(String keyword) {
-        
-    	if (!StringUtils.hasText(keyword)) {
-            return Collections.emptyList();
+    public Mono<PolicySearchPageDTO> search(
+            String keyword, String category, int requestedPage) {
+        String word = keyword == null ? "" : keyword.trim();
+        String selected = category == null || category.trim().isEmpty()
+                ? "ALL" : category.trim();
+        Set<String> fields = CATEGORY_FIELDS.get(selected);
+
+        if (!"ALL".equals(selected) && fields == null) {
+            throw new IllegalArgumentException("지원하지 않는 정책 카테고리입니다.");
         }
-        
-    	if (!StringUtils.hasText(serviceKey)) {
-            throw new IllegalStateException("정부24 API 인증키가 설정되지 않았습니다.");
-        }
 
-        URI uri = UriComponentsBuilder.fromHttpUrl(API_URL)
-                .queryParam("serviceKey", serviceKey)
-                .queryParam("page", 1)
-                .queryParam("perPage", 10)
-                .queryParam("returnType", "JSON")
-                .queryParam("cond[서비스명::LIKE]", keyword.trim())
-                .build()
-                .encode()
-                .toUri();
+        return catalogService.getAllPolicies().map(policies -> {
+            List<Policy> filtered = policies.stream()
+                    .filter(policy -> "ALL".equals(selected)
+                            || (policy.getServiceField() != null
+                            && fields.contains(policy.getServiceField().trim())))
+                    .filter(policy -> word.isEmpty()
+                            || (policy.getServiceName() != null
+                            && policy.getServiceName().toLowerCase(Locale.ROOT)
+                                    .contains(word.toLowerCase(Locale.ROOT))))
+                    .collect(Collectors.toList());
 
-        try {
-            Gov24PolicyResponseDTO response =
-                    restTemplate.getForObject(uri, Gov24PolicyResponseDTO.class);
-            if (response == null || response.getData() == null) {
-                return Collections.emptyList();
-            }
-            return response.getData();
-        } catch (RestClientException e) {
-            throw new IllegalStateException(
-                    "정부24 공공서비스 조회에 실패했습니다.", e);
-        }
+            long totalCount = filtered.size();
+            int totalPages = (int) Math.ceil((double) totalCount / PAGE_SIZE);
+            int page = totalPages == 0 ? 1
+                    : Math.min(Math.max(requestedPage, 1), totalPages);
+            int from = Math.min((page - 1) * PAGE_SIZE, filtered.size());
+            int to = Math.min(from + PAGE_SIZE, filtered.size());
+
+            return new PolicySearchPageDTO(
+                    filtered.subList(from, to),
+                    page,
+                    PAGE_SIZE,
+                    totalCount,
+                    totalPages);
+        });
     }
 }
