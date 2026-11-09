@@ -70,4 +70,13 @@ public interface MainPageMapper {
 		ORDER BY sido, sigungu, center_name
 		""")
 	List<AdministrativeCenterDTO> selectAllCentersWithCoordinates();
+	
+	@Select("""
+		    SELECT center_id AS centerId, sido, sigungu,
+		        center_name AS centerName, postal_code AS postalCode,
+		        address, latitude, longitude
+		    FROM administrative_center
+		    WHERE center_id = #{centerId}
+		    """)
+		AdministrativeCenterDTO selectCenterById(@Param("centerId") int centerId);
 }
