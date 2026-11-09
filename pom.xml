@@ -78,7 +78,15 @@
 					<artifactId>spring-boot-starter-logging</artifactId>
 				</exclusion>
 			</exclusions>
+		
+		
 		</dependency>
+		
+		<!-- 외부 API 호출에 사용할 WebClient를 제공 -->
+	    <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-webflux</artifactId>
+	    </dependency>
 		<!-- JSP 컴파일 -->
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
