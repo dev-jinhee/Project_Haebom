@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.business.address.service.AddressService;
 import kr.co.oti.haebom.business.address.service.SgisRegionService;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class AddressApiController {
 	@Operation(summary = "도로명주소 조회", description = "도로명주소를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "도로명주소 조회 성공")
 	@GetMapping("/search")
-	public String searchAddress(@RequestParam String keyword, @RequestParam(defaultValue = "1") int currentPage) {
+	public Mono<String> searchAddress(@RequestParam String keyword, @RequestParam(defaultValue = "1") int currentPage) {
 		return addressService.searchAddress(keyword, currentPage);
 	}
 
