@@ -20,7 +20,7 @@ public class JasyptUtil {
         // ========================================================
         // 1. VM arguments(-Djasypt.encryptor.password)에 등록된 마스터 비밀키 입력
         // ========================================================
-        String masterKey = "haebom-secret-key"; 
+    	String masterKey = "your-secret-key"; 
 
         if (masterKey == null || masterKey.isBlank()) {
             System.err.println("masterKey 변수에 실제 마스터 비밀키를 입력한 후 실행해 주세요!");
