@@ -7,10 +7,10 @@
     <title>해봄 | 시뮬레이션 화면 인쇄</title>
     <!-- 기존 시뮬레이션과 동일한 스타일을 먼저 불러옵니다. -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="/css/common.css" rel="stylesheet">
     <link href="/css/pages/scenario/simulation/simulation.css" rel="stylesheet">
     <link href="/css/pages/scenario/simulation/move.css" rel="stylesheet">
+    <link href="/css/pages/scenario/simulation/identity.css" rel="stylesheet">
     <!-- 인쇄에 필요한 변경사항만 별도 적용 -->
     <link href="/css/pages/scenario/simulation/simulation-print.css" rel="stylesheet">
     <script type="module" src="/js/pages/scenario/simulation/simulation-print.js"></script>
