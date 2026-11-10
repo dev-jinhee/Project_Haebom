@@ -182,6 +182,19 @@ export async function init({
 	scenarioCode
 }) {
 
+	// 공통 완료 화면의 root 확인
+	root = root || document.querySelector("#stepContent");
+
+	if (!root) {
+		throw new Error("완료 화면의 root 요소를 찾을 수 없습니다.");
+	}
+
+	// 참조 변수 초기화
+	currentRootRef = root;
+	currentProgressIdRef = progressId;
+	currentScenarioCodeRef = scenarioCode;
+
+
 	const guide = completionGuides[scenarioCode];
 
 	// ==============================
