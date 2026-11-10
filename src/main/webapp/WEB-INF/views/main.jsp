@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v28-mobile-overflow-fix" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v29-full-bleed-footer" rel="stylesheet">
 
 </head>
 <body>
@@ -175,12 +175,7 @@
                 <ul id="policySearchPagination" class="pagination justify-content-center"></ul>
             </nav>
         </section>
-        <footer class="site-footer home-inline-footer">
-            <div class="container d-flex justify-content-between flex-wrap gap-2">
-                <div><b>해봄</b><span class="ms-2">정부24 생활행정 체험 플랫폼</span></div>
-                <div><span>문의 이메일</span><span class="ms-2">haebom1592@gmail.com</span></div>
-            </div>
-        </footer>
+        <jsp:include page="/WEB-INF/views/common/footer.jsp" />
         </div>
     </section>
 
@@ -191,10 +186,6 @@
     </nav>
 </main>
 
-<jsp:include page="/WEB-INF/views/common/modal.jsp" />
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/app.js"></script>
-<script src="${pageContext.request.contextPath}/js/common.js"></script>
 <script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v16-header-offset"></script>
 </body>
 </html>
