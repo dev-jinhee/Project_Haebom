@@ -53,8 +53,63 @@
     loadMainPage(page);
   }
 
+  initializeHomeSectionNavigation();
   initializePolicySearch();
   initializeAdministrativeCenterMap();
+
+  function initializeHomeSectionNavigation() {
+    const panels = Array.from(document.querySelectorAll('.home-panel[id]'));
+    const navigationLinks = Array.from(document.querySelectorAll('[data-home-nav]'));
+    const dotLinks = Array.from(document.querySelectorAll('[data-home-dot]'));
+    if (panels.length === 0) return;
+
+    const desktopSnap = window.matchMedia('(min-width: 768px)');
+    function updateSnapMode() {
+      document.documentElement.classList.toggle('home-snap-enabled', desktopSnap.matches);
+    }
+    updateSnapMode();
+    desktopSnap.addEventListener?.('change', updateSnapMode);
+
+    function setActiveSection(id) {
+      navigationLinks.forEach(link => {
+        const active = link.dataset.homeNav === id;
+        link.classList.toggle('active', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+      dotLinks.forEach(link => {
+        const active = link.dataset.homeDot === id;
+        link.classList.toggle('active', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }
+
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0];
+      if (visible) setActiveSection(visible.target.id);
+    }, { threshold: [0.05, 0.2, 0.4, 0.6], rootMargin: '-12% 0px -28% 0px' });
+    panels.forEach(panel => observer.observe(panel));
+
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', event => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (!target || !target.classList.contains('home-panel')) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        history.replaceState(null, '', link.getAttribute('href'));
+        setActiveSection(target.id);
+      });
+    });
+
+    const initialPanel = panels.find(panel => `#${panel.id}` === window.location.hash);
+    if (initialPanel) {
+      window.requestAnimationFrame(() => initialPanel.scrollIntoView({ block: 'start' }));
+      setActiveSection(initialPanel.id);
+    }
+  }
 
   function show(element, visible) {
     if (element !== null) {
@@ -72,6 +127,7 @@
     const sigunguSelect = document.getElementById('center-sigungu');
     const regionSearchButton = document.getElementById('center-map-search');
     const centerList = document.getElementById('center-list');
+    const centerListEmptyState = document.getElementById('center-list-empty-state');
     const centerListMessage = document.getElementById('center-list-message');
     const centerListResults = document.getElementById('center-list-results');
     const centerListPagination = document.getElementById('center-list-pagination');
@@ -80,7 +136,8 @@
     const regionsApiUrl = section.dataset.regionApiUrl;
     const dataFreshnessMessage = '주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.';
     if (!mapElement || !message || !sidoSelect || !sigunguSelect || !regionSearchButton
-        || !centerList || !centerListMessage || !centerListResults || !centerListPagination) return;
+        || !centerList || !centerListEmptyState || !centerListMessage
+        || !centerListResults || !centerListPagination) return;
 
     let regionsLoaded = false;
     let regionsLoadFailed = false;
@@ -155,7 +212,7 @@
         regionsLoaded = true;
         regionsLoadFailed = false;
         updateRegionControls();
-        if (mapReady && !centersLoaded) message.textContent = '시·도와 시·군·구를 선택해 주세요.';
+        if (mapReady && !centersLoaded) message.textContent = '';
       } catch (error) {
         console.error('시·도 조회 오류:', error);
         if (requestId === regionRequestId) {
@@ -228,7 +285,9 @@
     }
 
     function renderCenterListForSelectedRegion() {
-      const sidoName = sidoSelect.selectedOptions[0]?.textContent?.trim();
+      const sidoName = sidoSelect.value
+        ? sidoSelect.selectedOptions[0]?.textContent?.trim()
+        : '';
       const sigunguName = sigunguSelect.value
         ? sigunguSelect.selectedOptions[0]?.textContent?.trim()
         : '';
@@ -236,9 +295,9 @@
       if (!sidoName || !centersLoaded) {
         regionCenterData = [];
         regionCenterLabel = '';
-        centerListMessage.hidden = false;
+        centerListEmptyState.hidden = false;
         centerListMessage.textContent = centersLoaded
-          ? '시·도를 선택한 뒤 지역 조회를 눌러 주세요.'
+          ? '시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.'
           : '행정복지센터 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
         centerListResults.replaceChildren();
         centerListPagination.replaceChildren();
@@ -298,13 +357,13 @@
       centerListPagination.replaceChildren();
 
       if (totalCount === 0) {
-        centerListMessage.hidden = false;
+        centerListEmptyState.hidden = false;
         centerListMessage.textContent =
           regionCenterLabel + ' 지역에 표시할 행정복지센터가 없습니다.';
         return;
       }
 
-      centerListMessage.hidden = true;
+      centerListEmptyState.hidden = true;
 
       regionCenterPage = Math.min(Math.max(requestedPage, 1), totalPages);
       const start = (regionCenterPage - 1) * CENTER_LIST_PAGE_SIZE;
@@ -673,7 +732,7 @@
       resetSelect(sigunguSelect, '먼저 시·도를 선택하세요');
       sigunguSelect.disabled = true;
       if (!sidoSelect.value) {
-        message.textContent = '시·도를 선택한 뒤 지역 조회를 눌러 지도를 이동하세요.';
+        message.textContent = '';
         return;
       }
 
@@ -691,7 +750,7 @@
         });
         sigunguSelect.disabled = regions.length === 0;
         if (regions.length === 0) message.textContent = '선택한 시·도에 시·군·구 목록이 없습니다.';
-        else message.textContent = '지역을 선택한 뒤 지역 조회를 눌러 지도를 이동하세요.';
+        else message.textContent = '';
       } catch (error) {
         console.error('시·군·구 조회 오류:', error);
         if (requestId === regionRequestId) message.textContent = '시·군·구 목록을 불러오지 못했습니다.';
@@ -699,7 +758,7 @@
     });
 
     sigunguSelect.addEventListener('change', () => {
-      message.textContent = '지역 조회를 누르면 선택한 지역으로 지도가 이동합니다.';
+      message.textContent = '';
     });
 
     regionSearchButton.addEventListener('click', async () => {
@@ -937,7 +996,7 @@
       const title = document.createElement('h3');
       title.textContent = item.scenarioTitle || '시나리오';
       const description = document.createElement('p');
-      description.textContent = item.description || '단계별 행정절차를 미리 연습해 보세요.';
+      description.textContent = getScenarioSummary(item.description);
 
       const duration = document.createElement('p');
       duration.className = 'popular-scenario-duration';
@@ -1054,6 +1113,13 @@
     startAutoPlay();
   }
 
+  function getScenarioSummary(value) {
+    const fallback = '단계별 행정절차를 미리 연습해 보세요.';
+    if (typeof value !== 'string' || value.trim() === '') return fallback;
+    // 첫 문단은 민원 절차 소개, 다음 문단은 해봄 시뮬레이션 설명입니다.
+    return value.split(/\r?\n/).map(text => text.trim()).find(Boolean) || fallback;
+  }
+
   async function renderRecentScenarioCard(mount, item, mainApiUrl) {
     if (mount === null || !item || !item.scenario || !item.progress) {
       return;
@@ -1066,11 +1132,11 @@
     const progressPercent = totalSteps > 1
       ? Math.min(100, Math.max(0, (currentStep - 1) / (totalSteps - 1) * 100))
       : (currentStep > 0 ? 100 : 0);
+    const mainUrl = new URL(mainApiUrl, window.location.href);
+    const contextPath = mainUrl.pathname.replace(/\/api\/main\/?$/, '');
 
     let steps = [];
     try {
-      const mainUrl = new URL(mainApiUrl, window.location.href);
-      const contextPath = mainUrl.pathname.replace(/\/api\/main\/?$/, '');
       const stepsResponse = await fetch(
         `${contextPath}/api/scenario/${encodeURIComponent(scenario.scenarioId)}/steps`,
         { headers: { Accept: 'application/json' } }
@@ -1099,30 +1165,18 @@
     const card = document.createElement('section');
     card.className = 'home-recent-progress';
 
-    const heading = document.createElement('div');
-    heading.className = 'home-recent-progress-heading';
-
-    const title = document.createElement('h2');
-    title.textContent = scenario.scenarioTitle || '시나리오';
-    heading.append(title);
-
     const progressSection = document.createElement('div');
     progressSection.className = 'home-sim-progress';
 
     const progressHeading = document.createElement('div');
     progressHeading.className = 'home-sim-progress-heading';
 
-    const currentTitle = document.createElement('strong');
-    const activeStep = steps.find(function (step) {
-      return Number(step.stepOrder) === currentStep;
-    });
-    currentTitle.textContent = currentStep === 0
-      ? '사전정보 입력'
-      : (activeStep ? activeStep.stepTitle : `${currentStep}단계`);
+    const scenarioTitle = document.createElement('strong');
+    scenarioTitle.textContent = scenario.scenarioTitle || '시나리오';
 
     const currentCount = document.createElement('span');
-    currentCount.textContent = `현재 ${currentStep} / ${totalSteps}단계`;
-    progressHeading.append(currentTitle, currentCount);
+    currentCount.textContent = `${currentStep} / ${totalSteps}단계`;
+    progressHeading.append(scenarioTitle, currentCount);
 
     const progressTrack = document.createElement('div');
     progressTrack.className = 'progress home-sim-progress-track';
@@ -1158,7 +1212,30 @@
     });
 
     progressSection.append(progressHeading, progressTrack, stepLabels);
-    card.append(heading, progressSection);
+    card.append(progressSection);
+
+    if (Number.isInteger(Number(progress.progressId)) && Number(progress.progressId) > 0) {
+      const continueRow = document.createElement('div');
+      continueRow.className = 'home-recent-progress-continue';
+
+      const continueLink = document.createElement('a');
+      continueLink.className = 'home-recent-progress-continue-link';
+      continueLink.href = `${contextPath}/simulation`;
+      continueLink.textContent = '이어서 연습하기';
+      continueLink.setAttribute('aria-label', `${scenario.scenarioTitle || '시나리오'} 이어서 연습하기`);
+      continueLink.addEventListener('click', function () {
+        window.sessionStorage.setItem('progressId', String(progress.progressId));
+      });
+
+      const arrow = document.createElement('span');
+      arrow.className = 'material-symbols-outlined';
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.textContent = 'arrow_forward';
+      continueLink.append(arrow);
+      continueRow.append(continueLink);
+      card.append(continueRow);
+    }
+
     mount.replaceChildren(card);
   }
 
@@ -1175,6 +1252,7 @@
 
     let selectedCategory = 'ALL';
     let latestRequestId = 0;
+    const temporaryBookmarks = new Set();
 
     async function loadCategories() {
       const categoriesUrl = new URL(
@@ -1340,7 +1418,34 @@
       detailLink.target = '_blank';
       detailLink.rel = 'noopener noreferrer';
 
-      card.append(title, summary, target, agency, detailLink);
+      const actions = document.createElement('div');
+      actions.className = 'policy-search-result-actions';
+      actions.append(detailLink);
+
+      const bookmarkKey = String(policy.serviceId || policy.serviceName || '');
+      const bookmarkButton = document.createElement('button');
+      bookmarkButton.type = 'button';
+      bookmarkButton.className = 'policy-bookmark-button';
+      bookmarkButton.setAttribute('aria-pressed', String(temporaryBookmarks.has(bookmarkKey)));
+      bookmarkButton.setAttribute('aria-label', temporaryBookmarks.has(bookmarkKey)
+        ? '관심있는 정책에서 제거' : '관심있는 정책에 추가');
+      bookmarkButton.innerHTML = '<span class="policy-bookmark-star" aria-hidden="true">'
+        + (temporaryBookmarks.has(bookmarkKey) ? '★' : '☆')
+        + '</span><span>관심있는 정책</span>';
+      if (temporaryBookmarks.has(bookmarkKey)) bookmarkButton.classList.add('is-selected');
+      bookmarkButton.addEventListener('click', function () {
+        const selected = !temporaryBookmarks.has(bookmarkKey);
+        if (selected) temporaryBookmarks.add(bookmarkKey);
+        else temporaryBookmarks.delete(bookmarkKey);
+        bookmarkButton.setAttribute('aria-pressed', String(selected));
+        bookmarkButton.setAttribute('aria-label', selected
+          ? '관심있는 정책에서 제거' : '관심있는 정책에 추가');
+        bookmarkButton.classList.toggle('is-selected', selected);
+        bookmarkButton.querySelector('.policy-bookmark-star').textContent = selected ? '★' : '☆';
+      });
+      actions.append(bookmarkButton);
+
+      card.append(title, summary, target, agency, actions);
       return card;
     }
 

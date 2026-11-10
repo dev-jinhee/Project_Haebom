@@ -17,6 +17,12 @@
             </span>
         </a>
 
+        <nav class="home-primary-nav" aria-label="메인 메뉴">
+            <a class="active" href="#practice-section" data-home-nav="practice-section" aria-current="location">행정절차 연습</a>
+            <a href="#center-map-section" data-home-nav="center-map-section">우리동네 행정지도</a>
+            <a href="#policy-search-section" data-home-nav="policy-search-section">공공서비스 정책 검색</a>
+        </nav>
+
         <!-- 우측 액션 메뉴 (메인 풀 메뉴: 관리자 + 글씨 크기 + 마이페이지 + 로그인/로그아웃) -->
         <div class="d-flex align-items-center gap-2 ms-auto">
             <!-- 관리자(ADMIN) 권한이 있는 경우에만 관리자 페이지 버튼 노출 (개발 테스트용 ?role=admin 허용) -->
