@@ -183,15 +183,24 @@
                 <label class="visually-hidden" for="policySearchInput">정책명 또는 검색어</label>
                 <div class="input-group">
                     <input id="policySearchInput" name="keyword" class="form-control" type="search"
-                           placeholder="예: 월세 지원" autocomplete="off" required>
+                           placeholder="예: 월세 지원" autocomplete="off">
                     <button class="btn btn-primary" type="submit">검색</button>
                 </div>
             </form>
+
+            <div id="policySearchCategories" class="policy-search-categories"
+                 role="group" aria-label="정책 분야 선택">
+                <button type="button" class="policy-category-button active"
+                        data-policy-category="ALL" aria-pressed="true">전체</button>
+            </div>
 
             <p id="policySearchMessage" class="small text-secondary mt-3 mb-2"
                role="status" aria-live="polite"></p>
             <div id="policySearchResults" class="policy-search-results d-none"
                  aria-live="polite"></div>
+            <nav class="policy-search-pagination-wrap" aria-label="정책 검색 결과 페이지">
+                <ul id="policySearchPagination" class="pagination justify-content-center"></ul>
+            </nav>
         </section>
 
         <p class="policy-search-footnote">연습은 안전하게! 모든 시뮬레이션은 학습용이며 실제 민원 접수되지 않습니다.</p>
@@ -199,6 +208,6 @@
 </main>
 
 <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=map-viewport-markers-2"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=policy-initial-results-1"></script>
 </body>
 </html>
