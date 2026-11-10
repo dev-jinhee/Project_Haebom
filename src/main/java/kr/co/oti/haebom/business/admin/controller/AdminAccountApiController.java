@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,7 +41,7 @@ public class AdminAccountApiController {
     @PostMapping
     public ResponseEntity<String> createAdmin(
             @AuthenticationPrincipal MemberPrincipal principal,
-            @RequestBody AdminAccountDTO dto) {
+            @ModelAttribute AdminAccountDTO dto) {
         int currentAdminId = (principal != null) ? principal.getMemberId() : 1;
         adminAccountService.createAdmin(dto, currentAdminId);
         return ResponseEntity.ok("새 관리자 계정이 성공적으로 등록되었습니다.");

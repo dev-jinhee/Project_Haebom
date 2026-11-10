@@ -105,7 +105,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="d-flex gap-2 ms-auto align-items-center">
+                <div class="d-flex flex-wrap gap-2 ms-auto align-items-center">
                     <!-- 상태 필터 -->
                     <select class="form-select form-select-sm" id="inquiryStatusFilter" aria-label="문의 상태 필터">
                         <option value="">전체 상태</option>
@@ -147,9 +147,9 @@
             <div class="table-footer">
                 <span>총 -건</span>
                 <nav aria-label="문의 페이지">
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item disabled"><a class="page-link" href="#">다음</a></li>
+                    <ul class="hb-pagination" id="inquiryPagination">
+
+
                     </ul>
                 </nav>
             </div>
@@ -167,6 +167,10 @@
             <details>
                 <summary>답변은 보통 언제 등록되나요?</summary>
                 <p>문의 접수 후 영업일 기준 1~2일 내에 관리자 답변이 등록됩니다. 등록된 답변은 본 페이지 '내 문의 내역'에서 언제든 확인하실 수 있습니다.</p>
+            </details>
+            <details>
+                <summary>연습 중 임시 저장한 기록은 언제까지 보관되나요?</summary>
+                <p>진행 중인 시뮬레이션 기록과 입력 정보(첨부 파일 포함)는 마지막 저장일로부터 30일이 지나면 자동으로 삭제됩니다. 완료한 연습 내역은 자동 삭제되지 않으며 마이페이지에서 확인하실 수 있습니다.</p>
             </details>
         </div>
 
@@ -202,7 +206,7 @@
                     <div class="p-2 bg-light rounded-3 d-flex align-items-center gap-2">
                         <div class="form-check form-switch mb-0">
                             <input class="form-check-input" type="checkbox" role="switch" id="inquiryIsSecret" name="isSecret">
-                            <label class="form-check-label small text-secondary fw-semibold cursor-pointer d-flex align-items-center" for="inquiryIsSecret">
+                            <label class="form-check-label small text-secondary fw-semibold cursor-pointer d-flex flex-wrap align-items-center" for="inquiryIsSecret">
                                 <span class="material-symbols-outlined text-warning me-1" style="font-size: 1.15rem;">lock</span>비밀글로 등록하기 <span class="text-muted fw-normal ms-1">(작성자와 관리자만 확인 가능)</span>
                             </label>
                         </div>
@@ -228,7 +232,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
                 </div>
                 <div class="modal-body px-4 py-3">
-                    <div class="d-flex align-items-center gap-3 text-secondary small pb-3 border-bottom mb-3">
+                    <div class="d-flex flex-wrap align-items-center gap-2 gap-sm-3 text-secondary small pb-3 border-bottom mb-3">
                         <span>등록일: <strong id="inquiryViewDate">2026.10.13</strong></span>
                         <span>답변 상태: <span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis" id="inquiryViewStatus">답변 대기</span></span>
                     </div>
@@ -249,7 +253,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer px-4 pb-4 pt-2 border-top-0 d-flex justify-content-between">
+                <div class="modal-footer px-4 pb-4 pt-2 border-top-0 d-flex flex-wrap justify-content-between gap-2">
 				    <%-- 왼쪽: 수정 및 삭제 버튼 --%>
 				    <div class="d-flex gap-2">
 				        <button type="button" class="btn btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center" id="btnEditInquiry">
