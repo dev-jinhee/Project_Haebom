@@ -66,7 +66,6 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	font-size: 22px;
 	line-height: 1;
 }
 
@@ -139,7 +138,6 @@
 .learning-badge .material-symbols-outlined {
 	display: block;
 	flex-shrink: 0;
-	font-size: 16px;
 	line-height: 1;
 }
 
@@ -641,6 +639,12 @@
 	font-size: .84rem;
 }
 
+.complete-mark .material-symbols-outlined {
+	font-size: 55px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
 .checklist-box {
 	margin: 10px 0 17px;
 	padding: 17px;
@@ -686,8 +690,6 @@
 }
 /* 시뮬레이션 인쇄 버튼 정렬 */
 #printBtn .material-symbols-outlined {
-	font-size: 20px;
-	line-height: 20px;
 	flex-shrink: 0;
 }
 
@@ -697,8 +699,6 @@
 }
 
 #completePrintBtn .material-symbols-outlined {
-	font-size: 20px;
-	line-height: 20px;
 	flex-shrink: 0;
 }
 
@@ -780,7 +780,6 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	font-size: 20px;
 	line-height: 1;
 	vertical-align: middle;
 }
@@ -795,10 +794,6 @@
 
 #completeOfficialLink .material-symbols-outlined {
 	display: block;
-	font-size: 20px;
-	line-height: 20px;
-	width: 20px;
-	height: 20px;
 	flex-shrink: 0;
 	transform: none;
 }
@@ -811,8 +806,8 @@
 
 /* 완료 화면 - 신청 전 준비사항 */
 #completeChecklistList li {
-	font-size: 14px;
-	line-height: 1.8;
+    font-size: 0.875em;
+    line-height: 1.8;
 }
 
 /* ===== Dynamic step state ===== */
@@ -983,6 +978,65 @@
 
 .sim-notice-panel li:last-child {
 	margin-bottom: 0;
+}
+
+/* ==============================
+   공통 라디오 · 체크박스 정렬
+   ============================== */
+
+/* 모든 시뮬레이션의 라디오 / 체크박스 */
+.sim-step-content input[type="radio"], .sim-step-content input[type="checkbox"]
+	{
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	padding: 0;
+	flex: 0 0 18px;
+	vertical-align: middle;
+	accent-color: #164166;
+}
+
+/* input을 직접 감싸는 label 정렬 */
+.sim-step-content label:has(>input[type="radio"]), .sim-step-content label:has(>input[type="checkbox"])
+	{
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 24px;
+	margin: 0;
+	line-height: 1.5;
+}
+
+/* ==============================
+   공통 Bootstrap form-check 정렬
+   ============================== */
+
+/* input과 label이 형제인 경우 */
+.sim-step-content .form-check {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding-left: 0;
+}
+
+/* Bootstrap 기본 float 및 음수 margin 제거 */
+.sim-step-content .form-check>.form-check-input {
+	float: none;
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	margin-top: 0.2em;
+	padding: 0;
+	accent-color: #164166;
+}
+
+/* 라디오·체크박스 옆 텍스트 */
+.sim-step-content .form-check>.form-check-label {
+	display: block;
+	margin: 0;
+	line-height: 1.5;
+	cursor: pointer;
 }
 
 @media ( max-width : 768px) {

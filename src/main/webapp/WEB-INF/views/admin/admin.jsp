@@ -36,7 +36,7 @@
 					<span class="admin-demo-badge d-none" data-admin-demo-badge>데모 데이터</span>
 				</div>
 				<ul class="navbar-nav ms-auto align-items-center">
-					<li class="nav-item dropdown">
+					<li class="nav-item dropdown d-none d-md-block">
 						<button class="nav-link dropdown-toggle" type="button"
 							data-bs-toggle="dropdown" aria-expanded="false"
 							aria-label="글씨 크기 설정">
@@ -64,8 +64,10 @@
 		<aside class="app-sidebar bg-primary-subtle" data-bs-theme="dark">
 			<div class="sidebar-brand">
 				<a href="${pageContext.request.contextPath}/admin"
-					class="brand-link"><span class="brand-image"><i
-						class="bi bi-building-fill-check"></i></span><span class="brand-text">해봄 관리</span></a>
+					class="brand-link"><span class="brand-image" aria-hidden="true"><img
+						class="admin-sidebar-logo-icon"
+						src="${pageContext.request.contextPath}/images/logo-icon.png"
+						alt=""></span><span class="brand-text">해봄 관리</span></a>
 			</div>
 			<div class="sidebar-wrapper">
 				<nav class="mt-2">

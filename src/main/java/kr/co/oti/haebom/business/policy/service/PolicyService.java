@@ -21,6 +21,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import kr.co.oti.haebom.business.address.dto.SgisRegionDto;
+import kr.co.oti.haebom.business.address.mapper.SgisRegionMapper;
 import kr.co.oti.haebom.business.policy.dto.PolicyDTO;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +40,7 @@ public class PolicyService {
     private String serviceKey;
 
     private final SimulationAnswerMapper simulationAnswerMapper;
+    private final SgisRegionMapper sgisRegionMapper;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -51,8 +54,8 @@ public class PolicyService {
     /*
      * 시나리오 및 진행 ID(주소 기반 지역 맞춤) 정책 목록 추천 (기본 고정 추천)
      * 
-     * @param scenarioCode "move"(전입신고) 또는 "identity_reissue"(주민등록증 재발급)
-     * @param progressId 시뮬레이션 진행 ID (전입신고 새 주소 추출용, nullable)
+     * @param scenarioCode "move", "identity_reissue", "resident_record_issue"
+     * @param progressId 시뮬레이션 진행 ID (주소 추출용, nullable)
      * @param directRegion 직접 전달된 지역명 (선택사항, nullable)
      * @return 지역 맞춤 추천 정책 리스트 (3건)
      */
@@ -69,24 +72,14 @@ public class PolicyService {
      * @param progressId 시뮬레이션 진행 ID
      * @param directRegion 직접 전달된 지역명
      * @param refreshIndex 새로고침 인덱스 (0: 기본 고정, 1 이상: 다른 추천 세트)
-     * @return 지역 맞춤 + 시드 기반 추천 정책 리스트 (최대 3건)
+     * @return 시나리오/지역 맞춤 + 시드 기반 추천 정책 리스트 (최대 3건)
      */
     public List<PolicyDTO> getRecommendedPolicies(String scenarioCode, Integer progressId, String directRegion, Integer refreshIndex) {
         // 1. 시나리오별 알맞은 정부 정책 검색 키워드 매핑
         String keyword = resolveKeyword(scenarioCode);
 
-        // 2. 전입신고 시나리오인 경우 입력한 새 주소 기반 지역 키워드 추출 (시·군·구, 시·도)
-        List<String> regionKeywords = new ArrayList<>();
-        if (directRegion != null && !directRegion.isBlank()) {
-            regionKeywords.add(directRegion.trim());
-        } else if (isMoveScenario(scenarioCode) && progressId != null) {
-            String[] extracted = extractRegionKeywords(progressId);
-            for (String kw : extracted) {
-                if (!regionKeywords.contains(kw)) {
-                    regionKeywords.add(kw);
-                }
-            }
-        }
+        // 2. 시나리오별 지역 키워드 추출 (전입신고: 새 주소 / 등·초본: 주민등록상 주소)
+        List<String> regionKeywords = resolveRegionKeywords(scenarioCode, progressId, directRegion);
 
         // 3. progressId와 refreshIndex 기반의 결정론적 Random 생성 (일관성 및 다채로운 순환 보장)
         int refresh = (refreshIndex != null && refreshIndex >= 0) ? refreshIndex : 0;
@@ -96,27 +89,34 @@ public class PolicyService {
 
         // 4. 공공서비스 API 호출 시도 (지역 맞춤 + 전국 정책 풀 구성 후 스마트 선택)
         try {
-            List<PolicyDTO> localPool = new ArrayList<>();
+            List<PolicyDTO> localTier1 = new ArrayList<>(); // 1순위: 정확한 시·군·구 (예: 관악구)
+            List<PolicyDTO> localTier2 = new ArrayList<>(); // 2순위: 광역 시·도 본청 전체 (예: 서울특별시)
             Set<String> seenIds = new HashSet<>();
 
-            // (1) 지자체 맞춤 정책 수집 (시·군·구 / 시·도)
+            // (1) 지자체 맞춤 정책 수집 (타 시·군·구 철저 제외)
             for (String region : regionKeywords) {
                 List<PolicyDTO> list = fetchFromGov24Api(keyword, region);
                 if (list != null && !list.isEmpty()) {
                     for (PolicyDTO dto : list) {
-                        if (seenIds.add(dto.getServiceId())) {
-                            localPool.add(dto);
+                        if (isExactSigunguMatch(dto, regionKeywords)) {
+                            if (seenIds.add(dto.getServiceId())) {
+                                localTier1.add(dto);
+                            }
+                        } else if (isMetroWideMatch(dto, regionKeywords)) {
+                            if (seenIds.add(dto.getServiceId())) {
+                                localTier2.add(dto);
+                            }
                         }
                     }
                 }
             }
 
-            // (2) 전국 단위 공통 정책 수집
+            // (2) 전국 단위 공통 정책 수집 (타 지자체 원천 차단)
             List<PolicyDTO> nationalPool = new ArrayList<>();
             List<PolicyDTO> natList = fetchFromGov24Api(keyword, null);
             if (natList != null && !natList.isEmpty()) {
                 for (PolicyDTO dto : natList) {
-                    if (seenIds.add(dto.getServiceId())) {
+                    if (isAllowedInNationalPool(dto, regionKeywords) && seenIds.add(dto.getServiceId())) {
                         nationalPool.add(dto);
                     }
                 }
@@ -130,9 +130,14 @@ public class PolicyService {
                 }
             }
 
-            // (4) 시드 기반 셔플
-            Collections.shuffle(localPool, random);
+            // (4) 각 계층 내 시드 기반 셔플 후 우선순위 병합 (Tier1 -> Tier2)
+            Collections.shuffle(localTier1, random);
+            Collections.shuffle(localTier2, random);
             Collections.shuffle(nationalPool, random);
+
+            List<PolicyDTO> localPool = new ArrayList<>();
+            localPool.addAll(localTier1);
+            localPool.addAll(localTier2);
 
             List<PolicyDTO> selected = new ArrayList<>();
 
@@ -173,64 +178,174 @@ public class PolicyService {
         return fallback.stream().limit(3).collect(Collectors.toList());
     }
 
-    /*
-     * 전입신고 시나리오 여부 확인
-     */
     private boolean isMoveScenario(String scenarioCode) {
         String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
         return code.contains("move") || "1".equals(code) || code.isEmpty();
+    }
+
+    private boolean isIdentityScenario(String scenarioCode) {
+        String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
+        return code.contains("identity") || code.contains("id-card") || code.contains("id_card") || "2".equals(code);
+    }
+
+    private boolean isCertificateScenario(String scenarioCode) {
+        String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
+        return code.contains("resident") || code.contains("record") || code.contains("cert") || "3".equals(code);
     }
 
     /*
      * 시나리오에 따른 검색 키워드 결정
      */
     private String resolveKeyword(String scenarioCode) {
-        String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
-        if (code.contains("identity") || code.contains("id-card") || code.contains("id_card") || "2".equals(code)) {
+        if (isIdentityScenario(scenarioCode)) {
             return "신분증"; // 주민등록증 재발급 ➜ 신분증/디지털증명 관련 혜택
+        }
+        if (isCertificateScenario(scenarioCode)) {
+            return "민원"; // 주민등록표 등본(초본) 발급 ➜ 민원/전자증명/서류 발급 편의 혜택
         }
         return "주거"; // 전입신고 ➜ 주거/이사 관련 혜택
     }
 
     /*
-     * 시뮬레이션 답변(simulation_answer)에서 사용자가 선택한 새 주소의 지역 키워드 추출
-     * 반환 예: ["수영구", "부산"] 또는 ["강남구", "서울"]
+     * 시나리오별 지역 키워드 추출 분기
      */
-    private String[] extractRegionKeywords(Integer progressId) {
+    private List<String> resolveRegionKeywords(String scenarioCode, Integer progressId, String directRegion) {
+        List<String> keywords = new ArrayList<>();
+        if (directRegion != null && !directRegion.isBlank()) {
+            keywords.add(directRegion.trim());
+            return keywords;
+        }
+        if (progressId == null) {
+            return keywords;
+        }
+        if (isMoveScenario(scenarioCode)) {
+            extractMoveAddressKeywords(progressId, keywords);
+        } else if (isCertificateScenario(scenarioCode)) {
+            extractCertificateRegionKeywords(progressId, keywords);
+        }
+        return keywords;
+    }
+
+    /*
+     * 전입신고(MOVE) 답변(currentAddress JSON)에서 지역 키워드 추출
+     */
+    private void extractMoveAddressKeywords(Integer progressId, List<String> keywords) {
         try {
             String addressJson = simulationAnswerMapper.selectAnswerValueByFieldKey(progressId, "currentAddress");
             if (addressJson == null || addressJson.isBlank()) {
-                return new String[0];
+                return;
             }
-
             JsonNode node = objectMapper.readTree(addressJson);
-            String sigunguName = node.path("sigunguName").asText("").trim();
-            String sidoName = node.path("sidoName").asText("").trim();
-
-            List<String> keywords = new ArrayList<>();
-            // 1) 시·군·구 (예: "수영구", "강남구", "성남시 분당구" -> 세부 구 단위 추출)
-            if (!sigunguName.isEmpty()) {
-                String[] parts = sigunguName.split("\\s+");
-                for (String part : parts) {
-                    if (part.length() >= 2) {
-                        keywords.add(part);
-                    }
-                }
-            }
-
-            // 2) 시·도 (예: "부산광역시" -> "부산", "서울특별시" -> "서울", "경기도" -> "경기")
-            if (!sidoName.isEmpty()) {
-                String shortSido = sidoName.replaceAll("(특별시|광역시|특별자치시|특별자치도|도)$", "");
-                if (shortSido.length() >= 2 && !keywords.contains(shortSido)) {
-                    keywords.add(shortSido);
-                }
-            }
-
-            return keywords.toArray(new String[0]);
+            addRegionNameParts(node.path("sigunguName").asText(""), node.path("sidoName").asText(""), keywords);
         } catch (Exception e) {
-            log.warn("[주소 지역 키워드 추출 실패] progressId={}: {}", progressId, e.getMessage());
-            return new String[0];
+            log.warn("[전입신고 지역 키워드 추출 실패] progressId={}: {}", progressId, e.getMessage());
         }
+    }
+
+    /*
+     * 등·초본(RESIDENT_RECORD_ISSUE) 답변(residentSigunguCode, residentSidoCode)에서 지역 키워드 추출
+     */
+    private void extractCertificateRegionKeywords(Integer progressId, List<String> keywords) {
+        try {
+            String sigunguCode = simulationAnswerMapper.selectAnswerValueByFieldKey(progressId, "residentSigunguCode");
+            String sidoCode = simulationAnswerMapper.selectAnswerValueByFieldKey(progressId, "residentSidoCode");
+
+            String sigunguName = "";
+            String sidoName = "";
+
+            if (sigunguCode != null && !sigunguCode.isBlank()) {
+                SgisRegionDto sigunguDto = sgisRegionMapper.selectByRegionCode(sigunguCode.trim());
+                if (sigunguDto != null && sigunguDto.getRegionName() != null) {
+                    sigunguName = sigunguDto.getRegionName();
+                }
+            }
+            if (sidoCode != null && !sidoCode.isBlank()) {
+                SgisRegionDto sidoDto = sgisRegionMapper.selectByRegionCode(sidoCode.trim());
+                if (sidoDto != null && sidoDto.getRegionName() != null) {
+                    sidoName = sidoDto.getRegionName();
+                }
+            }
+            addRegionNameParts(sigunguName, sidoName, keywords);
+        } catch (Exception e) {
+            log.warn("[등초본 지역 키워드 추출 실패] progressId={}: {}", progressId, e.getMessage());
+        }
+    }
+
+    /*
+     * 시·군·구 세부 구 단위 및 시·도 축약명(예: 부산, 서울) 공통 추출 헬퍼
+     */
+    private void addRegionNameParts(String sigunguName, String sidoName, List<String> keywords) {
+        if (sigunguName != null && !sigunguName.isBlank()) {
+            for (String part : sigunguName.trim().split("\\s+")) {
+                if (part.length() >= 2 && !keywords.contains(part)) {
+                    keywords.add(part);
+                }
+            }
+        }
+        if (sidoName != null && !sidoName.isBlank()) {
+            String shortSido = sidoName.trim().replaceAll("(특별시|광역시|특별자치시|특별자치도|도)$", "");
+            if (shortSido.length() >= 2 && !keywords.contains(shortSido)) {
+                keywords.add(shortSido);
+            }
+        }
+    }
+
+    /*
+     * 1순위: 사용자가 선택한 정확한 시·군·구(예: 관악구, 서귀포시) 정책인지 확인
+     */
+    private boolean isExactSigunguMatch(PolicyDTO dto, List<String> regionKeywords) {
+        String dept = dto.getDeptName();
+        if (dept == null || dept.isBlank() || regionKeywords == null) {
+            return false;
+        }
+        for (String kw : regionKeywords) {
+            if (kw != null && (kw.endsWith("시") || kw.endsWith("군") || kw.endsWith("구")) && dept.contains(kw)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+     * 2순위: 타 시·군·구를 제외한 광역 시·도 전체(예: 서울특별시, 부산광역시, 경기도 등) 정책인지 확인
+     */
+    private boolean isMetroWideMatch(PolicyDTO dto, List<String> regionKeywords) {
+        String dept = dto.getDeptName();
+        if (dept == null || dept.isBlank() || regionKeywords == null) {
+            return false;
+        }
+        String trimmed = dept.trim();
+        boolean isMetroGov = trimmed.endsWith("특별시")
+                || trimmed.endsWith("광역시")
+                || trimmed.endsWith("특별자치시")
+                || trimmed.endsWith("특별자치도")
+                || trimmed.endsWith("도");
+        if (!isMetroGov) {
+            return false;
+        }
+        for (String kw : regionKeywords) {
+            if (kw != null && !kw.isBlank() && trimmed.contains(kw)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+     * 전국 공통 풀(nationalPool)에 타 지자체 정책이 섞이는 것을 방지하는 필터
+     * - 사용자가 선택한 정확한 지역(시·군·구 또는 광역 시·도)이거나, 지자체가 아닌 중앙부처/전국공통 기관만 허용
+     */
+    private boolean isAllowedInNationalPool(PolicyDTO dto, List<String> regionKeywords) {
+        if (isExactSigunguMatch(dto, regionKeywords) || isMetroWideMatch(dto, regionKeywords)) {
+            return true;
+        }
+        String dept = dto.getDeptName();
+        if (dept == null || dept.isBlank()) {
+            return true;
+        }
+        boolean looksLikeLocalGov = dept.matches(".*(특별시|광역시|특별자치시|특별자치도|경기도|강원|충청|충북|충남|전라|전북|전남|경상|경북|경남|제주).*")
+                || dept.endsWith("시") || dept.endsWith("군") || dept.endsWith("구") || dept.endsWith("도");
+        return !looksLikeLocalGov;
     }
 
     /*
@@ -241,7 +356,7 @@ public class PolicyService {
     private List<PolicyDTO> fetchFromGov24Api(String keyword, String regionKeyword) throws Exception {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl + "/serviceList")
                 .queryParam("page", 1)
-                .queryParam("perPage", 20)
+                .queryParam("perPage", 50)
                 .queryParam("cond[서비스명::LIKE]", keyword)
                 .queryParam("returnType", "json");
 
@@ -289,9 +404,8 @@ public class PolicyService {
      */
     private List<PolicyDTO> getFallbackPolicies(String scenarioCode) {
         List<PolicyDTO> fallback = new ArrayList<>();
-        String code = (scenarioCode == null) ? "" : scenarioCode.trim().toLowerCase();
 
-        if (code.contains("identity") || code.contains("id-card") || code.contains("id_card") || "2".equals(code)) {
+        if (isIdentityScenario(scenarioCode)) {
             // 주민등록증 재발급 추천 정책
             fallback.add(PolicyDTO.builder()
                     .serviceId("FALLBACK_ID_1")
@@ -337,6 +451,62 @@ public class PolicyService {
                     .deptName("외교부")
                     .detailUrl("https://www.gov.kr/")
                     .applyPeriod("상시 신청")
+                    .build());
+        } else if (isCertificateScenario(scenarioCode)) {
+            // 주민등록표 등본(초본) 발급 전용 추천 정책
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_CERT_1")
+                    .serviceName("정부24 전자증명서 및 전자문서지갑 서비스")
+                    .serviceSummary("주민등록등·초본 등 주요 증명서를 종이 출력 없이 스마트폰에 저장해 은행·공공기관에 비대면 즉시 제출하세요.")
+                    .supportType("디지털 민원")
+                    .deptName("행정안전부")
+                    .detailUrl("https://www.gov.kr/")
+                    .applyPeriod("상시 신청")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_CERT_2")
+                    .serviceName("행정정보 공동이용 구비서류 제로화")
+                    .serviceSummary("관공서·금융기관 민원 신청 시 등·초본을 직접 발급받아 제출하지 않아도 정보 이용 동의로 전산 확인 처리됩니다.")
+                    .supportType("민원 간소화")
+                    .deptName("행정안전부")
+                    .detailUrl("https://www.gov.kr/")
+                    .applyPeriod("상시 이용")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_CERT_3")
+                    .serviceName("무인민원발급기 무료·야간 발급 서비스")
+                    .serviceSummary("주민센터 운영 시간 외 주말·야간에도 가까운 지하철역·구청 무인민원발급기에서 등·초본을 즉시 발급받으세요.")
+                    .supportType("발급 편의")
+                    .deptName("지방자치단체")
+                    .detailUrl("https://www.gov.kr/")
+                    .applyPeriod("연중 무휴")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_CERT_4")
+                    .serviceName("보조금24 세대·가족 맞춤형 혜택 일괄 조회")
+                    .serviceSummary("등본상 등록된 나와 가족 구성원 정보를 바탕으로 받을 수 있는 모든 정부·지자체 지원금을 한눈에 찾아줍니다.")
+                    .supportType("생활/복지")
+                    .deptName("행정안전부")
+                    .detailUrl("https://www.gov.kr/portal/rcvfvrSvc/main")
+                    .applyPeriod("상시 조회")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_CERT_5")
+                    .serviceName("국민비서(구삐) 행정서류·생활알림 서비스")
+                    .serviceSummary("각종 행정서류 제출 안내, 세금 납부, 건강검진 및 맞춤형 복지 혜택 신청 일정을 모바일 메신저로 먼저 알려드립니다.")
+                    .supportType("맞춤 알림")
+                    .deptName("행정안전부")
+                    .detailUrl("https://www.ips.go.kr/")
+                    .applyPeriod("상시 신청")
+                    .build());
+            fallback.add(PolicyDTO.builder()
+                    .serviceId("FALLBACK_CERT_6")
+                    .serviceName("사회적 배려계층 민원서류 수수료 감면")
+                    .serviceSummary("기초생활수급자, 국가유공자, 한부모가족 등 대상자에게 방문 및 무인민원발급기 등·초본 발급 수수료를 전액 면제합니다.")
+                    .supportType("수수료 감면")
+                    .deptName("행정안전부")
+                    .detailUrl("https://www.gov.kr/")
+                    .applyPeriod("상시 적용")
                     .build());
         } else {
             // 전입신고 추천 정책 (기본값)

@@ -204,55 +204,18 @@
 
 	// 📌 문의 게시판 [이전] [1] [2] [다음] 버튼 생성 함수
 	function renderInquiryPagination(totalPages, currentPage) {
-		const paginationEl = document.getElementById('adminInquiryPagination');
-		if (!paginationEl) return;
-
-		if (totalPages <= 1) {
-			paginationEl.innerHTML = '';
-			return;
-		}
-
-		let html = '';
-
-		// [이전] 버튼
-		const prevDisabled = currentPage === 1 ? 'disabled' : '';
-		html += `<li class="page-item ${prevDisabled}">
-			<a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="이전">&laquo;</a>
-		</li>`;
-
-		// 번호 버튼 (5개 단위 블록)
-		const pageGroupSize = 5;
-		const currentGroup = Math.ceil(currentPage / pageGroupSize);
-		const startPage = (currentGroup - 1) * pageGroupSize + 1;
-		const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
-
-		for (let p = startPage; p <= endPage; p++) {
-			const activeClass = p === currentPage ? 'active' : '';
-			html += `<li class="page-item ${activeClass}">
-				<a class="page-link" href="#" data-page="${p}">${p}</a>
-			</li>`;
-		}
-
-		// [다음] 버튼
-		const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-		html += `<li class="page-item ${nextDisabled}">
-			<a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="다음">&raquo;</a>
-		</li>`;
-
-		paginationEl.innerHTML = html;
-
-		// 클릭 시 해당 페이지로 이동
-		paginationEl.querySelectorAll('a.page-link').forEach(btn => {
-			btn.addEventListener('click', (e) => {
-				e.preventDefault();
-				const targetPage = Number(btn.dataset.page);
-				if (!targetPage || targetPage === inquiryCurrentPage || targetPage < 1 || targetPage > totalPages) return;
-				inquiryCurrentPage = targetPage;
-				renderAdminInquiryRows();
+		if (typeof window.renderHaebomPagination === 'function') {
+			window.renderHaebomPagination({
+				container: 'adminInquiryPagination',
+				currentPage: currentPage,
+				totalPages: totalPages,
+				onPageChange: (targetPage) => {
+					inquiryCurrentPage = targetPage;
+					renderAdminInquiryRows();
+				}
 			});
-		});
+		}
 	}
-
 	// 3. 상태순 정렬 버튼 클릭 이벤트
 	const inquiryStatusSortButton = document.querySelector('[data-inquiry-status-sort]');
 	inquiryStatusSortButton?.addEventListener('click', () => {

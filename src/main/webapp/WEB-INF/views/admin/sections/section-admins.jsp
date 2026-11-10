@@ -6,7 +6,7 @@
 								<h2 class="card-title fw-semibold mb-0">
 									<i class="bi bi-shield-lock text-primary me-2"></i>관리자 목록
 								</h2>
-								<div class="d-flex align-items-center gap-2 ms-auto">
+								<div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
 									<div class="input-group input-group-sm admin-search">
 										<span class="input-group-text"><i class="bi bi-search"></i></span>
 										<input class="form-control" placeholder="관리자명·아이디 검색"
@@ -46,7 +46,7 @@
 									<span id="adminAccountPageRange">0 - 0</span>
 								</div>
 								<nav aria-label="관리자 목록 페이징">
-									<ul class="pagination pagination-sm mb-0 justify-content-center" id="adminAccountPagination">
+									<ul class="hb-pagination" id="adminAccountPagination">
 										<!-- JS에서 버튼이 동적으로 생성됩니다 -->
 									</ul>
 								</nav>

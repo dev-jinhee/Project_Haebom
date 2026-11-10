@@ -289,3 +289,50 @@ function decodeHtml(str) {
 
 // 전역 등록 (어느 페이지에서나 바로 호출 가능!)
 window.decodeHtml = decodeHtml;
+
+// ========================================================
+// 9. [공통 유틸리티] 해봄 공통 페이지네이션 (renderHaebomPagination)
+// ========================================================
+function renderHaebomPagination({ container, currentPage = 1, totalPages = 0, groupSize = 5, onPageChange }) {
+	const paginationEl = typeof container === 'string' ? document.getElementById(container) : container;
+	if (!paginationEl) return;
+
+	paginationEl.replaceChildren();
+	if (!totalPages || totalPages < 1) return;
+
+	const safePage = Math.min(Math.max(1, Number(currentPage) || 1), totalPages);
+	const startPage = Math.floor((safePage - 1) / groupSize) * groupSize + 1;
+	const endPage = Math.min(startPage + groupSize - 1, totalPages);
+
+	const appendButton = (label, targetPage, { active = false, ariaLabel = '' } = {}) => {
+		const li = document.createElement('li');
+		const button = document.createElement('button');
+		button.type = 'button';
+		button.textContent = String(label);
+		if (ariaLabel) button.setAttribute('aria-label', ariaLabel);
+		if (active) {
+			button.classList.add('active');
+			button.setAttribute('aria-current', 'page');
+		}
+		button.addEventListener('click', () => {
+			if (targetPage === safePage || typeof onPageChange !== 'function') return;
+			onPageChange(targetPage);
+		});
+		li.appendChild(button);
+		paginationEl.appendChild(li);
+	};
+
+	if (startPage > 1) {
+		appendButton('<', startPage - 1, { ariaLabel: '이전 페이지 목록' });
+	}
+
+	for (let p = startPage; p <= endPage; p++) {
+		appendButton(p, p, { active: p === safePage });
+	}
+
+	if (endPage < totalPages) {
+		appendButton('>', endPage + 1, { ariaLabel: '다음 페이지 목록' });
+	}
+}
+
+window.renderHaebomPagination = renderHaebomPagination;

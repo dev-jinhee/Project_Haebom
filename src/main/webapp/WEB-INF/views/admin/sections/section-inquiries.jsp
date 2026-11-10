@@ -44,7 +44,7 @@
 									<span id="adminInquiryPageRange">0 - 0</span>
 								</div>
 								<nav aria-label="문의 목록 페이징">
-									<ul class="pagination pagination-sm mb-0 justify-content-center" id="adminInquiryPagination">
+									<ul class="hb-pagination" id="adminInquiryPagination">
 										<!-- JS에서 버튼이 동적으로 생성됩니다 -->
 									</ul>
 								</nav>
