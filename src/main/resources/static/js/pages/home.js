@@ -151,6 +151,7 @@
     let centerClusterer = null;
     let centerInfoWindow = null;
     let centerPopupOpen = false;
+    let activeCenterMarker = null;
     let regionCenterData = [];
     let regionCenterLabel = '';
     let regionCenterPage = 1;
@@ -220,16 +221,28 @@
       }
     }
 
-    function clearCenterMarkers() {
+    function clearCenterMarkerLayer(markerToKeep = null) {
       if (centerClusterer) {
         centerClusterer.clearMarkers();
         centerClusterer.setMap(null);
         centerClusterer = null;
       }
-      centerMarkers.forEach(marker => marker.setMap(null));
-      centerMarkers = [];
+      centerMarkers.forEach(marker => {
+        if (marker !== markerToKeep) marker.setMap(null);
+      });
+      centerMarkers = markerToKeep ? [markerToKeep] : [];
+      if (markerToKeep) markerToKeep.setMap(administrativeCenterMap);
+    }
+
+    function clearCenterMarkers() {
       centerPopupOpen = false;
+      activeCenterMarker = null;
+      clearCenterMarkerLayer();
       if (centerInfoWindow) centerInfoWindow.close();
+    }
+
+    function clearMarkersForMapGesture() {
+      clearCenterMarkerLayer(centerPopupOpen ? activeCenterMarker : null);
     }
 
     function focusMapOnSelectedRegion(selectedCenters) {
@@ -297,6 +310,7 @@
       if (!administrativeCenterMap || !center) return;
 
       centerPopupOpen = false;
+      activeCenterMarker = null;
       if (centerInfoWindow) centerInfoWindow.close();
 
       const position = {
@@ -434,21 +448,26 @@
       });
       marker.centerId = String(center.centerId);
       marker.addListener('click', () => {
+        const header = document.createElement('div');
+        header.className = 'center-place-popup-header';
+        header.textContent = center.centerName || '행정복지센터';
+
         const content = document.createElement('div');
         content.className = 'center-place-popup';
-        const title = document.createElement('strong');
         const address = document.createElement('p');
-        title.textContent = center.centerName || '행정복지센터';
         address.textContent = center.address || '주소 정보 없음';
         if (center.address && center.postalCode) {
           address.textContent += ` (우편번호 ${center.postalCode})`;
         }
-        content.append(title, address);
+        content.append(address);
 
         const placeStatus = document.createElement('p');
         placeStatus.textContent = '추가 장소 정보를 불러오는 중입니다.';
         content.append(placeStatus);
+        centerInfoWindow.setHeaderContent(header);
+        centerInfoWindow.setHeaderDisabled(false);
         centerInfoWindow.setContent(content);
+        activeCenterMarker = marker;
         centerPopupOpen = true;
         centerInfoWindow.open({ map: administrativeCenterMap, anchor: marker });
 
@@ -597,18 +616,21 @@
     }
 
     function renderVisibleCenters() {
-      // InfoWindow의 자동 화면 이동으로 발생한 idle에서 클릭한 핀을 다시 만들지 않습니다.
-      if (centerPopupOpen) return;
       if (!mapReady || !centersLoaded || !administrativeCenterMap) return;
       const bounds = administrativeCenterMap.getBounds();
       if (!bounds) return;
 
-      clearCenterMarkers();
+      const markerToKeep = centerPopupOpen ? activeCenterMarker : null;
+      clearCenterMarkerLayer(markerToKeep);
       const visibleCenters = mapCenterData.filter(center =>
-        bounds.contains({ lat: center.latitude, lng: center.longitude }));
-      centerMarkers = visibleCenters.map(createCenterMarker);
+        bounds.contains({ lat: center.latitude, lng: center.longitude })
+        && (!markerToKeep || String(center.centerId) !== markerToKeep.centerId));
+      const visibleMarkers = visibleCenters.map(createCenterMarker);
+      centerMarkers = markerToKeep
+        ? [...visibleMarkers, markerToKeep]
+        : visibleMarkers;
 
-      if (centerMarkers.length === 0) {
+      if (visibleMarkers.length === 0) {
         message.textContent = dataFreshnessMessage;
         return;
       }
@@ -616,7 +638,7 @@
       if (clustererLoaded && window.markerClusterer?.MarkerClusterer) {
         const clusterOptions = {
           map: administrativeCenterMap,
-          markers: centerMarkers,
+          markers: visibleMarkers,
           renderer: {
             render({ count, position }) {
               const scale = count >= 100 ? 22 : count >= 10 ? 19 : 16;
@@ -650,8 +672,9 @@
         }
         centerClusterer = new window.markerClusterer.MarkerClusterer(clusterOptions);
       } else {
-        centerMarkers.forEach(marker => marker.setMap(administrativeCenterMap));
+        visibleMarkers.forEach(marker => marker.setMap(administrativeCenterMap));
       }
+      if (markerToKeep) markerToKeep.setMap(administrativeCenterMap);
 
       message.textContent = dataFreshnessMessage;
     }
@@ -766,6 +789,7 @@
           return;
         }
         focusMapOnSelectedRegion(selectedCenters);
+        renderVisibleCenters();
         renderCenterListForSelectedRegion(selectedCenters);
         message.textContent = dataFreshnessMessage;
       } catch (error) {
@@ -800,11 +824,12 @@
         fullscreenControl: true
       });
       administrativeCenterMap.addListener('idle', renderVisibleCenters);
-      administrativeCenterMap.addListener('zoom_changed', clearCenterMarkers);
-      administrativeCenterMap.addListener('dragstart', clearCenterMarkers);
+      administrativeCenterMap.addListener('zoom_changed', clearMarkersForMapGesture);
+      administrativeCenterMap.addListener('dragstart', clearMarkersForMapGesture);
       centerInfoWindow = new google.maps.InfoWindow({ maxWidth: 360 });
       centerInfoWindow.addListener('closeclick', () => {
         centerPopupOpen = false;
+        activeCenterMarker = null;
         renderVisibleCenters();
       });
 
@@ -1249,7 +1274,6 @@
 
     let selectedCategory = 'ALL';
     let latestRequestId = 0;
-    const temporaryBookmarks = new Set();
 
     async function loadCategories() {
       const categoriesUrl = new URL(
@@ -1418,29 +1442,6 @@
       const actions = document.createElement('div');
       actions.className = 'policy-search-result-actions';
       actions.append(detailLink);
-
-      const bookmarkKey = String(policy.serviceId || policy.serviceName || '');
-      const bookmarkButton = document.createElement('button');
-      bookmarkButton.type = 'button';
-      bookmarkButton.className = 'policy-bookmark-button';
-      bookmarkButton.setAttribute('aria-pressed', String(temporaryBookmarks.has(bookmarkKey)));
-      bookmarkButton.setAttribute('aria-label', temporaryBookmarks.has(bookmarkKey)
-        ? '관심있는 정책에서 제거' : '관심있는 정책에 추가');
-      bookmarkButton.innerHTML = '<span class="policy-bookmark-star" aria-hidden="true">'
-        + (temporaryBookmarks.has(bookmarkKey) ? '★' : '☆')
-        + '</span><span>관심있는 정책</span>';
-      if (temporaryBookmarks.has(bookmarkKey)) bookmarkButton.classList.add('is-selected');
-      bookmarkButton.addEventListener('click', function () {
-        const selected = !temporaryBookmarks.has(bookmarkKey);
-        if (selected) temporaryBookmarks.add(bookmarkKey);
-        else temporaryBookmarks.delete(bookmarkKey);
-        bookmarkButton.setAttribute('aria-pressed', String(selected));
-        bookmarkButton.setAttribute('aria-label', selected
-          ? '관심있는 정책에서 제거' : '관심있는 정책에 추가');
-        bookmarkButton.classList.toggle('is-selected', selected);
-        bookmarkButton.querySelector('.policy-bookmark-star').textContent = selected ? '★' : '☆';
-      });
-      actions.append(bookmarkButton);
 
       card.append(title, summary, target, agency, actions);
       return card;

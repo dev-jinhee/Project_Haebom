@@ -159,6 +159,7 @@
 .center-list-pagination-wrap { margin-top: 12px; }
 .center-list-pagination-wrap .pagination { margin-bottom: 0; }
 .center-place-popup { width: 300px; max-width: 70vw; overflow-wrap: anywhere; color: #334155; font-size: 13px; }
+.center-place-popup-header { color: #173b70; font-size: 13px; font-weight: 700; }
 .center-place-popup > strong { display: block; margin-bottom: 5px; color: #173b70; }
 .center-place-popup > p { margin: 5px 0; }
 .center-place-link { display: block; margin-top: 6px; }
@@ -280,11 +281,6 @@
 .policy-search-result p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: .78rem; }
 .policy-search-result-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: auto; padding-top: 8px; }
 .policy-search-result-actions .btn { font-size: .72rem; }
-.policy-bookmark-button { display: inline-flex; flex: none; align-items: center; gap: 5px; border: 1px solid #cbdbea; border-radius: 7px; padding: 5px 8px; background: #fff; color: #52657a; font-size: .7rem; font-weight: 700; }
-.policy-bookmark-button:hover { border-color: #e6bd55; color: #8a6810; background: #fffaf0; }
-.policy-bookmark-button.is-selected { border-color: #e6bd55; color: #8a6810; background: #fff8df; }
-.policy-bookmark-star { color: #8996a5; font-size: 1rem; line-height: 1; }
-.policy-bookmark-button.is-selected .policy-bookmark-star { color: #f2b800; }
 .policy-search-pagination-wrap { margin-top: 10px; }
 .policy-panel { display: flex; min-height: 0; flex: 1; flex-direction: column; }
 .policy-search-results:not(.d-none) { flex: 1; align-content: start; overflow-y: auto; }
