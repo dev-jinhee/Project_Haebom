@@ -402,8 +402,11 @@
 
         const directionsLink = document.createElement('a');
         directionsLink.className = 'btn btn-sm btn-primary';
+        const destination = [center.centerName, center.address]
+          .filter(Boolean)
+          .join(', ') || center.latitude + ',' + center.longitude;
         directionsLink.href = 'https://www.google.com/maps/dir/?api=1&destination='
-          + encodeURIComponent(center.latitude + ',' + center.longitude);
+          + encodeURIComponent(destination);
         directionsLink.target = '_blank';
         directionsLink.rel = 'noopener noreferrer';
         directionsLink.textContent = '길찾기';
