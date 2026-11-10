@@ -14,9 +14,23 @@ public class AdministrativeCenterService {
     private final MainPageMapper mainPageMapper;
 
     public List<AdministrativeCenterDTO> getCenters(String sido, String sigungu) {
-        if (sido == null || sido.isBlank() || sigungu == null || sigungu.isBlank()) {
+        if (sido == null || sido.isBlank()) {
             return mainPageMapper.selectAllCentersWithCoordinates();
         }
+        if (sigungu == null || sigungu.isBlank()) {
+            return mainPageMapper.selectCentersBySido(sido.trim());
+        }
         return mainPageMapper.selectCentersByRegion(sido, sigungu);
+    }
+
+    public List<String> getSidoOptions() {
+        return mainPageMapper.selectDistinctSido();
+    }
+
+    public List<String> getSigunguOptions(String sido) {
+        if (sido == null || sido.isBlank()) {
+            return List.of();
+        }
+        return mainPageMapper.selectDistinctSigunguBySido(sido.trim());
     }
 }

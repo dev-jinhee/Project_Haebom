@@ -36,7 +36,8 @@ public interface MainPageMapper {
     List<PopularScenarioDTO> selectPopularScenariosThisMonth();
 	
 	@Select("""
-		SELECT center_id AS centerId,
+		SELECT 
+			center_id,
 			sido, 
 			sigungu,
 		    center_name,
@@ -56,7 +57,26 @@ public interface MainPageMapper {
 			@Param("sigungu") String sigungu);
 
 	@Select("""
-		SELECT center_id AS centerId,
+		SELECT 
+			center_id,
+			sido,
+			sigungu,
+			center_name,
+			postal_code,
+			address,
+			latitude,
+			longitude
+		FROM administrative_center
+		WHERE sido = #{sido}
+		  AND latitude IS NOT NULL
+		  AND longitude IS NOT NULL
+		ORDER BY sigungu, center_name
+		""")
+	List<AdministrativeCenterDTO> selectCentersBySido(@Param("sido") String sido);
+
+	@Select("""
+		SELECT 
+			center_id,
 			sido,
 			sigungu,
 			center_name,
@@ -70,6 +90,23 @@ public interface MainPageMapper {
 		ORDER BY sido, sigungu, center_name
 		""")
 	List<AdministrativeCenterDTO> selectAllCentersWithCoordinates();
+
+	@Select("""
+		SELECT DISTINCT sido
+		FROM administrative_center
+		WHERE sido IS NOT NULL AND TRIM(sido) <> ''
+		ORDER BY sido
+		""")
+	List<String> selectDistinctSido();
+
+	@Select("""
+		SELECT DISTINCT sigungu
+		FROM administrative_center
+		WHERE sido = #{sido}
+		  AND sigungu IS NOT NULL AND TRIM(sigungu) <> ''
+		ORDER BY sigungu
+		""")
+	List<String> selectDistinctSigunguBySido(@Param("sido") String sido);
 	
 	@Select("""
 		    SELECT center_id AS centerId, sido, sigungu,

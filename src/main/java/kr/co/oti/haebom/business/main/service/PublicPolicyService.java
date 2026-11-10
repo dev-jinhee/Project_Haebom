@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class PublicPolicyService {
-    private static final int PAGE_SIZE = 5;
+    private static final int PAGE_SIZE = 6;
 
     private final Gov24PolicyCatalogService catalogService;
 
