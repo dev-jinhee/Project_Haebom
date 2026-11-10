@@ -30,7 +30,7 @@ public class PublicPolicyApiController {
         return publicPolicyService.getCategories();
     }
 
-    @Operation(summary = "분야별 공공서비스 검색", description = "검색어와 정책 분야로 공공서비스를 검색하고 페이지당 5건씩 반환합니다.")
+    @Operation(summary = "분야별 공공서비스 검색", description = "검색어와 정책 분야로 공공서비스를 검색하고 페이지당 6건씩 반환합니다.")
     @GetMapping
     public Mono<PolicySearchPageDTO> searchPolicies(
             @RequestParam(defaultValue = "") String keyword,

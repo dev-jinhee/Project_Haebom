@@ -159,7 +159,7 @@
     let regionSearchRequested = false;
     let centerMarkerIcon = null;
     const CENTER_LIST_PAGE_SIZE = 5;
-    const CENTER_LIST_PAGE_GROUP_SIZE = 10;
+    const CENTER_LIST_PAGE_GROUP_SIZE = 5;
 
     function getCenterMarkerIcon() {
       if (centerMarkerIcon) return centerMarkerIcon;
