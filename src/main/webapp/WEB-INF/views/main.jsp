@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v24-popular-heading" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v26-footer-text-alignment" rel="stylesheet">
 
 </head>
 <body>
@@ -195,6 +195,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/app.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v15-popular-strip"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v16-header-offset"></script>
 </body>
 </html>

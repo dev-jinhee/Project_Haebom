@@ -63,6 +63,21 @@
     const dotLinks = Array.from(document.querySelectorAll('[data-home-dot]'));
     if (panels.length === 0) return;
 
+    // Keep full-screen panels and their anchor offset aligned with the sticky header.
+    const header = document.querySelector('.site-header');
+    const updateHeaderHeight = () => {
+      if (!header) return;
+      document.documentElement.style.setProperty(
+        '--home-header-height', `${Math.ceil(header.getBoundingClientRect().height)}px`
+      );
+    };
+    updateHeaderHeight();
+    if (header && 'ResizeObserver' in window) {
+      new ResizeObserver(updateHeaderHeight).observe(header);
+    } else {
+      window.addEventListener('resize', updateHeaderHeight, { passive: true });
+    }
+
     const desktopSnap = window.matchMedia('(min-width: 768px)');
     function updateSnapMode() {
       document.documentElement.classList.toggle('home-snap-enabled', desktopSnap.matches);
