@@ -97,7 +97,8 @@
     <section id="center-map-section" class="home-panel center-map-section center-map-panel"
                  aria-labelledby="center-map-title"
                  data-api-url="${pageContext.request.contextPath}/api/main/institutions"
-                 data-region-api-url="${pageContext.request.contextPath}/api/address/sgis/regions"
+                 data-sido-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sido"
+                 data-sigungu-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sigungu"
                  data-map-key="${googleMapsBrowserKey}">
         <div class="container home-panel-inner">
             <div class="center-map-heading">

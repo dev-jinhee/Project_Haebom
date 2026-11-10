@@ -26,6 +26,18 @@ public class AdministrativeCenterApiController {
     private final AdministrativeCenterService administrativeCenterService;
     private final GooglePlacesService googlePlacesService;
 
+    @Operation(summary = "행정복지센터 기준 시·도 목록", description = "행정복지센터 위치정보에 등록된 시·도 값만 조회합니다.")
+    @GetMapping("/regions/sido")
+    public List<String> getSidoOptions() {
+        return administrativeCenterService.getSidoOptions();
+    }
+
+    @Operation(summary = "행정복지센터 기준 시·군·구 목록", description = "선택한 시·도에 등록된 시·군·구 값만 조회합니다.")
+    @GetMapping("/regions/sigungu")
+    public List<String> getSigunguOptions(@RequestParam String sido) {
+        return administrativeCenterService.getSigunguOptions(sido);
+    }
+
     @Operation(summary = "행정복지센터 조회", description = "지역 조건이 없으면 좌표가 등록된 전체 기관을 조회하고, 시·도와 시·군·구를 지정하면 해당 지역만 조회합니다.")
     @GetMapping
     public List<AdministrativeCenterDTO> getCenters(
