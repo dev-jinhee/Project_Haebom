@@ -349,3 +349,150 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
   .home-panel { display: block; height: auto; min-height: 0; scroll-snap-align: none; scroll-snap-stop: normal; }
   .home-section-dots { display: none; }
 }
+
+/* Compact popular-scenario strip, matching the approved v6 reference. */
+.popular-scenarios-panel {
+  display: grid;
+  grid-template-columns: minmax(175px, 205px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 88px;
+  padding: 11px 15px;
+}
+.popular-scenarios-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin: 0; }
+.popular-scenarios-heading h2 { position: relative; margin: 0; padding-left: 10px; color: #173b70; font-size: .94rem; font-weight: 800; line-height: 1.35; }
+.popular-scenarios-heading h2::before { position: absolute; top: .16em; bottom: .16em; left: 0; width: 3px; border-radius: 3px; background: linear-gradient(180deg, #35b6b0, #1769aa); content: ''; }
+.popular-scenarios-heading p { margin-top: 3px; font-size: .74rem; }
+.popular-carousel { display: block; min-width: 0; }
+.popular-carousel-slide {
+  min-height: 58px;
+  border: 1px solid #e4edf3;
+  border-radius: 12px;
+  background: linear-gradient(120deg, #fbfdff, #f4f9fc);
+}
+.popular-scenario-card {
+  display: grid;
+  min-height: 58px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+}
+.popular-scenario-copy {
+  display: grid;
+  min-width: 0;
+  max-width: none;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 9px;
+  align-items: center;
+}
+.popular-scenario-eyebrow { grid-column: 1; grid-row: 1 / span 2; margin: 0; }
+.popular-scenario-rank { padding: 4px 8px; font-size: .66rem; white-space: nowrap; }
+.popular-scenario-category { display: none; }
+.popular-scenario-card h3 { grid-column: 2; margin: 0; font-size: .9rem; }
+.popular-scenario-card p:not(.popular-scenario-duration) {
+  grid-column: 2;
+  display: block;
+  overflow: hidden;
+  font-size: .7rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.popular-scenario-actions .popular-scenario-duration { display: block; margin: 0; color: #6d8195; font-size: .66rem; white-space: nowrap; }
+.popular-scenario-actions { flex: none; flex-direction: row; align-items: center; gap: 8px; }
+.popular-scenario-actions .btn { padding: 5px 9px; font-size: .72rem; white-space: nowrap; }
+.popular-scenario-list-link { display: none; }
+.popular-scenarios-status { min-height: 58px; padding: 10px; font-size: .76rem; }
+.popular-carousel-controls { justify-content: flex-end; gap: 6px; margin: 0; white-space: nowrap; }
+.popular-carousel-arrow { width: 28px; height: 28px; }
+.popular-carousel-arrow .material-symbols-outlined { font-size: 1.1rem; }
+.popular-carousel-play { width: 28px; height: 28px; }
+.popular-carousel-dots { display: none; }
+.popular-scenarios-feedback { display: none; min-height: 0; margin: 0; }
+.popular-scenarios-feedback:not(:empty) { display: block; grid-column: 1 / -1; text-align: left; }
+
+@media (max-width: 767.98px) {
+  .popular-scenarios-panel {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 9px 10px;
+    padding: 12px;
+  }
+  .popular-scenarios-heading { grid-column: 1; }
+  .popular-carousel { grid-column: 1 / -1; grid-row: 2; }
+  .popular-carousel-controls { grid-column: 2; grid-row: 1; }
+  .popular-scenario-card { grid-template-columns: minmax(0, 1fr); gap: 7px; padding: 8px; }
+  .popular-scenario-actions { justify-content: flex-end; }
+  .popular-scenario-actions .btn { padding-inline: 7px; font-size: .68rem; }
+}
+
+/* Large shortcut cards follow the v6 home-page reference. */
+.practice-panel .home-service-grid {
+  display: grid;
+  flex: 1 1 0;
+  min-height: 274px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(130px, 1fr));
+  align-items: stretch;
+  gap: 14px;
+}
+.practice-panel .home-service-card {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  overflow: hidden;
+  padding: 22px 25px;
+  border-radius: 20px;
+}
+.practice-panel .home-service-card::before {
+  position: absolute;
+  right: -90px;
+  bottom: -140px;
+  width: 210px;
+  height: 210px;
+  border: 1px solid rgba(23, 105, 166, .06);
+  border-radius: 50%;
+  box-shadow: 0 0 0 18px rgba(23, 105, 166, .025);
+  content: '';
+  pointer-events: none;
+}
+.practice-panel .home-service-card.service-primary { background: linear-gradient(135deg, #f2f9fd 0%, #fff 82%); }
+.practice-panel .home-service-card.home-history-card { background: linear-gradient(135deg, #fff 0%, #f7fbfd 100%); }
+.practice-panel .home-service-card.home-inquiry-card { background: linear-gradient(135deg, #fff 0%, #f8fbfd 100%); }
+.practice-panel .home-service-card > * { position: relative; z-index: 1; }
+.practice-panel .home-service-card .service-icon { width: 50px; height: 50px; flex: 0 0 50px; border-radius: 15px; font-size: 1.25rem; }
+.practice-panel .home-service-copy { display: flex; min-width: 0; flex: 1; flex-direction: column; align-items: flex-start; }
+.practice-panel .home-service-copy .service-kicker { margin: 0 0 5px; font-size: .63rem; }
+.practice-panel .home-service-title { color: #173b70; font-size: 1.25rem; font-weight: 800; line-height: 1.35; }
+.practice-panel .home-service-description { margin-top: 4px; color: #68798c; font-size: .76rem; line-height: 1.5; }
+.practice-panel .home-service-card .service-action {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border: 1px solid #d7e7f2;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .5);
+  font-size: 0;
+}
+.practice-panel .home-service-card .service-action .material-symbols-outlined { font-size: 1.15rem; }
+@media (max-width: 767.98px) {
+  .practice-panel .home-service-grid { min-height: 0; grid-template-columns: 1fr; grid-template-rows: none; }
+  .practice-panel .home-service-card { height: auto; min-height: 125px; padding: 17px; border-radius: 16px; }
+  .practice-panel .home-service-card .service-icon { width: 42px; height: 42px; flex-basis: 42px; }
+  .practice-panel .home-service-title { font-size: 1rem; }
+  .practice-panel .home-service-description { font-size: .72rem; }
+  .practice-panel .home-service-card .service-action { width: 36px; height: 36px; flex-basis: 36px; }
+}
+@media (max-height: 780px) and (min-width: 768px) {
+  .practice-panel .home-service-grid { min-height: 234px; grid-template-rows: repeat(2, minmax(110px, 1fr)); }
+}

@@ -988,7 +988,7 @@
       eyebrow.className = 'popular-scenario-eyebrow';
       const rank = document.createElement('span');
       rank.className = 'popular-scenario-rank';
-      rank.textContent = `인기 ${currentIndex + 1}`;
+      rank.textContent = `${currentIndex + 1}위`;
       const category = document.createElement('span');
       category.className = 'popular-scenario-category';
       category.textContent = item.categoryLabel || item.categoryName || '행정절차';
@@ -1003,9 +1003,9 @@
       duration.className = 'popular-scenario-duration';
       const minutes = Number(item.estimatedMinutes);
       duration.textContent = Number.isFinite(minutes) && minutes > 0
-        ? `예상 ${minutes}분 · 학습용 시뮬레이션`
+        ? `약 ${minutes}분`
         : '학습용 시뮬레이션';
-      copy.append(eyebrow, title, description, duration);
+      copy.append(eyebrow, title, description);
 
       const actions = document.createElement('div');
       actions.className = 'popular-scenario-actions';
@@ -1016,11 +1016,7 @@
       startButton.addEventListener('click', function () {
         startScenario(item.scenarioId, startButton);
       });
-      const listLink = document.createElement('a');
-      listLink.className = 'popular-scenario-list-link';
-      listLink.href = `${contextPath}/scenario`;
-      listLink.textContent = '시나리오 안내 보기';
-      actions.append(startButton, listLink);
+      actions.append(duration, startButton);
 
       card.append(copy, actions);
       slide.append(card);

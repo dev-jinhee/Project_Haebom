@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v20-v2-hero-motif" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v24-popular-heading" rel="stylesheet">
 
 </head>
 <body>
@@ -27,17 +27,14 @@
                         <div id="loggedOutView" hidden>
                             <h1 id="home-title">필요한 행정절차를<br><span>미리 살펴보고 연습해 보세요.</span></h1>
                             <p>실제 신청 전에 단계별 절차를 안전하게 경험할 수 있어요.</p>
-                            <a class="btn btn-light rounded-pill px-4 mt-3" href="${pageContext.request.contextPath}/scenario">연습할 시나리오 선택하기</a>
                         </div>
                         <div id="loggedInNoProgressView" hidden>
                             <h1><span id="memberNameNoProgress"></span>님, 오늘도 차근차근<br><span>한 단계씩 준비해 봐요.</span></h1>
                             <p>필요한 행정절차를 미리 알고, 실제 신청 전에 단계별로 연습해 보세요.</p>
-                            <a class="btn btn-light rounded-pill px-4 mt-3" href="${pageContext.request.contextPath}/scenario">연습할 시나리오 선택하기</a>
                         </div>
                         <div id="loggedInProgressView" hidden>
                             <h1><span id="memberNameProgress"></span>님, 오늘도 차근차근<br><span>한 단계씩 준비해 봐요.</span></h1>
                             <p>필요한 행정절차를 미리 알고, 실제 신청 전에 단계별로 연습해 보세요.</p>
-                            <a class="btn btn-light rounded-pill px-4 mt-3" href="${pageContext.request.contextPath}/scenario">진행 중인 연습 보기 <span class="material-symbols-outlined ms-1" aria-hidden="true">arrow_forward</span></a>
                         </div>
                     </div>
                     <aside class="hero-visual" aria-label="해봄 이용 방법">
@@ -52,44 +49,44 @@
                 </div>
             </section>
 
-            <section id="popular-scenarios" class="popular-scenarios-panel" aria-labelledby="popular-scenarios-title" aria-roledescription="캐러셀">
-            <div class="popular-scenarios-heading">
-                <div>
-                    <h2 id="popular-scenarios-title">이번 달 인기 시나리오</h2>
-                    <p>많이 연습한 행정절차를 확인하고 바로 시작해 보세요.</p>
-                </div>
-                <a class="btn btn-outline-primary rounded-pill" href="${pageContext.request.contextPath}/scenario">
-                    전체 시나리오 보기
-                </a>
-            </div>
-            <div class="popular-carousel">
-                <button class="popular-carousel-arrow" type="button" data-popular-prev aria-label="이전 시나리오">
-                    <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
-                </button>
-                <div class="popular-carousel-slide" data-popular-slide aria-live="polite">
-                    <p class="popular-scenarios-status">인기 시나리오를 불러오는 중입니다.</p>
-                </div>
-                <button class="popular-carousel-arrow" type="button" data-popular-next aria-label="다음 시나리오">
-                    <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
-                </button>
-            </div>
-            <div class="popular-carousel-controls">
-                <span data-popular-position aria-live="polite">0 / 0</span>
-                <button class="popular-carousel-play" type="button" data-popular-toggle aria-label="자동 넘김 일시정지">
-                    <span class="material-symbols-outlined" aria-hidden="true">pause</span>
-                </button>
-                <div class="popular-carousel-dots" data-popular-dots aria-label="시나리오 선택"></div>
-            </div>
-            <p class="popular-scenarios-feedback" data-popular-feedback role="status" aria-live="polite"></p>
-            </section>
-
             <section class="home-service-grid" aria-label="주요 서비스 바로가기">
                 <a class="service-card service-primary home-service-card" href="${pageContext.request.contextPath}/scenario">
-                    <span class="service-icon"><span class="material-symbols-outlined" aria-hidden="true">fact_check</span></span><span class="service-kicker">STEP BY STEP</span><h2>행정절차 연습하기</h2><p>전체 시나리오를 살펴보고 원하는 절차의 연습을 시작합니다.</p><span class="service-action">시나리오 선택하기 <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></span>
+                    <span class="service-icon"><span class="material-symbols-outlined" aria-hidden="true">fact_check</span></span>
+                    <span class="home-service-copy"><span class="service-kicker">STEP BY STEP</span><h2 class="home-service-title">행정절차 연습하기</h2><span class="home-service-description">원하는 시나리오를 골라 신청 흐름을 미리 연습해 보세요.</span></span>
+                </a>
+                <a class="service-card home-service-card home-history-card" href="${pageContext.request.contextPath}/mypage">
+                    <span class="service-icon"><span class="material-symbols-outlined" aria-hidden="true">history</span></span>
+                    <span class="home-service-copy"><span class="service-kicker">MY PRACTICE</span><h2 class="home-service-title">내 연습 기록</h2><span class="home-service-description">진행 중이거나 완료한 시나리오를 확인하세요.</span></span>
                 </a>
                 <a class="service-card home-service-card home-inquiry-card" href="${pageContext.request.contextPath}/inquiries">
-                    <span class="service-icon"><span class="material-symbols-outlined" aria-hidden="true">forum</span></span><span class="service-kicker">HELP CENTER</span><h2>문의 게시판</h2><p>이용 중 궁금한 점을 남기고 답변을 확인합니다.</p><span class="service-action">문의하러 가기 <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span></span>
+                    <span class="service-icon"><span class="material-symbols-outlined" aria-hidden="true">forum</span></span>
+                    <span class="home-service-copy"><span class="service-kicker">HELP CENTER</span><h2 class="home-service-title">문의 게시판</h2><span class="home-service-description">궁금한 점을 남기고 답변을 확인하세요.</span></span>
                 </a>
+            </section>
+
+            <section id="popular-scenarios" class="popular-scenarios-panel" aria-labelledby="popular-scenarios-title" aria-roledescription="캐러셀">
+                <div class="popular-scenarios-heading">
+                    <h2 id="popular-scenarios-title">이번 달 인기 시나리오</h2>
+                </div>
+                <div class="popular-carousel">
+                    <div class="popular-carousel-slide" data-popular-slide aria-live="polite">
+                        <p class="popular-scenarios-status">인기 시나리오를 불러오는 중입니다.</p>
+                    </div>
+                </div>
+                <div class="popular-carousel-controls">
+                    <button class="popular-carousel-arrow" type="button" data-popular-prev aria-label="이전 시나리오">
+                        <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span>
+                    </button>
+                    <span data-popular-position aria-live="polite">0 / 0</span>
+                    <button class="popular-carousel-arrow" type="button" data-popular-next aria-label="다음 시나리오">
+                        <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <button class="popular-carousel-play" type="button" data-popular-toggle aria-label="자동 넘김 일시정지">
+                        <span class="material-symbols-outlined" aria-hidden="true">pause</span>
+                    </button>
+                    <div class="popular-carousel-dots" data-popular-dots aria-label="시나리오 선택"></div>
+                </div>
+                <p class="popular-scenarios-feedback" data-popular-feedback role="status" aria-live="polite"></p>
             </section>
         </div>
     </section>
@@ -198,6 +195,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/app.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v14-map-filter-hints"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v15-popular-strip"></script>
 </body>
 </html>
