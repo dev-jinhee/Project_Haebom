@@ -10,6 +10,29 @@
 <div class="sim-step-content" data-step="0">
 	<section class="gov24-form-panel gov24-household-head-panel">
 		<h3>가상 세대 정보 입력</h3>
+		<details class="sim-learning-quick-guide">
+			<summary>
+				<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+				세대주와 세대원, 무엇이 다른가요?
+				<span class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+			</summary>
+			<div class="sim-learning-quick-guide-body">
+				<dl class="sim-learning-quick-guide-list">
+					<div>
+						<dt>세대주</dt>
+						<dd>주민등록상 한 세대를 대표하는 사람을 뜻해요. 해봄에서는 가족 중 한 명만 세대주로 정해 주세요.</dd>
+					</div>
+					<div>
+						<dt>세대원</dt>
+						<dd>같은 세대로 등록된 나머지 구성원이에요. 세대주와의 관계는 선택한 세대주를 기준으로 적어요.</dd>
+					</div>
+					<div>
+						<dt>가상 가족</dt>
+						<dd>이 단계는 이후의 이사 대상 선택과 세대주 변경을 연습하기 위한 준비예요. 실제 가족 정보를 입력할 필요는 없어요.</dd>
+					</div>
+				</dl>
+			</div>
+		</details>
 		<!-- 가족정보 자동 불러오기 버튼 -->
 		<div class="d-flex justify-content-end mb-3">
 			<button type="button" id="autoFillFamilyBtn"
@@ -83,6 +106,13 @@
 			</table>
 		</div>
 
+		<div class="sim-learning-tip">
+			<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+			<div class="sim-learning-tip-content">
+				<strong>알아두면 좋아요</strong>
+				<p>가족정보 자동 불러오기를 이용해 예시 가족을 만들거나 직접 행을 추가해 보세요. 세대주는 한 명만 선택하고, 이름·생년월일은 가상의 정보로 연습해 주세요.</p>
+			</div>
+		</div>
 		<!-- 가족 구성원 행 추가/삭제 -->
 		<div class="d-flex justify-content-end gap-2 mt-3">
 			<button type="button" class="btn btn-outline-primary btn-sm px-3"

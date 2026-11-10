@@ -641,13 +641,12 @@
 
 /* 안내 제목 아이콘 */
 .move-step1 .move-step1-heading .material-symbols-outlined {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-
-    font-size: 22px;
-    line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	font-size: 22px;
+	line-height: 1;
 }
 
 .move-step1 .move-step1-bullets {
@@ -725,6 +724,26 @@
 .move-step1 a {
 	color: #1769aa;
 	text-underline-offset: 3px;
+}
+
+/* 전입신고 상세 유의사항 */
+.move-step1 .move-notice-reading {
+	font-size: 1em;
+	line-height: 1.8;
+	overflow-wrap: break-word;
+}
+
+/* 주요 안내 항목 */
+.move-step1 .move-notice-reading li {
+	font-size: inherit;
+	line-height: 1.8;
+	margin-bottom: 0.65em;
+}
+
+/* 부가 설명 */
+.move-step1 .move-notice-reading .small {
+	font-size: 0.94em;
+	line-height: 1.7;
 }
 /* ============================================================
    08. 완료 후 조회 모드
@@ -1401,13 +1420,12 @@
 }
 /* 태블릿 이하 공통 반응형 */
 @media ( max-width : 768px) {
-	 .move-step1 .move-step1-start {
-        padding: 22px 20px;
-    }
-
-    .move-step1 .move-step1-heading {
-        font-size: 1.1rem;
-    }
+	.move-step1 .move-step1-start {
+		padding: 22px 20px;
+	}
+	.move-step1 .move-step1-heading {
+		font-size: 1.1rem;
+	}
 	.move-step1 .move-step1-section-title {
 		font-size: 1.2rem;
 	}

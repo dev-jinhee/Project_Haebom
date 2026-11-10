@@ -16,7 +16,12 @@
 <link href="/css/common.css" rel="stylesheet">
 <link href="/css/pages/scenario/simulation/simulation.css"
 	rel="stylesheet">
-<link href="/css/pages/scenario/simulation/move.css" rel="stylesheet">
+
+<link href="/css/pages/scenario/simulation/simulation-common.css"
+	rel="stylesheet">
+<!-- 시나리오 공통 학습 안내 -->
+<link href="/css/pages/scenario/simulation/simulation-learning.css"
+	rel="stylesheet">
 </head>
 <body class="simulation-page">
 	<!-- 공통 헤더 -->
