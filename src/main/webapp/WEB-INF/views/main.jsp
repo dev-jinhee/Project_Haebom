@@ -103,7 +103,7 @@
         <div class="container home-panel-inner">
             <div class="center-map-heading">
                 <div>
-                    <h2 id="center-map-title">방문할 행정기관을 찾으시나요?</h2>
+                    <h2 id="center-map-title">행정복지센터를 찾으시나요?</h2>
                 </div>
             </div>
 
