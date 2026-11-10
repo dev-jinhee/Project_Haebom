@@ -430,8 +430,8 @@
         firstPage + CENTER_LIST_PAGE_GROUP_SIZE - 1,
         totalPages
       );
-      const previousGroupPage = firstPage - CENTER_LIST_PAGE_GROUP_SIZE;
-      const nextGroupPage = firstPage + CENTER_LIST_PAGE_GROUP_SIZE;
+      const previousGroupPage = firstPage - 1;
+      const nextGroupPage = lastPage + 1;
 
       appendPage('이전', previousGroupPage, firstPage === 1, false);
       for (let number = firstPage; number <= lastPage; number += 1) {
@@ -1385,8 +1385,8 @@
 
       const firstPage = Math.floor((page - 1) / 10) * 10 + 1;
       const lastPage = Math.min(firstPage + 9, totalPages);
-      const previousGroupPage = firstPage - 10;
-      const nextGroupPage = firstPage + 10;
+      const previousGroupPage = firstPage - 1;
+      const nextGroupPage = lastPage + 1;
 
       appendPage('이전', previousGroupPage, firstPage === 1, false);
       for (let number = firstPage; number <= lastPage; number += 1) {
