@@ -41,32 +41,31 @@ public class MainApiController {
 		
 		List<ScenarioListItemDTO> scenarioList = scenarioService.getScenarioList(principal.getMemberId());
 		ScenarioListItemDTO recentScenario = null;
-		LocalDateTime latestStartedAt = null;
+		LocalDateTime latestActivityAt = null;
 		
 		for (ScenarioListItemDTO item : scenarioList) {
-			
-			if (item == null) {
-				continue;
-			}
-			
-			SimulationProgressDTO progress = item.getProgress();
-			if (progress == null) {
-				continue;
-			}
-			
-			if (!"IN_PROGRESS".equals(progress.getProgressStatus())) {
-				continue;
-			}
-			
-			LocalDateTime startedAt = progress.getStartedAt();
-			if (startedAt == null) {
-				continue;
-			}
-			
-			if (latestStartedAt == null || startedAt.isAfter(latestStartedAt)) {
-				latestStartedAt = startedAt;
-				recentScenario = item;
-			}
+		    if (item == null) {
+		        continue;
+		    }
+
+		    SimulationProgressDTO progress = item.getProgress();
+		    if (progress == null
+		            || !"IN_PROGRESS".equals(progress.getProgressStatus())) {
+		        continue;
+		    }
+
+		    LocalDateTime activityAt = progress.getLastSavedAt();
+		    if (activityAt == null) {
+		        activityAt = progress.getStartedAt();
+		    }
+		    if (activityAt == null) {
+		        continue;
+		    }
+
+		    if (latestActivityAt == null || activityAt.isAfter(latestActivityAt)) {
+		        latestActivityAt = activityAt;
+		        recentScenario = item;
+		    }
 		}
 		
 		return new MainPageResponseDTO(true, principal.getMemberName(), recentScenario, popularScenarios);
