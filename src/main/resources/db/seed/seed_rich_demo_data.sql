@@ -3959,3 +3959,30 @@ INSERT INTO admin_log_scenario (log_id, scenario_id) VALUES
 (5, 1),
 (9, 1),
 (14, 2);
+
+
+-- 배포 DB에 테이블 생성/삭제하지 않고 시나리오만 등록하는 SQL
+INSERT INTO scenario (
+    scenario_code, scenario_title, description, estimated_minutes, is_active, category_id
+)
+SELECT
+    'RESIDENT_RECORD_ISSUE',
+    '주민등록표 등본(초본) 발급',
+    CONCAT(
+      '주민등록표 등본은 세대 구성원의 주민등록 사항을, 초본은 개인의 주민등록 사항을 확인하기 위해 발급받을 수 있습니다.\n',
+      '해봄의 주민등록표 등본(초본) 발급 시뮬레이션에서는 발급 유형 선택, 주민등록상 주소 확인, 발급 형태 및 표시 항목 선택, 수령 방법 선택 등 주민등록표 등본(초본) 발급의 주요 과정을 미리 체험할 수 있습니다.'
+    ),
+    3, TRUE, c.category_id
+FROM category c
+WHERE c.category_name = 'IDENTITY'
+  AND NOT EXISTS (SELECT 1 FROM scenario s WHERE s.scenario_code = 'RESIDENT_RECORD_ISSUE');
+
+INSERT INTO scenario_step (scenario_id, step_order, step_title, step_description)
+SELECT s.scenario_id, 1, '주민등록표 등본(초본) 발급 신청',
+       '발급 서비스 선택, 신청 내용 입력, 수령 방법 선택 등 주민등록표 등본(초본) 발급 절차를 체험해 보세요.'
+FROM scenario s
+WHERE s.scenario_code = 'RESIDENT_RECORD_ISSUE'
+  AND NOT EXISTS (
+      SELECT 1 FROM scenario_step st
+      WHERE st.scenario_id = s.scenario_id AND st.step_order = 1
+  );

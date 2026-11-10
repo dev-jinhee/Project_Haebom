@@ -37,6 +37,93 @@
 	gap: 12px;
 }
 
+/* ==============================
+   시뮬레이션 공통 시작 안내
+============================== */
+.sim-guide-panel {
+	padding: 30px 34px;
+	margin: 0 0 26px;
+	border: none;
+	border-radius: 12px;
+	background: #edf2f8;
+	color: #223247;
+}
+
+/* 안내 제목 */
+.sim-guide-title {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin: 0 0 18px;
+	color: #164166;
+	font-size: 1.22rem;
+	font-weight: 800;
+}
+
+/* 제목 아이콘 */
+.sim-guide-title .material-symbols-outlined {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	font-size: 22px;
+	line-height: 1;
+}
+
+/* 소제목 */
+.sim-guide-panel h4 {
+	margin: 26px 0 12px;
+	font-size: 1.02rem;
+	font-weight: 800;
+}
+
+.sim-guide-panel h5 {
+	margin: 17px 0 7px;
+	font-size: .94rem;
+	font-weight: 750;
+}
+
+/* 본문 */
+.sim-guide-panel p {
+	margin: 0 0 11px;
+	line-height: 1.7;
+}
+
+/* 안내 목록 */
+.sim-guide-list {
+	margin: 0;
+	padding-left: 19px;
+}
+
+.sim-guide-list li {
+	padding-left: 2px;
+	margin: 0 0 9px;
+	line-height: 1.7;
+}
+
+/* 하단 추가 안내 */
+.sim-guide-last {
+	border-top: 1px dashed #b9c4d2;
+	padding-top: 18px;
+	margin-top: 20px;
+}
+
+/* 부가 설명 */
+.sim-guide-footer {
+	margin-top: 14px !important;
+	color: #52647a;
+}
+
+/* 모바일 */
+@media ( max-width : 768px) {
+	.sim-guide-panel {
+		padding: 22px 20px;
+	}
+	.sim-guide-title {
+		font-size: 1.1rem;
+	}
+}
+
 .learning-badge {
 	display: inline-flex;
 	align-items: center;
@@ -608,6 +695,7 @@
 	line-height: 20px;
 	transform: translateY(-1px);
 }
+
 #completePrintBtn .material-symbols-outlined {
 	font-size: 20px;
 	line-height: 20px;
@@ -854,54 +942,53 @@
 
 /* 정부24 절차 안내 */
 .sim-guide-panel {
-    background: #f3f5f7;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 24px 28px;
-    margin-bottom: 20px;
+	background: #f3f5f7;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	padding: 24px 28px;
+	margin-bottom: 20px;
 }
 
 /* 해봄 교육용 시뮬레이션 안내 */
 .sim-notice-panel {
-    /* 기존 #fff에서 변경 */
-    background: #f5f8fc;
-    border: 1px solid #c7d5e2;
-    border-left: 4px solid #164166;
-    border-radius: 10px;
-    padding: 24px 28px;
-    margin: 20px 0 28px;
+	/* 기존 #fff에서 변경 */
+	background: #f5f8fc;
+	border: 1px solid #c7d5e2;
+	border-left: 4px solid #164166;
+	border-radius: 10px;
+	padding: 24px 28px;
+	margin: 20px 0 28px;
 }
 
 .sim-notice-panel h3 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 16px;
-    color: #164166;
-    font-size: 1.15rem;
-    font-weight: 700;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	color: #164166;
+	font-size: 1.15rem;
+	font-weight: 700;
 }
 
 .sim-notice-panel ul {
-    margin: 0;
-    padding-left: 22px;
+	margin: 0;
+	padding-left: 22px;
 }
 
 .sim-notice-panel li {
-    margin-bottom: 9px;
-    color: #334155;
-    line-height: 1.7;
+	margin-bottom: 9px;
+	color: #334155;
+	line-height: 1.7;
 }
 
 .sim-notice-panel li:last-child {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
-@media (max-width: 768px) {
-    .sim-guide-panel,
-    .sim-notice-panel {
-        padding: 18px 16px;
-    }
+@media ( max-width : 768px) {
+	.sim-guide-panel, .sim-notice-panel {
+		padding: 18px 16px;
+	}
 }
 
 /* Keep the previously defined print layout intact. */

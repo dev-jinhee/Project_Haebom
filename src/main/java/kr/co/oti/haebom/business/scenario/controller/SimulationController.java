@@ -14,7 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class SimulationController {
 
 	// 시나리오 코드별 JSP 폴더
-	private static final Map<String, String> SCENARIO_VIEWS = Map.of("MOVE", "move", "IDENTITY_REISSUE", "identity");
+	private static final Map<String, String> SCENARIO_VIEWS = Map.of("MOVE", "move", "IDENTITY_REISSUE", "identity"
+			,"RESIDENT_RECORD_ISSUE","certificate");
 
 	@GetMapping
 	public String simulationPage() {

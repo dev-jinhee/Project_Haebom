@@ -4,52 +4,11 @@
 /* 공통 시뮬레이션 영역 안에서만 적용 */
 .identity-step1 {
 	color: #1e293b;
-	font-size: 0.94rem;
 	line-height: 1.75;
 }
 
 .identity-step1 * {
 	box-sizing: border-box;
-}
-
-.identity-step1 .identity-guide-panel {
-	padding: 30px 34px;
-	margin: 0 0 26px;
-	border-radius: 12px;
-	background: #edf2f8;
-	color: #223247;
-}
-
-.identity-step1 .identity-guide-panel h3 {
-	margin: 0 0 18px;
-	font-size: 1.22rem;
-	font-weight: 800;
-}
-
-.identity-step1 .identity-guide-panel h4 {
-	margin: 26px 0 12px;
-	font-size: 1.02rem;
-	font-weight: 800;
-}
-
-.identity-step1 .identity-guide-panel h5 {
-	margin: 17px 0 7px;
-	font-size: .94rem;
-	font-weight: 750;
-}
-
-.identity-step1 .identity-guide-panel p {
-	margin: 0 0 11px;
-}
-
-.identity-step1 .identity-guide-list {
-	margin: 0;
-	padding-left: 19px;
-}
-
-.identity-step1 .identity-guide-list li {
-	padding-left: 2px;
-	margin: 0 0 9px;
 }
 
 .identity-step1 .identity-guide-last {

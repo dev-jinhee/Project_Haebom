@@ -11,6 +11,7 @@
     <link href="/css/pages/scenario/simulation/simulation.css" rel="stylesheet">
     <link href="/css/pages/scenario/simulation/move.css" rel="stylesheet">
     <link href="/css/pages/scenario/simulation/identity.css" rel="stylesheet">
+    <link href="/css/pages/scenario/simulation/certificate.css" rel="stylesheet">
     <!-- 인쇄에 필요한 변경사항만 별도 적용 -->
     <link href="/css/pages/scenario/simulation/simulation-print.css" rel="stylesheet">
     <script type="module" src="/js/pages/scenario/simulation/simulation-print.js"></script>

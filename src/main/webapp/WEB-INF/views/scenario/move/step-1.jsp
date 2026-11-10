@@ -6,12 +6,12 @@
 <section class="move-notice move-step1" aria-labelledby="moveStep1Title">
 
 	<!-- 1. 시작하기 전에 -->
-	<div class="move-step1-start" aria-labelledby="moveStep1Title">
-		<h3 class="move-step1-heading" id="moveStep1Title">
+	<div class="sim-guide-panel" aria-labelledby="moveStep1Title">
+		<h3 class="sim-guide-title" id="moveStep1Title">
 			<span class="material-symbols-outlined" aria-hidden="true">edit_square</span>
 			시작하기 전에
 		</h3>
-		<ul class="move-step1-bullets">
+		<ul class="sim-guide-list">
 			<li><strong>전입신고</strong> 시 <strong>특정한 선거구에서 투표할 목적</strong>으로
 				주민등록에 관한 허위 신고를 한 사람은 <strong>「공직선거법」 제247조</strong>에 따라 처벌받을 수
 				있습니다.</li>

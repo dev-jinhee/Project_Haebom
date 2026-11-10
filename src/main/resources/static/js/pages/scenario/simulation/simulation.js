@@ -12,7 +12,8 @@ const simulationState = {
 // 시뮬레이션별 대표 아이콘
 const SIMULATION_ICONS = {
 	MOVE: "home",
-	IDENTITY_REISSUE: "badge"
+	IDENTITY_REISSUE: "badge",
+	RESIDENT_RECORD_ISSUE:"docs"
 };
 
 let activeStepModule = null;
@@ -30,6 +31,9 @@ const stepModules = {
 	},
 	IDENTITY_REISSUE : {
 		1: () => import("/js/pages/scenario/simulation/identity/step-1.js")
+	},
+	RESIDENT_RECORD_ISSUE : {
+		1: () => import("/js/pages/scenario/simulation/certificate/step-1.js")
 	}
 };
 
@@ -110,6 +114,15 @@ async function loadSimulation() {
 				link.rel = "stylesheet";
 				link.href = "/css/pages/scenario/simulation/identity.css";
 				link.dataset.scenario = "IDENTITY_REISSUE";
+				document.head.appendChild(link);
+			}
+		}else if(simulationState.scenarioCode === "RESIDENT_RECORD_ISSUE"){
+			// CSS 중복 로드 방지
+			if (!document.querySelector('link[data-scenario="RESIDENT_RECORD_ISSUE"]')) {
+				const link = document.createElement("link");
+				link.rel = "stylesheet";
+				link.href = "/css/pages/scenario/simulation/certificate.css";
+				link.dataset.scenario = "RESIDENT_RECORD_ISSUE";
 				document.head.appendChild(link);
 			}
 		}
