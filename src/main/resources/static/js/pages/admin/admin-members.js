@@ -105,47 +105,19 @@
 		// 6) 하단 페이징 버튼 렌더링 호출
 		renderMemberPagination(totalPages, memberCurrentPage);
 	}
-	// 📌 하단 [이전] [1] [2] [다음] 버튼 생성 함수
+	// 📌 하단 페이지네이션 [<] [1] [2] ... [>] 생성 함수
 	function renderMemberPagination(totalPages, currentPage) {
-		const paginationEl = document.getElementById('adminMemberPagination');
-		if (!paginationEl) return;
-		if (totalPages <= 1) {
-			paginationEl.innerHTML = '';
-			return;
-		}
-		let html = '';
-		// [이전] 버튼
-		const prevDisabled = currentPage === 1 ? 'disabled' : '';
-		html += `<li class="page-item ${prevDisabled}">
-			<a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="이전">&laquo;</a>
-		</li>`;
-		// 번호 버튼 (5개 단위 블록)
-		const pageGroupSize = 5;
-		const currentGroup = Math.ceil(currentPage / pageGroupSize);
-		const startPage = (currentGroup - 1) * pageGroupSize + 1;
-		const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
-		for (let p = startPage; p <= endPage; p++) {
-			const activeClass = p === currentPage ? 'active' : '';
-			html += `<li class="page-item ${activeClass}">
-				<a class="page-link" href="#" data-page="${p}">${p}</a>
-			</li>`;
-		}
-		// [다음] 버튼
-		const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-		html += `<li class="page-item ${nextDisabled}">
-			<a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="다음">&raquo;</a>
-		</li>`;
-		paginationEl.innerHTML = html;
-		// 클릭 시 해당 페이지로 이동
-		paginationEl.querySelectorAll('a.page-link').forEach(btn => {
-			btn.addEventListener('click', (e) => {
-				e.preventDefault();
-				const targetPage = Number(btn.dataset.page);
-				if (!targetPage || targetPage === memberCurrentPage || targetPage < 1 || targetPage > totalPages) return;
-				memberCurrentPage = targetPage;
-				renderAdminMemberRows();
+		if (typeof window.renderHaebomPagination === 'function') {
+			window.renderHaebomPagination({
+				container: 'adminMemberPagination',
+				currentPage: currentPage,
+				totalPages: totalPages,
+				onPageChange: (targetPage) => {
+					memberCurrentPage = targetPage;
+					renderAdminMemberRows();
+				}
 			});
-		});
+		}
 	}
 
 	// 회원 상세 모달 열릴 때 진짜 DB 데이터 바인딩!
@@ -326,53 +298,17 @@
 
 	// 회원 모달 연습 이력 페이징 [이전] [1] [2] [다음] 버튼 생성
 	function renderDraftPagination(totalPages, currentPage) {
-		const paginationEl = document.getElementById('memberDraftPagination');
-		if (!paginationEl) return;
-
-		if (totalPages <= 1) {
-			paginationEl.innerHTML = '';
-			return;
-		}
-
-		let html = '';
-
-		// [이전] 버튼
-		const prevDisabled = currentPage === 1 ? 'disabled' : '';
-		html += `<li class="page-item ${prevDisabled}">
-			<a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="이전">&laquo;</a>
-		</li>`;
-
-		// 번호 버튼 (5개 단위 블록)
-		const pageGroupSize = 5;
-		const currentGroup = Math.ceil(currentPage / pageGroupSize);
-		const startPage = (currentGroup - 1) * pageGroupSize + 1;
-		const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
-
-		for (let p = startPage; p <= endPage; p++) {
-			const activeClass = p === currentPage ? 'active' : '';
-			html += `<li class="page-item ${activeClass}">
-				<a class="page-link" href="#" data-page="${p}">${p}</a>
-			</li>`;
-		}
-
-		// [다음] 버튼
-		const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-		html += `<li class="page-item ${nextDisabled}">
-			<a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="다음">&raquo;</a>
-		</li>`;
-
-		paginationEl.innerHTML = html;
-
-		// 버튼 클릭 시 페이지 이동
-		paginationEl.querySelectorAll('a.page-link').forEach(btn => {
-			btn.addEventListener('click', (e) => {
-				e.preventDefault();
-				const targetPage = Number(btn.dataset.page);
-				if (!targetPage || targetPage === draftCurrentPage || targetPage < 1 || targetPage > totalPages) return;
-				draftCurrentPage = targetPage;
-				renderMemberDraftRows();
+		if (typeof window.renderHaebomPagination === 'function') {
+			window.renderHaebomPagination({
+				container: 'memberDraftPagination',
+				currentPage: currentPage,
+				totalPages: totalPages,
+				onPageChange: (targetPage) => {
+					draftCurrentPage = targetPage;
+					renderMemberDraftRows();
+				}
 			});
-		});
+		}
 	}
 
 	// 시나리오 필터 드롭다운 변경 시 1페이지로 리셋하고 다시 출력

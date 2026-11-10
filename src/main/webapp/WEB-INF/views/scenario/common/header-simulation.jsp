@@ -11,17 +11,20 @@
 		class="container d-flex align-items-center justify-content-between py-3">
 		<!-- 브랜드 로고 -->
 		<a class="navbar-brand d-flex align-items-center gap-2"
-			href="${pageContext.request.contextPath}/"> <span
-			class="brand-mark"><span class="material-symbols-outlined"
-				aria-hidden="true">domain_verification</span></span> <span> <strong>해봄</strong>
+			href="${pageContext.request.contextPath}/">
+			<span class="brand-mark" aria-hidden="true">
+				<img class="brand-logo-icon" src="${pageContext.request.contextPath}/images/logo-icon.png" alt="">
+			</span>
+			<span class="brand-wordmark-wrap">
+				<img class="brand-logo-wordmark" src="${pageContext.request.contextPath}/images/logo-text.png" alt="해봄">
 				<small class="d-block">생활 행정절차 미리연습</small>
-		</span>
+			</span>
 		</a>
 
 		<!-- 우측 액션 메뉴 -->
-		<div class="d-flex align-items-center gap-2">
+		<div class="d-flex align-items-center flex-wrap gap-2 header-actions">
 			<!-- 글씨 크기 조절 드롭다운 (피그마 '보통') -->
-			<div class="dropdown">
+			<div class="dropdown d-none d-md-block">
 				<button
 					class="btn btn-access dropdown-toggle d-inline-flex align-items-center"
 					type="button" data-bs-toggle="dropdown" aria-expanded="false"

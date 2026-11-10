@@ -133,54 +133,19 @@
 	 * 관리자 목록 페이징 버튼 렌더링
 	 */
 	function renderAccountPagination(totalCount, totalPages) {
-		const paginationEl = document.getElementById('adminAccountPagination');
-		if (!paginationEl) return;
-
-		if (totalCount === 0 || totalPages <= 1) {
-			paginationEl.innerHTML = `
-				<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">이전</a></li>
-				<li class="page-item active"><a class="page-link" href="#">1</a></li>
-				<li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">다음</a></li>
-			`;
-			return;
-		}
-
-		let html = '';
-		// 이전 버튼
-		const prevDisabled = accountCurrentPage === 1 ? 'disabled' : '';
-		html += `<li class="page-item ${prevDisabled}"><a class="page-link" href="#" data-page="${accountCurrentPage - 1}">이전</a></li>`;
-
-		// 번호 버튼 (최대 5개 표시)
-		const maxDisplay = 5;
-		let startPage = Math.max(1, accountCurrentPage - Math.floor(maxDisplay / 2));
-		let endPage = Math.min(totalPages, startPage + maxDisplay - 1);
-		if (endPage - startPage + 1 < maxDisplay) {
-			startPage = Math.max(1, endPage - maxDisplay + 1);
-		}
-
-		for (let p = startPage; p <= endPage; p++) {
-			const active = (p === accountCurrentPage) ? 'active' : '';
-			html += `<li class="page-item ${active}"><a class="page-link" href="#" data-page="${p}">${p}</a></li>`;
-		}
-
-		// 다음 버튼
-		const nextDisabled = accountCurrentPage === totalPages ? 'disabled' : '';
-		html += `<li class="page-item ${nextDisabled}"><a class="page-link" href="#" data-page="${accountCurrentPage + 1}">다음</a></li>`;
-
-		paginationEl.innerHTML = html;
-
-		// 클릭 이벤트 바인딩
-		paginationEl.querySelectorAll('a.page-link').forEach(link => {
-			link.addEventListener('click', (e) => {
-				e.preventDefault();
-				const targetPage = Number(link.dataset.page);
-				if (!targetPage || targetPage === accountCurrentPage || targetPage < 1 || targetPage > totalPages) return;
-				accountCurrentPage = targetPage;
-				renderAdminAccountRows();
+		const resolvedTotalPages = totalCount > 0 ? totalPages : 0;
+		if (typeof window.renderHaebomPagination === 'function') {
+			window.renderHaebomPagination({
+				container: 'adminAccountPagination',
+				currentPage: accountCurrentPage,
+				totalPages: resolvedTotalPages,
+				onPageChange: (targetPage) => {
+					accountCurrentPage = targetPage;
+					renderAdminAccountRows();
+				}
 			});
-		});
+		}
 	}
-
 	/**
 	 * 상태 변경 드롭다운 변경 이벤트
 	 */
@@ -257,8 +222,8 @@
 		try {
 			const response = await fetch('/api/admin/admins', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+				body: new URLSearchParams({
 					loginId,
 					password,
 					memberName,

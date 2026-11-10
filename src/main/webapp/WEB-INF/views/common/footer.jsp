@@ -4,14 +4,14 @@
 
 <!-- [해봄 공통 푸터 (footer.jsp)] -->
 <footer class="site-footer">
-    <div class="container d-flex justify-content-between flex-wrap gap-3">
+    <div class="container d-flex justify-content-between flex-wrap gap-2">
         <div>
             <b>해봄</b>
-            <p class="mb-0 mt-1">정부24 생활행정 체험 플랫폼</p>
+            <span class="ms-2">정부24 생활행정 체험 플랫폼</span>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div>
             <span>문의 이메일</span>
-            <span>haebom1592@gmail.com</span>
+            <span class="ms-2">haebom1592@gmail.com</span>
         </div>
     </div>
 </footer>

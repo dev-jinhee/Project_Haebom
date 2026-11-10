@@ -189,7 +189,7 @@ export async function init({
 		throw new Error("완료 화면의 root 요소를 찾을 수 없습니다.");
 	}
 
-	// 참조 변수 초기화
+	// [진희] 전역 상태 참조 초기화
 	currentRootRef = root;
 	currentProgressIdRef = progressId;
 	currentScenarioCodeRef = scenarioCode;
@@ -280,6 +280,7 @@ export async function init({
 	// ==============================
 
 	const urlParams = new URLSearchParams(window.location.search);
+	currentRefreshCount = 0;
 	if (urlParams.has("refresh")) {
 		currentRefreshCount = parseInt(urlParams.get("refresh"), 10) || 0;
 	} else if (progressId) {
@@ -291,7 +292,7 @@ export async function init({
 
 	await loadPolicyRecommendations(currentRootRef, scenarioCode, progressId, currentRefreshCount);
 
-	// 새로고침 버튼 핸들러 연결
+	// [진희] 새로고침 버튼 핸들러 연결
 	bindPolicyRefreshAction();
 
 	// ==============================
@@ -363,7 +364,6 @@ function bindPolicyRefreshAction() {
 		if (isPrintPage) {
 			refreshBtn.classList.add("d-none");
 		} else {
-			// 기존 리스너 중복 방지 및 직접 바인딩
 			refreshBtn.onclick = function(e) {
 				e.preventDefault();
 				window.haebomRefreshPolicies(this);
@@ -423,15 +423,21 @@ async function loadPolicyRecommendations(root, scenarioCode, progressId, refresh
 			return;
 		}
 
-		// 시나리오 및 추천된 지자체 지역에 맞춘 안내 문구 반영
+		// [진희] 시나리오 및 추천된 지자체 지역에 맞춘 안내 문구 반영
 		if (descEl) {
 			const code = (scenarioCode || "").toUpperCase();
 			if (code.includes("IDENTITY") || code.includes("ID-CARD") || code.includes("ID_CARD") || code === "2") {
 				descEl.textContent = "방금 진행하신 주민등록증 재발급과 연관된 신분증 및 디지털 증명서 지원 정책들을 추천해 드려요.";
+			} else if (code.includes("RESIDENT") || code.includes("RECORD") || code.includes("CERT") || code === "3") {
+				const localPolicy = policies.find(p => p.deptName && /(특별시|광역시|특별자치시|특별자치도|경기도|강원도|충청남도|충청북도|전라남도|전라북도|경상남도|경상북도|제주도|시|군|구)$/.test(p.deptName.trim()));
+				if (localPolicy) {
+					descEl.innerHTML = `방금 선택하신 <strong>${escapeHtml(localPolicy.deptName)}</strong> 지역 민원 편의 및 전자증명서·행정서류 지원 정책들을 추천해 드려요.`;
+				} else {
+					descEl.textContent = "방금 진행하신 주민등록표 등본(초본) 발급과 연관된 전자증명서·무인발급 및 생활 민원 지원 정책들을 추천해 드려요.";
+				}
 			} else {
-				// 지자체(시·군·구 / 시·도) 맞춤 정책이 포함되어 있는지 확인
-				const localPolicy = policies.find(p => p.deptName && (p.deptName.includes("시") || p.deptName.includes("구") || p.deptName.includes("군")));
-				if (localPolicy && localPolicy.deptName && !localPolicy.deptName.includes("행정안전부") && !localPolicy.deptName.includes("국토교통부") && !localPolicy.deptName.includes("농림축산식품부")) {
+				const localPolicy = policies.find(p => p.deptName && /(특별시|광역시|특별자치시|특별자치도|경기도|강원도|충청남도|충청북도|전라남도|전라북도|경상남도|경상북도|제주도|시|군|구)$/.test(p.deptName.trim()));
+				if (localPolicy) {
 					descEl.innerHTML = `방금 전입신고하신 <strong>${escapeHtml(localPolicy.deptName)}</strong> 지역 및 실생활 주거·이사 지원 정책들을 추천해 드려요.`;
 				} else {
 					descEl.textContent = "방금 진행하신 전입신고와 밀접한 실생활 주거·이사 지원 정책들을 추천해 드려요.";

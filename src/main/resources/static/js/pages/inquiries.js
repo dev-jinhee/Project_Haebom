@@ -265,59 +265,21 @@
     renderPaginationButtons(filtered.length);
   };
   
-  // 5. 하단 페이지 버튼 [이전] [1] [2] [다음] 동적 생성
+  // 5. 하단 페이지 버튼 [<] [1] [2] ... [>] 동적 생성
   const renderPaginationButtons = (totalItems) => {
-    const paginationEl = document.querySelector('.pagination');
-    if (!paginationEl) return;
-    
-    const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
-    let html = '';
-    
-    // [이전] 버튼
-    const prevDisabled = currentPage === 1 ? 'disabled' : '';
-    html += `
-      <li class="page-item ${prevDisabled}">
-        <a class="page-link" href="#" data-page="${currentPage - 1}" aria-label="이전 페이지">이전</a>
-      </li>	
-    `;
-    
-    // 숫자 버튼
-    for (let p = 1; p <= totalPages; p++) {
-      const activeClass = p === currentPage ? 'active' : '';
-      html += `
-        <li class="page-item ${activeClass}">
-          <a class="page-link" href="#" data-page="${p}">${p}</a>
-        </li>
-      `;
+    const totalPages = totalItems > 0 ? Math.ceil(totalItems / PAGE_SIZE) : 0;
+    if (typeof window.renderHaebomPagination === 'function') {
+      window.renderHaebomPagination({
+        container: 'inquiryPagination',
+        currentPage: currentPage,
+        totalPages: totalPages,
+        onPageChange: (targetPage) => {
+          currentPage = targetPage;
+          renderTableForCurrentPage();
+        }
+      });
     }
-    
-    // [다음] 버튼
-    const nextDisabled = (currentPage === totalPages || totalItems === 0) ? 'disabled' : '';
-    html += `
-      <li class="page-item ${nextDisabled}">
-        <a class="page-link" href="#" data-page="${currentPage + 1}" aria-label="다음 페이지">다음</a>
-      </li>
-    `;
-    
-    paginationEl.innerHTML = html;
   };
-  
-  // 6. 페이징 버튼 클릭 시 페이지 이동 이벤트
-  document.querySelector('.pagination')?.addEventListener('click', (e) => {
-    const link = e.target.closest('a[data-page]');
-    if (!link) return;
-    e.preventDefault();
-    
-    const targetPage = parseInt(link.dataset.page, 10);
-    const filtered = getFilteredList();
-    const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
-    
-    if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
-      currentPage = targetPage;
-      renderTableForCurrentPage();
-    }
-  });
-
   // 7. 탭 전환 버튼 클릭 이벤트 (전체 문의 vs 내 문의 내역)
   document.querySelectorAll('[data-inquiry-tab]').forEach(btn => {
     btn.addEventListener('click', (e) => {
