@@ -34,9 +34,7 @@ public class ResidentRecordStep1Validator implements StepValidator {
     @Override
     public void validate(Map<String, String> answers) {
         if (answers == null) throw new SimulationValidationException("신청 정보가 없습니다.");
-    	System.out.println(
-    	        "🔥 주민등록표 Validator 실행: " + answers.get("certificateType")
-    	    );
+
         String type = required(answers, "certificateType", "발급 서비스");
         String mode = required(answers, "issueMode", "발급 형태");
         String receipt = required(answers, "receiveMethod", "수령 방법");
