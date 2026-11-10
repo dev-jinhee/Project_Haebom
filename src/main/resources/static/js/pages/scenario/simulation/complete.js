@@ -104,6 +104,67 @@ const completionGuides = {
 
 		officialUrl:
 			"https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000018"
+	},
+
+	
+RESIDENT_RECORD_ISSUE: {
+    title: "주민등록표 등본(초본) 발급 절차를 연습했어요!",
+
+    description:
+        "주민등록표 등본(초본) 발급 신청 절차를 체험했습니다. " +
+        "실제 발급 전에 아래 내용을 확인해 보세요.",
+
+    checklist: [
+        "발급할 서류 확인 (주민등록표 등본 또는 초본)",
+        "주민등록상 주소 및 신청 정보 확인",
+        "전체 발급 또는 선택 발급 여부 확인",
+        "주민등록번호 뒷자리 등 표시할 개인정보 항목 확인",
+        "증명서 제출처에서 요구하는 표시 항목 확인",
+        "수령 방법 및 본인인증 수단 확인"
+    ],
+
+    guideDescription:
+        "실제 주민등록표 등본(초본) 발급 시 알아두어야 할 기본 사항입니다.",
+
+    guide: [
+        {
+            label: "신청 방법",
+            value: "인터넷, 방문, 무인발급기"
+        },
+        {
+            label: "신청 자격",
+            value: "본인 또는 대리인 (온라인 대리 신청 불가)"
+        },
+        {
+            label: "발급 서류",
+            value: "주민등록표 등본 또는 초본"
+        },
+        {
+            label: "수수료",
+            value: "인터넷 무료 / 일반 발급 1통 400원"
+        },
+        {
+            label: "처리 기간",
+            value: "즉시 (근무시간 내 3시간)"
+        },
+        {
+            label: "방문 신청",
+            value: "신분증 등 구비서류 확인 필요"
+        }
+    ],
+
+    note:
+        "주민등록표 등본은 세대별 주민등록 사항을, " +
+        "초본은 개인의 상세한 주민등록 사항을 확인하는 서류입니다. " +
+        "발급 목적과 제출처에 따라 필요한 표시 항목이 달라질 수 있습니다. " +
+        "해봄에서의 신청은 실제 증명서 발급으로 이어지지 않으며, " +
+        "정확한 신청 자격과 구비서류는 정부24 공식 안내를 확인해 주세요.",
+
+    officialUrl:
+        "https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000015&HighCtgCD=A01010001&tp_seq=01&Mcode=10200"
+}
+
+
 	}
 };
 
@@ -117,10 +178,11 @@ let currentRootRef = null;
 // 완료 화면 초기화
 // ==============================
 
-export async function init({ root, scenarioCode, progressId }) {
-	currentRootRef = root || document.querySelector("#stepContent") || document;
-	currentProgressIdRef = progressId;
-	currentScenarioCodeRef = scenarioCode;
+export async function init({
+	root,
+	progressId,
+	scenarioCode
+}) {
 
 	const guide = completionGuides[scenarioCode];
 

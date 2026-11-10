@@ -100,6 +100,93 @@ public class StepFieldRegistry {
 				// S3 증명사진 메타데이터
 				FieldRule.required("photoS3Key", 200), FieldRule.required("photoFileName", 150),
 				FieldRule.required("photoFileSize", 20)));
+
+		// ==============================
+		// 주민등록표 등본(초본) 발급 1단계
+		// ==============================
+		register("RESIDENT_RECORD_ISSUE", 1, List.of(
+
+				// 1. 공통 필수 항목
+				FieldRule.requiredChoice("certificateType", "DEUNGBON", "CHOBON"),
+
+				FieldRule.required("residentSidoCode", 20), FieldRule.required("residentSigunguCode", 20),
+
+				FieldRule.requiredChoice("issueMode", "ALL", "SELECT"),
+
+				FieldRule.requiredChoice("receiveMethod", "ONLINE_PRINT", "ONLINE_E_DOC", "ONLINE_THIRD_PARTY",
+						"REGISTERED_MAIL", "NORMAL_MAIL"),
+
+				// ==============================
+				// 2. 등본 선택 발급
+				// ==============================
+
+				// 과거의 주소 변동사항
+				FieldRule.optionalChoice("deungbonPastAddressIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonPastAddressScope", "ALL", "RECENT"),
+				FieldRule.optional("deungbonPastAddressYears", 2),
+
+				// 세대 구성 정보
+				FieldRule.optionalChoice("deungbonHouseholdCompositionIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonHouseholdCompositionReasonIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonHouseholdCompositionDateIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonChangeReasonIncluded", "Y", "N"),
+
+				// 세대 구성원 정보
+				FieldRule.optionalChoice("deungbonHouseholdMemberIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonHouseholdMemberNameIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonHouseholdMemberChangeReasonIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonHouseholdMemberReportDateIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonHouseholdMemberOtherNamesIncluded", "Y", "N"),
+
+				// 주민등록번호 뒷자리
+				FieldRule.optionalChoice("deungbonRrnBackIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonRrnBackScope", "HOUSEHOLD_ALL", "HOUSEHOLD_PART"),
+				FieldRule.optional("deungbonSelectedMemberIds", 50),
+
+				// 세대원과 세대주의 관계
+				FieldRule.optionalChoice("deungbonRelationshipIncluded", "Y", "N"),
+				FieldRule.optionalChoice("deungbonRelationshipType", "GENERAL", "DETAIL"),
+				FieldRule.optionalChoice("deungbonPurpose", "ADMIN", "FINANCE", "REAL_ESTATE", "COURT", "PRIVATE",
+						"OTHER"),
+				FieldRule.optional("deungbonPurposeDetail", 100),
+
+				// ==============================
+				// 3. 초본 선택 발급
+				// ==============================
+
+				// 과거의 주소 변동사항
+				FieldRule.optionalChoice("chobonPastAddressIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonPastAddressScope", "ALL", "RECENT"),
+				FieldRule.optional("chobonPastAddressYears", 2),
+				FieldRule.optionalChoice("chobonPastAddressReportDateIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonPastAddressChangeReasonIncluded", "Y", "N"),
+
+				// 과거 주소 변동사항 중 세대주 관계
+				FieldRule.optionalChoice("chobonPastHouseholdRelationIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonPastHouseholdRelationType", "GENERAL", "DETAIL"),
+
+				// 개인 인적사항 변경 내용
+				FieldRule.optionalChoice("chobonPersonalChangeIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonPersonalChangeScope", "ALL", "NAME", "NUMBER"),
+
+				// 주민등록번호 및 외국인등록번호 관련 항목
+				FieldRule.optionalChoice("chobonIdNumbersIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonRrnBackIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonForeignNumberIncluded", "Y", "N"),
+
+				// 병역사항
+				FieldRule.optionalChoice("chobonMilitaryServiceIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonMilitaryServiceScope", "DATES", "ALL"),
+
+				// 세대주 성명과 세대주의 관계
+				FieldRule.optionalChoice("chobonHouseholdRelationIncluded", "Y", "N"),
+				FieldRule.optionalChoice("chobonHouseholdRelationType", "GENERAL", "DETAIL"),
+
+				// 상세 선택 시 용도 및 목적
+				FieldRule.optionalChoice("chobonPurpose", "ADMIN", "FINANCE", "REAL_ESTATE", "COURT", "PRIVATE",
+						"OTHER"),
+				FieldRule.optional("chobonPurposeDetail", 100)));
+
 	}
 
 	// 단계별 필드 규칙 등록

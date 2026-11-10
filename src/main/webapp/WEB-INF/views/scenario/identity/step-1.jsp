@@ -6,10 +6,13 @@
 
 <div class="sim-step-content identity-step1" data-step="1">
 
-	<section class="identity-guide-panel"
+	<section class="sim-guide-panel"
 		aria-labelledby="identityGuideTitle">
-		<h3 id="identityGuideTitle">시작하기 전에</h3>
-		<ul class="identity-guide-list">
+		<h3 class="sim-guide-title" id="identityGuideTitle">
+			<span class="material-symbols-outlined" aria-hidden="true">edit_square</span>시작하기
+			전에
+		</h3>
+		<ul class="sim-guide-list">
 			<li>주민등록증 발급·재발급 통보를 신청한 경우, 주민등록증 신청이 접수되거나 읍·면사무소 또는 동 행정복지센터에
 				주민등록증이 배송되었을 때 그 사실을 문자로 안내받을 수 있습니다.</li>
 			<li>주민등록증 발급 신청 확인서(임시 신분증)는 사진 1장을 지참하여 행정복지센터를 방문해 신청하시기 바랍니다.
@@ -35,7 +38,7 @@
 		</div>
 		<p class="identity-guide-footer">※ 자세한 사항은 정부24 및 모바일 신분증 공식 안내를
 			참고해 주세요.</p>
-		<ul class="identity-guide-list identity-guide-last">
+		<ul class="sim-guide-list identity-guide-last">
 			<li>이 민원은 인증서를 통한 전자서명이 필요할 수 있습니다.</li>
 			<li>구비서류 열람 사전동의를 선택하면 민원처리기관에서 행정정보 공동이용으로 확인할 수 있는 서류는 별도로
 				제출하지 않아도 됩니다.</li>

@@ -5,7 +5,8 @@ const searchInput = document.getElementById("scenarioSearch");
 // 시뮬레이션별 대표 아이콘
 const SIMULATION_ICONS = {
 	MOVE: "home",
-	IDENTITY_REISSUE: "badge"
+	IDENTITY_REISSUE: "badge",
+	RESIDENT_RECORD_ISSUE:"docs"
 };
 
 async function loadScenarios() {

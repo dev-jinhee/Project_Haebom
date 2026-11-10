@@ -611,22 +611,6 @@
 	color: var(--move-step1-ink);
 }
 
-.move-step1 .move-step1-start {
-	padding: 25px 28px;
-	border: 1px solid var(--move-step1-border);
-	border-radius: 9px;
-	margin-bottom: 38px;
-}
-
-.move-step1 .move-step1-heading {
-	display: flex;
-	align-items: center;
-	gap: 9px;
-	margin: 0 0 17px;
-	color: #164166;
-	font-size: 1rem;
-	font-weight: 750;
-}
 /* Step1내부 Material Symbols */
 .move-step1 .material-symbols-outlined {
 	display: inline-flex;
@@ -653,6 +637,17 @@
 	font-size: 1rem;
 	font-weight: 750;
 	color: #1c2733;
+}
+
+/* 안내 제목 아이콘 */
+.move-step1 .move-step1-heading .material-symbols-outlined {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    font-size: 22px;
+    line-height: 1;
 }
 
 .move-step1 .move-step1-bullets {
@@ -1405,11 +1400,14 @@
 	color: #6c757d;
 }
 /* 태블릿 이하 공통 반응형 */
-@media ( max-width : 767.98px) {
-	.move-step1 .move-step1-start {
-		padding: 20px 17px;
-		margin-bottom: 30px;
-	}
+@media ( max-width : 768px) {
+	 .move-step1 .move-step1-start {
+        padding: 22px 20px;
+    }
+
+    .move-step1 .move-step1-heading {
+        font-size: 1.1rem;
+    }
 	.move-step1 .move-step1-section-title {
 		font-size: 1.2rem;
 	}
