@@ -126,13 +126,13 @@
 							</table>
 						</div>
 						<!-- 연습 이력 5개 단위 페이징 영역 -->
-						<div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top">
+						<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 mt-2 border-top">
 							<div class="small text-secondary">
 								전체 <strong class="text-dark" id="memberDraftTotalListCount">0</strong>건 중 
 								<span id="memberDraftPageRange">0 - 0</span>
 							</div>
 							<nav aria-label="연습 이력 페이징">
-								<ul class="pagination pagination-sm mb-0" id="memberDraftPagination">
+								<ul class="hb-pagination" id="memberDraftPagination">
 									<!-- JS에서 5개 단위 페이징 버튼이 동적으로 생성됩니다 -->
 								</ul>
 							</nav>

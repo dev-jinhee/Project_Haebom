@@ -6,12 +6,12 @@
 <section class="move-notice move-step1" aria-labelledby="moveStep1Title">
 
 	<!-- 1. 시작하기 전에 -->
-	<div class="move-step1-start" aria-labelledby="moveStep1Title">
-		<h3 class="move-step1-heading" id="moveStep1Title">
+	<div class="sim-guide-panel" aria-labelledby="moveStep1Title">
+		<h3 class="sim-guide-title" id="moveStep1Title">
 			<span class="material-symbols-outlined" aria-hidden="true">edit_square</span>
 			시작하기 전에
 		</h3>
-		<ul class="move-step1-bullets">
+		<ul class="sim-guide-list">
 			<li><strong>전입신고</strong> 시 <strong>특정한 선거구에서 투표할 목적</strong>으로
 				주민등록에 관한 허위 신고를 한 사람은 <strong>「공직선거법」 제247조</strong>에 따라 처벌받을 수
 				있습니다.</li>
@@ -20,6 +20,34 @@
 		</ul>
 	</div>
 
+		<details class="sim-learning-quick-guide">
+			<summary>
+				<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+				전입신고, 핵심 내용부터 알아볼까요?
+				<span class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+			</summary>
+			<div class="sim-learning-quick-guide-body">
+				<dl class="sim-learning-quick-guide-list">
+					<div>
+						<dt>언제?</dt>
+						<dd>새로운 주소로 이사한 날부터 14일 이내에 신고하는 절차예요.</dd>
+					</div>
+					<div>
+						<dt>어디서?</dt>
+						<dd>정부24 온라인 또는 새 거주지 관할 읍·면·동 행정복지센터에서 신청할 수 있어요. 온라인은 대리 신청이 불가능해요.</dd>
+					</div>
+					<div>
+						<dt>세대주 확인</dt>
+						<dd>세대 구성이나 신청인 관계에 따라 세대주 확인이 필요할 수 있어요. 실제로는 해당 확인 절차를 완료해야 처리돼요.</dd>
+					</div>
+					<div>
+						<dt>신청 후</dt>
+						<dd>접수와 처리 완료는 다른 상태예요. 정부24에서 신청내역과 처리 결과를 확인해야 해요.</dd>
+					</div>
+				</dl>
+				<p class="sim-learning-source">출처: <a href="https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000016" target="_blank" rel="noopener noreferrer">정부24 전입신고 민원안내</a></p>
+			</div>
+		</details>
 	<!-- 2. 유의사항 확인 -->
 	<div class="move-step1-notices" aria-labelledby="moveStep1NoticeTitle">
 		<h3 class="move-step1-section-title" id="moveStep1NoticeTitle">유의사항
@@ -121,21 +149,33 @@
 		</section>
 	</div>
 
+
 	<!-- 3. 해봄 시뮬레이션 안내 (실제 민원과 구분) -->
-	<aside class="move-simulation-notice move-step1-simulation"
+	<aside class="sim-notice-panel"
 		aria-labelledby="moveStep1SimTitle">
+
 		<h3 id="moveStep1SimTitle">
 			<span class="material-symbols-outlined" aria-hidden="true">school</span>
 			해봄 시뮬레이션 안내
 		</h3>
-		<ul class="move-step1-bullets">
-			<li>해봄은 실제 전입신고 절차를 연습하는 <strong>교육용 시뮬레이션</strong>입니다.
+
+		<ul>
+			<li><spring:message code="simulation.notice" /></li>
+
+			<li>입력한 정보는 정부24 또는 행정기관에 제출되지 않으며 <strong>실제 전입신고가
+					접수되지 않습니다.</strong>
 			</li>
-			<li>입력한 정보는 정부24 또는 행정기관에 제출되지 않으며 실제 신고가 접수되지 않습니다.</li>
-			<li>실제 개인정보 대신 <strong>가상의 정보</strong>를 입력해 주세요.
-			</li>
+
+			<li><spring:message code="simulation.privacy" /></li>
+
 			<li>인증서 전자서명, 세대주·전입자 본인확인, 행정기관 심사는 실제로 수행되지 않습니다.</li>
-			<li>시뮬레이션의 완료 표시는 <strong>실제 전입신고의 처리 완료를 의미하지 않습니다.</strong></li>
+
+			<li><spring:message code="simulation.history" /></li>
+
+			<li><spring:message code="simulation.history.inprogress" /></li>
+
+			<li><strong> 시뮬레이션의 완료 표시는 실제 전입신고의 처리 완료를 의미하지 않습니다. </strong>
+			</li>
 		</ul>
 	</aside>
 

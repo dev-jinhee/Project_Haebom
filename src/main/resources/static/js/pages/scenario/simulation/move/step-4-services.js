@@ -285,7 +285,6 @@ export async function uploadPendingLeaseFiles(root, progressId) {
 				getLeaseFiles(root).filter(item => item !== file)
 			);
 
-			console.log("첨부파일 업로드 성공:", result);
 		}
 
 		// 업로드 상태 화면 갱신

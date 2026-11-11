@@ -1,3 +1,7 @@
+/* 해봄 | simulation.jsp 화면 및 완료 화면 전용 CSS
+   공통 입력 폼·안내 패널은 simulation-common.css를 참고하세요. */
+
+/* 원본 simulation.css L1–L39 */
 /* Haebom - shared simulation layout and components */
 .simulation-page {
 	min-height: 100vh;
@@ -37,6 +41,7 @@
 	gap: 12px;
 }
 
+/* 원본 simulation.css L126–L226 */
 .learning-badge {
 	display: inline-flex;
 	align-items: center;
@@ -52,7 +57,6 @@
 .learning-badge .material-symbols-outlined {
 	display: block;
 	flex-shrink: 0;
-	font-size: 16px;
 	line-height: 1;
 }
 
@@ -86,7 +90,7 @@
 	margin-top: 20px;
 }
 
-.sim-card, .guide-card, .privacy-card, .support-note {
+.sim-card {
 	border: 1px solid var(--line);
 	border-radius: 20px;
 	background: #fff;
@@ -139,148 +143,7 @@
 	margin-bottom: 18px;
 }
 
-.gov24-notices {
-	min-height: 0;
-	color: #3f4b58;
-	font-size: .88rem;
-	line-height: 1.85;
-}
-
-.gov24-section-title {
-	margin: 0 0 20px;
-	color: #202b36;
-	font-size: 1.3rem;
-	font-weight: 800;
-}
-
-.gov24-text-section {
-	margin: 0 0 24px;
-}
-
-.gov24-text-section h4, .gov24-confirm-box h4 {
-	margin: 0 0 11px;
-	color: #25384b;
-	font-size: .94rem;
-	font-weight: 800;
-}
-
-.gov24-text-section ul, .gov24-text-section ol, .gov24-confirm-box ul {
-	margin: 0;
-	padding-left: 1.25rem;
-}
-
-.gov24-text-section li+li, .gov24-confirm-box li+li {
-	margin-top: 10px;
-}
-
-.gov24-text-section .gov24-warning, .gov24-confirm-box .gov24-warning {
-	color: #6d5d45;
-}
-
-.gov24-confirm-box {
-	margin: 22px 0 27px;
-	padding: 18px 20px;
-	border: 1px solid #e3e5e7;
-	border-radius: 12px;
-	background: #f8f8f8;
-}
-
-.gov24-confirm-box p {
-	margin: 0;
-}
-
-.gov24-form-grid {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-	gap: 18px;
-	max-width: 850px;
-}
-
-.gov24-form-grid .form-control {
-	max-width: none;
-}
-
-.gov24-form-panel {
-	margin: 22px 0;
-	padding: 34px 40px 40px;
-	border: 1px solid #c9c9c9;
-	border-radius: 12px;
-}
-
-.gov24-form-panel h3 {
-	margin: 0 0 40px;
-	color: #1c2733;
-	font-size: 1.25rem;
-	font-weight: 800;
-}
-
-.gov24-form-field {
-	max-width: 850px;
-	margin: 0 0 46px;
-	padding: 0;
-	border: 0;
-}
-
-.gov24-form-field:last-child {
-	margin-bottom: 0;
-}
-
-.gov24-form-field>label, .gov24-form-field>legend {
-	display: block;
-	float: none;
-	width: auto;
-	margin: 0 0 19px;
-	color: #25384b;
-	font-size: .98rem;
-	font-weight: 700;
-}
-
-.gov24-form-field legend span {
-	color: #58718a;
-	font-size: .85rem;
-	font-weight: 400;
-}
-
-.gov24-readonly-field {
-	max-width: 590px !important;
-	min-height: 56px;
-	border-color: #c9c9c9;
-	background: #dedede !important;
-}
-
-.gov24-phone-fields {
-	display: flex;
-	align-items: center;
-	gap: 18px;
-	max-width: 590px;
-}
-
-.gov24-phone-fields .form-control {
-	width: 160px;
-	max-width: 160px;
-	min-height: 56px;
-	border-color: #858585;
-	border-radius: 8px;
-}
-
-.gov24-phone-fields>span {
-	color: #526174;
-}
-
-.gov24-form-field>small {
-	display: block;
-	margin-top: 8px;
-	color: #718096;
-	font-size: .76rem;
-}
-
-.gov24-field-help {
-	display: block;
-	margin-top: 7px;
-	color: #718096;
-	font-size: .76rem;
-}
-
+/* 원본 simulation.css L369–L397 */
 .gov24-sim-card .alert a {
 	color: #145da0;
 	font-weight: 700;
@@ -310,91 +173,7 @@
 	text-align: right;
 }
 
-.option-card {
-	display: flex;
-	align-items: center;
-	gap: 13px;
-	width: 100%;
-	margin-bottom: 12px;
-	padding: 16px;
-	border: 1px solid #dfe6ec;
-	border-radius: 14px;
-	cursor: pointer;
-	transition: border .15s, background .15s;
-}
-
-.option-card:hover, .option-card:focus-within {
-	border-color: #82b2d1;
-	background: #f7fbfd;
-}
-
-.option-card:has(input:checked) {
-	border-color: #2d7fb2;
-	background: #f1f8fc;
-	box-shadow: inset 0 0 0 1px #2d7fb2;
-}
-
-.option-card .form-check-input {
-	flex: 0 0 19px;
-	margin: 0;
-}
-
-.option-card-icon {
-	display: grid;
-	flex: 0 0 42px;
-	place-items: center;
-	width: 42px;
-	height: 42px;
-	border-radius: 13px;
-	color: #1d6b9d;
-	background: #e7f1f7;
-	font-size: 1.15rem;
-}
-
-.option-card strong, .option-card small {
-	display: block;
-}
-
-.option-card strong {
-	font-size: .88rem;
-}
-
-.option-card small {
-	margin-top: 3px;
-	color: var(--muted);
-	font-size: .75rem;
-}
-
-.option-end {
-	margin-left: auto;
-	color: #96a3b0;
-}
-
-.review-list {
-	margin: 0;
-	border-top: 1px solid var(--line);
-}
-
-.review-list>div {
-	display: grid;
-	grid-template-columns: 140px 1fr;
-	gap: 12px;
-	padding: 13px 4px;
-	border-bottom: 1px solid var(--line);
-}
-
-.review-list dt {
-	color: #647387;
-	font-size: .82rem;
-	font-weight: 500;
-}
-
-.review-list dd {
-	margin: 0;
-	font-size: .86rem;
-	font-weight: 600;
-}
-
+/* 원본 simulation.css L483–L519 */
 .sim-validation {
 	margin-top: 14px;
 	padding: 10px 13px;
@@ -432,100 +211,7 @@
 	line-height: 1.5;
 }
 
-.guide-card {
-	padding: 21px;
-}
-
-.guide-heading {
-	display: flex;
-	align-items: center;
-	gap: 11px;
-	margin-bottom: 14px;
-}
-
-.guide-heading>span {
-	display: grid;
-	place-items: center;
-	width: 39px;
-	height: 39px;
-	border-radius: 13px;
-	color: #1769aa;
-	background: #e8f2f8;
-}
-
-.guide-heading strong, .guide-heading small {
-	display: block;
-}
-
-.guide-heading strong {
-	font-size: .9rem;
-}
-
-.guide-heading small {
-	color: #8a96a4;
-	font-size: .7rem;
-}
-
-.guide-card p {
-	color: #5f6e81;
-	font-size: .82rem;
-	line-height: 1.8;
-}
-
-.privacy-card {
-	display: flex;
-	align-items: flex-start;
-	gap: 12px;
-	padding: 18px;
-	background: #f7fbf8;
-}
-
-.privacy-card>i {
-	color: #397d59;
-	font-size: 1.1rem;
-}
-
-.privacy-card strong {
-	font-size: .82rem;
-}
-
-.privacy-card p {
-	margin: 4px 0 0;
-	color: #647387;
-	font-size: .73rem;
-}
-
-.sim-retention-note {
-	align-items: center;
-	margin-top: 22px;
-	padding: 13px 17px;
-	border-radius: 13px;
-	box-shadow: none;
-}
-
-.sim-retention-note>i {
-	flex: 0 0 auto;
-}
-
-.sim-retention-note p {
-	font-size: .78rem;
-	line-height: 1.6;
-}
-
-.support-note {
-	display: flex;
-	gap: 10px;
-	padding: 15px;
-	color: #5f6e81;
-	background: #f2f6fa;
-	font-size: .75rem;
-}
-
-.support-note i {
-	color: #1769aa;
-	font-size: 1.2rem;
-}
-
+/* 원본 simulation.css L614–L933 */
 .completion-panel {
 	padding: 10px 0 20px;
 }
@@ -552,6 +238,12 @@
 	margin: 0;
 	color: var(--muted);
 	font-size: .84rem;
+}
+
+.complete-mark .material-symbols-outlined {
+	font-size: 55px;
+	line-height: 1;
+	flex-shrink: 0;
 }
 
 .checklist-box {
@@ -599,8 +291,6 @@
 }
 /* 시뮬레이션 인쇄 버튼 정렬 */
 #printBtn .material-symbols-outlined {
-	font-size: 20px;
-	line-height: 20px;
 	flex-shrink: 0;
 }
 
@@ -608,9 +298,8 @@
 	line-height: 20px;
 	transform: translateY(-1px);
 }
+
 #completePrintBtn .material-symbols-outlined {
-	font-size: 20px;
-	line-height: 20px;
 	flex-shrink: 0;
 }
 
@@ -692,7 +381,6 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	font-size: 20px;
 	line-height: 1;
 	vertical-align: middle;
 }
@@ -707,10 +395,6 @@
 
 #completeOfficialLink .material-symbols-outlined {
 	display: block;
-	font-size: 20px;
-	line-height: 20px;
-	width: 20px;
-	height: 20px;
 	flex-shrink: 0;
 	transform: none;
 }
@@ -723,8 +407,8 @@
 
 /* 완료 화면 - 신청 전 준비사항 */
 #completeChecklistList li {
-	font-size: 14px;
-	line-height: 1.8;
+    font-size: 0.875em;
+    line-height: 1.8;
 }
 
 /* ===== Dynamic step state ===== */
@@ -849,6 +533,7 @@
 	}
 }
 
+/* 원본 simulation.css L1048–L1056 */
 /* Keep the previously defined print layout intact. */
 @media print {
 	.simulation-page main.sim-container {
@@ -858,3 +543,4 @@
 		padding: 0;
 	}
 }
+

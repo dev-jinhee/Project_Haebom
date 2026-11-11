@@ -64,7 +64,9 @@
 }
 
 .simulation-print-page .sim-complete-actions,
-.simulation-print-page #completePrintBtn {
+.simulation-print-page #completePrintBtn,
+/* [진희] 정책 추천 새로고침 버튼 인쇄 및 PDF 저장 화면 숨김 */
+.simulation-print-page #completePolicyRefreshBtn {
     display: none !important;
 }
 

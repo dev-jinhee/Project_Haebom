@@ -23,10 +23,8 @@ export function initSignupSubmit(options) {
         const passwordConfirmInput = document.getElementById('signupPasswordConfirm');
         if (passwordInput === null || passwordConfirmInput === null) return;
 
-        const password = passwordInput.value;
-        if (password !== passwordConfirmInput.value) {
+        if (!validation.validatePasswordConfirmation()) {
             showError(page.dataset.passwordError);
-            validation.validatePasswordConfirmation();
             passwordConfirmInput.focus();
             return;
         }

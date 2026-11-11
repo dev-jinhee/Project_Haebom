@@ -227,6 +227,111 @@
 	top: 0;
 }
 
+/* 모바일·태블릿 문의 게시판 반응형 최적화 */
+.content-panel {
+	min-width: 0;
+	max-width: 100%;
+}
+
+.inquiry-tabs-wrap {
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+@media (max-width: 767.98px) {
+	.subpage-heading {
+		margin: 10px 0 20px;
+	}
+	.subpage-heading h1 {
+		font-size: 1.55rem;
+	}
+	.inquiry-summary {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 14px;
+		padding: 16px;
+	}
+	.inquiry-summary-banner {
+		align-items: flex-start !important;
+		min-width: 0;
+	}
+	.inquiry-banner-text {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	.inquiry-summary-stats {
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 12px 16px !important;
+		width: 100%;
+	}
+	.inquiry-summary .inquiry-action-btn {
+		align-self: flex-end;
+		margin-left: auto !important;
+	}
+	.content-panel {
+		padding: 16px 14px;
+	}
+	.panel-heading > .d-flex.ms-auto {
+		width: 100%;
+		margin-left: 0 !important;
+		flex-wrap: nowrap;
+	}
+	#inquiryStatusFilter {
+		flex: 0 0 auto;
+		width: 112px;
+	}
+	.inquiry-search {
+		flex: 1 1 auto;
+		max-width: none;
+		min-width: 0;
+	}
+	.inquiry-table th,
+	.inquiry-table td {
+		white-space: nowrap;
+	}
+	.inquiry-table th:first-child,
+	.inquiry-table td:first-child {
+		width: 48px !important;
+	}
+	.inquiry-table th:nth-child(2),
+	.inquiry-table td:nth-child(2) {
+		min-width: 190px;
+		max-width: 260px;
+		white-space: normal;
+	}
+	.inquiry-table th:nth-child(3),
+	.inquiry-table td:nth-child(3),
+	.inquiry-table th:nth-child(4),
+	.inquiry-table td:nth-child(4),
+	.inquiry-table th:nth-child(5),
+	.inquiry-table td:nth-child(5) {
+		width: auto !important;
+	}
+	.table-footer {
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+}
+
+@media (max-width: 575.98px) {
+	.inquiry-nav-tabs .nav-link {
+		padding: 5px 10px 6px;
+		font-size: 0.77rem;
+		gap: 5px;
+	}
+	.inquiry-nav-tabs .nav-link .material-symbols-outlined {
+		font-size: 1.02rem;
+	}
+	.inquiry-summary .inquiry-action-btn {
+		padding: 8px 16px !important;
+		font-size: 0.84rem;
+	}
+	.table-footer {
+		justify-content: center;
+	}
+}
+
 .inquiry-nav-tabs .nav-link.active .badge {
 	background: rgba(255, 255, 255, .25) !important;
 	color: #fff !important;

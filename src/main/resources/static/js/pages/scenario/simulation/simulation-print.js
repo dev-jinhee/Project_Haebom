@@ -9,6 +9,12 @@ const stepModules = {
 		2: () => import(`${moduleBase}/move/step-2.js`),
 		3: () => import(`${moduleBase}/move/step-3.js`),
 		4: () => import(`${moduleBase}/move/step-4.js`)
+	},
+	IDENTITY_REISSUE: {
+		1: () => import("/js/pages/scenario/simulation/identity/step-1.js")
+	},
+	RESIDENT_RECORD_ISSUE: {
+		1: () => import("/js/pages/scenario/simulation/certificate/step-1.js")
 	}
 };
 

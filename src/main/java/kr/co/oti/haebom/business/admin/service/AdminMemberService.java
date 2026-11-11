@@ -6,12 +6,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import kr.co.oti.haebom.business.admin.dto.AdminMemberDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminMemberProgressDTO;
@@ -24,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class AdminMemberService {
 	
+	private static final Set<String> ALLOWED_MEMBER_STATUSES = Set.of("ACTIVE", "SUSPENDED", "WITHDRAWN");
+
 	private final AdminMemberMapper adminMemberMapper;
 	private final AdminDashboardService adminDashboardService;
 	private final POI poi; 
@@ -35,9 +41,26 @@ public class AdminMemberService {
 	
 	// 2. 회원 상태 변경 (DB 수정이므로 @Transactional 적용)
 	@Transactional
-	public void updateMemberStatus(int memberId, String memberStatus) {
-		adminMemberMapper.updateMemberStatus(memberId, memberStatus);
-		adminDashboardService.recordActivity(1, "MEMBER", "UPDATE", memberId);
+	public void updateMemberStatus(Integer memberId, String memberStatus, int currentAdminId) {
+		if (currentAdminId <= 0) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "관리자 인증 정보가 유효하지 않습니다.");
+		}
+		if (memberId == null || memberId <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바른 회원 번호가 아닙니다.");
+		}
+		if (memberStatus == null || memberStatus.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "변경할 회원 상태를 입력해주세요.");
+		}
+		String normalizedStatus = memberStatus.trim().toUpperCase(Locale.ROOT);
+		if (!ALLOWED_MEMBER_STATUSES.contains(normalizedStatus)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않은 회원 상태입니다.");
+		}
+
+		int updatedRows = adminMemberMapper.updateMemberStatus(memberId, normalizedStatus);
+		if (updatedRows != 1) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않거나 변경할 수 없는 회원입니다.");
+		}
+		adminDashboardService.recordActivity(currentAdminId, "MEMBER", "UPDATE", memberId);
 	}
 	
 	// 3. 특정 회원의 시뮬레이션 진행/완료 내역 조회

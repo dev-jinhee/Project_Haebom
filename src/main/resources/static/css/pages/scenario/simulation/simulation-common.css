@@ -1,0 +1,628 @@
+/* 해봄 | 시나리오 공통 UI CSS
+   전입신고 / 주민등록증 재발급 / 주민등록표 등본(초본)에 공통 적용.
+   simulation.jsp에서 simulation.css 다음에 불러옵니다.
+   주의: 기존 화면 보존을 위해 CSS 선택자와 속성값을 변경하지 않았습니다.
+*/
+
+/* 원본의 공통 카드 기본 스타일(원본 simulation.css L174-L179) */
+.guide-card, .privacy-card, .support-note {
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	background: #fff;
+	box-shadow: 0 7px 20px rgba(31, 58, 84, .035);
+}
+
+/* 원본 simulation.css L40–L125 */
+/* ==============================
+   시뮬레이션 공통 시작 안내
+============================== */
+.sim-guide-panel {
+	padding: 30px 34px;
+	margin: 0 0 26px;
+	border: none;
+	border-radius: 12px;
+	background: #edf2f8;
+	color: #223247;
+}
+
+/* 안내 제목 */
+.sim-guide-title {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin: 0 0 18px;
+	color: #164166;
+	font-size: 1.22rem;
+	font-weight: 800;
+}
+
+/* 제목 아이콘 */
+.sim-guide-title .material-symbols-outlined {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	line-height: 1;
+}
+
+/* 소제목 */
+.sim-guide-panel h4 {
+	margin: 26px 0 12px;
+	font-size: 1.02rem;
+	font-weight: 800;
+}
+
+.sim-guide-panel h5 {
+	margin: 17px 0 7px;
+	font-size: .94rem;
+	font-weight: 750;
+}
+
+/* 본문 */
+.sim-guide-panel p {
+	margin: 0 0 11px;
+	line-height: 1.7;
+}
+
+/* 안내 목록 */
+.sim-guide-list {
+	margin: 0;
+	padding-left: 19px;
+}
+
+.sim-guide-list li {
+	padding-left: 2px;
+	margin: 0 0 9px;
+	line-height: 1.7;
+}
+
+/* 하단 추가 안내 */
+.sim-guide-last {
+	border-top: 1px dashed #b9c4d2;
+	padding-top: 18px;
+	margin-top: 20px;
+}
+
+/* 부가 설명 */
+.sim-guide-footer {
+	margin-top: 14px !important;
+	color: #52647a;
+}
+
+/* 모바일 */
+@media ( max-width : 768px) {
+	.sim-guide-panel {
+		padding: 22px 20px;
+	}
+	.sim-guide-title {
+		font-size: 1.1rem;
+	}
+}
+
+/* 원본 simulation.css L227–L368 */
+.gov24-notices {
+	min-height: 0;
+	color: #3f4b58;
+	font-size: .88rem;
+	line-height: 1.85;
+}
+
+.gov24-section-title {
+	margin: 0 0 20px;
+	color: #202b36;
+	font-size: 1.3rem;
+	font-weight: 800;
+}
+
+.gov24-text-section {
+	margin: 0 0 24px;
+}
+
+.gov24-text-section h4, .gov24-confirm-box h4 {
+	margin: 0 0 11px;
+	color: #25384b;
+	font-size: .94rem;
+	font-weight: 800;
+}
+
+.gov24-text-section ul, .gov24-text-section ol, .gov24-confirm-box ul {
+	margin: 0;
+	padding-left: 1.25rem;
+}
+
+.gov24-text-section li+li, .gov24-confirm-box li+li {
+	margin-top: 10px;
+}
+
+.gov24-text-section .gov24-warning, .gov24-confirm-box .gov24-warning {
+	color: #6d5d45;
+}
+
+.gov24-confirm-box {
+	margin: 22px 0 27px;
+	padding: 18px 20px;
+	border: 1px solid #e3e5e7;
+	border-radius: 12px;
+	background: #f8f8f8;
+}
+
+.gov24-confirm-box p {
+	margin: 0;
+}
+
+.gov24-form-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 18px;
+	max-width: 850px;
+}
+
+.gov24-form-grid .form-control {
+	max-width: none;
+}
+
+.gov24-form-panel {
+	margin: 22px 0;
+	padding: 34px 40px 40px;
+	border: 1px solid #c9c9c9;
+	border-radius: 12px;
+}
+
+.gov24-form-panel h3 {
+	margin: 0 0 40px;
+	color: #1c2733;
+	font-size: 1.25rem;
+	font-weight: 800;
+}
+
+.gov24-form-field {
+	max-width: 850px;
+	margin: 0 0 46px;
+	padding: 0;
+	border: 0;
+}
+
+.gov24-form-field:last-child {
+	margin-bottom: 0;
+}
+
+.gov24-form-field>label, .gov24-form-field>legend {
+	display: block;
+	float: none;
+	width: auto;
+	margin: 0 0 19px;
+	color: #25384b;
+	font-size: .98rem;
+	font-weight: 700;
+}
+
+.gov24-form-field legend span {
+	color: #58718a;
+	font-size: .85rem;
+	font-weight: 400;
+}
+
+.gov24-readonly-field {
+	max-width: 590px !important;
+	min-height: 56px;
+	border-color: #c9c9c9;
+	background: #dedede !important;
+}
+
+.gov24-phone-fields {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	max-width: 590px;
+}
+
+.gov24-phone-fields .form-control {
+	width: 160px;
+	max-width: 160px;
+	min-height: 56px;
+	border-color: #858585;
+	border-radius: 8px;
+}
+
+.gov24-phone-fields>span {
+	color: #526174;
+}
+
+.gov24-form-field>small {
+	display: block;
+	margin-top: 8px;
+	color: #718096;
+	font-size: .76rem;
+}
+
+.gov24-field-help {
+	display: block;
+	margin-top: 7px;
+	color: #718096;
+	font-size: .76rem;
+}
+
+/* 원본 simulation.css L398–L482 */
+.option-card {
+	display: flex;
+	align-items: center;
+	gap: 13px;
+	width: 100%;
+	margin-bottom: 12px;
+	padding: 16px;
+	border: 1px solid #dfe6ec;
+	border-radius: 14px;
+	cursor: pointer;
+	transition: border .15s, background .15s;
+}
+
+.option-card:hover, .option-card:focus-within {
+	border-color: #82b2d1;
+	background: #f7fbfd;
+}
+
+.option-card:has(input:checked) {
+	border-color: #2d7fb2;
+	background: #f1f8fc;
+	box-shadow: inset 0 0 0 1px #2d7fb2;
+}
+
+.option-card .form-check-input {
+	flex: 0 0 19px;
+	margin: 0;
+}
+
+.option-card-icon {
+	display: grid;
+	flex: 0 0 42px;
+	place-items: center;
+	width: 42px;
+	height: 42px;
+	border-radius: 13px;
+	color: #1d6b9d;
+	background: #e7f1f7;
+	font-size: 1.15rem;
+}
+
+.option-card strong, .option-card small {
+	display: block;
+}
+
+.option-card strong {
+	font-size: .88rem;
+}
+
+.option-card small {
+	margin-top: 3px;
+	color: var(--muted);
+	font-size: .75rem;
+}
+
+.option-end {
+	margin-left: auto;
+	color: #96a3b0;
+}
+
+.review-list {
+	margin: 0;
+	border-top: 1px solid var(--line);
+}
+
+.review-list>div {
+	display: grid;
+	grid-template-columns: 140px 1fr;
+	gap: 12px;
+	padding: 13px 4px;
+	border-bottom: 1px solid var(--line);
+}
+
+.review-list dt {
+	color: #647387;
+	font-size: .82rem;
+	font-weight: 500;
+}
+
+.review-list dd {
+	margin: 0;
+	font-size: .86rem;
+	font-weight: 600;
+}
+
+/* 원본 simulation.css L520–L613 */
+.guide-card {
+	padding: 21px;
+}
+
+.guide-heading {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	margin-bottom: 14px;
+}
+
+.guide-heading>span {
+	display: grid;
+	place-items: center;
+	width: 39px;
+	height: 39px;
+	border-radius: 13px;
+	color: #1769aa;
+	background: #e8f2f8;
+}
+
+.guide-heading strong, .guide-heading small {
+	display: block;
+}
+
+.guide-heading strong {
+	font-size: .9rem;
+}
+
+.guide-heading small {
+	color: #8a96a4;
+	font-size: .7rem;
+}
+
+.guide-card p {
+	color: #5f6e81;
+	font-size: .82rem;
+	line-height: 1.8;
+}
+
+.privacy-card {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 18px;
+	background: #f7fbf8;
+}
+
+.privacy-card>i {
+	color: #397d59;
+	font-size: 1.1rem;
+}
+
+.privacy-card strong {
+	font-size: .82rem;
+}
+
+.privacy-card p {
+	margin: 4px 0 0;
+	color: #647387;
+	font-size: .73rem;
+}
+
+.sim-retention-note {
+	align-items: center;
+	margin-top: 22px;
+	padding: 13px 17px;
+	border-radius: 13px;
+	box-shadow: none;
+}
+
+.sim-retention-note>i {
+	flex: 0 0 auto;
+}
+
+.sim-retention-note p {
+	font-size: .78rem;
+	line-height: 1.6;
+}
+
+.support-note {
+	display: flex;
+	gap: 10px;
+	padding: 15px;
+	color: #5f6e81;
+	background: #f2f6fa;
+	font-size: .75rem;
+}
+
+.support-note i {
+	color: #1769aa;
+	font-size: 1.2rem;
+}
+
+/* 원본 simulation.css L934–L1047 */
+/* ========================================
+   시뮬레이션 공통 안내 패널
+======================================== */
+
+/* 정부24 절차 안내 */
+.sim-guide-panel {
+	background: #f3f5f7;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	padding: 24px 28px;
+	margin-bottom: 20px;
+}
+
+/* 해봄 교육용 시뮬레이션 안내 */
+.sim-notice-panel {
+	/* 기존 #fff에서 변경 */
+	background: #f5f8fc;
+	border: 1px solid #c7d5e2;
+	border-left: 4px solid #164166;
+	border-radius: 10px;
+	padding: 24px 28px;
+	margin: 20px 0 28px;
+}
+
+.sim-notice-panel h3 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	color: #164166;
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.sim-notice-panel ul {
+	margin: 0;
+	padding-left: 22px;
+}
+
+.sim-notice-panel li {
+	margin-bottom: 9px;
+	color: #334155;
+	line-height: 1.7;
+}
+
+.sim-notice-panel li:last-child {
+	margin-bottom: 0;
+}
+
+
+/* ============================================================
+   공통 라디오 · 체크박스
+   - 모든 시뮬레이션에서 동일한 디자인 사용
+   - 일반 input 및 Bootstrap .form-check 지원
+   ============================================================ */
+
+/* ==============================
+   1. 라디오 · 체크박스 기본 디자인
+============================== */
+
+input:is([type="checkbox"], [type="radio"]) {
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+
+    width: 19px;
+    height: 19px;
+    min-width: 19px;
+    flex: 0 0 19px;
+
+    margin: 0;
+    padding: 0;
+
+    border: 1px solid #9caaba;
+    border-radius: 4px;
+
+    background-color: #fff;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    vertical-align: middle;
+    accent-color: #164166;
+
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* 라디오 버튼 원형 */
+input[type="radio"] {
+    border-radius: 50%;
+}
+
+/* ==============================
+   2. 선택 상태
+============================== */
+
+input:is([type="checkbox"], [type="radio"]):checked {
+    border-color: #164166;
+    background-color: #164166;
+}
+
+/* 체크박스 체크 아이콘 */
+input[type="checkbox"]:checked {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m4 8 2.5 2.5L12 5'/%3e%3c/svg%3e");
+}
+
+/* 라디오 버튼 선택 표시 */
+input[type="radio"]:checked {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3ccircle cx='8' cy='8' r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+/* ==============================
+   3. 비활성화 상태
+============================== */
+
+input:is([type="checkbox"], [type="radio"]):disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+/* 비활성화 + 선택 */
+input:is([type="checkbox"], [type="radio"]):disabled:checked {
+    border-color: #788a9c;
+    background-color: #788a9c;
+}
+
+/* 비활성화 + 미선택 */
+input:is([type="checkbox"], [type="radio"]):disabled:not(:checked) {
+    border-color: #b9c3cd;
+    background-color: #f1f3f5;
+    background-image: none;
+}
+
+/* ==============================
+   4. 포커스
+============================== */
+
+input:is([type="checkbox"], [type="radio"]):focus {
+    border-color: #164166;
+    box-shadow: none;
+}
+
+input:is([type="checkbox"], [type="radio"]):focus-visible {
+    outline: 2px solid #164166;
+    outline-offset: 3px;
+}
+
+/* ==============================
+   5. 일반 label 정렬
+   - input을 직접 감싸는 경우
+============================== */
+
+label:has(> input[type="radio"]),
+label:has(> input[type="checkbox"]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 24px;
+    margin: 0;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+/* ==============================
+   6. Bootstrap form-check 정렬
+   - input과 label이 형제인 경우
+============================== */
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding-left: 0;
+}
+
+/* Bootstrap 기본 float 및 음수 margin 제거 */
+.form-check > .form-check-input {
+    float: none;
+    flex: 0 0 19px;
+
+    width: 19px;
+    height: 19px;
+
+    margin: 0;
+    margin-top: 0.2em;
+    padding: 0;
+}
+
+/* 라디오 · 체크박스 옆 텍스트 */
+.form-check > .form-check-label {
+    display: block;
+    margin: 0;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+@media ( max-width : 768px) {
+	.sim-guide-panel, .sim-notice-panel {
+		padding: 18px 16px;
+	}
+}

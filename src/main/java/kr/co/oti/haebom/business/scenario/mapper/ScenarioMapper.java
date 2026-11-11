@@ -27,4 +27,7 @@ public interface ScenarioMapper {
 	
 	//시나리오의 첫 단계 조회
 	ScenarioStepDTO selectFirstStepByScenarioId(Integer scenarioId);
+	
+	//카테고리 조회
+	List<String> selectCategories();
 }

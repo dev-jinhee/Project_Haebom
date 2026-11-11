@@ -24,20 +24,26 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ========================================================
 INSERT INTO category (category_id, category_name) VALUES
 (1, 'HOUSING'),
-(2, 'IDENTITY');
+(2, 'IDENTITY'),
+(3, 'FAMILY_WELFARE'),
+(4, 'EMPLOYMENT_ECONOMY'),
+(5, 'TAX_PAYMENT');
 
 INSERT INTO scenario (
     scenario_id, scenario_code, scenario_title, description, estimated_minutes, is_active, category_id
 ) VALUES 
 (1, 'MOVE', '전입신고', '거주지를 이동한 경우, 전입한 날부터 14일 이내에 새로운 거주지의 관할 기관에 전입신고를 해야 합니다.\n해봄의 전입신고 시뮬레이션에서는 실제 민원 신청에 앞서 이사 전·후 주소 입력, 이사하는 가족 선택, 세대주 및 가족관계 설정, 우편물 이전 서비스 신청 등 전입신고의 주요 과정을 단계별로 체험할 수 있습니다.', 5, 1, 1),
-(2, 'IDENTITY_REISSUE', '주민등록증 재발급', '주민등록증을 분실하거나 훼손하는 등의 사유로 새로운 주민등록증이 필요한 경우 재발급을 신청할 수 있습니다.\n해봄의 주민등록증 재발급 시뮬레이션에서는 재발급 사유 선택, 신청정보 입력 및 신청 절차 확인 등 주민등록증 재발급의 주요 과정을 단계별로 미리 체험할 수 있습니다.', 3, 0, 2);
+(2, 'IDENTITY_REISSUE', '주민등록증 재발급', '주민등록증을 분실하거나 훼손하는 등의 사유로 새로운 주민등록증이 필요한 경우 재발급을 신청할 수 있습니다.\n해봄의 주민등록증 재발급 시뮬레이션에서는 재발급 사유 선택, 신청정보 입력 및 신청 절차 확인 등 주민등록증 재발급의 주요 과정을 단계별로 미리 체험할 수 있습니다.', 3, 1, 2);
 
 INSERT INTO scenario_step (step_id, scenario_id, step_order, step_title, step_description) VALUES
 (1, 1, 0, '사전정보 입력', '전입신고 연습에 필요한 사전정보를 입력해 보세요.'),
 (2, 1, 1, '유의사항', '전입신고 전에 알아두어야 할 유의사항을 확인해 보세요.'),
 (3, 1, 2, '기본 정보', '신청에 필요한 기본 정보를 확인하고 입력해 보세요.'),
 (4, 1, 3, '이전 주소', '이사하기 전 주소를 확인하고 입력해 보세요.'),
-(5, 1, 4, '현재 주소', '이사 후 주소와 세대 구성 정보를 확인하고 입력해 보세요.');
+(5, 1, 4, '현재 주소', '이사 후 주소와 세대 구성 정보를 확인하고 입력해 보세요.'),
+(6, 2, 1,'주민등록증 재발급 신청',
+    '재발급 사유와 신청정보를 입력하고, 수령기관 선택 및 증명사진 첨부 등 주민등록증 재발급 신청 절차를 체험해 보세요.');
+ 
 
 -- ========================================================
 -- 2. 관리자 계정 3명 (전원 비밀번호: kosa1004)
@@ -3956,3 +3962,30 @@ INSERT INTO admin_log_scenario (log_id, scenario_id) VALUES
 (5, 1),
 (9, 1),
 (14, 2);
+
+
+-- 배포 DB에 테이블 생성/삭제하지 않고 시나리오만 등록하는 SQL
+INSERT INTO scenario (
+    scenario_code, scenario_title, description, estimated_minutes, is_active, category_id
+)
+SELECT
+    'RESIDENT_RECORD_ISSUE',
+    '주민등록표 등본(초본) 발급',
+    CONCAT(
+      '주민등록표 등본은 세대 구성원의 주민등록 사항을, 초본은 개인의 주민등록 사항을 확인하기 위해 발급받을 수 있습니다.\n',
+      '해봄의 주민등록표 등본(초본) 발급 시뮬레이션에서는 발급 유형 선택, 주민등록상 주소 확인, 발급 형태 및 표시 항목 선택, 수령 방법 선택 등 주민등록표 등본(초본) 발급의 주요 과정을 미리 체험할 수 있습니다.'
+    ),
+    3, TRUE, c.category_id
+FROM category c
+WHERE c.category_name = 'IDENTITY'
+  AND NOT EXISTS (SELECT 1 FROM scenario s WHERE s.scenario_code = 'RESIDENT_RECORD_ISSUE');
+
+INSERT INTO scenario_step (scenario_id, step_order, step_title, step_description)
+SELECT s.scenario_id, 1, '주민등록표 등본(초본) 발급 신청',
+       '발급 서비스 선택, 신청 내용 입력, 수령 방법 선택 등 주민등록표 등본(초본) 발급 절차를 체험해 보세요.'
+FROM scenario s
+WHERE s.scenario_code = 'RESIDENT_RECORD_ISSUE'
+  AND NOT EXISTS (
+      SELECT 1 FROM scenario_step st
+      WHERE st.scenario_id = s.scenario_id AND st.step_order = 1
+  );

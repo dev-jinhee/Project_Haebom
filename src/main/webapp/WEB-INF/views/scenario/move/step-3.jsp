@@ -11,6 +11,10 @@
 		<!-- 1. 이사 전 주소 조회 -->
 		<div class="move-step3-block">
 			<h4 class="move-step3-heading">주소 확인</h4>
+			<p class="sim-learning-field-note">
+				여기는 <strong>이사하기 전 주소</strong>예요. 시·도와 시·군·구를 선택하고 주소조회를 누르면 연습용 세대
+				정보가 나타나요.
+			</p>
 			<div class="gov24-address-controls move-step3-address-controls">
 				<label for="sidoSelect" class="visually-hidden">시·도</label> <select
 					id="sidoSelect" class="form-select" aria-label="시·도 선택">
@@ -29,7 +33,7 @@
 
 			<!-- 조회 버튼 클릭 후 표시. SGIS에서 시도/시군구만 가져오고 나머지는 가상 데이터 -->
 			<div id="addressResultSection" class="mt-3 d-none">
-				<table class="gov24-result-table move-step3-info-table">
+				<table class="move-address-result-table move-step3-info-table">
 					<tbody>
 						<tr>
 							<th scope="row">기본 주소</th>
@@ -51,6 +55,8 @@
 			<h4 class="move-step3-heading">
 				이사 가는 사람 선택 <span class="move-step3-required">(필수)</span>
 			</h4>
+			<p class="sim-learning-field-note">앞서 만든 가상 가족 중 새 주소로 함께 이사할 사람을
+				선택해 주세요. 남는 사람은 체크하지 않아요.</p>
 			<div class="table-responsive">
 				<table class="gov24-people-table move-step3-people-table">
 					<colgroup>
@@ -81,8 +87,10 @@
 			<h4 class="move-step3-heading">
 				세대주를 선택해 주세요. <span class="move-step3-required">(필수)</span>
 			</h4>
-			<p class="text-muted small mb-3">기존 주소에 남는 가족 중 새로운 세대주 한 명을 선택해
-				주세요.</p>
+			<p class="sim-learning-field-note">
+				원래 세대주가 이사하고 기존 집에 가족이 남으면, <strong>남는 가족 중 한 명을 새로운 세대주로
+					선택</strong>해야 해요. 아래 목록에서 한 명을 선택해 주세요.
+			</p>
 			<div class="table-responsive">
 				<table class="gov24-people-table move-step3-people-table">
 					<colgroup>
@@ -123,6 +131,34 @@
 		</div>
 	</section>
 	<!-- 전입신고 Step3: 이사 전 가족 조회/세대주 정보 영역 아래, 기존 교육용 공통 안내 위에 삽입 -->
+	<details class="sim-learning-quick-guide">
+		<summary>
+			<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+			두 가지 정보 확인 동의는 무엇이 다른가요? <span class="sim-learning-quick-guide-hint">눌러서
+				알아보기</span>
+		</summary>
+		<div class="sim-learning-quick-guide-body">
+			<dl class="sim-learning-quick-guide-list">
+				<div>
+					<dt>본인정보 요청</dt>
+					<dd>민원 처리에 필요한 본인의 행정정보를 담당자가 확인하도록 요청하고 동의하는 절차예요.</dd>
+				</div>
+				<div>
+					<dt>공동이용</dt>
+					<dd>담당 공무원이 기관 간 공동이용으로 확인할 수 있는 정보를 확인하는 절차예요.</dd>
+				</div>
+				<div>
+					<dt>미동의 시</dt>
+					<dd>실제 민원에서는 관련 증빙서류를 직접 제출해야 할 수 있어요. 해봄은 서류 제출 없이 학습만 계속해요.</dd>
+				</div>
+			</dl>
+			<p class="sim-learning-source">
+				출처: <a
+					href="https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000016"
+					target="_blank" rel="noopener noreferrer">정부24 전입신고 민원안내</a>
+			</p>
+		</div>
+	</details>
 	<div class="move-step3-consents" aria-label="행정정보 확인 동의">
 		<section class="move-step3-consent-section"
 			aria-labelledby="personalConsentTitle">

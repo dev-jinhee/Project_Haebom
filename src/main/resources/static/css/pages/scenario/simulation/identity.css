@@ -4,52 +4,11 @@
 /* 공통 시뮬레이션 영역 안에서만 적용 */
 .identity-step1 {
 	color: #1e293b;
-	font-size: 0.94rem;
 	line-height: 1.75;
 }
 
 .identity-step1 * {
 	box-sizing: border-box;
-}
-
-.identity-step1 .identity-guide-panel {
-	padding: 30px 34px;
-	margin: 0 0 26px;
-	border-radius: 12px;
-	background: #edf2f8;
-	color: #223247;
-}
-
-.identity-step1 .identity-guide-panel h3 {
-	margin: 0 0 18px;
-	font-size: 1.22rem;
-	font-weight: 800;
-}
-
-.identity-step1 .identity-guide-panel h4 {
-	margin: 26px 0 12px;
-	font-size: 1.02rem;
-	font-weight: 800;
-}
-
-.identity-step1 .identity-guide-panel h5 {
-	margin: 17px 0 7px;
-	font-size: .94rem;
-	font-weight: 750;
-}
-
-.identity-step1 .identity-guide-panel p {
-	margin: 0 0 11px;
-}
-
-.identity-step1 .identity-guide-list {
-	margin: 0;
-	padding-left: 19px;
-}
-
-.identity-step1 .identity-guide-list li {
-	padding-left: 2px;
-	margin: 0 0 9px;
 }
 
 .identity-step1 .identity-guide-last {
@@ -61,6 +20,41 @@
 .identity-step1 .identity-guide-footer {
 	margin-top: 14px !important;
 	color: #52647a;
+}
+
+/* 해봄 시뮬레이션 안내 */
+.identity-simulation-notice {
+	margin: 28px 0;
+	padding: 24px 28px;
+	background: #eef5fb;
+	border: 1px solid #cbddea;
+	border-left: 4px solid #164166;
+	border-radius: 10px;
+}
+
+.identity-simulation-notice h3 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	color: #164166;
+	font-size: 1.15rem;
+	font-weight: 700;
+}
+
+.identity-notice-bullets {
+	margin: 0;
+	padding-left: 22px;
+}
+
+.identity-notice-bullets li {
+	margin-bottom: 9px;
+	line-height: 1.7;
+	color: #334155;
+}
+
+.identity-notice-bullets li:last-child {
+	margin-bottom: 0;
 }
 
 /* 원본의 독립적인 섹션 카드 */
@@ -92,8 +86,10 @@
 	margin-bottom: 0;
 }
 
-.identity-step1 .identity-field>label:not(.identity-checkbox-label),
-	.identity-step1 .identity-field-label, .identity-step1 .identity-field>legend {
+.identity-step1 .identity-field > label:not(.identity-checkbox-label):not(:has(> input[type="radio"], > input[type="checkbox"])),
+.identity-step1 .identity-field-label,
+.identity-step1 .identity-field > legend
+	{
 	display: block;
 	width: auto;
 	float: none;
@@ -123,13 +119,15 @@
 	background: #e4e5e7;
 }
 
-.identity-step1 .identity-applicant-panel>.identity-field>.form-control {
+.identity-step1 .identity-applicant-panel>.identity-field>.form-control
+	{
 	width: min(100%, 560px);
 	max-width: 560px;
 }
 
 .identity-step1 .identity-resident-row, .identity-step1 .identity-phone-row,
-	.identity-step1 .identity-address-row, .identity-step1 .identity-office-row {
+	.identity-step1 .identity-address-row, .identity-step1 .identity-office-row
+	{
 	display: flex;
 	gap: 12px;
 	align-items: center;
@@ -184,24 +182,11 @@
 .identity-step1 .identity-radio-grid label, .identity-step1 .identity-field>label:has(input[type="radio"]),
 	.identity-step1 .identity-checkbox-label, .identity-step1 .identity-consent-items label
 	{
-	display: flex;
-	align-items: flex-start;
-	gap: 10px;
 	min-width: 0;
 	margin: 0;
 	font-size: .94rem;
 	font-weight: 400;
-	line-height: 1.5;
 	cursor: pointer;
-}
-
-.identity-step1 input[type="radio"], .identity-step1 input[type="checkbox"]
-	{
-	flex: none;
-	width: 18px;
-	height: 18px;
-	margin: 2px 0 0;
-	accent-color: #2563eb;
 }
 
 .identity-step1 #identityOtherReasonOption[hidden] {
@@ -258,7 +243,7 @@
 
 /* 사진 첨부 */
 .identity-step1 .identity-file-guide {
-	padding: 18px 20px;
+	padding: 18px 20px 7px;
 	margin-bottom: 18px;
 	border: 1px solid #d9dde4;
 	border-radius: 6px;
@@ -266,19 +251,71 @@
 }
 
 .identity-step1 .identity-file-guide p {
-	margin: 0 0 6px;
+	margin: 0 0 10px;
+	font-weight: 700;
+	color: #164166;
 }
 
-.identity-step1 .identity-file-guide p:last-child {
-	margin-bottom: 0;
-}
-
-.identity-step1 #identityPhotoInput {
+/* 파일 첨부 전체 영역 */
+.identity-step1 #identityPhotoInput.form-control {
+	display: block;
+	width: 100%;
 	max-width: 560px;
+	padding: 0;
+	border: 1px solid #ccd5df;
+	border-radius: 6px;
+	background-color: #fff;
+	color: #475569;
+	font-size: 0.95rem;
+	line-height: 1.5;
+	overflow: hidden;
+	cursor: pointer;
+	transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+/* 파일 선택 버튼 */
+.identity-step1 #identityPhotoInput.form-control::file-selector-button {
+	margin: 0 14px 0 0;
+	padding: 12px 18px;
+	border: 0;
+	border-right: 1px solid #164166;
+	border-radius: 0;
+	background-color: #164166;
+	color: #fff;
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+/* 마우스 호버 */
+.identity-step1 #identityPhotoInput.form-control:hover::file-selector-button
+	{
+	background-color: #205580;
+}
+
+/* 포커스 */
+.identity-step1 #identityPhotoInput.form-control:focus {
+	border-color: #164166;
+	box-shadow: 0 0 0 3px rgba(22, 65, 102, 0.12);
+	outline: none;
+}
+
+/* 비활성화 */
+.identity-step1 #identityPhotoInput.form-control:disabled {
+	background-color: #f1f3f5;
+	cursor: not-allowed;
+}
+
+.identity-step1 #identityPhotoInput.form-control:disabled::file-selector-button
+	{
+	background-color: #94a3b8;
+	cursor: not-allowed;
+}
+
+/* 주민등록증 재발급 증명사진 검사 UI*/
 .identity-step1 .identity-photo-preview {
-	margin-top: 12px;
+	margin-top: 16px;
 }
 
 .identity-step1 .identity-photo-preview img {
@@ -287,6 +324,112 @@
 	object-fit: contain;
 	border: 1px solid #ccd5df;
 	border-radius: 5px;
+}
+
+.identity-step1 .identity-photo-review {
+	display: grid;
+	grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
+	gap: 18px;
+	padding: 16px;
+	border: 1px solid #d9dde4;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.identity-step1 .identity-photo-image {
+	min-width: 0;
+}
+
+.identity-step1 .identity-photo-file-name {
+	margin: 0 0 10px;
+	color: #334155;
+	font-size: .9rem;
+	overflow-wrap: anywhere;
+}
+
+.identity-step1 .identity-photo-image img {
+	display: block;
+	width: 100%;
+	max-width: 160px;
+	max-height: 200px;
+	object-fit: contain;
+	border: 1px solid #ccd5df;
+	border-radius: 5px;
+}
+
+.identity-step1 .identity-photo-checks {
+	min-width: 0;
+}
+
+.identity-step1 .identity-photo-checks-title {
+	margin: 0 0 10px;
+	color: #164166;
+	font-weight: 700;
+}
+
+.identity-step1 .identity-photo-check {
+	padding: 8px 0;
+	border-top: 1px solid #eef1f4;
+}
+
+.identity-step1 .identity-photo-check-label {
+	display: block;
+	font-weight: 600;
+}
+
+.identity-step1 .identity-photo-check-detail {
+	display: block;
+	margin-top: 3px;
+	color: #475569;
+	font-size: .88rem;
+	overflow-wrap: anywhere;
+}
+
+.identity-step1 .identity-photo-check.is-pass .identity-photo-check-label
+	{
+	color: #17633d;
+}
+
+.identity-step1 .identity-photo-check.is-fail .identity-photo-check-label
+	{
+	color: #b42318;
+}
+
+.identity-step1 .identity-photo-check.is-pending .identity-photo-check-label
+	{
+	color: #64748b;
+}
+
+.identity-step1 .identity-photo-status {
+	margin: 10px 0 0;
+	font-weight: 600;
+}
+
+.identity-step1 .identity-photo-status.is-pass {
+	color: #17633d;
+}
+
+.identity-step1 .identity-photo-status.is-fail {
+	color: #b42318;
+}
+
+.identity-step1 .identity-photo-confirmations {
+	display: grid;
+	gap: 10px;
+	margin-top: 14px;
+	padding: 14px 16px;
+	border-radius: 8px;
+	background: #f7f8fa;
+}
+
+@media ( max-width : 640px) {
+	.identity-step1 .identity-photo-review {
+		grid-template-columns: 1fr;
+	}
+}
+
+.identity-step1 .identity-photo-confirmations[hidden] {
+	display: none;
 }
 
 /* 사전동의 */

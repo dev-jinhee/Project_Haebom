@@ -95,4 +95,15 @@ public class SimulationApiController {
 		simulationService.deleteProgress(progressId, memberPrincipal.getMemberId());
 		return ResponseEntity.noContent().build();
 	}
+	
+	@Operation(summary = "마이페이지 시나리오 이력 조회", description = "로그인 회원 본인의 특정 진행·완료 이력을 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "조회 성공")
+	@GetMapping("/progress/{progressId}/history")
+	public SimulationProgressDTO getProgressForHistory(
+	        @PathVariable("progressId") Integer progressId,
+	        @Parameter(hidden = true)
+	        @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+	    return simulationService.getProgressForHistory(
+	            progressId, memberPrincipal.getMemberId());
+	}
 }

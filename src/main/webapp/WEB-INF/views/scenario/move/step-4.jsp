@@ -13,6 +13,29 @@
 		<h3>현재 거주지 정보</h3>
 
 		<p class="text-muted small mb-4">이사한 후 거주할 주소와 세대 구성 방법을 확인해 주세요.</p>
+		<details class="sim-learning-quick-guide">
+			<summary>
+				<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+				새 주소 입력에서 자주 헷갈리는 용어 <span class="sim-learning-quick-guide-hint">눌러서
+					알아보기</span>
+			</summary>
+			<div class="sim-learning-quick-guide-body">
+				<dl class="sim-learning-quick-guide-list">
+					<div>
+						<dt>도로명 주소</dt>
+						<dd>새로 이사할 곳의 도로명이나 건물명으로 검색해서 선택해요.</dd>
+					</div>
+					<div>
+						<dt>건물 번호</dt>
+						<dd>주소 검색 결과에 포함된 건물의 지상·지하 구분과 번호예요. 검색 결과를 바탕으로 표시돼요.</dd>
+					</div>
+					<div>
+						<dt>그 외 주소</dt>
+						<dd>아파트 동·호수, 층수처럼 기본 주소만으로 특정하기 어려운 위치를 추가로 적는 곳이에요.</dd>
+					</div>
+				</dl>
+			</div>
+		</details>
 
 		<div class="gov24-form-field mb-4">
 
@@ -45,7 +68,7 @@
 					class="move-step4-address-pagination mt-3"></div>
 			</div>
 			<div id="newAddressResultSection" class="mt-3 d-none">
-				<table class="gov24-result-table" aria-label="이사 온 곳 주소 조회 결과">
+				<table class="move-address-result-table" aria-label="이사 온 곳 주소 조회 결과">
 
 					<tbody>
 
@@ -146,6 +169,32 @@
 
 			</legend>
 
+			<details class="sim-learning-quick-guide">
+				<summary>
+					<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+					세대 구성 방법, 어떤 것을 선택해야 할까요? <span
+						class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+				</summary>
+				<div class="sim-learning-quick-guide-body">
+					<dl class="sim-learning-quick-guide-list">
+						<div>
+							<dt>새 세대</dt>
+							<dd>새 주소에서 이사 온 사람들만 하나의 세대를 만드는 경우예요. 기존 세대주 유지 또는 새 세대주
+								지정을 연습할 수 있어요.</dd>
+						</div>
+						<div>
+							<dt>기존 세대</dt>
+							<dd>새 주소에 이미 주민등록된 세대주가 있고, 그 세대의 세대원으로 들어가는 경우예요. 기존 세대주 확인
+								절차가 필요할 수 있어요.</dd>
+						</div>
+						<div>
+							<dt>별도 세대</dt>
+							<dd>같은 주소의 기존 세대주와 별개로 세대를 만드는 경우는 화면의 편입 선택과 달라요. 실제 신청 가능
+								방법은 관할 행정복지센터에 문의해 주세요.</dd>
+						</div>
+					</dl>
+				</div>
+			</details>
 			<div class="move-step4-methods">
 
 				<label class="move-step4-method-label" for="householdTypeEmpty">
@@ -425,6 +474,16 @@
 	<section class="gov24-extra-services mt-4">
 
 		<h3>전입 신고와 함께 신청할 수 있는 서비스</h3>
+		<div class="sim-learning-tip">
+			<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+			<div class="sim-learning-tip-content">
+				<strong>알아두면 좋아요</strong>
+				<p>
+					아래 항목은 전입신고와 관련해 추가로 확인할 수 있는 <strong>선택 서비스</strong>예요. 필요한 항목만
+					체크하고, 실제 신청이나 계약 신고는 해봄에서 이루어지지 않아요.
+				</p>
+			</div>
+		</div>
 
 		<div class="gov24-service-item">
 

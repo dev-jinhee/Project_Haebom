@@ -15,37 +15,13 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-11" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-12" rel="stylesheet">
 </head>
 <body class="member-signup-page"
       data-context-path="${pageContext.request.contextPath}"
       data-consent-error="${consentRequiredMessage}"
       data-password-error="${passwordMismatchMessage}">
-<header class="member-signup-header">
-    <div class="container member-signup-header-inner">
-        <a class="member-signup-brand" href="${pageContext.request.contextPath}/" aria-label="해봄 홈">
-            <span class="member-signup-brand-mark" aria-hidden="true"></span>
-            <span><strong>해봄</strong><small>생활 행정절차 미리연습</small></span>
-        </a>
-
-        <div class="member-signup-header-actions">
-            <div class="dropdown">
-                <button class="member-signup-size-button dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정">
-                    <span class="material-symbols-outlined" aria-hidden="true">text_fields</span>
-                    <span data-mode-label>보통</span>
-                    <span class="material-symbols-outlined member-signup-size-caret" aria-hidden="true">arrow_drop_down</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
-                    <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
-                    <li><button class="dropdown-item" type="button" data-text-size="large" aria-pressed="false">크게</button></li>
-                    <li><button class="dropdown-item" type="button" data-text-size="larger" aria-pressed="false">더 크게</button></li>
-                    <li><button class="dropdown-item" type="button" data-text-size="largest" aria-pressed="false">가장 크게</button></li>
-                </ul>
-            </div>
-            <a class="member-signup-login-link" href="${pageContext.request.contextPath}/login">로그인</a>
-        </div>
-    </div>
-</header>
+<jsp:include page="/WEB-INF/views/header-signup.jsp" />
 
 <main class="container member-signup-container">
     <nav class="member-signup-breadcrumb" aria-label="현재 위치">
@@ -63,15 +39,15 @@
 
     <ol class="member-signup-stepper" aria-label="회원가입 진행 단계">
         <li class="is-active" data-signup-step-label="0" aria-current="step">
-            <span class="member-signup-step-number">1</span>
+            <span class="member-signup-step-number" aria-hidden="true"></span>
             <span><small>1단계</small><strong>약관동의</strong></span>
         </li>
         <li data-signup-step-label="1">
-            <span class="member-signup-step-number">2</span>
+            <span class="member-signup-step-number" aria-hidden="true"></span>
             <span><small>2단계</small><strong>회원정보입력</strong></span>
         </li>
         <li data-signup-step-label="2">
-            <span class="member-signup-step-number">3</span>
+            <span class="member-signup-step-number" aria-hidden="true"></span>
             <span><small>3단계</small><strong>회원가입완료</strong></span>
         </li>
     </ol>
@@ -82,13 +58,48 @@
             <h2 id="signupConsentTitle" tabindex="-1">약관동의</h2>
         </div>
         <div class="member-signup-card">
-            <p class="member-signup-intro">회원가입에 필요한 안내를 확인하고 동의해 주세요.</p>
+            <div class="member-signup-consent-list" aria-label="회원가입 약관 동의 항목">
+                <div class="member-signup-consent-all">
+                    <input class="form-check-input" type="checkbox" id="signupAgreeAll">
+                    <label for="signupAgreeAll">모두 동의</label>
+                </div>
 
-            <div class="member-signup-consent-row">
-                <input class="form-check-input" type="checkbox" id="signupRequiredConsent" aria-describedby="signupConsentDescription signupConsentError">
-                <label for="signupRequiredConsent">해봄 서비스 이용 및 개인정보 처리 안내에 동의합니다 <em>(필수)</em></label>
+                <section class="member-signup-consent-item" aria-labelledby="signupTermsLabel">
+                    <div class="member-signup-consent-item-heading">
+                        <div class="member-signup-consent-row">
+                            <input class="form-check-input" type="checkbox" id="signupTermsConsent" aria-describedby="signupConsentError">
+                            <label id="signupTermsLabel" for="signupTermsConsent">[필수] 해봄 서비스 이용약관 동의</label>
+                        </div>
+                        <button class="member-signup-consent-toggle" type="button" aria-expanded="false" aria-controls="signupTermsDetails" data-consent-details="signupTermsDetails">내용 보기</button>
+                    </div>
+                    <div class="member-signup-consent-details" id="signupTermsDetails" hidden>
+                        <p>해봄은 행정절차를 미리 연습하고 공공서비스 정책 및 행정복지센터 정보를 찾아보는 체험 서비스입니다. 실제 민원 신청, 접수, 자격 판정 또는 기관의 공식 답변을 제공하지 않습니다.</p>
+                        <p>정책·기관 정보는 참고용으로 제공되며, 실제 신청 요건과 최신 내용은 해당 기관의 공식 안내를 확인해야 합니다. 회원은 타인의 권리를 침해하거나 서비스 운영을 방해하는 방식으로 서비스를 이용하지 않아야 합니다.</p>
+                    </div>
+                </section>
+
+                <section class="member-signup-consent-item" aria-labelledby="signupPrivacyLabel">
+                    <div class="member-signup-consent-item-heading">
+                        <div class="member-signup-consent-row">
+                            <input class="form-check-input" type="checkbox" id="signupRequiredConsent" aria-describedby="signupConsentError">
+                            <label id="signupPrivacyLabel" for="signupRequiredConsent">[필수] 개인정보 수집·이용 동의</label>
+                        </div>
+                        <button class="member-signup-consent-toggle" type="button" aria-expanded="false" aria-controls="signupPrivacyDetails" data-consent-details="signupPrivacyDetails">내용 보기</button>
+                    </div>
+                    <div class="member-signup-consent-details" id="signupPrivacyDetails" hidden>
+                        <dl>
+                            <dt>수집 항목</dt>
+                            <dd>필수: 이름, 아이디, 비밀번호, 이메일 / 선택: 생년월일, 성별(직접 입력한 경우에만 수집)</dd>
+                            <dt>이용 목적</dt>
+                            <dd>회원 계정 생성 및 관리, 로그인, 이메일 인증, 아이디·비밀번호 찾기, 회원별 시나리오 연습 기록과 문의 내역 제공</dd>
+                            <dt>보유 및 이용 기간</dt>
+                            <dd>계정 정보는 회원 탈퇴 시까지 이용합니다. 탈퇴 시 이름·아이디·비밀번호·이메일·선택정보는 삭제 처리되고, 시나리오 연습 데이터도 탈퇴 처리 과정에서 삭제됩니다. 문의글·답변 등 기록은 회원 식별정보와 분리되어 남을 수 있습니다.</dd>
+                            <dt>동의 거부 권리 및 제한</dt>
+                            <dd>동의를 거부할 수 있으나, 필수 항목에 동의하지 않으면 회원가입 및 로그인 기반 기능을 이용할 수 없습니다. 선택 항목은 입력하지 않아도 가입할 수 있습니다.</dd>
+                        </dl>
+                    </div>
+                </section>
             </div>
-            <p class="member-signup-consent-description" id="signupConsentDescription">필수 동의에 체크해야 다음 단계로 진행할 수 있습니다.</p>
             <p class="member-signup-error" id="signupConsentError" role="alert" hidden></p>
 
             <div class="member-signup-actions">
@@ -165,6 +176,7 @@
                     <button class="btn btn-outline-primary" type="button"
                             data-verify-email-code>인증 확인</button>
                 </div>
+                <p class="member-signup-field-help" id="signupEmailExpiryStatus" aria-live="polite"></p>
                 <p class="member-signup-field-help" id="signupEmailVerifyStatus" aria-live="polite"></p>
             </div>
 

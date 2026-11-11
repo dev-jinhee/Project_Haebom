@@ -10,89 +10,13 @@
    공통 입력 요소 및 테이블
    전입신고의 여러 단계에서 재사용되는 선택·표 스타일
    ============================================================ */
-/* ============================================================
-   01. 체크박스 / 라디오 공통 디자인
-   - Bootstrap .form-check-input 기준
-   - 미전환 JSP의 기존 radio/checkbox도 같은 외관으로 표시
-   - 체크/비활성화 상태는 모든 단계에서 동일하게 관리
-   ============================================================ */
-.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"])
-	{
-	appearance: none;
-	-webkit-appearance: none;
-	box-sizing: border-box;
-	width: 19px;
-	height: 19px;
-	min-width: 19px;
-	flex: 0 0 19px;
-	border: 1px solid #9caaba;
-	border-radius: 4px;
-	background-color: #fff;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: contain;
-	vertical-align: middle;
-	accent-color: #164166;
-	opacity: 1;
-	cursor: pointer;
-}
-
-.simulation-page .sim-step-content input[type="radio"] {
-	border-radius: 50%;
-}
-
-.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):checked
-	{
-	border-color: #164166;
-	background-color: #164166;
-}
-/* Bootstrap 체크 아이콘(체크/라디오 점) 재사용 */
-.simulation-page .sim-step-content input[type="checkbox"]:checked {
-	--bs-form-check-bg-image:
-		url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m4 8 2.5 2.5L12 5'/%3e%3c/svg%3e");
-	background-image: var(--bs-form-check-bg-image);
-}
-
-.simulation-page .sim-step-content input[type="radio"]:checked {
-	--bs-form-check-bg-image:
-		url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3ccircle cx='8' cy='8' r='3' fill='%23fff'/%3e%3c/svg%3e");
-	background-image: var(--bs-form-check-bg-image);
-}
-
-.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):disabled
-	{
-	opacity: 1;
-	cursor: default;
-}
-
-.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):disabled:checked
-	{
-	border-color: #788a9c;
-	background-color: #788a9c;
-}
-
-.simulation-page .sim-step-content input:is([type="checkbox"], [type="radio"]):disabled:not(:checked)
-	{
-	border-color: #b9c3cd;
-	background-color: #f1f3f5;
-	background-image: none;
-}
-/* 표에서 입력요소의 위치를 일정하게 */
-.simulation-page .sim-step-content .gov24-people-table input:is([type="checkbox"],
-	[type="radio"]), .simulation-page .sim-step-content .move-step4-family-table input:is([type="checkbox"],
-	[type="radio"]) {
-	margin: 0;
-}
-
-.gov24-result-table, .gov24-people-table {
-	width: 100%;
-	border-collapse: collapse;
-	color: #26384b;
-}
 
 .gov24-people-table {
 	min-width: 820px;
 	font-size: .84rem;
+	width: 100%;
+	border-collapse: collapse;
+	color: #26384b;
 }
 
 .gov24-people-table th, .gov24-people-table td {
@@ -120,6 +44,16 @@
 	min-height: 42px;
 	font-size: .84rem;
 }
+
+
+/* 전입신고 테이블 내부 라디오·체크박스 정렬 */
+.simulation-page .sim-step-content
+.gov24-people-table input:is([type="checkbox"], [type="radio"]),
+.simulation-page .sim-step-content
+.move-step4-family-table input:is([type="checkbox"], [type="radio"]) {
+    margin: 0;
+}
+
 /* ============================================================
    0단계 | 가상 세대 정보 입력
    기존 6열 기준 nth-child 너비 규칙을 제거하고 colgroup으로 통일
@@ -402,27 +336,34 @@
 	margin-top: 25px;
 }
 
-.gov24-result-table {
+.move-address-result-table {
+	width: 100%;
+	border-collapse: collapse;
 	border-top: 1px solid #a9bfd5;
+	color: #26384b;
 }
 
-.gov24-result-table th, .gov24-result-table td {
+.move-address-result-table th, .move-address-result-table td {
 	height: 62px;
 	padding: 13px 18px;
 	border-bottom: 1px solid #d8dde2;
 	text-align: left;
+	vertical-align: middle;
+	box-sizing: border-box;
 }
 
-.gov24-result-table th {
-	width: 265px;
+.move-address-result-table th {
+	width: 30%;
 	border-right: 1px solid #d8dde2;
 	background: #edf2f7;
 	font-size: .83rem;
 	font-weight: 700;
 }
 
-.gov24-result-table td {
+.move-address-result-table td {
 	font-size: .9rem;
+	word-break: keep-all;
+	overflow-wrap: anywhere;
 }
 
 .address-result {
@@ -611,22 +552,6 @@
 	color: var(--move-step1-ink);
 }
 
-.move-step1 .move-step1-start {
-	padding: 25px 28px;
-	border: 1px solid var(--move-step1-border);
-	border-radius: 9px;
-	margin-bottom: 38px;
-}
-
-.move-step1 .move-step1-heading {
-	display: flex;
-	align-items: center;
-	gap: 9px;
-	margin: 0 0 17px;
-	color: #164166;
-	font-size: 1rem;
-	font-weight: 750;
-}
 /* Step1내부 Material Symbols */
 .move-step1 .material-symbols-outlined {
 	display: inline-flex;
@@ -653,6 +578,16 @@
 	font-size: 1rem;
 	font-weight: 750;
 	color: #1c2733;
+}
+
+/* 안내 제목 아이콘 */
+.move-step1 .move-step1-heading .material-symbols-outlined {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	font-size: 22px;
+	line-height: 1;
 }
 
 .move-step1 .move-step1-bullets {
@@ -704,25 +639,6 @@
 	color: var(--move-step1-muted);
 }
 
-.move-step1 .move-step1-simulation {
-	margin: 34px 0 24px;
-	padding: 22px 25px;
-	border: 1px solid #c7d8e8;
-	border-left: 4px solid #164166;
-	border-radius: 8px;
-	background: #f2f7fc;
-}
-
-.move-step1 .move-step1-simulation h3 {
-	display: flex;
-	align-items: center;
-	gap: 9px;
-	margin: 0 0 13px;
-	font-size: 1rem;
-	font-weight: 750;
-	color: #164166;
-}
-
 .move-step1 .move-step1-agreement {
 	display: flex;
 	align-items: center;
@@ -750,6 +666,26 @@
 	color: #1769aa;
 	text-underline-offset: 3px;
 }
+
+/* 전입신고 상세 유의사항 */
+.move-step1 .move-notice-reading {
+	font-size: 1em;
+	line-height: 1.8;
+	overflow-wrap: break-word;
+}
+
+/* 주요 안내 항목 */
+.move-step1 .move-notice-reading li {
+	font-size: inherit;
+	line-height: 1.8;
+	margin-bottom: 0.65em;
+}
+
+/* 부가 설명 */
+.move-step1 .move-notice-reading .small {
+	font-size: 0.94em;
+	line-height: 1.7;
+}
 /* ============================================================
    08. 완료 후 조회 모드
    작성 내역 조회 시 수정 버튼 숨김 / 폼 값 가독성 유지
@@ -768,7 +704,7 @@
    09. 전입신고 3단계 | 이전 주소 및 세대주 선택
    기존 move.css의 공통 클래스 재사용:
    .gov24-form-panel / .gov24-address-controls /
-   .gov24-result-table / .gov24-people-table
+   .gov24-people-table
    ============================================================ */
 .move-step3 .move-step3-block+.move-step3-block {
 	margin-top: 48px;
@@ -796,10 +732,7 @@
 	width: 230px;
 	max-width: 100%;
 }
-/* 기존 .gov24-result-table 스타일을 유지하고 열 비율만 조정 */
-.move-step3 .move-step3-info-table th {
-	width: 25%;
-}
+
 /* 기존 .gov24-people-table 기반 3단계 전용 열 배분 */
 .move-step3 .move-step3-people-table {
 	table-layout: fixed;
@@ -1267,6 +1200,7 @@
 	display: flex;
 	align-items: center;
 	width: 100%;
+	max-width: 590px;
 	min-height: 48px;
 	padding: 0 12px;
 	border: 1px solid #ced4da;
@@ -1424,10 +1358,12 @@
 	color: #6c757d;
 }
 /* 태블릿 이하 공통 반응형 */
-@media ( max-width : 767.98px) {
+@media ( max-width : 768px) {
 	.move-step1 .move-step1-start {
-		padding: 20px 17px;
-		margin-bottom: 30px;
+		padding: 22px 20px;
+	}
+	.move-step1 .move-step1-heading {
+		font-size: 1.1rem;
 	}
 	.move-step1 .move-step1-section-title {
 		font-size: 1.2rem;
@@ -1470,6 +1406,105 @@
 		align-items: flex-start;
 	}
 }
+
+/* ==============================
+   Step3 · Step4 주소 결과 모바일
+============================== */
+@media ( max-width : 768px) {
+	.move-address-result-table, .move-address-result-table tbody,
+		.move-address-result-table tr {
+		display: block;
+		width: 100%;
+	}
+	.move-address-result-table {
+		border-top: none;
+	}
+	.move-address-result-table tr {
+		margin-bottom: 12px;
+		border: 1px solid #d7dce1;
+		border-radius: 8px;
+		overflow: hidden;
+	}
+	.move-address-result-table tr:last-child {
+		margin-bottom: 0;
+	}
+	.move-address-result-table th, .move-address-result-table td {
+		display: block;
+		width: 100%;
+		min-width: 0;
+		height: auto;
+		padding: 12px 14px;
+		border: none;
+		box-sizing: border-box;
+		text-align: left;
+		white-space: normal;
+		word-break: keep-all;
+		overflow-wrap: anywhere;
+	}
+	.move-address-result-table th {
+		background: #edf2f7;
+		border-bottom: 1px solid #d7dce1;
+		font-weight: 700;
+	}
+	.move-address-result-table td {
+		background: #fff;
+		line-height: 1.6;
+	}
+}
+
+/* Step3 · Step4 주소 입력 모바일 대응 */
+@media ( max-width : 575.98px) {
+	/* 건물 정보 입력: 한 줄에 2개 */
+	.gov24-building-fields {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 12px;
+		max-width: 100%;
+	}
+	.gov24-building-fields>label {
+		min-width: 0;
+	}
+
+	/* 그 외 주소 입력: 가로 전체 사용 */
+	.gov24-building-fields>.gov24-detail-address {
+		grid-column: 1/-1;
+	}
+	.gov24-detail-address {
+		width: 100%;
+		max-width: 100%;
+	}
+	.gov24-detail-address .form-control {
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+		box-sizing: border-box;
+	}
+
+	/* Step4 상세주소 모바일 줄바꿈 */
+	.move-step4 .move-step4-detail-input {
+		flex-wrap: wrap;
+		row-gap: 6px;
+		padding: 10px 12px;
+	}
+
+	/* 주소 앞부분: 첫 번째 줄 */
+	.move-step4 .move-step4-detail-prefix {
+		flex: 0 0 100%;
+		width: 100%;
+		min-width: 0;
+		margin-right: 0;
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	/* 상세주소 입력: 두 번째 줄 */
+	.move-step4 .move-step4-detail-input #newDetailAddress {
+		flex: 1 1 100%;
+		width: 100%;
+		min-width: 0;
+		min-height: 34px;
+	}
+}
+
 /* 모바일 공통 반응형 */
 @media ( max-width : 575.98px) {
 	.move-step3 .move-step3-consent-body {

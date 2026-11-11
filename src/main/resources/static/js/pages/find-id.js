@@ -10,6 +10,7 @@
     const sendButton = document.getElementById('sendCodeButton');
     const confirmButton = document.getElementById('confirmCodeButton');
     const sendStatus = document.getElementById('sendCodeStatus');
+    const expiryStatus = document.getElementById('codeExpiryStatus');
     const verifyStatus = document.getElementById('verifyCodeStatus');
     const result = document.getElementById('findIdResult');
     const resultActions = document.getElementById('findIdResultActions');
@@ -19,6 +20,10 @@
     let codeSent = false;
     let expiryTimer = null;
     let expiresAt = 0;
+    let resendTimer = null;
+    let resendUntil = 0;
+    let resendEmail = '';
+    let sendInProgress = false;
 
     codeField.addEventListener('input', function () {
         codeField.value = codeField.value.replace(/\D/g, '').slice(0, 6);
@@ -38,18 +43,56 @@
         expiresAt = 0;
     }
 
+    function clearResendTimer() {
+        if (resendTimer !== null) {
+            window.clearInterval(resendTimer);
+            resendTimer = null;
+        }
+        resendUntil = 0;
+        resendEmail = '';
+    }
+
+    function updateResendButton() {
+        const coolingDown = resendUntil > Date.now()
+            && emailField.value.trim().toLowerCase() === resendEmail;
+        if (coolingDown) {
+            const remaining = Math.ceil((resendUntil - Date.now()) / 1000);
+            sendButton.textContent = remaining + '초';
+            sendButton.setAttribute('aria-label', '인증번호 재전송까지 ' + remaining + '초');
+            sendButton.disabled = true;
+        } else {
+            sendButton.textContent = '인증번호 받기';
+            sendButton.setAttribute('aria-label', '인증번호 받기');
+            sendButton.disabled = sendInProgress;
+        }
+        if (resendUntil > 0 && resendUntil <= Date.now()) clearResendTimer();
+    }
+
+    function startResendTimer(email, seconds) {
+        clearResendTimer();
+        resendEmail = email.trim().toLowerCase();
+        resendUntil = Date.now() + (Math.max(1, seconds) * 1000);
+        updateResendButton();
+        resendTimer = window.setInterval(updateResendButton, 1000);
+    }
+
+    function retrySecondsFrom(message) {
+        const match = String(message || '').match(/(\d+)\s*초\s*후/);
+        return match ? Number(match[1]) : null;
+    }
+
     function updateExpiryStatus() {
         const remainingSeconds = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
         if (remainingSeconds === 0) {
             clearExpiryTimer();
             codeSent = false;
-            setStatus(sendStatus, '인증번호가 만료되었습니다. 다시 발송해 주세요.', 'text-danger');
+            setStatus(expiryStatus, '인증번호가 만료되었습니다. 다시 발송해 주세요.', 'text-danger');
             return;
         }
 
         const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
         const seconds = String(remainingSeconds % 60).padStart(2, '0');
-        setStatus(sendStatus, '인증번호를 이메일로 보냈습니다. (' + minutes + ':' + seconds + ' 남음)', 'text-success');
+        setStatus(expiryStatus, '인증번호 유효시간 ' + minutes + ':' + seconds, 'text-muted');
     }
 
     function startExpiryTimer() {
@@ -82,11 +125,18 @@
             body: params.toString()
         });
         const data = await response.json().catch(function () { return null; });
+        if (response.status === 429) {
+            throw new Error(data && data.message
+                ? data.message
+                : '인증번호는 60초 간격으로 요청할 수 있으며, 1시간에 최대 5회까지 발송할 수 있습니다.');
+        }
         if (!response.ok || data === null) {
             throw new Error('요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
         }
         return data;
     }
+
+    emailField.addEventListener('input', updateResendButton);
 
     sendButton.addEventListener('click', async function () {
         const memberName = nameField.value.trim();
@@ -102,7 +152,8 @@
             return;
         }
 
-        sendButton.disabled = true;
+        sendInProgress = true;
+        updateResendButton();
         setStatus(sendStatus, '인증번호를 보내고 있습니다.', null);
         try {
             const data = await postForm('/api/members/recovery/find-id/send-code', {
@@ -112,16 +163,22 @@
             if (!data.sent) {
                 clearExpiryTimer();
                 codeSent = false;
+                setStatus(expiryStatus, '', null);
                 setStatus(sendStatus, '입력한 이름과 이메일이 가입 정보와 일치하지 않습니다.', 'text-danger');
                 return;
             }
             verificationSection.hidden = false;
+            setStatus(sendStatus, '인증번호를 이메일로 보냈습니다.', 'text-success');
             startExpiryTimer();
+            startResendTimer(email, 60);
             codeField.focus();
         } catch (error) {
+            const retrySeconds = retrySecondsFrom(error.message);
+            if (retrySeconds !== null) startResendTimer(email, retrySeconds);
             setStatus(sendStatus, error.message, 'text-danger');
         } finally {
-            sendButton.disabled = false;
+            sendInProgress = false;
+            updateResendButton();
         }
     });
 

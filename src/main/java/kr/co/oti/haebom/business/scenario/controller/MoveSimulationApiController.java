@@ -43,10 +43,6 @@ public class MoveSimulationApiController {
 			@Valid @ModelAttribute MovePreparationRequestDTO requestdto, BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
-			bindingResult.getFieldErrors().forEach(error -> {
-				System.out.println("필드: " + error.getField() + ", 오류: " + error.getDefaultMessage());
-			});
-
 			return ResponseEntity.badRequest().build();
 		}
 

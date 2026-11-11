@@ -1,6 +1,7 @@
 package kr.co.oti.haebom.business.inquiry.service;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -10,7 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import kr.co.oti.haebom.business.inquiry.dto.MyPageCompletedScenarioDTO;
+import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryDTO;
+import kr.co.oti.haebom.business.inquiry.dto.MyPageScenarioHistoryPageDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageInquiryItemDTO;
 import kr.co.oti.haebom.business.inquiry.dto.MyPageProfileResponseDTO;
 import kr.co.oti.haebom.business.inquiry.mapper.MyPageMapper;
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
+	private static final int SCENARIO_HISTORY_PAGE_SIZE = 10;
 	
 	private final MyPageMapper myPageMapper;
 	private final SimulationAnswerMapper simulationAnswerMapper;
@@ -107,20 +110,33 @@ public class MyPageService {
 	    return myPageMapper.selectInquiriesByMemberId(memberId);
 	}
 	
-	public List<MyPageCompletedScenarioDTO> getCompletedScenarios(Integer memberId) {
-		
-		List<MyPageCompletedScenarioDTO> records = myPageMapper.selectCompletedScenariosByMemberId(memberId);
-		
-		for (MyPageCompletedScenarioDTO record : records) {
-			String label = messageSource.getMessage(
-					"category." + record.getCategoryName(),
-					null,
-					record.getCategoryName(),
-					LocaleContextHolder.getLocale());
-			
-			record.setCategoryLabel(label);
-		}
-		
-		return records;
+	public MyPageScenarioHistoryPageDTO getScenarioHistory(
+	        Integer memberId, Integer scenarioId, String keyword, String status, int requestedPage) {
+	    
+		int page = Math.max(requestedPage, 1);
+	    int size = SCENARIO_HISTORY_PAGE_SIZE;
+	    int offset = (page - 1) * size;
+	    String normalizedKeyword = keyword == null ? "" : keyword.trim();
+	    String normalizedStatus = status == null ? "ALL" : status.trim().toUpperCase(Locale.ROOT);
+	    if (!"IN_PROGRESS".equals(normalizedStatus) && !"COMPLETED".equals(normalizedStatus)) {
+	        normalizedStatus = "ALL";
+	    }
+	    String statusFilter = "ALL".equals(normalizedStatus) ? null : normalizedStatus;
+
+	    List<MyPageScenarioHistoryDTO> items = myPageMapper.selectScenarioHistory(
+	            memberId, scenarioId, normalizedKeyword, statusFilter, size, offset);
+	    
+	    long totalCount = myPageMapper.countScenarioHistory(
+	            memberId, scenarioId, normalizedKeyword, statusFilter);
+
+	    for (MyPageScenarioHistoryDTO item : items) {
+	        String label = messageSource.getMessage(
+	                "category." + item.getCategoryName(), null,
+	                item.getCategoryName(), LocaleContextHolder.getLocale());
+	        item.setCategoryLabel(label);
+	    }
+
+	    int totalPages = (int) Math.ceil((double) totalCount / size);
+	    return new MyPageScenarioHistoryPageDTO(items, page, size, totalCount, totalPages);
 	}
 }

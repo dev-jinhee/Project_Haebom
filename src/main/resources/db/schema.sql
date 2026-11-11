@@ -1,5 +1,5 @@
 -- ========================================================
--- [해봄(HAEBOM) 프로젝트 DB 스크립트 - v6.0 최종 설계 반영 (총 15개 테이블)] 
+-- [해봄(HAEBOM) 프로젝트 DB 스크립트 - v7.0 최종 설계 반영 (총 16개 테이블)] 
 -- ========================================================
 
 -- 1. 외래키 제약조건 역순으로 기존 테이블 일괄 삭제
@@ -23,6 +23,9 @@ DROP TABLE IF EXISTS scenario_category;
 DROP TABLE IF EXISTS admin_mfa;
 DROP TABLE IF EXISTS member;
 
+DROP TABLE IF EXISTS sgis_region;
+DROP TABLE IF EXISTS administrative_center;
+
 -- ========================================================
 -- ① 회원 (member)
 -- ========================================================
@@ -41,21 +44,7 @@ CREATE TABLE member (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='회원';
 
 -- ========================================================
--- ⑮ 관리자 MFA 설정 (admin_mfa)
--- ========================================================
-CREATE TABLE admin_mfa (
-    member_id INT NOT NULL COMMENT 'MFA 대상 회원 고유 번호',
-    secret_ciphertext VARCHAR(512) NOT NULL COMMENT '암호화된 TOTP 비밀키',
-    enabled_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'OTP 등록 완료 일시',
-    PRIMARY KEY (member_id),
-    CONSTRAINT fk_admin_mfa_member
-        FOREIGN KEY (member_id) REFERENCES member(member_id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  COMMENT='관리자 MFA 설정';
-
--- ========================================================
--- ⑦ 시나리오 카테고리 (category)
+-- ② 시나리오 카테고리 (category)
 -- ========================================================
 CREATE TABLE category (
     category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오카테고리 고유번호',
@@ -63,7 +52,7 @@ CREATE TABLE category (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 카테고리';
 
 -- ========================================================
--- ② 시나리오 (scenario)
+-- ③ 시나리오 (scenario)
 -- ========================================================
 CREATE TABLE scenario (
     scenario_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오 고유번호',
@@ -79,7 +68,7 @@ CREATE TABLE scenario (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오';
 
 -- ========================================================
--- ③ 시나리오 단계 (scenario_step)
+-- ④ 시나리오 단계 (scenario_step)
 -- ========================================================
 CREATE TABLE scenario_step (
     step_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '시나리오단계 고유번호',
@@ -94,7 +83,7 @@ CREATE TABLE scenario_step (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시나리오 단계';
 
 -- ========================================================
--- ④ 시뮬레이션 진행 이력 (simulation_progress)
+-- ⑤ 시뮬레이션 진행 이력 (simulation_progress)
 -- ========================================================
 CREATE TABLE simulation_progress (
     progress_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '진행 고유 번호',
@@ -117,7 +106,7 @@ CREATE TABLE simulation_progress (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 진행 이력';
 
 -- ========================================================
--- ⑤ 시뮬레이션 입력정보 (simulation_answer)
+-- ⑥ 시뮬레이션 입력정보 (simulation_answer)
 -- ========================================================
 CREATE TABLE simulation_answer (
     answer_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '입력 정보 고유 번호',
@@ -135,7 +124,7 @@ CREATE TABLE simulation_answer (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 입력정보';
 
 -- ========================================================
--- ⑥ 시뮬레이션 가족정보 (simulation_family)
+-- ⑦ 시뮬레이션 가족정보 (simulation_family)
 -- ========================================================
 CREATE TABLE simulation_family (
     family_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '가족 고유 번호',
@@ -156,15 +145,14 @@ CREATE TABLE simulation_family (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='시뮬레이션 가족정보';
 
 -- ========================================================
--- ⑨ 문의 카테고리 (qna_category)
+-- ⑧ 문의 카테고리 (qna_category)
 -- ========================================================
 CREATE TABLE qna_category (
     qna_category_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '문의 카테고리 고유 번호',
     qna_category_name VARCHAR(50) NOT NULL COMMENT '문의 카테고리 이름'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의 카테고리';
-
 -- ========================================================
--- ⑧ 문의게시판 (qna) - [논리적 삭제 is_deleted 반영]
+-- ⑨ 문의게시판 (qna) - [논리적 삭제 is_deleted 반영]
 -- ========================================================
 CREATE TABLE qna (
     qna_id INT AUTO_INCREMENT PRIMARY KEY COMMENT '문의 고유 번호',
@@ -257,3 +245,52 @@ CREATE TABLE admin_log_qna (
         FOREIGN KEY (qna_id) REFERENCES qna(qna_id)
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='문의 관리 로그 상세';
+
+-- ========================================================
+-- ⑮ 관리자 MFA 설정 (admin_mfa)
+-- ========================================================
+CREATE TABLE admin_mfa (
+    member_id INT NOT NULL COMMENT 'MFA 대상 회원 고유 번호',
+    secret_ciphertext VARCHAR(512) NOT NULL COMMENT '암호화된 TOTP 비밀키',
+    enabled_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'OTP 등록 완료 일시',
+    PRIMARY KEY (member_id),
+    CONSTRAINT fk_admin_mfa_member
+        FOREIGN KEY (member_id) REFERENCES member(member_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='관리자 MFA 설정';
+
+-- ⑯ 행정복지센터 위치 정보 (administrative_center)
+-- ========================================================
+CREATE TABLE administrative_center (
+    center_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '행정기관 고유 번호',
+    sido VARCHAR(40) NOT NULL COMMENT '시도',
+    sigungu VARCHAR(40) NOT NULL COMMENT '시군구',
+    center_name VARCHAR(120) NOT NULL COMMENT '행정복지센터명',
+    postal_code VARCHAR(10) NOT NULL COMMENT '우편번호',
+    address VARCHAR(255) NOT NULL COMMENT '주소',
+    latitude DOUBLE NULL COMMENT '위도',
+    longitude DOUBLE NULL COMMENT '경도'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='행정복지센터 위치 정보';
+
+-- ========================================================
+-- ⑰ SGIS 행정구역 캐시 (sgis_region)
+-- ========================================================
+  CREATE TABLE sgis_region (
+    region_code VARCHAR(20) NOT NULL,
+    parent_code VARCHAR(20) DEFAULT NULL,
+    region_name VARCHAR(100) NOT NULL,
+    full_addr VARCHAR(255) NOT NULL,
+    region_level INT NOT NULL,
+    updated_at DATETIME NOT NULL
+        DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (region_code),
+    KEY idx_sgis_region_parent_code (parent_code),
+    KEY idx_sgis_region_level (region_level)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci
+  COMMENT='SGIS 행정구역 캐시';

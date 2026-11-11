@@ -33,7 +33,7 @@
 .account-find-status:empty { display:none; }
 .account-find-status.text-success { color:#16835d; }
 .account-find-status.text-danger { color:#c0392b; }
-.account-find-result { margin-top:24px; padding:22px; border:1px solid #dce9f0; border-radius:16px; background:#f7fbfd; text-align:center; }
+.account-find-result { margin-top:24px; padding:22px 0; border:0; border-radius:0; background:transparent; text-align:center; }
 .account-result-icon { display:grid; width:44px; height:44px; margin:0 auto 10px; place-items:center; border-radius:50%; color:#fff; background:#32836a; font-size:1.25rem; }
 .account-find-result h2 { margin:0 0 5px; font-size:1.12rem; font-weight:800; }
 .account-find-result p { margin:0; color:#718096; font-size:.86rem; }
@@ -49,12 +49,11 @@ body.large-text-mode .account-found-value span { font-size:1.08rem; }
 /* Spring Security login page */
 .login-page { position:relative; }
 .login-shell { gap:0; padding:48px 20px; }
-.login-brand { display:flex; align-items:center; gap:10px; margin-bottom:24px; color:var(--ink); text-decoration:none; }
-.login-brand-mark { display:grid; width:40px; height:40px; place-items:center; border-radius:11px; color:#fff; background:linear-gradient(145deg,#2879ad,#16446c); }
-.login-brand-mark .material-symbols-outlined { font-size:23px; }
-.login-brand-copy strong,.login-brand-copy small { display:block; text-align:center; }
-.login-brand-copy strong { font-size:1.1rem; line-height:1.2; }
-.login-brand-copy small { margin-top:3px; color:#748396; font-size:.7rem; line-height:1.2; }
+.login-brand { display:flex; align-items:center; gap:7px; margin-bottom:24px; color:var(--ink); text-decoration:none; }
+.login-brand-logo-icon { display:block; width:34px; height:42px; object-fit:contain; flex:none; }
+.login-brand-copy { display:flex; flex-direction:column; align-items:flex-start; gap:1px; }
+.login-brand-wordmark { display:block; width:48px; height:auto; }
+.login-brand-copy small { display:block; color:#748396; font-size:.68rem; line-height:1.2; white-space:nowrap; }
 .login-size-button { min-width:48px; padding:5px 10px; border:1px solid #dce5ee; border-radius:999px; color:#50657b; background:#fff; font-size:.7rem; }
 .login-size-button::after { margin-left:5px; vertical-align:.15em; }
 .login-card { width:min(100%,440px); padding:32px 34px 30px; border-radius:20px; box-shadow:0 16px 42px rgba(25,54,83,.11); }
@@ -81,7 +80,8 @@ body.large-text-mode .account-found-value span { font-size:1.08rem; }
 @media(max-width:575.98px) {
   .login-shell { padding:64px 20px 32px; }
   .login-brand { margin-bottom:20px; }
-  .login-brand-mark { width:36px; height:36px; }
+  .login-brand-logo-icon { width:31px; height:38px; }
+  .login-brand-wordmark { width:44px; }
   .login-card { padding:27px 22px 24px; }
 }
 

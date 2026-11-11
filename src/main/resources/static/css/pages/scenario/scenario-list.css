@@ -38,6 +38,43 @@
 	border-radius: 11px;
 }
 
+/* 시나리오 카테고리 필터 */
+.scenario-category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 16px 0 16px;
+}
+
+.scenario-category-button {
+    padding: 6px 12px;
+    border: 1px solid #ccd5df;
+    border-radius: 999px;
+    background: #fff;
+    color: #164166;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.scenario-category-button:hover {
+    border-color: #164166;
+}
+
+.scenario-category-button.is-active {
+    background: #164166;
+    border-color: #164166;
+    color: #fff;
+}
+
+.scenario-category-button:focus-visible {
+    outline: 2px solid #164166;
+    outline-offset: 3px;
+}
+
+
 /* 시나리오 카드 목록 */
 .scenario-catalog {
 	display: grid;

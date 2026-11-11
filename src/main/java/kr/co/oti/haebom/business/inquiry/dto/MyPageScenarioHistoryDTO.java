@@ -7,12 +7,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MyPageCompletedScenarioDTO {
+public class MyPageScenarioHistoryDTO {
 
 	private Integer progressId;
 	private Integer scenarioId;
     private String scenarioTitle;
     private String categoryName;
     private String categoryLabel;
+    private String progressStatus;
+    private LocalDateTime startedAt;
+    private LocalDateTime lastSavedAt;
     private LocalDateTime completedAt;
 }

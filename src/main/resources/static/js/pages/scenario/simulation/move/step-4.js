@@ -830,7 +830,6 @@ async function loadAddressPage(root, keyword, currentPage) {
 	// 1. 해당 페이지 주소 검색
 	const data = await searchAddress(keyword, currentPage);
 
-	console.log("data", data);
 	// 2. 검색 결과와 전체 건수 추출
 	const addresses = data.results.juso ?? [];
 	const totalCount = Number(data.results.common.totalCount ?? 0);

@@ -41,7 +41,12 @@
 					autocomplete="off">
 				</label>
 			</div>
-
+			<!-- 시나리오 카테고리 필터 -->
+			<div id="scenarioCategoryFilters" class="scenario-category-filters"
+				role="group" aria-label="시나리오 카테고리">
+				<button type="button" class="scenario-category-button is-active"
+					aria-pressed="true">전체</button>
+			</div>
 			<div class="scenario-catalog" id="scenarioCatalog"
 				data-api-url="${pageContext.request.contextPath}/api/scenario">
 

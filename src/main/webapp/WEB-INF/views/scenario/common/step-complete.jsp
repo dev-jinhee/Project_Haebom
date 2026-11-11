@@ -9,7 +9,7 @@
     - simulation.jsp의 #stepContent에 삽입
     - 시나리오별 정보는 공통 JS에서 설정
     - 상단 진행률 및 단계 제목은 중복 생성하지 않음
-    - 관련 정책 추천 기능은 제외
+    - 관련 정책 추천 기능 (보조금24 API 연동)
 --%>
 
 <div id="simulationComplete" class="sim-step-content sim-complete"
@@ -78,7 +78,67 @@
 
 	</section>
 
-	<%-- 4. 정부24 공식 안내 --%>
+	<%-- [진희] 4. 맞춤 공공서비스 혜택 추천 (보조금24 API 연동) 시작 --%>
+	<section id="completePolicySection" class="border rounded-4 p-3 p-md-4 mt-3 bg-white position-relative overflow-hidden shadow-sm"
+		style="border-color: #dbeafe !important;"
+		aria-labelledby="completePolicyHeading">
+
+		<%-- 상단 블루 그라데이션 포인트 라인 --%>
+		<div style="position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #3b82f6, #6366f1, #38bdf8);"></div>
+
+		<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+			<div>
+				<div class="d-flex align-items-center gap-2 mb-1">
+					<span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill small">
+						<span class="material-symbols-outlined align-middle" style="font-size: 1rem;">lightbulb</span> 맞춤 혜택
+					</span>
+					<span class="text-secondary small">행정안전부 공공서비스(보조금24) 연동</span>
+				</div>
+				<h4 id="completePolicyHeading" class="fw-bold fs-6 mb-1">
+					놓치기 아쉬운 연계 정부 혜택 및 지원금
+				</h4>
+				<p id="completePolicyDescription" class="text-secondary small mb-0">
+					방금 진행하신 연습과 밀접한 실생활 복지·주거 정책들을 추천해 드려요.
+				</p>
+			</div>
+			<%-- [진희] 다른 정책 보기 (새로고침) 버튼 --%>
+			<div>
+				<button id="completePolicyRefreshBtn" type="button"
+					class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-sm bg-white"
+					style="font-size: .8rem; font-weight: 500;"
+					onclick="window.haebomRefreshPolicies &amp;&amp; window.haebomRefreshPolicies(this)"
+					title="다른 추천 정책을 확인합니다">
+					<span class="material-symbols-outlined policy-refresh-icon" style="font-size: 1rem;">refresh</span>
+					<span>다른 정책 보기</span>
+				</button>
+			</div>
+		</div>
+
+		<%-- 정책 추천 카드 목록 (JS 동적 렌더링) --%>
+		<div id="completePolicyCardGrid" class="row g-3 my-2">
+			<div class="col-12 text-center py-4 text-secondary small">
+				<div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+					<span class="visually-hidden">Loading...</span>
+				</div>
+				연관 맞춤 정책을 불러오는 중입니다...
+			</div>
+		</div>
+
+		<div class="rounded-3 p-2 px-3 mt-3 d-flex flex-wrap align-items-center justify-content-between small text-secondary"
+			style="background-color: #f8fafc; border: 1px solid #edf2f7; font-size: .8rem;">
+			<span class="d-inline-flex align-items-center gap-1">
+				<span class="material-symbols-outlined text-primary" style="font-size: 1rem;">verified</span>
+				실제 혜택 자격 확인 및 신청은 정부24 공식 누리집에서 안전하게 진행됩니다.
+			</span>
+			<a href="https://www.gov.kr" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none fw-semibold">
+				정부24 바로가기 <span class="material-symbols-outlined align-middle" style="font-size: .9rem;">open_in_new</span>
+			</a>
+		</div>
+
+	</section>
+	<%-- [진희] 맞춤 공공서비스 혜택 추천 끝 --%>
+	
+	<%-- 5. 정부24 공식 안내 --%>
 	<section id="completeOfficialSection" class="mt-4"
 		aria-labelledby="completeOfficialHeading">
 
@@ -98,7 +158,7 @@
 
 	</section>
 
-	<%-- 5. 개인정보 및 체험 안내 --%>
+	<%-- 6. 개인정보 및 체험 안내 --%>
 	<section class="border rounded-4 p-3 p-md-4 mt-3"
 		style="background-color: #f5f9f8;"
 		aria-labelledby="completePrivacyHeading">
@@ -115,7 +175,7 @@
 
 	</section>
 
-	<%-- 6. 완료 후 동작 --%>
+	<%-- 7. 완료 후 동작 --%>
 	<div
 		class="d-flex flex-wrap align-items-center
                 justify-content-between gap-3

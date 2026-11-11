@@ -1,10 +1,8 @@
 (function () {
+    const MY_PAGE_SIZE = 10;
+    const MY_PAGE_PAGE_GROUP_SIZE = 10;
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');
-    const completedHistory = [];
-    const scenarioDetailsById = new Map();
-    let latestProgressByScenarioId = null;
-    let latestProgressLoaded = false;
     const withdrawConfirmText = document.getElementById('withdrawConfirmText');
     const withdrawConfirmButton = document.querySelector('[data-confirm-delete]');
     const withdrawModal = document.getElementById('confirmModal');
@@ -124,12 +122,12 @@
 
     function formatDate(value) {
         if (!value) {
-            return '완료일 정보 없음';
+            return '정보 없음';
         }
 
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) {
-            return '완료일 정보 없음';
+            return '정보 없음';
         }
 
         return new Intl.DateTimeFormat('ko-KR', {
@@ -139,173 +137,217 @@
         }).format(date);
     }
 
-    function escapeHtml(value) {
-        return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
-            return {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[character];
-        });
-    }
-
     function openMyPageSimulation(progressId) {
         sessionStorage.setItem('progressId', progressId);
-        window.location.href = page.dataset.simulationUrl;
+        const simulationUrl = new URL(page.dataset.simulationUrl, window.location.href);
+        simulationUrl.searchParams.set('history', 'true');
+        window.location.href = simulationUrl.toString();
     }
 
-    function renderInProgressScenarios(items) {
-        const list = document.querySelector('[data-in-progress-list]');
-        const template = document.getElementById('mypageProgressScenarioTemplate');
-        if (!list || !template) {
-            return;
+    let scenarioHistoryPage = 1;
+    let scenarioHistoryTotalPages = 0;
+    let scenarioHistoryTotalCount = 0;
+    let scenarioHistoryItems = null;
+    let appliedScenarioHistoryKeyword = '';
+    let appliedScenarioHistoryStatus = 'ALL';
+    let scenarioHistoryRequestId = 0;
+
+    function scrollToListStart(element) {
+        if (!element) return;
+
+        const top = window.scrollY + element.getBoundingClientRect().top - 112;
+        const reduceMotion = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const behavior = reduceMotion ? 'auto' : 'smooth';
+        window.scrollTo({ top: Math.max(0, top), behavior: behavior });
+    }
+
+    function setScenarioHistoryLoading(list, pagination, isLoading) {
+        list.classList.toggle('is-loading', isLoading && scenarioHistoryItems !== null);
+        list.setAttribute('aria-busy', String(isLoading));
+        if (pagination) {
+            pagination.classList.toggle('is-loading', isLoading);
+            pagination.setAttribute('aria-busy', String(isLoading));
         }
+    }
 
-        const activeItems = items.filter(function (item) {
-            return item && item.progress && item.progress.progressStatus === 'IN_PROGRESS';
-        });
+    function showScenarioHistoryMessage(message, isError) {
+        const list = document.querySelector('[data-scenario-history-list]');
+        if (!list) return;
 
-        if (activeItems.length === 0) {
-            list.innerHTML = '<p class="scenario-empty" role="status">현재 진행 중인 연습이 없습니다. 시나리오를 선택해 연습을 시작해 보세요.</p>';
-            return;
-        }
+        const paragraph = document.createElement('p');
+        paragraph.className = 'mypage-history-message' + (isError ? ' is-error' : '');
+        paragraph.setAttribute('role', isError ? 'alert' : 'status');
+        paragraph.textContent = message;
+        list.replaceChildren(paragraph);
+    }
 
-        list.replaceChildren();
-        activeItems.forEach(function (item) {
-            const scenario = item.scenario || {};
-            const progress = item.progress;
-            const card = template.content.firstElementChild.cloneNode(true);
-            const totalSteps = Number(scenario.stepCount) || 0;
-            const currentStep = Number(progress.stepOrder) || 0;
-            const completedSteps = Math.max(0, currentStep - 1);
-            const percent = totalSteps > 0
-                ? Math.min(100, Math.round(completedSteps / totalSteps * 100))
-                : 0;
+    function renderScenarioHistoryPagination() {
+        const pagination = document.querySelector('[data-scenario-history-pagination]');
+        if (!pagination) return;
 
-            card.querySelector('[data-progress-category]').textContent = scenario.categoryLabel || '행정절차 연습';
-            card.querySelector('[data-progress-status]').textContent = progress.progressStatusLabel || '진행 중';
-            card.querySelector('[data-progress-title]').textContent = scenario.scenarioTitle || '시나리오';
-            card.querySelector('[data-progress-description]').textContent = scenario.description || '';
-            card.querySelector('[data-progress-step-count]').textContent = totalSteps ? `${totalSteps}단계` : '단계 정보 없음';
-            card.querySelector('[data-progress-estimated-time]').textContent = scenario.estimatedMinutes
-                ? `예상 ${scenario.estimatedMinutes}분`
-                : '예상 시간 정보 없음';
-            card.querySelector('[data-progress-percent]').textContent = `${percent}%`;
-            const progressBar = card.querySelector('[data-progress-bar]');
-            progressBar.style.width = `${percent}%`;
-            progressBar.parentElement.setAttribute('aria-valuenow', String(percent));
-            card.querySelector('[data-progress-continue]').addEventListener('click', function () {
-                openMyPageSimulation(progress.progressId);
-            });
-            card.querySelector('[data-progress-restart]').addEventListener('click', function (event) {
-                restartMyPageProgress(progress.progressId, event.currentTarget);
-            });
-            card.querySelector('[data-progress-delete]').addEventListener('click', function (event) {
-                deleteMyPageProgress(progress.progressId, event.currentTarget);
-            });
-
-            list.appendChild(card);
+        window.renderHaebomPagination({
+            container: pagination,
+            currentPage: scenarioHistoryPage,
+            totalPages: scenarioHistoryTotalPages,
+            groupSize: MY_PAGE_PAGE_GROUP_SIZE,
+            previousLabel: '이전',
+            nextLabel: '다음',
+            showBoundaryButtons: true,
+            bootstrap: true,
+            hideWhenSinglePage: true,
+            onPageChange: function (targetPage) {
+                loadScenarioHistory(targetPage, true);
+            }
         });
     }
 
-    async function loadInProgressScenarios() {
-        if (!page || !page.dataset.scenariosApiUrl) {
+    function renderScenarioHistory(items) {
+        const list = document.querySelector('[data-scenario-history-list]');
+        const total = document.querySelector('[data-scenario-history-total]');
+        if (!list) return;
+
+        if (total) total.textContent = '총 ' + scenarioHistoryTotalCount + '건';
+        if (!Array.isArray(items) || items.length === 0) {
+            showScenarioHistoryMessage(
+                scenarioHistoryTotalCount === 0 ? '아직 진행 내역이 없습니다.' : '검색 결과가 없습니다.', false);
+            renderScenarioHistoryPagination();
             return;
         }
 
-        const list = document.querySelector('[data-in-progress-list]');
-        if (list) {
-            list.innerHTML = '<p class="scenario-empty" role="status">진행 중인 연습을 불러오는 중입니다.</p>';
+        const statusLabels = { IN_PROGRESS: '진행 중', COMPLETED: '완료' };
+        const rows = items.map(function (record) {
+            const row = document.createElement('article');
+            row.className = 'mypage-history-item';
+
+            const detail = document.createElement('div');
+            detail.className = 'mypage-history-content';
+            const heading = document.createElement('div');
+            heading.className = 'mypage-history-heading';
+            const title = document.createElement('h3');
+            title.textContent = record.scenarioTitle || '시나리오';
+            const status = document.createElement('span');
+            status.className = 'mypage-history-status ' +
+                (record.progressStatus === 'COMPLETED' ? 'is-completed' : 'is-progress');
+            status.textContent = statusLabels[record.progressStatus] || record.progressStatus || '상태 정보 없음';
+            heading.append(title, status);
+
+            const metadata = document.createElement('div');
+            metadata.className = 'mypage-history-metadata';
+            const category = document.createElement('span');
+            category.textContent = record.categoryLabel || record.categoryName || '분류 정보 없음';
+            const started = document.createElement('time');
+            started.dateTime = record.startedAt || '';
+            started.textContent = '시작 ' + formatDate(record.startedAt).replace(/\.$/, '');
+            metadata.append(category, started);
+            if (record.progressStatus === 'IN_PROGRESS') {
+                const saved = document.createElement('time');
+                saved.dateTime = record.lastSavedAt || '';
+                saved.textContent = '최근 저장 ' + formatDate(record.lastSavedAt).replace(/\.$/, '');
+                metadata.appendChild(saved);
+            } else if (record.completedAt) {
+                const completed = document.createElement('time');
+                completed.dateTime = record.completedAt;
+                completed.textContent = '완료 ' + formatDate(record.completedAt).replace(/\.$/, '');
+                metadata.appendChild(completed);
+            }
+            detail.append(heading, metadata);
+
+            const actions = document.createElement('div');
+            actions.className = 'mypage-history-actions';
+            if (record.progressStatus === 'IN_PROGRESS' || record.progressStatus === 'COMPLETED') {
+                const openButton = document.createElement('button');
+                openButton.type = 'button';
+                openButton.className = 'btn btn-outline-primary btn-sm rounded-pill';
+                openButton.textContent = record.progressStatus === 'COMPLETED' ? '작성 내용 확인' : '이어하기';
+                openButton.addEventListener('click', function () {
+                    openMyPageSimulation(record.progressId);
+                });
+                actions.appendChild(openButton);
+            }
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'btn btn-outline-secondary btn-sm rounded-pill';
+            deleteButton.textContent = '삭제';
+            deleteButton.addEventListener('click', function () {
+                deleteScenarioHistory(record, deleteButton);
+            });
+            actions.appendChild(deleteButton);
+            row.append(detail, actions);
+            return row;
+        });
+
+        list.replaceChildren.apply(list, rows);
+        renderScenarioHistoryPagination();
+    }
+
+    async function loadScenarioHistory(requestedPage, scrollAfterLoad) {
+        const list = document.querySelector('[data-scenario-history-list]');
+        if (!page || !page.dataset.scenarioHistoryApiUrl || !list) return;
+
+        const requestId = ++scenarioHistoryRequestId;
+        const pagination = document.querySelector('[data-scenario-history-pagination]');
+        const requested = Math.max(1, Number(requestedPage) || 1);
+        const params = new URLSearchParams({
+            page: String(requested),
+            keyword: appliedScenarioHistoryKeyword,
+            status: appliedScenarioHistoryStatus
+        });
+        if (scenarioHistoryItems === null) {
+            showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
         }
+        setScenarioHistoryLoading(list, pagination, true);
 
         try {
-            const response = await fetch(page.dataset.scenariosApiUrl, {
+            const response = await fetch(page.dataset.scenarioHistoryApiUrl + '?' + params.toString(), {
                 method: 'GET',
                 headers: { Accept: 'application/json' },
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                cache: 'no-store'
             });
             if (response.status === 401 || response.redirected) {
                 throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
             }
-            if (!response.ok) {
-                throw new Error('진행 중인 연습을 불러오지 못했습니다.');
-            }
+            if (!response.ok) throw new Error('진행 내역을 불러오지 못했습니다.');
 
-            const items = await response.json();
-            if (!Array.isArray(items)) {
-                throw new Error('진행 중인 연습 응답 형식이 올바르지 않습니다.');
+            const result = await response.json();
+            if (requestId !== scenarioHistoryRequestId) return;
+            if (!result || !Array.isArray(result.items)) {
+                throw new Error('진행 내역 응답 형식이 올바르지 않습니다.');
             }
-            scenarioDetailsById.clear();
-            latestProgressByScenarioId = new Map();
-            items.forEach(function (item) {
-                if (item && item.scenario && item.scenario.scenarioId != null) {
-                    scenarioDetailsById.set(String(item.scenario.scenarioId), item.scenario);
-                }
-                if (item && item.scenario && item.progress
-                        && item.scenario.scenarioId != null) {
-                    latestProgressByScenarioId.set(
-                        String(item.scenario.scenarioId), item.progress
-                    );
-                }
-            });
-            latestProgressLoaded = true;
-            renderInProgressScenarios(items);
-            renderCompletedHistory(completedHistory);
+            scenarioHistoryTotalCount = Number(result.totalCount) || 0;
+            scenarioHistoryTotalPages = Number(result.totalPages) || 0;
+            if (scenarioHistoryTotalPages > 0 && requested > scenarioHistoryTotalPages) {
+                return loadScenarioHistory(scenarioHistoryTotalPages, scrollAfterLoad);
+            }
+            scenarioHistoryPage = scenarioHistoryTotalPages === 0 ? 1 : requested;
+            scenarioHistoryItems = result.items;
+            setScenarioHistoryLoading(list, pagination, false);
+            renderScenarioHistory(result.items);
+            if (scrollAfterLoad) scrollToListStart(list);
         } catch (error) {
-            latestProgressLoaded = true;
-            latestProgressByScenarioId = null;
-            renderCompletedHistory(completedHistory);
-            if (list) {
-                list.innerHTML = `
-                    <div class="completed-history-error" role="alert">
-                        <span>${escapeHtml(error.message || '진행 중인 연습을 불러오지 못했습니다.')}</span>
-                        <button class="btn btn-outline-secondary btn-sm" type="button" data-retry-progress>다시 시도</button>
-                    </div>`;
-                list.querySelector('[data-retry-progress]').addEventListener('click', loadInProgressScenarios);
-            }
+            if (requestId !== scenarioHistoryRequestId) return;
+            setScenarioHistoryLoading(list, pagination, false);
+            const total = document.querySelector('[data-scenario-history-total]');
+            if (total) total.textContent = '';
+            showScenarioHistoryMessage(error.message || '진행 내역을 불러오지 못했습니다.', true);
+            const retry = document.createElement('button');
+            retry.type = 'button';
+            retry.className = 'btn btn-outline-secondary btn-sm mt-2';
+            retry.textContent = '다시 시도';
+            retry.addEventListener('click', function () { loadScenarioHistory(scenarioHistoryPage); });
+            list.appendChild(retry);
+            renderScenarioHistoryPagination();
         }
     }
 
-    async function restartMyPageProgress(progressId, button) {
-        if (!window.confirm('기존 진행기록을 삭제하고 처음부터 시작하시겠습니까?')) {
-            return;
-        }
-
+    async function deleteScenarioHistory(record, button) {
+        if (!window.confirm('이 진행 내역을 삭제하시겠습니까? 삭제한 내역은 복구할 수 없습니다.')) return;
         button.disabled = true;
+
         try {
-            const response = await fetch(`${page.dataset.simulationApiUrl}/${encodeURIComponent(progressId)}/restart`, {
-                method: 'POST',
-                headers: { Accept: 'application/json' },
-                credentials: 'same-origin'
-            });
-            if (response.status === 401 || response.redirected) {
-                throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
-            }
-            if (!response.ok) {
-                throw new Error('처음부터 다시 시작하지 못했습니다.');
-            }
-
-            const newProgressId = await response.json();
-            openMyPageSimulation(newProgressId);
-        } catch (error) {
-            toast(error.message || '시뮬레이션을 다시 시작하지 못했습니다.');
-            button.disabled = false;
-        }
-    }
-
-    async function deleteMyPageProgress(progressId, button, isCompleted) {
-        const message = isCompleted
-            ? '완료 기록을 삭제하시겠습니까?\n삭제된 입력값은 복구할 수 없습니다.'
-            : '진행기록을 삭제하시겠습니까?\n삭제된 입력값은 복구할 수 없습니다.';
-        if (!window.confirm(message)) {
-            return;
-        }
-
-        button.disabled = true;
-        try {
-            const response = await fetch(`${page.dataset.simulationApiUrl}/${encodeURIComponent(progressId)}`, {
+            const response = await fetch(page.dataset.simulationApiUrl + '/' + encodeURIComponent(record.progressId), {
                 method: 'DELETE',
                 headers: { Accept: 'application/json' },
                 credentials: 'same-origin'
@@ -313,142 +355,50 @@
             if (response.status === 401 || response.redirected) {
                 throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
             }
-            if (!response.ok) {
-                throw new Error('진행 기록을 삭제하지 못했습니다.');
-            }
+            if (!response.ok) throw new Error('진행 내역을 삭제하지 못했습니다.');
+            toast('진행 내역을 삭제했습니다.');
 
-            toast(isCompleted ? '완료 기록을 삭제했습니다.' : '진행 기록을 삭제했습니다.');
-            await Promise.all([loadInProgressScenarios(), loadCompletedHistory()]);
+            // 삭제 성공 즉시 화면에서도 해당 항목을 제거하고 건수·페이지를 갱신합니다.
+            scenarioHistoryItems = (scenarioHistoryItems || []).filter(function (item) {
+                return String(item.progressId) !== String(record.progressId);
+            });
+            scenarioHistoryTotalCount = Math.max(0, scenarioHistoryTotalCount - 1);
+            scenarioHistoryTotalPages = Math.ceil(scenarioHistoryTotalCount / MY_PAGE_SIZE);
+            if (scenarioHistoryItems.length === 0 && scenarioHistoryPage > 1) {
+                scenarioHistoryPage -= 1;
+            }
+            renderScenarioHistory(scenarioHistoryItems);
+
+            await loadScenarioHistory(scenarioHistoryPage);
         } catch (error) {
-            toast(error.message || '진행 기록 삭제 중 오류가 발생했습니다.');
+            toast(error.message || '진행 내역 삭제 중 오류가 발생했습니다.');
             button.disabled = false;
         }
     }
 
-    function renderCompletedList(target, records) {
-        if (!target) {
-            return;
-        }
+    function initializeScenarioHistory() {
+        const searchForm = document.querySelector('[data-scenario-history-search-form]');
+        const keywordInput = document.getElementById('mypageHistoryKeyword');
+        const statusFilter = document.getElementById('mypageHistoryStatus');
 
-        target.classList.add('scenario-catalog');
-
-        if (records.length === 0) {
-            target.innerHTML = `
-                <div class="completed-history-empty">
-                    <span class="material-symbols-outlined" aria-hidden="true">assignment</span>
-                    <strong>아직 완료한 연습이 없습니다.</strong>
-                    <p>완료한 시나리오가 여기에 표시됩니다.</p>
-                </div>`;
-            return;
-        }
-
-        const template = document.getElementById('mypageProgressScenarioTemplate');
-        if (!template) {
-            return;
-        }
-
-        target.replaceChildren();
-        records.forEach(function (record) {
-            const scenario = scenarioDetailsById.get(String(record.scenarioId)) || {};
-            const card = template.content.firstElementChild.cloneNode(true);
-            const progressBar = card.querySelector('[data-progress-bar]');
-            const reviewButton = card.querySelector('[data-progress-continue]');
-            const progressId = record.progressId;
-
-            card.querySelector('[data-progress-category]').textContent =
-                record.categoryLabel || scenario.categoryLabel || record.categoryName || '행정절차 연습';
-            card.querySelector('[data-progress-status]').textContent = '완료';
-            card.querySelector('[data-progress-title]').textContent = record.scenarioTitle || scenario.scenarioTitle || '시나리오';
-            card.querySelector('[data-progress-description]').textContent =
-                scenario.description || '완료한 시나리오입니다. 작성한 내용을 확인해 보세요.';
-            card.querySelector('[data-progress-step-count]').textContent = scenario.stepCount
-                ? `${scenario.stepCount}단계`
-                : '완료한 연습';
-            card.querySelector('[data-progress-estimated-time]').textContent = scenario.estimatedMinutes
-                ? `예상 ${scenario.estimatedMinutes}분`
-                : `완료일 ${formatDate(record.completedAt)}`;
-            card.querySelector('[data-progress-caption]').textContent = '완료한 연습';
-            card.querySelector('[data-progress-percent]').textContent = '100%';
-            progressBar.style.width = '100%';
-            progressBar.parentElement.setAttribute('aria-valuenow', '100');
-            reviewButton.textContent = '작성 내용 확인';
-            reviewButton.addEventListener('click', function () {
-                openMyPageSimulation(progressId);
+        if (searchForm) {
+            searchForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
+                appliedScenarioHistoryStatus = statusFilter ? statusFilter.value : 'ALL';
+                loadScenarioHistory(1);
             });
-            card.querySelector('[data-progress-restart]').addEventListener('click', function (event) {
-                restartMyPageProgress(progressId, event.currentTarget);
-            });
-            card.querySelector('[data-progress-delete]').addEventListener('click', function (event) {
-                deleteMyPageProgress(progressId, event.currentTarget, true);
-            });
-
-            target.appendChild(card);
-        });
-    }
-
-    function renderCompletedHistory(records) {
-        if (!latestProgressLoaded) {
-            return;
         }
 
-        const list = document.querySelector('[data-completed-list]');
-        const latestCompletedRecords = latestProgressByScenarioId
-            ? records.filter(function (record) {
-                const latestProgress = latestProgressByScenarioId.get(String(record.scenarioId));
-                return latestProgress
-                    && latestProgress.progressStatus === 'COMPLETED'
-                    && String(latestProgress.progressId) === String(record.progressId);
-            })
-            : records;
-
-        renderCompletedList(list, latestCompletedRecords);
-    }
-
-    async function loadCompletedHistory() {
-        if (!page || !page.dataset.completedHistoryApiUrl) {
-            return;
-        }
-
-        const list = document.querySelector('[data-completed-list]');
-        if (list) {
-            list.innerHTML = '<p class="text-secondary mb-0" role="status">완료 내역을 불러오는 중입니다.</p>';
-        }
-
-        try {
-            const response = await fetch(page.dataset.completedHistoryApiUrl, {
-                method: 'GET',
-                headers: { Accept: 'application/json' },
-                credentials: 'same-origin'
-            });
-            if (response.status === 401 || response.redirected) {
-                throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
-            }
-            if (!response.ok) {
-                throw new Error('완료 내역을 불러오지 못했습니다.');
-            }
-
-            const records = await response.json();
-            if (!Array.isArray(records)) {
-                throw new Error('완료 내역 응답 형식이 올바르지 않습니다.');
-            }
-
-            completedHistory.splice(0, completedHistory.length, ...records);
-            renderCompletedHistory(completedHistory);
-        } catch (error) {
-            if (list) {
-                list.innerHTML = `
-                    <div class="completed-history-error" role="alert">
-                        <span>${escapeHtml(error.message || '완료 내역을 불러오지 못했습니다.')}</span>
-                        <button class="btn btn-outline-secondary btn-sm" type="button" data-retry-completed>다시 시도</button>
-                    </div>`;
-            }
-        }
+        // 각 기록의 상태에 따라 이어하기 또는 작성 내용 확인 버튼을 표시합니다.
+        loadScenarioHistory(1);
     }
 
     function initializeMyInquiries() {
         const rows = document.querySelector('[data-mypage-inquiry-rows]');
         const statusFilter = document.getElementById('mypageInquiryStatus');
         const searchInput = document.getElementById('mypageInquirySearch');
+        const searchForm = document.querySelector('[data-mypage-inquiry-search-form]');
         const totalElement = document.querySelector('[data-mypage-inquiry-total]');
         const pagination = document.querySelector('[data-mypage-inquiry-pagination]');
 
@@ -458,7 +408,9 @@
 
         let inquiryItems = [];
         let currentPage = 1;
-        const pageSize = 10;
+        let appliedInquiryStatus = '';
+        let appliedInquiryKeyword = '';
+        const pageSize = MY_PAGE_SIZE;
 
         function showMessage(message, isError) {
             const messageElement = document.createElement('p');
@@ -469,10 +421,8 @@
         }
 
         function getFilteredItems() {
-            const selectedStatus = statusFilter ? statusFilter.value : '';
-            const keyword = searchInput
-                ? searchInput.value.trim().toLocaleLowerCase()
-                : '';
+            const selectedStatus = appliedInquiryStatus;
+            const keyword = appliedInquiryKeyword.toLocaleLowerCase();
 
             return inquiryItems.filter(function (item) {
                 const statusMatches = !selectedStatus || item.qnaStatus === selectedStatus;
@@ -487,36 +437,22 @@
                 return;
             }
 
-            pagination.replaceChildren();
-
-            function appendPage(label, targetPage, disabled, active) {
-                const item = document.createElement('li');
-                item.className = 'page-item';
-                if (disabled) item.classList.add('disabled');
-                if (active) item.classList.add('active');
-
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'page-link';
-                button.textContent = label;
-                button.disabled = disabled;
-                button.setAttribute('aria-label', label === '이전' || label === '다음'
-                    ? label + ' 페이지'
-                    : '페이지 ' + label);
-                button.addEventListener('click', function () {
+            window.renderHaebomPagination({
+                container: pagination,
+                currentPage: currentPage,
+                totalPages: totalPages,
+                groupSize: MY_PAGE_PAGE_GROUP_SIZE,
+                previousLabel: '이전',
+                nextLabel: '다음',
+                showBoundaryButtons: true,
+                bootstrap: true,
+                hideWhenSinglePage: true,
+                onPageChange: function (targetPage) {
                     currentPage = targetPage;
                     render();
-                });
-
-                item.appendChild(button);
-                pagination.appendChild(item);
-            }
-
-            appendPage('이전', currentPage - 1, currentPage <= 1, false);
-            for (let pageNumber = 1; pageNumber <= Math.max(1, totalPages); pageNumber++) {
-                appendPage(String(pageNumber), pageNumber, false, pageNumber === currentPage);
-            }
-            appendPage('다음', currentPage + 1, currentPage >= totalPages, false);
+                    scrollToListStart(rows);
+                }
+            });
         }
 
         function render() {
@@ -766,14 +702,11 @@
             openModal('#mypageInquiryViewModal');
         });
 
-        if (statusFilter) {
-            statusFilter.addEventListener('change', function () {
-                currentPage = 1;
-                render();
-            });
-        }
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
+        if (searchForm) {
+            searchForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                appliedInquiryStatus = statusFilter ? statusFilter.value : '';
+                appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
                 currentPage = 1;
                 render();
             });
@@ -799,43 +732,17 @@
 
     function showNewPasswordGuidance() {
         const input = document.getElementById('newPassword');
-        setPasswordFieldStatus(input, 'newPasswordStatus',
-            '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.',
-            'neutral');
-    }
-
-    function removeForbiddenPasswordCharacters(input) {
-        const original = input.value;
-        const caret = input.selectionStart;
-        const filtered = original.replace(/[><_\-"']/g, '');
-        if (filtered === original) return;
-
-        input.value = filtered;
-        if (typeof caret === 'number') {
-            const filteredCaret = original.slice(0, caret).replace(/[><_\-"']/g, '').length;
-            input.setSelectionRange(filteredCaret, filteredCaret);
-        }
+        const result = window.Haebom.passwordValidation.validate('');
+        setPasswordFieldStatus(input, 'newPasswordStatus', result.message, result.state);
     }
 
     function validateNewPassword() {
         const input = document.getElementById('newPassword');
         if (!input) return false;
 
-        const password = input.value;
-        if (password.length === 0) {
-            showNewPasswordGuidance();
-            return false;
-        }
-
-        const validLength = password.length >= 8 && password.length <= 20;
-        const hasForbiddenCharacter = /[><_\-"']/.test(password);
-        const valid = validLength && !hasForbiddenCharacter;
-        const message = !validLength ? '8~20자로 입력해 주세요.'
-            : hasForbiddenCharacter ? '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.'
-                : '사용 가능한 비밀번호입니다.';
-
-        setPasswordFieldStatus(input, 'newPasswordStatus', message, valid ? 'valid' : 'invalid');
-        return valid;
+        const result = window.Haebom.passwordValidation.validate(input.value);
+        setPasswordFieldStatus(input, 'newPasswordStatus', result.message, result.state);
+        return result.valid;
     }
 
     function showPasswordConfirmationGuidance() {
@@ -848,14 +755,11 @@
         const confirmInput = document.getElementById('confirmNewPassword');
         if (!passwordInput || !confirmInput) return false;
 
-        const confirmation = confirmInput.value;
-        const valid = confirmation.length > 0 && confirmation === passwordInput.value;
-        const message = confirmation.length === 0 ? '비밀번호를 다시 입력해 주세요.'
-            : valid ? '비밀번호가 일치합니다.' : '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.';
-
-        setPasswordFieldStatus(confirmInput, 'confirmNewPasswordStatus', message,
-            confirmation.length === 0 ? 'neutral' : valid ? 'valid' : 'invalid');
-        return valid;
+        const passwordResult = window.Haebom.passwordValidation.validate(passwordInput.value);
+        const result = window.Haebom.passwordValidation.validateConfirmation(
+            confirmInput.value, passwordInput.value, passwordResult.valid);
+        setPasswordFieldStatus(confirmInput, 'confirmNewPasswordStatus', result.message, result.state);
+        return result.valid;
     }
 
     function resetPasswordFormState(form) {
@@ -897,7 +801,7 @@
             newPasswordInput.addEventListener('focus', showNewPasswordGuidance);
             newPasswordInput.addEventListener('blur', validateNewPassword);
             newPasswordInput.addEventListener('input', function () {
-                removeForbiddenPasswordCharacters(newPasswordInput);
+                validateNewPassword();
                 validatePasswordConfirmation();
             });
         }
@@ -905,7 +809,6 @@
             confirmPasswordInput.addEventListener('focus', showPasswordConfirmationGuidance);
             confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
             confirmPasswordInput.addEventListener('input', function () {
-                removeForbiddenPasswordCharacters(confirmPasswordInput);
                 validatePasswordConfirmation();
             });
         }
@@ -1092,17 +995,12 @@
         }
         initializePasswordChangeForm();
 
-        document.addEventListener('click', function (event) {
-            if (event.target.closest('[data-retry-completed]')) {
-                loadCompletedHistory();
-            }
-        });
     }
 
+    // 진행 내역 요청은 다른 마이페이지 이벤트 초기화에 영향을 받지 않도록 먼저 시작합니다.
+    initializeScenarioHistory();
     bindEvents();
     loadProfile();
-    loadInProgressScenarios();
-    loadCompletedHistory();
     initializeMyInquiries();
 }());
 
