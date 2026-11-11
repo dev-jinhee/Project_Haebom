@@ -67,6 +67,7 @@
                                 data-find-id-confirm-code>인증 확인</button>
                     </div>
                     <p class="account-find-status" id="verifyCodeStatus" aria-live="polite"></p>
+                    <p class="account-find-status text-muted" id="codeExpiryStatus" aria-live="polite"></p>
                 </div>
                 <input type="hidden" id="csrfToken" name="${_csrf.parameterName}"
                        value="${_csrf.token}" data-header="${_csrf.headerName}">

@@ -176,6 +176,7 @@
                     <button class="btn btn-outline-primary" type="button"
                             data-verify-email-code>인증 확인</button>
                 </div>
+                <p class="member-signup-field-help" id="signupEmailExpiryStatus" aria-live="polite"></p>
                 <p class="member-signup-field-help" id="signupEmailVerifyStatus" aria-live="polite"></p>
             </div>
 
