@@ -13,6 +13,7 @@
 	<div class="border rounded-3 p-4 mb-3">
 
 		<h3 class="h6 fw-bold mb-4">신청인 정보</h3>
+<p class="sim-learning-field-note">신청인은 전입신고를 제출하는 사람을 말해요. 성명은 확인용으로 표시되며, 연락처는 실제 신청에서 안내와 확인에 활용될 수 있어요.</p>
 
 		<!-- 신청인 성명 -->
 		<div class="mb-4">
@@ -58,6 +59,33 @@
 
 		<h3 class="h6 fw-bold mb-4">전입사유</h3>
 
+		<details class="sim-learning-quick-guide">
+			<summary>
+				<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+				전입 사유는 어떻게 선택하나요?
+				<span class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+			</summary>
+			<div class="sim-learning-quick-guide-body">
+				<dl class="sim-learning-quick-guide-list">
+					<div>
+						<dt>직업·교육</dt>
+						<dd>취업이나 직장 이전, 학교·학업 등을 이유로 이사하는 경우를 생각해 보세요.</dd>
+					</div>
+					<div>
+						<dt>가족·주택</dt>
+						<dd>가족과 함께 살기 위한 이동이나 주택 구입·계약 만료처럼 주거 계약과 관련된 이동이에요.</dd>
+					</div>
+					<div>
+						<dt>환경</dt>
+						<dd>교통·편의시설 또는 공해·건강·주변 환경을 고려해 이사할 때 선택할 수 있어요.</dd>
+					</div>
+					<div>
+						<dt>기타</dt>
+						<dd>위 항목에 맞는 이유가 없다면 기타를 선택하고 구체적인 사유를 작성해 주세요.</dd>
+					</div>
+				</dl>
+			</div>
+		</details>
 		<fieldset class="border-0 p-0 m-0">
 
 			<legend class="fs-6 fw-semibold mb-3">
@@ -143,6 +171,13 @@
 			</div>
 
 		</fieldset>
+		<div class="sim-learning-tip">
+			<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+			<div class="sim-learning-tip-content">
+				<strong>알아두면 좋아요</strong>
+				<p>정답을 맞히는 문제가 아니에요. 이번에 설정한 이사 상황에 가장 가까운 사유를 선택해 보세요. ‘기타’를 고르면 아래 상세 사유도 작성해야 해요.</p>
+			</div>
+		</div>
 
 	</div>
 

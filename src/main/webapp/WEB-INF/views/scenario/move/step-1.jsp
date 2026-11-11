@@ -20,6 +20,34 @@
 		</ul>
 	</div>
 
+		<details class="sim-learning-quick-guide">
+			<summary>
+				<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+				전입신고, 핵심 내용부터 알아볼까요?
+				<span class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+			</summary>
+			<div class="sim-learning-quick-guide-body">
+				<dl class="sim-learning-quick-guide-list">
+					<div>
+						<dt>언제?</dt>
+						<dd>새로운 주소로 이사한 날부터 14일 이내에 신고하는 절차예요.</dd>
+					</div>
+					<div>
+						<dt>어디서?</dt>
+						<dd>정부24 온라인 또는 새 거주지 관할 읍·면·동 행정복지센터에서 신청할 수 있어요. 온라인은 대리 신청이 불가능해요.</dd>
+					</div>
+					<div>
+						<dt>세대주 확인</dt>
+						<dd>세대 구성이나 신청인 관계에 따라 세대주 확인이 필요할 수 있어요. 실제로는 해당 확인 절차를 완료해야 처리돼요.</dd>
+					</div>
+					<div>
+						<dt>신청 후</dt>
+						<dd>접수와 처리 완료는 다른 상태예요. 정부24에서 신청내역과 처리 결과를 확인해야 해요.</dd>
+					</div>
+				</dl>
+				<p class="sim-learning-source">출처: <a href="https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000016" target="_blank" rel="noopener noreferrer">정부24 전입신고 민원안내</a></p>
+			</div>
+		</details>
 	<!-- 2. 유의사항 확인 -->
 	<div class="move-step1-notices" aria-labelledby="moveStep1NoticeTitle">
 		<h3 class="move-step1-section-title" id="moveStep1NoticeTitle">유의사항
