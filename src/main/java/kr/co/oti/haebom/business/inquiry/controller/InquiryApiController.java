@@ -2,11 +2,9 @@ package kr.co.oti.haebom.business.inquiry.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +21,7 @@ import kr.co.oti.haebom.business.inquiry.dto.QnaAnswerDTO;
 import kr.co.oti.haebom.business.inquiry.dto.QnaDTO;
 import kr.co.oti.haebom.business.inquiry.service.QnaService;
 import kr.co.oti.haebom.system.security.MemberPrincipal;
+import kr.co.oti.haebom.system.security.PrincipalUtils;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -39,7 +38,7 @@ public class InquiryApiController {
 		List<QnaDTO> list = qnaService.getQnaList();
 		
 		Integer currentMemberId = memberPrincipal != null ? memberPrincipal.getMemberId() : null;
-		boolean isAdmin = memberPrincipal != null && memberPrincipal.getAuthorities() != null && memberPrincipal.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+		boolean isAdmin = PrincipalUtils.isAdmin(memberPrincipal);
 		
 		// 비밀글 마스킹 보안 처리!
 		for (QnaDTO item : list) {
@@ -61,51 +60,64 @@ public class InquiryApiController {
 	public ResponseEntity<String> createInquiry(
 			@AuthenticationPrincipal MemberPrincipal memberPrincipal, 
 			QnaDTO qnaDTO) {
-		
-		// 비로그인 유저의 직접 API 요청 차단 (401 에러 반환)
-		if (memberPrincipal == null) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-					.body("로그인이 필요한 서비스입니다.");
-		}
-		qnaDTO.setMemberId(memberPrincipal.getMemberId()); // 로그인 회원 번호 세팅!
-		qnaService.createQna(qnaDTO);
+		int currentMemberId = PrincipalUtils.requireMemberId(memberPrincipal);
+		qnaService.createQna(qnaDTO, currentMemberId);
 		return ResponseEntity.ok("문의글이 성공적으로 등록되었습니다.");
 	}
 
 	// 3. 문의글 삭제 API (delete /api/inquiries/{qnaId})
 	@DeleteMapping("/{qnaId}")
-	public ResponseEntity<String> deleteInquiry(@PathVariable("qnaId") Integer qnaId) {
-		qnaService.deleteQna(qnaId);
+	public ResponseEntity<String> deleteInquiry(
+			@PathVariable("qnaId") Integer qnaId,
+			@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		int currentMemberId = PrincipalUtils.requireMemberId(memberPrincipal);
+		boolean isAdmin = PrincipalUtils.isAdmin(memberPrincipal);
+		qnaService.deleteQna(qnaId, currentMemberId, isAdmin);
 		return ResponseEntity.ok("문의글이 삭제되었습니다.");
 	}
 
 	// 4. 문의글 수정 API (PUT /api/inquiries/{qnaId})
 	@PutMapping("/{qnaId}")
-	public ResponseEntity<String> updateInquiry(@PathVariable("qnaId") Integer qnaId, QnaDTO qnaDTO) {
-		qnaDTO.setQnaId(qnaId);
-		qnaService.updateQna(qnaDTO);
+	public ResponseEntity<String> updateInquiry(
+			@PathVariable("qnaId") Integer qnaId,
+			@AuthenticationPrincipal MemberPrincipal memberPrincipal,
+			QnaDTO qnaDTO) {
+		int currentMemberId = PrincipalUtils.requireMemberId(memberPrincipal);
+		qnaService.updateQna(qnaId, qnaDTO, currentMemberId);
 		return ResponseEntity.ok("문의글이 수정되었습니다.");
 	}
 
 	// 5. 특정 문의글의 모든 답변 목록 조회 (GET /api/inquiries/{qnaId}/answers)
 	@GetMapping("/{qnaId}/answers")
-	public List<QnaAnswerDTO> getInquiryAnswer(@PathVariable("qnaId") Integer qnaId) {
-		return qnaService.getAnswersByQnaId(qnaId);
+	public List<QnaAnswerDTO> getInquiryAnswer(
+			@PathVariable("qnaId") Integer qnaId,
+			@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		int currentMemberId = PrincipalUtils.requireMemberId(memberPrincipal);
+		boolean isAdmin = PrincipalUtils.isAdmin(memberPrincipal);
+		return qnaService.getAnswersByQnaId(qnaId, currentMemberId, isAdmin);
 	}
 
 	// 6. 관리자 새 답변 등록 (POST /api/inquiries/{qnaId}/answers)
+	@PreAuthorize("hasRole('ADMIN')")
 	@PostMapping("/{qnaId}/answers")
-	public ResponseEntity<String> registerAnswer(@PathVariable("qnaId") Integer qnaId, QnaAnswerDTO answerDTO) {
-		qnaService.registerAnswer(qnaId, answerDTO);
+	public ResponseEntity<String> registerAnswer(
+			@PathVariable("qnaId") Integer qnaId,
+			@AuthenticationPrincipal MemberPrincipal memberPrincipal,
+			QnaAnswerDTO answerDTO) {
+		int currentAdminId = PrincipalUtils.requireAdminId(memberPrincipal);
+		qnaService.registerAnswer(qnaId, answerDTO, currentAdminId);
 		return ResponseEntity.ok("답변이 성공적으로 등록되었습니다.");
 	}
 
 	// 7. 관리자 문의 상태 및 분류 변경 (PUT /api/inquiries/{qnaId}/status)
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{qnaId}/status")
 	public ResponseEntity<String> updateStatus(
 			@PathVariable("qnaId") Integer qnaId, 
 			@RequestParam(value = "qnaCategoryId", required = false) Integer categoryId, 
-			@RequestParam(value = "qnaStatus", required = false) String status) {	
+			@RequestParam(value = "qnaStatus", required = false) String status,
+			@AuthenticationPrincipal MemberPrincipal memberPrincipal) {	
+		PrincipalUtils.requireAdminId(memberPrincipal);
 		qnaService.updateInquiryStatusAndCategory(qnaId, categoryId, status);
 		return ResponseEntity.ok("문의 상태가 성공적으로 변경되었습니다.");
 	}
