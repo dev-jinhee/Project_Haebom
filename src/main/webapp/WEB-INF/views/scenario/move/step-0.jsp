@@ -154,22 +154,6 @@
 				</select></td>
 			</tr>
 		</template>
-		<!-- ============================== -->
-		<!-- 입력 정보 및 진행 기록 안내 -->
-		<!-- ============================== -->
-		<div class="border rounded-3 bg-light p-3 mt-5">
-
-			<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
-
-			<p class="text-muted small mb-0">
-				<spring:message code="simulation.history" />
-			</p>
-
-			<p class="text-muted small mb-0">
-				<spring:message code="simulation.privacy" />
-			</p>
-
-		</div>
 	</section>
 
 	<!-- 0단계 전용 시작 버튼: 공통 네비게이션과 동일한 푸터 레이아웃 -->

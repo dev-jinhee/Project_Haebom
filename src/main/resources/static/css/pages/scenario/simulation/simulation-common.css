@@ -445,7 +445,7 @@
 	border-left: 4px solid #164166;
 	border-radius: 10px;
 	padding: 24px 28px;
-	margin: 20px 0 28px;
+	margin: 20px 2px;
 }
 
 .sim-notice-panel h3 {
@@ -473,6 +473,30 @@
 	margin-bottom: 0;
 }
 
+/* 시뮬레이션 공통 안내 상세 내용 */
+
+/* 시뮬레이션 공통 안내 상세 내용 */
+.sim-notice-details {
+	margin-top: 9px;
+	margin-left: 5px;
+}
+
+/* 상세 안내 펼치기 버튼 */
+.sim-notice-details summary {
+	color: #334155;
+	font-size: inherit;
+	font-weight: 500;
+	line-height: 1.7;
+	cursor: pointer;
+}
+
+/* 펼쳤을 때 상세 설명 */
+.sim-notice-details p {
+	margin: 5px 0 0 15px;
+	color: #64748b;
+	font-size: 0.875rem;
+	line-height: 1.7;
+}
 
 /* ============================================================
    공통 라디오 · 체크박스
@@ -483,142 +507,129 @@
 /* ==============================
    1. 라디오 · 체크박스 기본 디자인
 ============================== */
-
 input:is([type="checkbox"], [type="radio"]) {
-    appearance: none;
-    -webkit-appearance: none;
-    box-sizing: border-box;
-
-    width: 19px;
-    height: 19px;
-    min-width: 19px;
-    flex: 0 0 19px;
-
-    margin: 0;
-    padding: 0;
-
-    border: 1px solid #9caaba;
-    border-radius: 4px;
-
-    background-color: #fff;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-
-    vertical-align: middle;
-    accent-color: #164166;
-
-    opacity: 1;
-    cursor: pointer;
+	appearance: none;
+	-webkit-appearance: none;
+	box-sizing: border-box;
+	width: 19px;
+	height: 19px;
+	min-width: 19px;
+	flex: 0 0 19px;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #9caaba;
+	border-radius: 4px;
+	background-color: #fff;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	vertical-align: middle;
+	accent-color: #164166;
+	opacity: 1;
+	cursor: pointer;
 }
 
 /* 라디오 버튼 원형 */
 input[type="radio"] {
-    border-radius: 50%;
+	border-radius: 50%;
 }
 
 /* ==============================
    2. 선택 상태
 ============================== */
-
 input:is([type="checkbox"], [type="radio"]):checked {
-    border-color: #164166;
-    background-color: #164166;
+	border-color: #164166;
+	background-color: #164166;
 }
 
 /* 체크박스 체크 아이콘 */
 input[type="checkbox"]:checked {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m4 8 2.5 2.5L12 5'/%3e%3c/svg%3e");
+	background-image:
+		url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m4 8 2.5 2.5L12 5'/%3e%3c/svg%3e");
 }
 
 /* 라디오 버튼 선택 표시 */
 input[type="radio"]:checked {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3ccircle cx='8' cy='8' r='3' fill='%23fff'/%3e%3c/svg%3e");
+	background-image:
+		url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3ccircle cx='8' cy='8' r='3' fill='%23fff'/%3e%3c/svg%3e");
 }
 
 /* ==============================
    3. 비활성화 상태
 ============================== */
-
 input:is([type="checkbox"], [type="radio"]):disabled {
-    opacity: 1;
-    cursor: default;
+	opacity: 1;
+	cursor: default;
 }
 
 /* 비활성화 + 선택 */
 input:is([type="checkbox"], [type="radio"]):disabled:checked {
-    border-color: #788a9c;
-    background-color: #788a9c;
+	border-color: #788a9c;
+	background-color: #788a9c;
 }
 
 /* 비활성화 + 미선택 */
 input:is([type="checkbox"], [type="radio"]):disabled:not(:checked) {
-    border-color: #b9c3cd;
-    background-color: #f1f3f5;
-    background-image: none;
+	border-color: #b9c3cd;
+	background-color: #f1f3f5;
+	background-image: none;
 }
 
 /* ==============================
    4. 포커스
 ============================== */
-
 input:is([type="checkbox"], [type="radio"]):focus {
-    border-color: #164166;
-    box-shadow: none;
+	border-color: #164166;
+	box-shadow: none;
 }
 
 input:is([type="checkbox"], [type="radio"]):focus-visible {
-    outline: 2px solid #164166;
-    outline-offset: 3px;
+	outline: 2px solid #164166;
+	outline-offset: 3px;
 }
 
 /* ==============================
    5. 일반 label 정렬
    - input을 직접 감싸는 경우
 ============================== */
-
-label:has(> input[type="radio"]),
-label:has(> input[type="checkbox"]) {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 24px;
-    margin: 0;
-    line-height: 1.5;
-    cursor: pointer;
+label:has(>input[type="radio"]), label:has(>input[type="checkbox"]) {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 24px;
+	margin: 0;
+	line-height: 1.5;
+	cursor: pointer;
 }
 
 /* ==============================
    6. Bootstrap form-check 정렬
    - input과 label이 형제인 경우
 ============================== */
-
 .form-check {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding-left: 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding-left: 0;
 }
 
 /* Bootstrap 기본 float 및 음수 margin 제거 */
-.form-check > .form-check-input {
-    float: none;
-    flex: 0 0 19px;
-
-    width: 19px;
-    height: 19px;
-
-    margin: 0;
-    margin-top: 0.2em;
-    padding: 0;
+.form-check>.form-check-input {
+	float: none;
+	flex: 0 0 19px;
+	width: 19px;
+	height: 19px;
+	margin: 0;
+	margin-top: 0.2em;
+	padding: 0;
 }
 
 /* 라디오 · 체크박스 옆 텍스트 */
-.form-check > .form-check-label {
-    display: block;
-    margin: 0;
-    line-height: 1.5;
-    cursor: pointer;
+.form-check>.form-check-label {
+	display: block;
+	margin: 0;
+	line-height: 1.5;
+	cursor: pointer;
 }
 
 @media ( max-width : 768px) {

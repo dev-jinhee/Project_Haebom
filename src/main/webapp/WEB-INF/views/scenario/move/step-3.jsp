@@ -247,20 +247,4 @@
 				해봄에서는 서류 제출 없이 학습을 계속할 수 있습니다.</div>
 		</section>
 	</div>
-
-	<!-- 공통 안내 문구: 기존 해봄 메시지 유지 -->
-	<div class="alert alert-info mb-3 mt-2" role="note">
-		<p class="small mb-0">
-			<spring:message code="simulation.notice" />
-		</p>
-	</div>
-	<div class="border rounded-3 bg-light p-3">
-		<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.history" />
-		</p>
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.privacy" />
-		</p>
-	</div>
 </div>

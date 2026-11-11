@@ -75,6 +75,33 @@
 
 		</div>
 
+		<!-- ============================== -->
+		<!-- 시뮬레이션 공통 이용 안내 -->
+		<!-- ============================== -->
+		<aside class="sim-notice-panel"
+			aria-labelledby="simulationNoticeTitle">
+
+			<h3 id="simulationNoticeTitle">
+				<span class="material-symbols-outlined" aria-hidden="true">school</span>
+				해봄 시뮬레이션 안내
+			</h3>
+
+			<ul>
+				<li><spring:message code="simulation.notice" /></li>
+				<li><spring:message code="simulation.history" /></li>
+				<li><strong> <spring:message code="simulation.privacy" />
+				</strong></li>
+			</ul>
+
+			<details class="sim-notice-details">
+				<summary>진행 기록 안내 자세히 보기</summary>
+				<p>
+					<spring:message code="simulation.history.inprogress" />
+				</p>
+			</details>
+
+		</aside>
+
 		<!-- 단계별 콘텐츠 영역 -->
 		<div class="row g-4 sim-layout">
 			<div class="col-12">
@@ -84,7 +111,6 @@
 
 					<!-- 현재 단계 제목 -->
 					<div class="sim-card-head">
-
 						<span class="simulation-icon" id="simulationIcon"> <span
 							class="material-symbols-outlined" aria-hidden="true"> info
 						</span>
@@ -126,8 +152,6 @@
 				</section>
 			</div>
 		</div>
-
-
 	</main>
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
