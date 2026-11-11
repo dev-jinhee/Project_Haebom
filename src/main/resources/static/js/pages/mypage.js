@@ -1,4 +1,6 @@
 (function () {
+    const MY_PAGE_SIZE = 10;
+    const MY_PAGE_PAGE_GROUP_SIZE = 10;
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');
     const withdrawConfirmText = document.getElementById('withdrawConfirmText');
@@ -162,37 +164,18 @@
         const pagination = document.querySelector('[data-scenario-history-pagination]');
         if (!pagination) return;
 
-        pagination.replaceChildren();
-        const totalPages = Math.max(1, scenarioHistoryTotalPages);
-        const firstPage = Math.max(1, scenarioHistoryPage - 2);
-        const lastPage = Math.min(totalPages, firstPage + 4);
-
-        function appendPage(label, targetPage, disabled, active) {
-            const item = document.createElement('li');
-            item.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'page-link';
-            button.textContent = label;
-            button.disabled = disabled;
-            button.setAttribute('aria-label', label === '이전' || label === '다음'
-                ? label + ' 페이지'
-                : '페이지 ' + label);
-            if (active) button.setAttribute('aria-current', 'page');
-            button.addEventListener('click', function () {
-                loadScenarioHistory(targetPage);
-            });
-            item.appendChild(button);
-            pagination.appendChild(item);
-        }
-
-        appendPage('이전', scenarioHistoryPage - 1, scenarioHistoryPage <= 1, false);
-        for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber += 1) {
-            appendPage(String(pageNumber), pageNumber,
-                scenarioHistoryTotalPages === 0, pageNumber === scenarioHistoryPage);
-        }
-        appendPage('다음', scenarioHistoryPage + 1,
-            scenarioHistoryPage >= scenarioHistoryTotalPages || scenarioHistoryTotalPages === 0, false);
+        window.renderHaebomPagination({
+            container: pagination,
+            currentPage: scenarioHistoryPage,
+            totalPages: scenarioHistoryTotalPages,
+            groupSize: MY_PAGE_PAGE_GROUP_SIZE,
+            previousLabel: '이전',
+            nextLabel: '다음',
+            showBoundaryButtons: true,
+            bootstrap: true,
+            hideWhenSinglePage: true,
+            onPageChange: loadScenarioHistory
+        });
     }
 
     function renderScenarioHistory(items) {
@@ -344,7 +327,7 @@
                 return String(item.progressId) !== String(record.progressId);
             });
             scenarioHistoryTotalCount = Math.max(0, scenarioHistoryTotalCount - 1);
-            scenarioHistoryTotalPages = Math.ceil(scenarioHistoryTotalCount / 5);
+            scenarioHistoryTotalPages = Math.ceil(scenarioHistoryTotalCount / MY_PAGE_SIZE);
             if (scenarioHistoryItems.length === 0 && scenarioHistoryPage > 1) {
                 scenarioHistoryPage -= 1;
             }
@@ -395,7 +378,7 @@
 
         let inquiryItems = [];
         let currentPage = 1;
-        const pageSize = 10;
+        const pageSize = MY_PAGE_SIZE;
 
         function showMessage(message, isError) {
             const messageElement = document.createElement('p');
@@ -424,36 +407,21 @@
                 return;
             }
 
-            pagination.replaceChildren();
-
-            function appendPage(label, targetPage, disabled, active) {
-                const item = document.createElement('li');
-                item.className = 'page-item';
-                if (disabled) item.classList.add('disabled');
-                if (active) item.classList.add('active');
-
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'page-link';
-                button.textContent = label;
-                button.disabled = disabled;
-                button.setAttribute('aria-label', label === '이전' || label === '다음'
-                    ? label + ' 페이지'
-                    : '페이지 ' + label);
-                button.addEventListener('click', function () {
+            window.renderHaebomPagination({
+                container: pagination,
+                currentPage: currentPage,
+                totalPages: totalPages,
+                groupSize: MY_PAGE_PAGE_GROUP_SIZE,
+                previousLabel: '이전',
+                nextLabel: '다음',
+                showBoundaryButtons: true,
+                bootstrap: true,
+                hideWhenSinglePage: true,
+                onPageChange: function (targetPage) {
                     currentPage = targetPage;
                     render();
-                });
-
-                item.appendChild(button);
-                pagination.appendChild(item);
-            }
-
-            appendPage('이전', currentPage - 1, currentPage <= 1, false);
-            for (let pageNumber = 1; pageNumber <= Math.max(1, totalPages); pageNumber++) {
-                appendPage(String(pageNumber), pageNumber, false, pageNumber === currentPage);
-            }
-            appendPage('다음', currentPage + 1, currentPage >= totalPages, false);
+                }
+            });
         }
 
         function render() {
