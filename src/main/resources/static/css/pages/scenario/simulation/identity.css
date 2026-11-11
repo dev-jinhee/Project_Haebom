@@ -268,8 +268,59 @@
 	color: #164166;
 }
 
-.identity-step1 #identityPhotoInput {
-	max-width: 560px;
+/* 파일 첨부 전체 영역 */
+.identity-step1 #identityPhotoInput.form-control {
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    padding: 0;
+    border: 1px solid #ccd5df;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* 파일 선택 버튼 */
+.identity-step1 #identityPhotoInput.form-control::file-selector-button {
+    margin: 0 14px 0 0;
+    padding: 12px 18px;
+    border: 0;
+    border-right: 1px solid #164166;
+    border-radius: 0;
+    background-color: #164166;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* 마우스 호버 */
+.identity-step1 #identityPhotoInput.form-control:hover::file-selector-button {
+    background-color: #205580;
+}
+
+/* 포커스 */
+.identity-step1 #identityPhotoInput.form-control:focus {
+    border-color: #164166;
+    box-shadow: 0 0 0 3px rgba(22, 65, 102, 0.12);
+    outline: none;
+}
+
+/* 비활성화 */
+.identity-step1 #identityPhotoInput.form-control:disabled {
+    background-color: #f1f3f5;
+    cursor: not-allowed;
+}
+
+.identity-step1 #identityPhotoInput.form-control:disabled::file-selector-button {
+    background-color: #94a3b8;
+    cursor: not-allowed;
 }
 
 .identity-step1 .identity-photo-preview {
