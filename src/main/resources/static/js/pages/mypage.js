@@ -148,6 +148,7 @@
     let scenarioHistoryTotalPages = 0;
     let scenarioHistoryTotalCount = 0;
     let scenarioHistoryItems = null;
+    let appliedScenarioHistoryKeyword = '';
 
     function showScenarioHistoryMessage(message, isError) {
         const list = document.querySelector('[data-scenario-history-list]');
@@ -260,13 +261,14 @@
 
     async function loadScenarioHistory(requestedPage) {
         const list = document.querySelector('[data-scenario-history-list]');
-        const keywordInput = document.getElementById('mypageHistoryKeyword');
         if (!page || !page.dataset.scenarioHistoryApiUrl || !list) return;
 
         const requested = Math.max(1, Number(requestedPage) || 1);
-        const keyword = keywordInput ? keywordInput.value.trim() : '';
-        const params = new URLSearchParams({ page: String(requested), keyword: keyword });
-            showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
+        const params = new URLSearchParams({
+            page: String(requested),
+            keyword: appliedScenarioHistoryKeyword
+        });
+        showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
 
         try {
             const response = await fetch(page.dataset.scenarioHistoryApiUrl + '?' + params.toString(), {
@@ -343,21 +345,12 @@
     function initializeScenarioHistory() {
         const searchForm = document.querySelector('[data-scenario-history-search-form]');
         const keywordInput = document.getElementById('mypageHistoryKeyword');
-        let searchTimer;
 
         if (searchForm) {
             searchForm.addEventListener('submit', function (event) {
                 event.preventDefault();
-                window.clearTimeout(searchTimer);
+                appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
                 loadScenarioHistory(1);
-            });
-        }
-        if (keywordInput) {
-            keywordInput.addEventListener('input', function () {
-                window.clearTimeout(searchTimer);
-                searchTimer = window.setTimeout(function () {
-                    loadScenarioHistory(1);
-                }, 300);
             });
         }
 
@@ -369,6 +362,7 @@
         const rows = document.querySelector('[data-mypage-inquiry-rows]');
         const statusFilter = document.getElementById('mypageInquiryStatus');
         const searchInput = document.getElementById('mypageInquirySearch');
+        const searchForm = document.querySelector('[data-mypage-inquiry-search-form]');
         const totalElement = document.querySelector('[data-mypage-inquiry-total]');
         const pagination = document.querySelector('[data-mypage-inquiry-pagination]');
 
@@ -378,6 +372,8 @@
 
         let inquiryItems = [];
         let currentPage = 1;
+        let appliedInquiryStatus = '';
+        let appliedInquiryKeyword = '';
         const pageSize = MY_PAGE_SIZE;
 
         function showMessage(message, isError) {
@@ -389,10 +385,8 @@
         }
 
         function getFilteredItems() {
-            const selectedStatus = statusFilter ? statusFilter.value : '';
-            const keyword = searchInput
-                ? searchInput.value.trim().toLocaleLowerCase()
-                : '';
+            const selectedStatus = appliedInquiryStatus;
+            const keyword = appliedInquiryKeyword.toLocaleLowerCase();
 
             return inquiryItems.filter(function (item) {
                 const statusMatches = !selectedStatus || item.qnaStatus === selectedStatus;
@@ -671,14 +665,11 @@
             openModal('#mypageInquiryViewModal');
         });
 
-        if (statusFilter) {
-            statusFilter.addEventListener('change', function () {
-                currentPage = 1;
-                render();
-            });
-        }
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
+        if (searchForm) {
+            searchForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                appliedInquiryStatus = statusFilter ? statusFilter.value : '';
+                appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
                 currentPage = 1;
                 render();
             });

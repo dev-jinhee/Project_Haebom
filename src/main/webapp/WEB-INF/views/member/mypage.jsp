@@ -55,7 +55,7 @@
                             진행 중인 내역은 마지막 저장일로부터 30일이 지나면 자동 삭제됩니다. 완료한 내역은 자동 삭제되지 않습니다.
                         </p>
                     </div>
-                    <form class="mypage-history-search" data-scenario-history-search-form role="search">
+                    <form class="mypage-history-search mypage-search-form" data-scenario-history-search-form role="search">
                         <label class="visually-hidden" for="mypageHistoryKeyword">시나리오 제목 검색</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text" aria-hidden="true">
@@ -63,6 +63,7 @@
                             </span>
                             <input class="form-control" id="mypageHistoryKeyword"
                                    type="search" maxlength="100" placeholder="시나리오 제목 검색">
+                            <button class="btn btn-primary" type="submit">검색</button>
                         </div>
                     </form>
                 </div>
@@ -83,7 +84,7 @@
             <div class="content-panel mypage-inquiries-panel">
                 <div class="panel-heading mypage-inquiries-toolbar">
                     <h2 id="inquiriesTitle">내 문의 내역</h2>
-                    <div class="mypage-inquiry-controls">
+                    <form class="mypage-inquiry-controls mypage-search-form" data-mypage-inquiry-search-form role="search">
                         <label class="visually-hidden" for="mypageInquiryStatus">문의 상태</label>
                         <select class="form-select form-select-sm" id="mypageInquiryStatus">
                             <option value="">전체 상태</option>
@@ -98,8 +99,9 @@
                             </span>
                             <input class="form-control" id="mypageInquirySearch"
                                    type="search" placeholder="문의 검색">
+                            <button class="btn btn-primary" type="submit">검색</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
 
                 <div class="mypage-inquiry-list" data-mypage-inquiry-rows aria-live="polite">
