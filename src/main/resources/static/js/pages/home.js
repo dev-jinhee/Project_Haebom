@@ -837,6 +837,7 @@
       administrativeCenterMap = new google.maps.Map(mapElement, {
         center: { lat: 36.5, lng: 127.8 },
         zoom: 7,
+        gestureHandling: 'cooperative',
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: true

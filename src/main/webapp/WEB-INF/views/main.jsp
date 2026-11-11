@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v29-full-bleed-footer" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v32-natural-policy-scroll" rel="stylesheet">
 
 </head>
 <body>
@@ -144,39 +144,39 @@
 
     <section id="policy-search-section" class="home-panel policy-home-panel" aria-labelledby="policy-search-title">
         <div class="container home-panel-inner">
-        <section class="policy-panel">
-            <h2 id="policy-search-title">공공서비스 정책 검색</h2>
-            <p class="policy-search-intro">정책명이나 서비스명을 입력해 정부24 공공서비스를 검색해보세요.</p>
+            <section class="policy-panel">
+                <h2 id="policy-search-title">공공서비스 정책 검색</h2>
+                <p class="policy-search-intro">정책명이나 서비스명을 입력해 정부24 공공서비스를 검색해보세요.</p>
 
-            <form id="policySearchForm"
-                  class="policy-search-form"
-                  action="${pageContext.request.contextPath}/api/main/policies"
-                  method="get"
-                  role="search">
-                <label class="visually-hidden" for="policySearchInput">정책명 또는 검색어</label>
-                <div class="input-group">
-                    <input id="policySearchInput" name="keyword" class="form-control" type="search"
-                           placeholder="예: 월세 지원" autocomplete="off">
-                    <button class="btn btn-primary" type="submit">검색</button>
+                <form id="policySearchForm"
+                      class="policy-search-form"
+                      action="${pageContext.request.contextPath}/api/main/policies"
+                      method="get"
+                      role="search">
+                    <label class="visually-hidden" for="policySearchInput">정책명 또는 검색어</label>
+                    <div class="input-group">
+                        <input id="policySearchInput" name="keyword" class="form-control" type="search"
+                               placeholder="예: 월세 지원" autocomplete="off">
+                        <button class="btn btn-primary" type="submit">검색</button>
+                    </div>
+                </form>
+
+                <div id="policySearchCategories" class="policy-search-categories"
+                     role="group" aria-label="정책 분야 선택">
+                    <button type="button" class="policy-category-button active"
+                            data-policy-category="ALL" aria-pressed="true">전체</button>
                 </div>
-            </form>
 
-            <div id="policySearchCategories" class="policy-search-categories"
-                 role="group" aria-label="정책 분야 선택">
-                <button type="button" class="policy-category-button active"
-                        data-policy-category="ALL" aria-pressed="true">전체</button>
-            </div>
-
-            <p id="policySearchMessage" class="small text-secondary mt-3 mb-2"
-               role="status" aria-live="polite"></p>
-            <div id="policySearchResults" class="policy-search-results d-none"
-                 aria-live="polite"></div>
-            <nav class="policy-search-pagination-wrap" aria-label="정책 검색 결과 페이지">
-                <ul id="policySearchPagination" class="pagination justify-content-center"></ul>
-            </nav>
-        </section>
-        <jsp:include page="/WEB-INF/views/common/footer.jsp" />
+                <p id="policySearchMessage" class="small text-secondary mt-3 mb-2"
+                   role="status" aria-live="polite"></p>
+                <div id="policySearchResults" class="policy-search-results d-none"
+                     aria-live="polite"></div>
+                <nav class="policy-search-pagination-wrap" aria-label="정책 검색 결과 페이지">
+                    <ul id="policySearchPagination" class="pagination justify-content-center"></ul>
+                </nav>
+            </section>
         </div>
+        <jsp:include page="/WEB-INF/views/common/footer.jsp" />
     </section>
 
     <nav class="home-section-dots" aria-label="메인 영역 이동">
