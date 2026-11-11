@@ -38,11 +38,12 @@
 		WHERE progress_status = 'COMPLETED'
 	</select>
 
-	<!-- 5. 답변 대기 중인 문의 건수 -->
+	<!-- 5. 답변 대기/중(미완료) 문의 건수 -->
 	<select id="selectWaitingInquiryCount" resultType="int">
 		SELECT COUNT(*)
 		FROM qna
-		WHERE qna_status = 'WAITING'
+		WHERE is_deleted = 0
+		  AND qna_status IN ('WAITING', 'ANSWERING')
 	</select>
 
 		<!-- 6. 기간별 연습 시작 건수 집계 -->

@@ -109,16 +109,15 @@ public class InquiryApiController {
 		return ResponseEntity.ok("답변이 성공적으로 등록되었습니다.");
 	}
 
-	// 7. 관리자 문의 상태 및 분류 변경 (PUT /api/inquiries/{qnaId}/status)
+	// 7. 관리자 문의 상태 변경 (PUT /api/inquiries/{qnaId}/status)
 	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/{qnaId}/status")
 	public ResponseEntity<String> updateStatus(
 			@PathVariable("qnaId") Integer qnaId, 
-			@RequestParam(value = "qnaCategoryId", required = false) Integer categoryId, 
 			@RequestParam(value = "qnaStatus", required = false) String status,
 			@AuthenticationPrincipal MemberPrincipal memberPrincipal) {	
 		PrincipalUtils.requireAdminId(memberPrincipal);
-		qnaService.updateInquiryStatusAndCategory(qnaId, categoryId, status);
+		qnaService.updateInquiryStatus(qnaId, status);
 		return ResponseEntity.ok("문의 상태가 성공적으로 변경되었습니다.");
 	}
 

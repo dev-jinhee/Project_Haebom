@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import kr.co.oti.haebom.business.admin.dto.AdminScenarioCategoryDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDetailStatsDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioStepStatsDTO;
@@ -22,22 +25,37 @@ public class AdminScenarioService {
 
 	private final AdminScenarioMapper adminScenarioMapper;
 	private final AdminDashboardService adminDashboardService;
+	private final MessageSource messageSource;
 
-	// 1. 전체 시나리오 목록 조회 (한글 카테고리 라벨 매핑)
+	// 1. 전체 시나리오 목록 조회 (messages.properties 기반 한글 카테고리 라벨 매핑)
 	public List<AdminScenarioDTO> getScenarioList() {
 		List<AdminScenarioDTO> list = adminScenarioMapper.selectScenarioList();
 
 		for (AdminScenarioDTO dto : list) {
-			if ("HOUSING".equals(dto.getCategoryName())) {
-				dto.setCategoryLabel("주거·이사");
-			} else if ("IDENTITY".equals(dto.getCategoryName())) {
-				dto.setCategoryLabel("신분증·주민등록");
-			} else {
-				dto.setCategoryLabel(dto.getCategoryName());
-			}
+			dto.setCategoryLabel(resolveCategoryLabel(dto.getCategoryName()));
 		}
 
 		return list;
+	}
+
+	// 1-1. 전체 시나리오 카테고리 목록 조회 (category 테이블 + 한글 라벨 매핑)
+	public List<AdminScenarioCategoryDTO> getCategoryList() {
+		List<AdminScenarioCategoryDTO> categories = adminScenarioMapper.selectCategoryList();
+		for (AdminScenarioCategoryDTO category : categories) {
+			category.setCategoryLabel(resolveCategoryLabel(category.getCategoryName()));
+		}
+		return categories;
+	}
+
+	private String resolveCategoryLabel(String categoryName) {
+		if (categoryName == null || categoryName.isBlank()) {
+			return "기타";
+		}
+		return messageSource.getMessage(
+				"category." + categoryName,
+				null,
+				categoryName,
+				LocaleContextHolder.getLocale());
 	}
 
 	// 2. 시나리오 정보 수정
@@ -54,6 +72,9 @@ public class AdminScenarioService {
 		}
 		if (scenarioDTO.getCategoryId() == null || scenarioDTO.getCategoryId() <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "시나리오 카테고리를 선택해주세요.");
+		}
+		if (adminScenarioMapper.countCategoryById(scenarioDTO.getCategoryId()) <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "존재하지 않는 시나리오 카테고리입니다.");
 		}
 		if (scenarioDTO.getEstimatedMinutes() == null || scenarioDTO.getEstimatedMinutes() <= 0) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "예상 소요시간은 1분 이상이어야 합니다.");

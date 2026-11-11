@@ -20,6 +20,9 @@ import org.springframework.web.server.ResponseStatusException;
 import kr.co.oti.haebom.business.admin.dto.AdminMemberDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminMemberProgressDTO;
 import kr.co.oti.haebom.business.admin.mapper.AdminMemberMapper;
+import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
+import kr.co.oti.haebom.business.scenario.mapper.SimulationFamilyMapper;
+import kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper;
 import kr.co.oti.haebom.system.component.POI;
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +35,9 @@ public class AdminMemberService {
 
 	private final AdminMemberMapper adminMemberMapper;
 	private final AdminDashboardService adminDashboardService;
+	private final SimulationAnswerMapper simulationAnswerMapper;
+	private final SimulationFamilyMapper simulationFamilyMapper;
+	private final SimulationProgressMapper simulationProgressMapper;
 	private final POI poi; 
 	
 	// 1. 전체 회원 목록 조회 (읽기 전용)
@@ -39,7 +45,7 @@ public class AdminMemberService {
 		return adminMemberMapper.selectMemberList();
 	}
 	
-	// 2. 회원 상태 변경 (DB 수정이므로 @Transactional 적용)
+	// 2. 회원 상태 변경 (탈퇴 회원은 변경 불가 / 탈퇴 전환 시 개인정보·연습 기록 파기)
 	@Transactional
 	public void updateMemberStatus(Integer memberId, String memberStatus, int currentAdminId) {
 		if (currentAdminId <= 0) {
@@ -56,9 +62,27 @@ public class AdminMemberService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않은 회원 상태입니다.");
 		}
 
-		int updatedRows = adminMemberMapper.updateMemberStatus(memberId, normalizedStatus);
-		if (updatedRows != 1) {
+		String currentStatus = adminMemberMapper.selectMemberStatusById(memberId);
+		if (currentStatus == null) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않거나 변경할 수 없는 회원입니다.");
+		}
+		if ("WITHDRAWN".equalsIgnoreCase(currentStatus)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 탈퇴한 회원의 상태는 변경할 수 없습니다.");
+		}
+
+		int updatedRows;
+		if ("WITHDRAWN".equals(normalizedStatus)) {
+			// 직접 탈퇴(MyPageService.withdraw)와 동일하게 연습 데이터 + 개인정보 파기
+			simulationAnswerMapper.deleteAnswerByMemberId(memberId);
+			simulationFamilyMapper.deleteFamilyByMemberId(memberId);
+			simulationProgressMapper.deleteProgressByMemberId(memberId);
+			updatedRows = adminMemberMapper.withdrawMemberById(memberId);
+		} else {
+			updatedRows = adminMemberMapper.updateMemberStatus(memberId, normalizedStatus);
+		}
+
+		if (updatedRows != 1) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 탈퇴했거나 상태를 변경할 수 없는 회원입니다.");
 		}
 		adminDashboardService.recordActivity(currentAdminId, "MEMBER", "UPDATE", memberId);
 	}

@@ -20,12 +20,37 @@
 		ORDER BY member_id DESC
 	</select>
 	
-	<!-- 2. 회원 상태 변경 (정상 / 이용정지 / 탈퇴) -->
+	<!-- 1-1. 상태 변경 전 대상 회원 현재 상태 조회 -->
+	<select id="selectMemberStatusById" resultType="string">
+		SELECT member_status
+		FROM member
+		WHERE member_id = #{memberId}
+		  AND role != 'ADMIN'
+	</select>
+
+	<!-- 2. 회원 상태 변경 (정상 / 이용정지 — 이미 탈퇴한 회원은 변경 불가) -->
 	<update id="updateMemberStatus">
 		UPDATE member
 		SET member_status = #{memberStatus}
 		WHERE member_id = #{memberId}
 		  AND role != 'ADMIN'
+		  AND member_status != 'WITHDRAWN'
+	</update>
+
+	<!-- 2-1. 관리자 회원 탈퇴 처리 (직접 탈퇴와 동일하게 개인정보 NULL 파기 + 탈퇴 일시 기록) -->
+	<update id="withdrawMemberById">
+		UPDATE member
+		SET login_id = NULL,
+			password = NULL,
+			email = NULL,
+			member_name = NULL,
+			birth_date = NULL,
+			gender = NULL,
+			member_status = 'WITHDRAWN',
+			withdrawn_at = CURRENT_TIMESTAMP
+		WHERE member_id = #{memberId}
+		  AND role != 'ADMIN'
+		  AND member_status != 'WITHDRAWN'
 	</update>
 	
 	<!-- 3. 특정 회원의 시뮬레이션 진행/완료 내역 조회 -->
@@ -54,9 +79,11 @@
 				ELSE NULL
 			END AS expire_date
 		FROM simulation_progress sp
+		JOIN member m ON sp.member_id = m.member_id
 		JOIN scenario s ON sp.scenario_id = s.scenario_id
 		LEFT JOIN scenario_step ss ON sp.step_id = ss.step_id
 		WHERE sp.member_id = #{memberId}
+		  AND m.member_status != 'WITHDRAWN'
 		  AND sp.progress_status != 'DELETED'
 		ORDER BY sp.scenario_id ASC, sp.progress_id DESC
 	</select>

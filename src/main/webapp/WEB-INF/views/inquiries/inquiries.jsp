@@ -61,6 +61,10 @@
                     <span>답변 대기<strong data-inquiry-waiting>0건</strong></span>
                 </div>
                 <div class="d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined text-primary" style="font-size: 1.25rem;">pending</span>
+                    <span>답변 중<strong data-inquiry-answering>0건</strong></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
                     <span class="material-symbols-outlined text-success" style="font-size: 1.25rem;">check_circle</span>
                     <span>답변 완료<strong data-inquiry-answered>0건</strong></span>
                 </div>
@@ -110,6 +114,7 @@
                     <select class="form-select form-select-sm" id="inquiryStatusFilter" aria-label="문의 상태 필터">
                         <option value="">전체 상태</option>
                         <option value="WAITING">답변 대기</option>
+                        <option value="ANSWERING">답변 중</option>
                         <option value="ANSWERED">답변 완료</option>
                     </select>
                     <!-- 검색창 -->
@@ -256,10 +261,10 @@
                 <div class="modal-footer px-4 pb-4 pt-2 border-top-0 d-flex flex-wrap justify-content-between gap-2">
 				    <%-- 왼쪽: 수정 및 삭제 버튼 --%>
 				    <div class="d-flex gap-2">
-				        <button type="button" class="btn btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center" id="btnEditInquiry">
+				        <button type="button" class="btn btn-outline-primary rounded-pill px-3 align-items-center d-none" id="btnEditInquiry" hidden>
 				            <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">edit</span>수정
 				        </button>
-				        <button type="button" class="btn btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center" id="btnDeleteInquiry">
+				        <button type="button" class="btn btn-outline-danger rounded-pill px-3 align-items-center d-none" id="btnDeleteInquiry" hidden>
 				            <span class="material-symbols-outlined me-1" style="font-size: 1.15rem;">delete</span>삭제
 				        </button>
 				    </div>

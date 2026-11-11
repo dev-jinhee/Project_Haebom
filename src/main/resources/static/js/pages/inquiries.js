@@ -42,10 +42,62 @@
   let currentPage = 1;
   let inquiryListCache = []; // 서버에서 받아온 원본 전체 문의 목록
   let currentTab = 'all'; // 'all' (전체 문의) | 'my' (내 문의 내역)
-  let currentStatusFilter = ''; // '' (전체) | 'WAITING' | 'ANSWERED'
+  let currentStatusFilter = ''; // '' (전체) | 'WAITING' | 'ANSWERING' | 'ANSWERED'
   let currentSearchKeyword = '';
   let currentViewQnaId = null; // 현재 상세 모달에서 보고 있는 문의글 ID
   let editingQnaId = null; // 수정 중인 문의글 ID (null이면 새 글 작성 모드)
+
+  // 작성자 본인 여부 및 수정/삭제 가능 여부 공통 판별
+  const isMyPostItem = (item) => Boolean(
+    isLoggedIn &&
+    loginUserId !== null &&
+    !Number.isNaN(loginUserId) &&
+    item &&
+    item.memberId !== null &&
+    item.memberId !== undefined &&
+    Number(item.memberId) === loginUserId
+  );
+
+  const canEditInquiryItem = (item) => (
+    isMyPostItem(item) &&
+    String(item?.qnaStatus || '').trim().toUpperCase() === 'WAITING'
+  );
+
+  const canDeleteInquiryItem = (item) => isMyPostItem(item);
+
+  // Bootstrap .d-inline-flex (!important) 충돌 없이 모달 액션 버튼 표시/숨김 제어
+  const setModalActionButtonVisible = (button, visible) => {
+    if (!button) return;
+    button.hidden = !visible;
+    button.disabled = !visible;
+    button.classList.toggle('d-none', !visible);
+    button.classList.toggle('d-inline-flex', visible);
+    button.style.display = visible ? '' : 'none';
+  };
+
+  const notify = (msg) => {
+    if (window.Haebom && typeof window.Haebom.toast === 'function') {
+      window.Haebom.toast(msg);
+    } else if (typeof haebomAlert === 'function') {
+      haebomAlert(msg);
+    } else {
+      alert(msg);
+    }
+  };
+
+  const readErrorMessage = async (response, fallback) => {
+    try {
+      const text = await response.text();
+      if (!text) return fallback;
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed.message === 'string' && parsed.message.trim()) {
+        return parsed.message.trim();
+      }
+      return fallback;
+    } catch (_e) {
+      return fallback;
+    }
+  };
 
   // 1. 현재 탭, 상태 필터, 검색어 조건에 맞춘 필터링 목록 구하기
   const getFilteredList = () => {
@@ -53,11 +105,10 @@
 
     // 1) 탭 필터 (전체 vs 내 문의)
     if (currentTab === 'my') {
-      if (!isLoggedIn || !loginUserId) return [];
-      list = list.filter(item => item.memberId === loginUserId);
+      list = list.filter(isMyPostItem);
     }
 
-    // 2) 상태 필터 (WAITING / ANSWERED)
+    // 2) 상태 필터 (WAITING / ANSWERING / ANSWERED)
     if (currentStatusFilter) {
       list = list.filter(item => item.qnaStatus === currentStatusFilter);
     }
@@ -76,11 +127,11 @@
 
   // 2. 상단 요약 바 및 탭 뱃지 카운트 갱신
   const updateSummaryCounters = () => {
+    const myList = inquiryListCache.filter(isMyPostItem);
+
     // 탭 뱃지 개수 업데이트
     const allCount = inquiryListCache.length;
-    const myCount = (isLoggedIn && loginUserId)
-      ? inquiryListCache.filter(item => item.memberId === loginUserId).length
-      : 0;
+    const myCount = myList.length;
 
     const badgeAll = document.getElementById('badgeAllCount');
     const badgeMy = document.getElementById('badgeMyCount');
@@ -111,26 +162,25 @@
       }
     }
 
-    // 내 문의 현황 수치 업데이트 (내 문의 탭용)
-    const myList = (isLoggedIn && loginUserId)
-      ? inquiryListCache.filter(item => item.memberId === loginUserId)
-      : [];
-
     const totalEl = document.querySelector('[data-inquiry-total]');
     const waitingEl = document.querySelector('[data-inquiry-waiting]');
+    const answeringEl = document.querySelector('[data-inquiry-answering]');
     const answeredEl = document.querySelector('[data-inquiry-answered]');
 
     if (!isLoggedIn) {
       if (totalEl) totalEl.textContent = '-건';
       if (waitingEl) waitingEl.textContent = '-건';
+      if (answeringEl) answeringEl.textContent = '-건';
       if (answeredEl) answeredEl.textContent = '-건';
     } else {
       const total = myList.length;
       const waiting = myList.filter(i => i.qnaStatus === 'WAITING').length;
+      const answering = myList.filter(i => i.qnaStatus === 'ANSWERING').length;
       const answered = myList.filter(i => i.qnaStatus === 'ANSWERED').length;
 
       if (totalEl) totalEl.textContent = `${total}건`;
       if (waitingEl) waitingEl.textContent = `${waiting}건`;
+      if (answeringEl) answeringEl.textContent = `${answering}건`;
       if (answeredEl) answeredEl.textContent = `${answered}건`;
     }
   };
@@ -227,12 +277,14 @@
     tbody.innerHTML = pagedList.map(qna => {
       const categoryText = qna.qnaCategoryName || categoryNames[qna.qnaCategoryId] || `카테고리 ${qna.qnaCategoryId}`;
       const dateText = qna.qnaCreatedAt ? String(qna.qnaCreatedAt).substring(0, 10).replace(/-/g, '.') : '';
-      const isAnswered = qna.qnaStatus === 'ANSWERED';
-      const statusBadge = isAnswered
-        ? '<span class="badge rounded-pill text-bg-success-subtle text-success">답변 완료</span>'
-        : '<span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis">답변 대기</span>';
+      let statusBadge = '<span class="badge rounded-pill text-bg-warning-subtle text-warning-emphasis">답변 대기</span>';
+      if (qna.qnaStatus === 'ANSWERED') {
+        statusBadge = '<span class="badge rounded-pill text-bg-success-subtle text-success">답변 완료</span>';
+      } else if (qna.qnaStatus === 'ANSWERING') {
+        statusBadge = '<span class="badge rounded-pill text-bg-primary-subtle text-primary">답변 중</span>';
+      }
 
-      const isMine = (isLoggedIn && loginUserId && qna.memberId === loginUserId);
+      const isMine = isMyPostItem(qna);
       const isAccessible = isMine || isAdmin;
       const isSecret = Boolean(qna.isSecret);
 
@@ -367,9 +419,13 @@
   });
 
   // 11. 관리자 답변 목록 불러오기 (사용자 화면용)
-  const loadUserInquiryAnswers = async (qnaId) => {
+  const loadUserInquiryAnswers = async (qnaId, status) => {
     const listEl = document.getElementById('inquiryAnswerList');
     if (!listEl) return;
+    if (!isLoggedIn && status === 'ANSWERING') {
+      listEl.innerHTML = '<div class="p-3 text-secondary small bg-light rounded-3">담당자가 문의를 확인하고 답변을 작성 중입니다.</div>';
+      return;
+    }
     listEl.innerHTML = '<div class="p-3 text-secondary small bg-light rounded-3">답변을 불러오는 중입니다...</div>';
 
     try {
@@ -378,7 +434,10 @@
       const answers = await res.json();
 
       if (!answers || answers.length === 0) {
-        listEl.innerHTML = '<div class="p-3 text-secondary small bg-light rounded-3">등록된 답변이 없습니다.</div>';
+        const emptyText = status === 'ANSWERING'
+          ? '담당자가 문의를 확인하고 답변을 작성 중입니다.'
+          : '등록된 답변이 없습니다.';
+        listEl.innerHTML = `<div class="p-3 text-secondary small bg-light rounded-3">${emptyText}</div>`;
         return;
       }
 
@@ -418,7 +477,7 @@
     currentViewQnaId = data.qnaId;
     
     // 🔒 비밀글 접근 제어: 본인 글이나 관리자가 아닌 경우 상세 모달 열기 차단!
-    const isMyPost = (isLoggedIn && loginUserId && (data.memberId === loginUserId));
+    const isMyPost = isMyPostItem(data);
     if (data.isSecret && !isMyPost && !isAdmin) {
       if (window.Haebom && typeof window.Haebom.toast === 'function') {
         window.Haebom.toast('🔒 비밀글은 작성자와 관리자만 열람할 수 있습니다.');
@@ -443,7 +502,14 @@
       statusBadge.textContent = '답변 완료';
       if (answerSection) {
         answerSection.style.display = 'block';
-        loadUserInquiryAnswers(data.qnaId);
+        loadUserInquiryAnswers(data.qnaId, data.qnaStatus);
+      }
+    } else if (data.qnaStatus === 'ANSWERING') {
+      statusBadge.className = 'badge rounded-pill text-bg-primary-subtle text-primary';
+      statusBadge.textContent = '답변 중';
+      if (answerSection) {
+        answerSection.style.display = 'block';
+        loadUserInquiryAnswers(data.qnaId, data.qnaStatus);
       }
     } else {
       statusBadge.className = 'badge rounded-pill text-bg-warning-subtle text-warning-emphasis';
@@ -451,23 +517,20 @@
       if (answerSection) answerSection.style.display = 'none';
     }
 
-    // ⭐ 권한 제어: 내가 작성한 글인지 검증! (비로그인이나 타인 글이면 수정/삭제 숨김)
+    // ⭐ 권한 및 상태 제어: 타인 글은 수정/삭제 모두 숨김, 본인 글이라도 답변 중·완료는 수정 버튼 완전 숨김
     const editBtn = document.getElementById('btnEditInquiry');
     const deleteBtn = document.getElementById('btnDeleteInquiry');
-
-    if (isMyPost) {
-      if (deleteBtn) deleteBtn.style.display = 'inline-block';
-      if (editBtn) {
-        // 답변 완료된 글은 수정 불가, 답변 대기일 때만 수정 가능
-        editBtn.style.display = (data.qnaStatus === 'ANSWERED' ? 'none' : 'inline-block');
-      }
-    } else {
-      // 남의 글이면 수정/삭제 버튼 완전 숨김!
-      if (deleteBtn) deleteBtn.style.display = 'none';
-      if (editBtn) editBtn.style.display = 'none';
-    }
+    setModalActionButtonVisible(editBtn, canEditInquiryItem(data));
+    setModalActionButtonVisible(deleteBtn, canDeleteInquiryItem(data));
 
     openModal('#inquiryViewModal');
+  });
+
+  // 상세 모달 닫힐 때 이전 글 ID와 액션 버튼 상태 초기화
+  document.getElementById('inquiryViewModal')?.addEventListener('hidden.bs.modal', () => {
+    currentViewQnaId = null;
+    setModalActionButtonVisible(document.getElementById('btnEditInquiry'), false);
+    setModalActionButtonVisible(document.getElementById('btnDeleteInquiry'), false);
   });
 
   // 페이지 열리자마자 바로 DB 데이터 불러오기! 🚀
@@ -485,16 +548,6 @@
         qnaContent: document.getElementById('inquiryBody').value.trim(),
         isSecret: document.getElementById('inquiryIsSecret')?.checked || false
       };
-      
-      const notify = (msg) => {
-        if (window.Haebom && typeof window.Haebom.toast === 'function') {
-          window.Haebom.toast(msg);
-        } else if (typeof haebomAlert === 'function') {
-          haebomAlert(msg);
-        } else {
-          alert(msg);
-        }
-      };
 
       if (!formData.qnaTitle || !formData.qnaContent) {
         if (typeof haebomWarn === 'function') {
@@ -506,18 +559,25 @@
       }
       
       const isEdit = !!editingQnaId;
+      if (isEdit) {
+        const target = inquiryListCache.find(item => String(item.qnaId) === String(editingQnaId));
+        if (target && !canEditInquiryItem(target)) {
+          notify('답변 대기 상태인 본인 문의글만 수정할 수 있습니다.');
+          return;
+        }
+      }
+
       const url = isEdit ? `/api/inquiries/${editingQnaId}` : '/api/inquiries';
       const method = isEdit ? 'PUT' : 'POST';
       
       try {
-		const params = new URLSearchParams(formData);
-		
+        const params = new URLSearchParams(formData);
         const response = await fetch(url, {
           method: method,
           body: params
         });
         if (!response.ok) {
-          throw new Error(isEdit ? '문의 수정에 실패했습니다.' : '문의 등록에 실패했습니다.');
+          throw new Error(await readErrorMessage(response, isEdit ? '문의 수정에 실패했습니다.' : '문의 등록에 실패했습니다.'));
         }
         notify(isEdit ? '문의가 성공적으로 수정되었습니다!' : '문의가 성공적으로 등록되었습니다!');
         
@@ -532,7 +592,7 @@
         loadInquiries();
       } catch (error) {
         console.error('요청 실패:', error);
-        notify(isEdit ? '수정 중 오류가 발생했습니다.' : '등록 중 오류가 발생했습니다.');
+        notify(error.message || (isEdit ? '수정 중 오류가 발생했습니다.' : '등록 중 오류가 발생했습니다.'));
       }
     });
   }
@@ -542,11 +602,14 @@
     if (!currentViewQnaId) return;
 
     const data = inquiryListCache.find(item => String(item.qnaId) === String(currentViewQnaId));
-    if (!data) return;
-
-    closeModal('#inquiryViewModal');
+    if (!data || !canEditInquiryItem(data)) {
+      notify('답변 대기 상태인 본인 문의글만 수정할 수 있습니다.');
+      return;
+    }
 
     editingQnaId = data.qnaId;
+
+    closeModal('#inquiryViewModal');
 
     document.getElementById('inquiryCategory').value = data.qnaCategoryId;
     document.getElementById('inquiryTitle').value = typeof decodeHtml === 'function' ? decodeHtml(data.qnaTitle) : (data.qnaTitle || '');
@@ -566,24 +629,22 @@
   document.getElementById('btnDeleteInquiry')?.addEventListener('click', () => {
     if (!currentViewQnaId) return;
 
-    const notify = (msg) => {
-      if (window.Haebom && typeof window.Haebom.toast === 'function') {
-        window.Haebom.toast(msg);
-      } else if (typeof haebomAlert === 'function') {
-        haebomAlert(msg);
-      } else {
-        alert(msg);
-      }
-    };
+    const data = inquiryListCache.find(item => String(item.qnaId) === String(currentViewQnaId));
+    if (!data || !canDeleteInquiryItem(data)) {
+      notify('작성자 본인만 삭제할 수 있습니다.');
+      return;
+    }
+
+    const targetQnaId = data.qnaId;
 
     const doDelete = async () => {
       try {
-        const response = await fetch(`/api/inquiries/${currentViewQnaId}`, {
+        const response = await fetch(`/api/inquiries/${targetQnaId}`, {
           method: 'DELETE'
         });
 
         if (!response.ok) {
-          throw new Error('삭제 실패');
+          throw new Error(await readErrorMessage(response, '삭제에 실패했습니다.'));
         }
 
         notify('문의글이 삭제되었습니다.');
@@ -592,7 +653,7 @@
 
       } catch (error) {
         console.error('삭제 오류:', error);
-        notify('삭제 중 오류가 발생했습니다.');
+        notify(error.message || '삭제 중 오류가 발생했습니다.');
       }
     };
 

@@ -4,7 +4,7 @@
 
 -- 1. 시나리오 카테고리
 INSERT INTO category (category_name)
-VALUES ('HOUSING'), ('IDENTITY');
+VALUES ('HOUSING'), ('IDENTITY'), ('FAMILY_WELFARE'), ('EMPLOYMENT_ECONOMY'), ('TAX_PAYMENT');
 
 -- 2. 전입신고 시나리오
 INSERT INTO scenario (
