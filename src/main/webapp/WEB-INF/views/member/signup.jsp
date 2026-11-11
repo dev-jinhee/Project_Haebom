@@ -39,15 +39,15 @@
 
     <ol class="member-signup-stepper" aria-label="회원가입 진행 단계">
         <li class="is-active" data-signup-step-label="0" aria-current="step">
-            <span class="member-signup-step-number">1</span>
+            <span class="member-signup-step-number" aria-hidden="true"></span>
             <span><small>1단계</small><strong>약관동의</strong></span>
         </li>
         <li data-signup-step-label="1">
-            <span class="member-signup-step-number">2</span>
+            <span class="member-signup-step-number" aria-hidden="true"></span>
             <span><small>2단계</small><strong>회원정보입력</strong></span>
         </li>
         <li data-signup-step-label="2">
-            <span class="member-signup-step-number">3</span>
+            <span class="member-signup-step-number" aria-hidden="true"></span>
             <span><small>3단계</small><strong>회원가입완료</strong></span>
         </li>
     </ol>
