@@ -108,13 +108,14 @@ public class MyPageApiController {
 			@AuthenticationPrincipal MemberPrincipal principal,
 			@RequestParam(required = false) Integer scenarioId,
 			@RequestParam(defaultValue = "") String keyword,
+			@RequestParam(defaultValue = "ALL") String status,
 			@RequestParam(defaultValue = "1") int page) {
 		    
 		if (principal == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
 		}
 		
-		return myPageService.getScenarioHistory(principal.getMemberId(), scenarioId, keyword, page);
+		return myPageService.getScenarioHistory(principal.getMemberId(), scenarioId, keyword, status, page);
 		
 		}
 }

@@ -1,6 +1,7 @@
 package kr.co.oti.haebom.business.inquiry.service;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -110,18 +111,23 @@ public class MyPageService {
 	}
 	
 	public MyPageScenarioHistoryPageDTO getScenarioHistory(
-	        Integer memberId, Integer scenarioId, String keyword, int requestedPage) {
+	        Integer memberId, Integer scenarioId, String keyword, String status, int requestedPage) {
 	    
 		int page = Math.max(requestedPage, 1);
 	    int size = SCENARIO_HISTORY_PAGE_SIZE;
 	    int offset = (page - 1) * size;
 	    String normalizedKeyword = keyword == null ? "" : keyword.trim();
+	    String normalizedStatus = status == null ? "ALL" : status.trim().toUpperCase(Locale.ROOT);
+	    if (!"IN_PROGRESS".equals(normalizedStatus) && !"COMPLETED".equals(normalizedStatus)) {
+	        normalizedStatus = "ALL";
+	    }
+	    String statusFilter = "ALL".equals(normalizedStatus) ? null : normalizedStatus;
 
 	    List<MyPageScenarioHistoryDTO> items = myPageMapper.selectScenarioHistory(
-	            memberId, scenarioId, normalizedKeyword, size, offset);
+	            memberId, scenarioId, normalizedKeyword, statusFilter, size, offset);
 	    
 	    long totalCount = myPageMapper.countScenarioHistory(
-	            memberId, scenarioId, normalizedKeyword);
+	            memberId, scenarioId, normalizedKeyword, statusFilter);
 
 	    for (MyPageScenarioHistoryDTO item : items) {
 	        String label = messageSource.getMessage(
