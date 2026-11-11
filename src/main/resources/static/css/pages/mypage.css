@@ -11,6 +11,11 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-history-search { flex:0 0 330px; width:330px; max-width:100%; }
 .mypage-history-search .input-group { width:100%; }
 .mypage-history-search .input-group-text { color:#53677b; background:#f8fafc; }
+.mypage-search-form .input-group { overflow:hidden; border:1px solid #dce5ef; border-radius:.75rem; }
+.mypage-search-form .input-group-text { border:0; background:#fff; }
+.mypage-search-form .form-control { min-width:0; border:0; box-shadow:none; }
+.mypage-search-form .form-control:focus { outline:0; box-shadow:none; }
+.mypage-search-form .btn { flex:0 0 auto; border-radius:0; padding-inline:1rem; }
 .mypage-history-list { margin-top:4px; border-top:1px solid #e4eaf0; }
 .mypage-history-item { display:flex; align-items:center; justify-content:space-between; gap:18px; min-height:84px; padding:15px 10px; border-bottom:1px solid #e8edf2; }
 .mypage-history-content { display:grid; min-width:0; gap:8px; }
@@ -39,8 +44,10 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-inquiries-toolbar h2 { margin:0; }
 .mypage-inquiry-controls { display:flex; align-items:center; gap:8px; }
 .mypage-inquiry-controls > .form-select { width:150px; }
-.mypage-inquiry-controls .input-group { width:180px; }
+.mypage-inquiry-controls .input-group { width:330px; }
 .mypage-inquiry-controls .input-group-text { color:#53677b; background:#f8fafc; }
+.mypage-inquiry-controls .input-group { overflow:hidden; border:1px solid #dce5ef; border-radius:.75rem; }
+.mypage-inquiry-controls .input-group-text { border:0; background:#fff; }
 .mypage-inquiry-list { margin-top:4px; border-top:1px solid #e4eaf0; }
 .mypage-inquiry-item { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:14px; min-height:78px; padding:14px 10px; border-bottom:1px solid #e8edf2; transition:background-color .16s ease; }
 .mypage-inquiry-item:hover { background:#f8fafc; }
@@ -80,9 +87,9 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-history-actions { width:100%; justify-content:flex-end; }
     .mypage-history-footer { align-items:center; gap:10px; }
     .mypage-inquiries-toolbar { align-items:stretch; flex-direction:column; }
-    .mypage-inquiry-controls { width:100%; }
-    .mypage-inquiry-controls > .form-select { width:42%; }
-    .mypage-inquiry-controls .input-group { flex:1; min-width:0; }
+    .mypage-inquiry-controls { width:100%; flex-wrap:wrap; }
+    .mypage-inquiry-controls > .form-select { flex:1 1 38%; width:auto; min-width:0; }
+    .mypage-inquiry-controls .input-group { flex:1 1 58%; width:auto; min-width:0; }
     .mypage-inquiry-item { grid-template-columns:minmax(0,1fr) auto; gap:8px; min-height:72px; padding:12px 6px; }
     .mypage-inquiry-title { font-size:.84rem; }
     .mypage-inquiry-metadata { flex-wrap:wrap; gap:5px 8px; font-size:.7rem; }

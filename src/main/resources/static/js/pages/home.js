@@ -1378,39 +1378,18 @@
     }
 
     function renderPagination(page, totalPages) {
-      pagination.replaceChildren();
-      if (totalPages <= 1) return;
-
-      function appendPage(label, targetPage, disabled, active) {
-        const item = document.createElement('li');
-        item.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
-
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'page-link';
-        button.textContent = label;
-        button.disabled = disabled;
-        button.setAttribute('aria-label',
-          label === '이전' || label === '다음' ? label + ' 페이지' : label + ' 페이지로 이동');
-        if (active) button.setAttribute('aria-current', 'page');
-        button.addEventListener('click', function () {
-          loadPolicies(targetPage);
-        });
-
-        item.append(button);
-        pagination.append(item);
-      }
-
-      const firstPage = Math.floor((page - 1) / 10) * 10 + 1;
-      const lastPage = Math.min(firstPage + 9, totalPages);
-      const previousGroupPage = firstPage - 1;
-      const nextGroupPage = lastPage + 1;
-
-      appendPage('이전', previousGroupPage, firstPage === 1, false);
-      for (let number = firstPage; number <= lastPage; number += 1) {
-        appendPage(String(number), number, false, number === page);
-      }
-      appendPage('다음', nextGroupPage, nextGroupPage > totalPages, false);
+      window.renderHaebomPagination({
+        container: pagination,
+        currentPage: page,
+        totalPages: totalPages,
+        groupSize: 10,
+        previousLabel: '이전',
+        nextLabel: '다음',
+        showBoundaryButtons: true,
+        bootstrap: true,
+        hideWhenSinglePage: true,
+        onPageChange: loadPolicies
+      });
     }
 
     policyForm.addEventListener('submit', function (event) {

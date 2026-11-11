@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
+	private static final int SCENARIO_HISTORY_PAGE_SIZE = 10;
 	
 	private final MyPageMapper myPageMapper;
 	private final SimulationAnswerMapper simulationAnswerMapper;
@@ -112,7 +113,7 @@ public class MyPageService {
 	        Integer memberId, Integer scenarioId, String keyword, int requestedPage) {
 	    
 		int page = Math.max(requestedPage, 1);
-	    int size = 5;
+	    int size = SCENARIO_HISTORY_PAGE_SIZE;
 	    int offset = (page - 1) * size;
 	    String normalizedKeyword = keyword == null ? "" : keyword.trim();
 
