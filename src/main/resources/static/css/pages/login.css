@@ -33,7 +33,7 @@
 .account-find-status:empty { display:none; }
 .account-find-status.text-success { color:#16835d; }
 .account-find-status.text-danger { color:#c0392b; }
-.account-find-result { margin-top:24px; padding:22px; border:1px solid #dce9f0; border-radius:16px; background:#f7fbfd; text-align:center; }
+.account-find-result { margin-top:24px; padding:22px 0; border:0; border-radius:0; background:transparent; text-align:center; }
 .account-result-icon { display:grid; width:44px; height:44px; margin:0 auto 10px; place-items:center; border-radius:50%; color:#fff; background:#32836a; font-size:1.25rem; }
 .account-find-result h2 { margin:0 0 5px; font-size:1.12rem; font-weight:800; }
 .account-find-result p { margin:0; color:#718096; font-size:.86rem; }
