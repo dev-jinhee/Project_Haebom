@@ -2,23 +2,35 @@ const catalog = document.getElementById("scenarioCatalog");
 const template = document.getElementById("scenarioCardTemplate");
 const scenarioSearchEmpty = document.getElementById("scenarioSearchEmpty");
 const searchInput = document.getElementById("scenarioSearch");
+const categoryFilters = document.getElementById("scenarioCategoryFilters");
+let selectedCategory = null; // null = 전체
 // 시뮬레이션별 대표 아이콘
 const SIMULATION_ICONS = {
 	MOVE: "home",
 	IDENTITY_REISSUE: "badge",
-	RESIDENT_RECORD_ISSUE:"docs"
+	RESIDENT_RECORD_ISSUE: "docs"
 };
 
 async function loadScenarios() {
 	// API 호출
 	try {
-		const response = await fetch("/api/scenario");
+		const [scenarioResponse, categoryResponse] = await Promise.all([
+			fetch("/api/scenario"),
+			fetch("/api/scenario/categories")
+		]);
 
-		if (!response.ok) {
+		if (!scenarioResponse.ok) {
 			throw new Error("시나리오 목록 조회 실패");
 		}
 
-		const items = await response.json();
+		if (!categoryResponse.ok) {
+			throw new Error("카테고리 목록 조회 실패");
+		}
+
+		const [items, categories] = await Promise.all([
+			scenarioResponse.json(),
+			categoryResponse.json()
+		]);
 
 		// 기존에 생성된 카드 초기화
 		catalog.querySelectorAll(".scenario-item")
@@ -41,6 +53,8 @@ async function loadScenarios() {
 
 			// 시나리오 데이터 적용
 			card.dataset.scenarioId = scenario.scenarioId;
+			// 카테고리 필터링용 영문 코드
+			card.dataset.category = (scenario.categoryName ?? "").trim();
 
 			card.querySelector("[data-scenario-title]").textContent = scenario.scenarioTitle;
 
@@ -151,6 +165,9 @@ async function loadScenarios() {
 			catalog.insertBefore(card, scenarioSearchEmpty);
 		});
 
+		// 카테고리 버튼 생성 및 필터 적용
+		renderCategoryFilters(categories);
+		filterScenarios();
 	} catch (error) {
 		console.error("시나리오 목록 조회 오류:", error);
 	}
@@ -196,10 +213,68 @@ async function deleteProgress(progressId) {
 	}
 }
 
+
+// ==============================
+// 카테고리 필터 버튼 생성
+// ==============================
+function renderCategoryFilters(categories) {
+	if (!categoryFilters) return;
+
+	// DB에서 가져온 카테고리 목록
+	const availableCategories = Array.isArray(categories)
+		? categories.filter(category => category?.categoryName)
+		: [];
+
+	// 삭제된 카테고리가 선택되어 있다면 전체로 변경
+	if (
+		selectedCategory !== null &&
+		!availableCategories.some(
+			category => category.categoryName === selectedCategory
+		)
+	) {
+		selectedCategory = null;
+	}
+
+	// 기존 버튼 초기화
+	categoryFilters.replaceChildren();
+
+	// 전체 + DB 카테고리
+	const options = [
+		{ categoryName: null, categoryLabel: "전체" },
+		...availableCategories
+	];
+
+	options.forEach(({ categoryName, categoryLabel }) => {
+		const button = document.createElement("button");
+
+		button.type = "button";
+		button.className = "scenario-category-button";
+		button.textContent = categoryLabel || categoryName || "전체";
+
+		// 선택된 버튼 활성화
+		const isActive = selectedCategory === categoryName;
+
+		button.classList.toggle("is-active", isActive);
+		button.setAttribute("aria-pressed", String(isActive));
+
+		// 카테고리 선택 이벤트
+		button.addEventListener("click", () => {
+			selectedCategory = categoryName;
+
+			renderCategoryFilters(categories);
+			filterScenarios();
+		});
+
+		categoryFilters.appendChild(button);
+	});
+}
+
+// ==============================
+// 시나리오 검색 및 카테고리 필터링
+// ==============================
 function filterScenarios() {
 	const keyword = searchInput.value.trim().toLowerCase();
 
-	// API로 생성한 카드들 조회
 	const cards = catalog.querySelectorAll(".scenario-item");
 
 	let visibleCount = 0;
@@ -207,9 +282,17 @@ function filterScenarios() {
 	cards.forEach(card => {
 		const searchText = card.dataset.search ?? "";
 
-		const isMatch = searchText.includes(keyword);
+		// 검색어 일치 여부
+		const isSearchMatch = searchText.includes(keyword);
 
-		// 검색어와 일치하면 표시, 아니면 숨김
+		// 카테고리 일치 여부
+		const isCategoryMatch =
+			selectedCategory === null ||
+			card.dataset.category === selectedCategory;
+
+		// 검색어와 카테고리 조건 모두 충족
+		const isMatch = isSearchMatch && isCategoryMatch;
+
 		card.classList.toggle("d-none", !isMatch);
 
 		if (isMatch) {
@@ -217,10 +300,13 @@ function filterScenarios() {
 		}
 	});
 
-	// 표시되는 카드가 없으면 안내 문구 표시
+	// 검색어가 있을 때만 검색 결과 없음 표시
+	const showSearchEmpty =
+		keyword.length > 0 && visibleCount === 0;
+
 	scenarioSearchEmpty.classList.toggle(
 		"d-none",
-		visibleCount > 0
+		!showSearchEmpty
 	);
 }
 
