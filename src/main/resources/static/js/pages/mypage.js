@@ -736,43 +736,17 @@
 
     function showNewPasswordGuidance() {
         const input = document.getElementById('newPassword');
-        setPasswordFieldStatus(input, 'newPasswordStatus',
-            '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.',
-            'neutral');
-    }
-
-    function removeForbiddenPasswordCharacters(input) {
-        const original = input.value;
-        const caret = input.selectionStart;
-        const filtered = original.replace(/[><_\-"']/g, '');
-        if (filtered === original) return;
-
-        input.value = filtered;
-        if (typeof caret === 'number') {
-            const filteredCaret = original.slice(0, caret).replace(/[><_\-"']/g, '').length;
-            input.setSelectionRange(filteredCaret, filteredCaret);
-        }
+        const result = window.Haebom.passwordValidation.validate('');
+        setPasswordFieldStatus(input, 'newPasswordStatus', result.message, result.state);
     }
 
     function validateNewPassword() {
         const input = document.getElementById('newPassword');
         if (!input) return false;
 
-        const password = input.value;
-        if (password.length === 0) {
-            showNewPasswordGuidance();
-            return false;
-        }
-
-        const validLength = password.length >= 8 && password.length <= 20;
-        const hasForbiddenCharacter = /[><_\-"']/.test(password);
-        const valid = validLength && !hasForbiddenCharacter;
-        const message = !validLength ? '8~20자로 입력해 주세요.'
-            : hasForbiddenCharacter ? '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.'
-                : '사용 가능한 비밀번호입니다.';
-
-        setPasswordFieldStatus(input, 'newPasswordStatus', message, valid ? 'valid' : 'invalid');
-        return valid;
+        const result = window.Haebom.passwordValidation.validate(input.value);
+        setPasswordFieldStatus(input, 'newPasswordStatus', result.message, result.state);
+        return result.valid;
     }
 
     function showPasswordConfirmationGuidance() {
@@ -785,14 +759,11 @@
         const confirmInput = document.getElementById('confirmNewPassword');
         if (!passwordInput || !confirmInput) return false;
 
-        const confirmation = confirmInput.value;
-        const valid = confirmation.length > 0 && confirmation === passwordInput.value;
-        const message = confirmation.length === 0 ? '비밀번호를 다시 입력해 주세요.'
-            : valid ? '비밀번호가 일치합니다.' : '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.';
-
-        setPasswordFieldStatus(confirmInput, 'confirmNewPasswordStatus', message,
-            confirmation.length === 0 ? 'neutral' : valid ? 'valid' : 'invalid');
-        return valid;
+        const passwordResult = window.Haebom.passwordValidation.validate(passwordInput.value);
+        const result = window.Haebom.passwordValidation.validateConfirmation(
+            confirmInput.value, passwordInput.value, passwordResult.valid);
+        setPasswordFieldStatus(confirmInput, 'confirmNewPasswordStatus', result.message, result.state);
+        return result.valid;
     }
 
     function resetPasswordFormState(form) {
@@ -834,7 +805,7 @@
             newPasswordInput.addEventListener('focus', showNewPasswordGuidance);
             newPasswordInput.addEventListener('blur', validateNewPassword);
             newPasswordInput.addEventListener('input', function () {
-                removeForbiddenPasswordCharacters(newPasswordInput);
+                validateNewPassword();
                 validatePasswordConfirmation();
             });
         }
@@ -842,7 +813,6 @@
             confirmPasswordInput.addEventListener('focus', showPasswordConfirmationGuidance);
             confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
             confirmPasswordInput.addEventListener('input', function () {
-                removeForbiddenPasswordCharacters(confirmPasswordInput);
                 validatePasswordConfirmation();
             });
         }

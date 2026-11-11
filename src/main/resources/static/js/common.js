@@ -98,6 +98,42 @@
   window.Haebom = window.Haebom || {};
   window.Haebom.toast = toast;
 
+  // 회원가입·비밀번호 찾기·마이페이지 비밀번호 변경에서 공통 사용
+  window.Haebom.passwordValidation = {
+    validate(value) {
+      const password = String(value || '');
+      if (password.length === 0) {
+        return { valid: false, state: 'neutral', message: '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.' };
+      }
+
+      if (/[><_"'-]/.test(password)) {
+        return { valid: false, state: 'invalid', message: '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.' };
+      }
+      if (password.length < 8 || password.length > 20) {
+        return { valid: false, state: 'invalid', message: '8~20자로 입력해 주세요.' };
+      }
+      return { valid: true, state: 'valid', message: '사용 가능한 비밀번호입니다.' };
+    },
+
+    validateConfirmation(confirmation, password, passwordIsValid) {
+      const value = String(confirmation || '');
+      if (value.length === 0) {
+        return { valid: false, state: 'neutral', message: '비밀번호를 다시 입력해 주세요.' };
+      }
+      const confirmationResult = this.validate(value);
+      if (!confirmationResult.valid) {
+        return confirmationResult;
+      }
+      if (!passwordIsValid) {
+        return { valid: false, state: 'invalid', message: '먼저 사용할 수 있는 비밀번호를 입력해 주세요.' };
+      }
+      if (value !== String(password || '')) {
+        return { valid: false, state: 'invalid', message: '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.' };
+      }
+      return { valid: true, state: 'valid', message: '비밀번호가 일치합니다.' };
+    }
+  };
+
   // ----------------------------------------------------
   // 3. 전역 글자 크기 조절 (보통 / 크게 / 가장 크게)
   // ----------------------------------------------------

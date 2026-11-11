@@ -47,27 +47,14 @@
     }
 
     function showNewPasswordGuidance() {
-        setPasswordStatus(newPasswordField, newPasswordStatus,
-            '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.',
-            'neutral');
+        const result = window.Haebom.passwordValidation.validate('');
+        setPasswordStatus(newPasswordField, newPasswordStatus, result.message, result.state);
     }
 
     function validateNewPassword() {
-        const password = newPasswordField.value;
-        if (password.length === 0) {
-            showNewPasswordGuidance();
-            return false;
-        }
-
-        const validLength = password.length >= 8 && password.length <= 20;
-        const hasForbiddenCharacter = /[><_\-"']/.test(password);
-        const valid = validLength && !hasForbiddenCharacter;
-        const message = !validLength ? '8~20자로 입력해 주세요.'
-            : hasForbiddenCharacter ? '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.'
-                : '사용 가능한 비밀번호입니다.';
-
-        setPasswordStatus(newPasswordField, newPasswordStatus, message, valid ? 'valid' : 'invalid');
-        return valid;
+        const result = window.Haebom.passwordValidation.validate(newPasswordField.value);
+        setPasswordStatus(newPasswordField, newPasswordStatus, result.message, result.state);
+        return result.valid;
     }
 
     function showPasswordConfirmationGuidance() {
@@ -76,15 +63,11 @@
     }
 
     function validatePasswordConfirmation() {
-        const confirmation = passwordConfirmField.value;
-        const valid = confirmation.length > 0 && confirmation === newPasswordField.value;
-        const message = confirmation.length === 0 ? '비밀번호를 다시 입력해 주세요.'
-            : valid ? '비밀번호가 일치합니다.'
-                : '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.';
-
-        setPasswordStatus(passwordConfirmField, passwordConfirmStatus, message,
-            confirmation.length === 0 ? 'neutral' : valid ? 'valid' : 'invalid');
-        return valid;
+        const passwordResult = window.Haebom.passwordValidation.validate(newPasswordField.value);
+        const result = window.Haebom.passwordValidation.validateConfirmation(
+            passwordConfirmField.value, newPasswordField.value, passwordResult.valid);
+        setPasswordStatus(passwordConfirmField, passwordConfirmStatus, result.message, result.state);
+        return result.valid;
     }
 
     document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
