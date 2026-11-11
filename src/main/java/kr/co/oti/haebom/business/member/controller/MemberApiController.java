@@ -7,13 +7,13 @@ import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/members")
 @Tag(name = "회원가입", description = "회원가입 관련 API")
 public class MemberApiController {
+	private static final String VERIFIED_LOGIN_ID = "memberJoin.verifiedLoginId";
 
 	private final MemberService memberService;
 	private final EmailVerificationService emailVerificationService;
@@ -37,24 +38,41 @@ public class MemberApiController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@Operation(summary = "회원가입", description = "회원 정보를 입력받아 회원가입을 처리합니다.")
 	public void join(@Valid @ModelAttribute MemberJoinRequestDTO request, HttpSession session) {
-		
+		validateLoginIdCheck(request.getLoginId(), session);
 		String verifiedEmail = (String) session.getAttribute("emailVerification.verifiedEmail");
 	    memberService.join(request, verifiedEmail);
 	    emailVerificationService.clearVerification(session);
+	    clearLoginIdCheck(session);
 	}
 	
-	@GetMapping("/id-availability")
-	@Operation(summary = "아이디 중복확인", description = "아이디 사용 가능 여부를 확인합니다. 사용 가능하면 available이 true입니다.")
-	public Map<String, Boolean> checkLoginIdAvailability(@RequestParam String loginId) {
+	@PostMapping(value = "/id-availability", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	@Operation(summary = "아이디 중복확인", description = "아이디 사용 가능 여부를 확인하고, 사용 가능하면 현재 세션에 확인한 아이디를 저장합니다.")
+	public Map<String, Boolean> checkLoginIdAvailability(@RequestParam String loginId, HttpSession session) {
 		
 		if (!loginId.matches("^[A-Za-z0-9]{4,16}$")) {
 			throw new IllegalArgumentException("아이디는 4~16자의 영문 대소문자와 숫자로 입력해 주세요.");
 		}
-	
-		return Map.of(
-				"available",
-				memberService.isLoginIdAvailable(loginId)
-				);
+
+		boolean available = memberService.isLoginIdAvailable(loginId);
+		if (available) {
+			session.setAttribute(VERIFIED_LOGIN_ID, loginId);
+		} else {
+			clearLoginIdCheck(session);
+		}
+		return Map.of("available", available);
+	}
+
+	private void validateLoginIdCheck(String loginId, HttpSession session) {
+		Object checkedId = session.getAttribute(VERIFIED_LOGIN_ID);
+		if (!(checkedId instanceof String) || !loginId.equals(checkedId)) {
+			clearLoginIdCheck(session);
+			throw new ResponseStatusException(
+					HttpStatus.BAD_REQUEST, "회원가입 전 아이디 중복확인을 완료해 주세요.");
+		}
+	}
+
+	private void clearLoginIdCheck(HttpSession session) {
+		session.removeAttribute(VERIFIED_LOGIN_ID);
 	}
 	
 	@Operation(summary = "이메일 인증번호 발송", description = "회원가입에 사용할 이메일로 6자리 인증번호를 발송합니다. 이미 가입된 이메일에는 발송하지 않습니다.")

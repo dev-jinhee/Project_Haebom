@@ -1,84 +1,56 @@
 package kr.co.oti.haebom.business.member.service;
 
-import java.security.SecureRandom;
-import java.time.Instant;
-import java.util.Locale;
-
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import kr.co.oti.haebom.business.common.EmailCodeService;
+import kr.co.oti.haebom.business.common.EmailCodeService.Purpose;
 import kr.co.oti.haebom.business.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class EmailVerificationService {
-	
-    private static final String EMAIL_KEY = "emailVerification.email";
-    private static final String CODE_KEY = "emailVerification.code";
-    private static final String EXPIRES_KEY = "emailVerification.expiresAt";
+
     private static final String VERIFIED_KEY = "emailVerification.verifiedEmail";
-    private static final long VALID_MILLIS = 5 * 60 * 1000L;
 
     private final MemberMapper memberMapper;
-    private final JavaMailSender mailSender;
-    private final SecureRandom random = new SecureRandom();
+    private final EmailCodeService emailCodeService;
 
-    @Value("${spring.mail.username}")
-    private String senderAddress;
-    
-    private String normalize(String email) {
-        return email.trim().toLowerCase(Locale.ROOT);
-    }
     public boolean sendCode(String email, HttpSession session) {
-        
-    	String normalizedEmail = normalize(email);
-        if (memberMapper.countByEmail(normalizedEmail) > 0) return false;
+        String normalizedEmail = emailCodeService.normalize(email);
 
-        String code = String.format(Locale.ROOT, "%06d", random.nextInt(1_000_000));
-        
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(senderAddress);
-        message.setTo(normalizedEmail);
-        message.setSubject("[해봄] 회원가입 인증번호");
-        message.setText("인증번호는 [" + code + "] 입니다.");
-
-        mailSender.send(message);
-
-        session.setAttribute(EMAIL_KEY, normalizedEmail);
-        session.setAttribute(CODE_KEY, code);
-        session.setAttribute(EXPIRES_KEY, Instant.now().toEpochMilli() + VALID_MILLIS);
+        // 새 인증 요청에서는 이전 인증 완료 상태와 코드를 재사용하지 않습니다.
         session.removeAttribute(VERIFIED_KEY);
-        return true;
-    }
-    public boolean verifyCode(String email, String code, HttpSession session) {
-        String normalizedEmail = normalize(email);
-        Object savedEmail = session.getAttribute(EMAIL_KEY);
-        Object savedCode = session.getAttribute(CODE_KEY);
-        Object expiresAt = session.getAttribute(EXPIRES_KEY);
+        emailCodeService.clear(Purpose.SIGNUP, session);
 
-        if (!(savedEmail instanceof String)
-                || !(savedCode instanceof String)
-                || !(expiresAt instanceof Long)
-                || !normalizedEmail.equals(savedEmail)
-                || !code.equals(savedCode)
-                || Instant.now().toEpochMilli() > (Long) expiresAt) {
+        if (memberMapper.countByEmail(normalizedEmail) > 0) {
             return false;
         }
 
-        session.setAttribute(VERIFIED_KEY, normalizedEmail);
-        session.removeAttribute(CODE_KEY);
-        session.removeAttribute(EXPIRES_KEY);
+        emailCodeService.sendCode(Purpose.SIGNUP, normalizedEmail, session);
         return true;
     }
+
+    public boolean verifyCode(String email, String code, HttpSession session) {
+        String normalizedEmail = emailCodeService.normalize(email);
+        boolean verified = emailCodeService.verifyCode(Purpose.SIGNUP, normalizedEmail, code, session);
+
+        if (verified) {
+            // 회원가입 API가 기존에 참조하는 세션 키를 유지합니다.
+            session.setAttribute(VERIFIED_KEY, normalizedEmail);
+        }
+        return verified;
+    }
+
     public void clearVerification(HttpSession session) {
-        session.removeAttribute(EMAIL_KEY);
-        session.removeAttribute(CODE_KEY);
-        session.removeAttribute(EXPIRES_KEY);
+        emailCodeService.clear(Purpose.SIGNUP, session);
         session.removeAttribute(VERIFIED_KEY);
+
+        // 세션에 남아 있을 수 있는 이전 구현의 값을 정리합니다.
+        session.removeAttribute("emailVerification.email");
+        session.removeAttribute("emailVerification.code");
+        session.removeAttribute("emailVerification.expiresAt");
     }
 }

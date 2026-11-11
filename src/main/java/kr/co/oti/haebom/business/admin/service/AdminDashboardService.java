@@ -158,8 +158,8 @@ public class AdminDashboardService {
     // 4. 운영자 활동 로그 기록
     @Transactional
     public void recordActivity(Integer adminId, String logType, String actionType, Integer targetId) {
-        if (adminId == null) {
-            adminId = 1; // 로그인 연동 전: 1번 관리자로 기본 지정
+        if (adminId == null || adminId <= 0) {
+            throw new IllegalArgumentException("활동 로그 기록을 위한 관리자 ID가 유효하지 않습니다.");
         }
         Map<String, Object> param = new HashMap<>();
         param.put("adminId", adminId);

@@ -36,25 +36,6 @@
 					<span class="admin-demo-badge d-none" data-admin-demo-badge>데모 데이터</span>
 				</div>
 				<ul class="navbar-nav ms-auto align-items-center">
-					<li class="nav-item dropdown d-none d-md-block">
-						<button class="nav-link dropdown-toggle" type="button"
-							data-bs-toggle="dropdown" aria-expanded="false"
-							aria-label="글씨 크기 설정">
-							<i class="bi bi-fonts me-1" aria-hidden="true"></i><span
-								data-mode-label>보통</span>
-						</button>
-						<ul class="dropdown-menu dropdown-menu-end text-size-menu"
-							aria-label="글씨 크기 선택">
-							<li><button class="dropdown-item active" type="button"
-									data-text-size="normal" aria-pressed="true">보통</button></li>
-							<li><button class="dropdown-item" type="button"
-									data-text-size="large" aria-pressed="false">크게</button></li>
-							<li><button class="dropdown-item" type="button"
-									data-text-size="larger" aria-pressed="false">더 크게</button></li>
-							<li><button class="dropdown-item" type="button"
-									data-text-size="largest" aria-pressed="false">가장 크게</button></li>
-						</ul>
-					</li>
 					<li class="nav-item"><span class="nav-link">관리자 계정</span></li>
 				</ul>
 			</div>

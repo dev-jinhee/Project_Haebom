@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDetailStatsDTO;
@@ -40,9 +42,36 @@ public class AdminScenarioService {
 
 	// 2. 시나리오 정보 수정
 	@Transactional
-	public void updateScenario(AdminScenarioDTO scenarioDTO) {
-		adminScenarioMapper.updateScenario(scenarioDTO);
-		adminDashboardService.recordActivity(1, "SCENARIO", "UPDATE", scenarioDTO.getScenarioId());
+	public void updateScenario(AdminScenarioDTO scenarioDTO, int currentAdminId) {
+		if (currentAdminId <= 0) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "관리자 인증 정보가 유효하지 않습니다.");
+		}
+		if (scenarioDTO == null || scenarioDTO.getScenarioId() == null || scenarioDTO.getScenarioId() <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바른 시나리오 번호가 아닙니다.");
+		}
+		if (scenarioDTO.getScenarioTitle() == null || scenarioDTO.getScenarioTitle().isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "시나리오 제목을 입력해주세요.");
+		}
+		if (scenarioDTO.getCategoryId() == null || scenarioDTO.getCategoryId() <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "시나리오 카테고리를 선택해주세요.");
+		}
+		if (scenarioDTO.getEstimatedMinutes() == null || scenarioDTO.getEstimatedMinutes() <= 0) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "예상 소요시간은 1분 이상이어야 합니다.");
+		}
+		if (scenarioDTO.getIsActive() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "시나리오 운영 여부를 선택해주세요.");
+		}
+
+		scenarioDTO.setScenarioTitle(scenarioDTO.getScenarioTitle().trim());
+		if (scenarioDTO.getDescription() != null) {
+			scenarioDTO.setDescription(scenarioDTO.getDescription().trim());
+		}
+
+		int updatedRows = adminScenarioMapper.updateScenario(scenarioDTO);
+		if (updatedRows != 1) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 시나리오입니다.");
+		}
+		adminDashboardService.recordActivity(currentAdminId, "SCENARIO", "UPDATE", scenarioDTO.getScenarioId());
 	}
 
 	// 3. 특정 시나리오의 상세 통계(임시저장 단계별 비율 + 누적 이용 지표)조회

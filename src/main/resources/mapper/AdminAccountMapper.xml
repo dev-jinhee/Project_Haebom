@@ -56,6 +56,7 @@
 		UPDATE member
 		SET member_status = #{memberStatus}
 		WHERE member_id = #{memberId}
+		  AND role = 'ADMIN'
 	</update>
 
 </mapper>

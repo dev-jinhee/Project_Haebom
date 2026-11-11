@@ -369,6 +369,15 @@
 				aria-describedby="identityPhotoHint" />
 			<p id="identityPhotoHint" class="identity-note">사진은 1장만 선택할 수
 				있습니다. 실제 업로드는 신청 단계의 공통 로직에서 처리합니다.</p>
+			<div class="identity-photo-confirmations" aria-label="증명사진 촬영 조건 확인">
+				<label for="identityPhotoRecentConfirmed"> <input
+					type="checkbox" id="identityPhotoRecentConfirmed" /> 최근 6개월 이내 촬영한
+					사진임을 확인했습니다.
+				</label> <label for="identityPhotoAppearanceConfirmed"> <input
+					type="checkbox" class="form-check" id="identityPhotoAppearanceConfirmed" /> 모자 등을 쓰지
+					않은 정면 상반신 사진임을 확인했습니다.
+				</label>
+			</div>
 			<div id="identityPhotoPreview" class="identity-photo-preview"
 				aria-live="polite"></div>
 		</div>

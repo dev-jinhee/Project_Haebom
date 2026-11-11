@@ -24,13 +24,16 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ========================================================
 INSERT INTO category (category_id, category_name) VALUES
 (1, 'HOUSING'),
-(2, 'IDENTITY');
+(2, 'IDENTITY'),
+(3, 'FAMILY_WELFARE'),
+(4, 'EMPLOYMENT_ECONOMY'),
+(5, 'TAX_PAYMENT');
 
 INSERT INTO scenario (
     scenario_id, scenario_code, scenario_title, description, estimated_minutes, is_active, category_id
 ) VALUES 
 (1, 'MOVE', '전입신고', '거주지를 이동한 경우, 전입한 날부터 14일 이내에 새로운 거주지의 관할 기관에 전입신고를 해야 합니다.\n해봄의 전입신고 시뮬레이션에서는 실제 민원 신청에 앞서 이사 전·후 주소 입력, 이사하는 가족 선택, 세대주 및 가족관계 설정, 우편물 이전 서비스 신청 등 전입신고의 주요 과정을 단계별로 체험할 수 있습니다.', 5, 1, 1),
-(2, 'IDENTITY_REISSUE', '주민등록증 재발급', '주민등록증을 분실하거나 훼손하는 등의 사유로 새로운 주민등록증이 필요한 경우 재발급을 신청할 수 있습니다.\n해봄의 주민등록증 재발급 시뮬레이션에서는 재발급 사유 선택, 신청정보 입력 및 신청 절차 확인 등 주민등록증 재발급의 주요 과정을 단계별로 미리 체험할 수 있습니다.', 3, 0, 2);
+(2, 'IDENTITY_REISSUE', '주민등록증 재발급', '주민등록증을 분실하거나 훼손하는 등의 사유로 새로운 주민등록증이 필요한 경우 재발급을 신청할 수 있습니다.\n해봄의 주민등록증 재발급 시뮬레이션에서는 재발급 사유 선택, 신청정보 입력 및 신청 절차 확인 등 주민등록증 재발급의 주요 과정을 단계별로 미리 체험할 수 있습니다.', 3, 1, 2);
 
 INSERT INTO scenario_step (step_id, scenario_id, step_order, step_title, step_description) VALUES
 (1, 1, 0, '사전정보 입력', '전입신고 연습에 필요한 사전정보를 입력해 보세요.'),

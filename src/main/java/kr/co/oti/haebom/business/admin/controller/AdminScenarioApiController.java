@@ -3,6 +3,8 @@ package kr.co.oti.haebom.business.admin.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDetailStatsDTO;
 import kr.co.oti.haebom.business.admin.service.AdminScenarioService;
+import kr.co.oti.haebom.system.security.MemberPrincipal;
+import kr.co.oti.haebom.system.security.PrincipalUtils;
 import lombok.RequiredArgsConstructor;
 
+@PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping("/api/admin/scenarios")
 @RequiredArgsConstructor
@@ -34,10 +39,13 @@ public class AdminScenarioApiController {
     @PutMapping("/{scenarioId}")
     public ResponseEntity<String> updateScenario(
             @PathVariable Integer scenarioId,
-            @ModelAttribute AdminScenarioDTO scenarioDTO) {
-        
-        scenarioDTO.setScenarioId(scenarioId);
-        adminScenarioService.updateScenario(scenarioDTO);
+            @ModelAttribute AdminScenarioDTO scenarioDTO,
+            @AuthenticationPrincipal MemberPrincipal principal) {
+        int currentAdminId = PrincipalUtils.requireAdminId(principal);
+        if (scenarioDTO != null) {
+            scenarioDTO.setScenarioId(scenarioId);
+        }
+        adminScenarioService.updateScenario(scenarioDTO, currentAdminId);
         
         return ResponseEntity.ok("시나리오 정보가 성공적으로 수정되었습니다.");
     }

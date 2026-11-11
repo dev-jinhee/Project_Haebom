@@ -6,10 +6,10 @@
 
 /* 원본의 공통 카드 기본 스타일(원본 simulation.css L174-L179) */
 .guide-card, .privacy-card, .support-note {
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    background: #fff;
-    box-shadow: 0 7px 20px rgba(31, 58, 84, .035);
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	background: #fff;
+	box-shadow: 0 7px 20px rgba(31, 58, 84, .035);
 }
 
 /* 원본 simulation.css L40–L125 */
@@ -626,4 +626,3 @@ label:has(> input[type="checkbox"]) {
 		padding: 18px 16px;
 	}
 }
-

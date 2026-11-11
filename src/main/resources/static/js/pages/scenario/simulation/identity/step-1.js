@@ -2,12 +2,11 @@
  * 해봄 | 주민등록증 재발급 단일 단계
  * 공통 simulation.js 모듈 규약: init / getData / validate / restore
  *
- * 주의: 증명사진은 선택·미리보기만 지원한다.
- * S3 이미지 업로드 API가 아직 없어 uploadAttachments()는 구현하지 않았다.
- * 실제 완료 연동 전에는 사진 업로드 및 서버 Validator를 연결해야 한다.
+ * 사진 검증 결과 및 촬영 조건 체크 상태는 DB에 저장하지 않는다.
+ * 서버 검증은 별도로 연결해야 우회 요청도 차단할 수 있다.
  */
 import { fetchRegions } from "../utils/sgis-api.js";
-import { initIdentityStepUi } from "./step1-ui.js";
+import { initIdentityStepUi, renderSavedPhotoPreview, getPhotoInspection } from "./step1-ui.js";
 import { uploadAttachment } from "../utils/attachment-api.js";
 
 const $ = (root, selector) => root.querySelector(selector);
@@ -27,17 +26,6 @@ function radio(root, name, val) {
 	root.querySelectorAll(`input[name="${name}"]`).forEach(input => {
 		input.checked = input.value === val;
 	});
-}
-
-// 구비서류 열람 사전동의 전체 선택
-function checkConsent(root, selected) {
-	const values = new Set(Array.isArray(selected) ? selected : []);
-	root.querySelectorAll('input[name="documentConsent"]').forEach(input => {
-		input.checked = values.has(input.value);
-	});
-	const items = [...root.querySelectorAll('input[name="documentConsent"]')];
-	const all = $(root, "#identityConsentAll");
-	if (all) all.checked = items.length > 0 && items.every(input => input.checked);
 }
 
 function setupAddressSelects(root, readOnly = false) {
@@ -187,21 +175,6 @@ async function loadMemberProfile(root) {
 	}
 }
 
-// 생년월일 → 주민등록번호 앞 6자리
-function maskResidentNumber(birthDate) {
-	if (!birthDate) return "";
-
-	const match = String(birthDate).match(
-		/^(\d{4})-(\d{2})-(\d{2})$/
-	);
-
-	if (!match) return "";
-
-	const [, year, month, day] = match;
-
-	return `${year.slice(2)}${month}${day}-*******`;
-}
-
 export async function init({ root, progressId, stepId, readOnly = false, savedData = null }) {
 	if (!root) return;
 	uploadedPhotoByRoot.set(root, null);
@@ -245,17 +218,36 @@ export async function uploadAttachments({ root, progressId }) {
 	const input = $(root, "#identityPhotoInput");
 	const file = input?.files?.[0];
 
-	// 새 파일을 선택하지 않았다면 기존 업로드 사진 유지
+	// 새 파일을 선택하지 않았다면 기존 업로드 사진을 재검증한 결과만 사용
 	if (!file) {
-		if (getUploadedPhoto(root)) {
-			return;
+		const savedPhoto = getUploadedPhoto(root);
+		if (!savedPhoto) {
+			throw new Error("증명사진이 선택되지 않았습니다.");
 		}
-
-		throw new Error("증명사진이 선택되지 않았습니다.");
+		const savedInspection = getPhotoInspection(root);
+		if (savedInspection.status !== "passed" ||
+			savedInspection.photoKey !== savedPhoto.s3Key) {
+			throw new Error("저장된 증명사진 검사에 통과해야 합니다.");
+		}
+		if (!isChecked(root, "#identityPhotoRecentConfirmed") ||
+			!isChecked(root, "#identityPhotoAppearanceConfirmed")) {
+			throw new Error("증명사진 촬영 조건을 모두 확인해 주세요.");
+		}
+		return;
 	}
 
 	if (!progressId) {
 		throw new Error("시뮬레이션 진행 ID가 없습니다.");
+	}
+
+	// 파일 선택 및 UI 검사를 건너뛰어 업로드 함수를 직접 호출하는 경우도 차단
+	const inspection = getPhotoInspection(root);
+	if (inspection.status !== "passed" || inspection.file !== file) {
+		throw new Error("증명사진의 형식, 용량, 해상도 및 비율 검사를 통과해야 합니다.");
+	}
+	if (!isChecked(root, "#identityPhotoRecentConfirmed") ||
+		!isChecked(root, "#identityPhotoAppearanceConfirmed")) {
+		throw new Error("증명사진 촬영 조건을 모두 확인해 주세요.");
 	}
 
 	// 실제 S3 업로드
@@ -278,8 +270,8 @@ export async function uploadAttachments({ root, progressId }) {
 	// 동일 파일 재업로드 방지
 	input.value = "";
 
-	// S3에 업로드된 사진으로 미리보기 전환
-	renderSavedPhotoPreview(root, result, progressId);
+	// S3 업로드 직전 통과한 검사 결과를 재사용 (추가 GET 요청 방지)
+	await renderSavedPhotoPreview(root, result, progressId, { preserveValidation: true });
 
 }
 
@@ -333,7 +325,7 @@ export function getData({ root }) {
 }
 
 
-export async function restore({ root, data = {}, readOnly = false }) {
+export async function restore({ root, data = {}}) {
 	// 휴대전화번호
 	const phone = String(data.phone ?? "").split("-");
 
@@ -426,7 +418,7 @@ export async function restore({ root, data = {}, readOnly = false }) {
 	const progressId = root.dataset.identityProgressId;
 
 	if (photo && progressId) {
-		renderSavedPhotoPreview(root, photo, progressId);
+		await renderSavedPhotoPreview(root, photo, progressId);
 	}
 	return true;
 }
@@ -465,23 +457,31 @@ export function validate({ root }) {
 	const photo = $(root, "#identityPhotoInput")?.files?.[0];
 	const uploadedPhoto = getUploadedPhoto(root);
 
-	// 새로 선택한 사진도 없고 기존 업로드 사진도 없다면 오류
 	if (!photo && !uploadedPhoto) {
 		alert("증명사진 1장을 첨부해 주세요.");
 		return false;
 	}
 
-	if (photo) {
-		// 확장자 및 용량 사전 검증
-		if (!/\.(jpe?g|png)$/i.test(photo.name)) {
-			alert("JPG, JPEG, PNG 파일만 첨부할 수 있습니다.");
-			return false;
-		}
+	const inspection = getPhotoInspection(root);
+	// 현재 화면의 파일 혹은 S3에서 복원한 정확히 그 파일에 대한 검사 결과만 유효
+	const isCurrentPhoto = photo
+		? inspection.file === photo
+		: inspection.photoKey === uploadedPhoto?.s3Key;
 
-		if (photo.size <= 0 || photo.size > 5 * 1024 * 1024) {
-			alert("증명사진은 5MB 이하만 첨부할 수 있습니다.");
-			return false;
-		}
+	if (inspection.status !== "passed" || !isCurrentPhoto) {
+		const message = inspection.status === "checking"
+			? "증명사진 검사 중입니다. 검사가 완료된 뒤 다시 시도해 주세요."
+			: "증명사진의 형식, 용량, 해상도 및 비율을 모두 통과해야 신청할 수 있습니다.";
+		alert(message);
+		$(root, "#identityPhotoInput")?.focus();
+		return false;
+	}
+
+	// 아래 2개 항목은 이미지 분석으로 검증한 것이 아닌 사용자 확인 항목이다.
+	if (!isChecked(root, "#identityPhotoRecentConfirmed") ||
+		!isChecked(root, "#identityPhotoAppearanceConfirmed")) {
+		alert("최근 6개월 촬영 여부와 정면 상반신 사진 여부를 모두 확인해 주세요.");
+		return false;
 	}
 	return true;
 }

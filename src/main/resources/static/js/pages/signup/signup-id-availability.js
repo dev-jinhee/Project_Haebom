@@ -2,6 +2,7 @@ export function initIdAvailability(page, showNotice) {
     const idField = document.getElementById('signupId');
     const idStatus = document.getElementById('signupIdCheckStatus');
     const idCheckButton = document.querySelector('[data-check-id]');
+    const csrfInput = document.getElementById('csrfToken');
     let checkedLoginId = null;
 
     if (idField !== null) {
@@ -25,13 +26,24 @@ export function initIdAvailability(page, showNotice) {
                 return;
             }
 
+            if (csrfInput === null) {
+                showNotice('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.');
+                return;
+            }
+
             idCheckButton.disabled = true;
             try {
-                const url = page.dataset.contextPath
-                    + '/api/members/id-availability?loginId='
-                    + encodeURIComponent(loginId);
-                const response = await fetch(url, {
-                    headers: { Accept: 'application/json' }
+                const params = new URLSearchParams();
+                params.append('loginId', loginId);
+                const response = await fetch(page.dataset.contextPath + '/api/members/id-availability', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfInput.value
+                    },
+                    body: params.toString()
                 });
                 const result = await response.json().catch(function () {
                     return null;

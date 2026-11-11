@@ -1,4 +1,6 @@
 (function () {
+    const MY_PAGE_SIZE = 10;
+    const MY_PAGE_PAGE_GROUP_SIZE = 10;
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');
     const withdrawConfirmText = document.getElementById('withdrawConfirmText');
@@ -146,6 +148,7 @@
     let scenarioHistoryTotalPages = 0;
     let scenarioHistoryTotalCount = 0;
     let scenarioHistoryItems = null;
+    let appliedScenarioHistoryKeyword = '';
 
     function showScenarioHistoryMessage(message, isError) {
         const list = document.querySelector('[data-scenario-history-list]');
@@ -162,37 +165,18 @@
         const pagination = document.querySelector('[data-scenario-history-pagination]');
         if (!pagination) return;
 
-        pagination.replaceChildren();
-        const totalPages = Math.max(1, scenarioHistoryTotalPages);
-        const firstPage = Math.max(1, scenarioHistoryPage - 2);
-        const lastPage = Math.min(totalPages, firstPage + 4);
-
-        function appendPage(label, targetPage, disabled, active) {
-            const item = document.createElement('li');
-            item.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'page-link';
-            button.textContent = label;
-            button.disabled = disabled;
-            button.setAttribute('aria-label', label === '이전' || label === '다음'
-                ? label + ' 페이지'
-                : '페이지 ' + label);
-            if (active) button.setAttribute('aria-current', 'page');
-            button.addEventListener('click', function () {
-                loadScenarioHistory(targetPage);
-            });
-            item.appendChild(button);
-            pagination.appendChild(item);
-        }
-
-        appendPage('이전', scenarioHistoryPage - 1, scenarioHistoryPage <= 1, false);
-        for (let pageNumber = firstPage; pageNumber <= lastPage; pageNumber += 1) {
-            appendPage(String(pageNumber), pageNumber,
-                scenarioHistoryTotalPages === 0, pageNumber === scenarioHistoryPage);
-        }
-        appendPage('다음', scenarioHistoryPage + 1,
-            scenarioHistoryPage >= scenarioHistoryTotalPages || scenarioHistoryTotalPages === 0, false);
+        window.renderHaebomPagination({
+            container: pagination,
+            currentPage: scenarioHistoryPage,
+            totalPages: scenarioHistoryTotalPages,
+            groupSize: MY_PAGE_PAGE_GROUP_SIZE,
+            previousLabel: '이전',
+            nextLabel: '다음',
+            showBoundaryButtons: true,
+            bootstrap: true,
+            hideWhenSinglePage: true,
+            onPageChange: loadScenarioHistory
+        });
     }
 
     function renderScenarioHistory(items) {
@@ -277,13 +261,14 @@
 
     async function loadScenarioHistory(requestedPage) {
         const list = document.querySelector('[data-scenario-history-list]');
-        const keywordInput = document.getElementById('mypageHistoryKeyword');
         if (!page || !page.dataset.scenarioHistoryApiUrl || !list) return;
 
         const requested = Math.max(1, Number(requestedPage) || 1);
-        const keyword = keywordInput ? keywordInput.value.trim() : '';
-        const params = new URLSearchParams({ page: String(requested), keyword: keyword });
-            showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
+        const params = new URLSearchParams({
+            page: String(requested),
+            keyword: appliedScenarioHistoryKeyword
+        });
+        showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
 
         try {
             const response = await fetch(page.dataset.scenarioHistoryApiUrl + '?' + params.toString(), {
@@ -344,7 +329,7 @@
                 return String(item.progressId) !== String(record.progressId);
             });
             scenarioHistoryTotalCount = Math.max(0, scenarioHistoryTotalCount - 1);
-            scenarioHistoryTotalPages = Math.ceil(scenarioHistoryTotalCount / 5);
+            scenarioHistoryTotalPages = Math.ceil(scenarioHistoryTotalCount / MY_PAGE_SIZE);
             if (scenarioHistoryItems.length === 0 && scenarioHistoryPage > 1) {
                 scenarioHistoryPage -= 1;
             }
@@ -360,21 +345,12 @@
     function initializeScenarioHistory() {
         const searchForm = document.querySelector('[data-scenario-history-search-form]');
         const keywordInput = document.getElementById('mypageHistoryKeyword');
-        let searchTimer;
 
         if (searchForm) {
             searchForm.addEventListener('submit', function (event) {
                 event.preventDefault();
-                window.clearTimeout(searchTimer);
+                appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
                 loadScenarioHistory(1);
-            });
-        }
-        if (keywordInput) {
-            keywordInput.addEventListener('input', function () {
-                window.clearTimeout(searchTimer);
-                searchTimer = window.setTimeout(function () {
-                    loadScenarioHistory(1);
-                }, 300);
             });
         }
 
@@ -386,6 +362,7 @@
         const rows = document.querySelector('[data-mypage-inquiry-rows]');
         const statusFilter = document.getElementById('mypageInquiryStatus');
         const searchInput = document.getElementById('mypageInquirySearch');
+        const searchForm = document.querySelector('[data-mypage-inquiry-search-form]');
         const totalElement = document.querySelector('[data-mypage-inquiry-total]');
         const pagination = document.querySelector('[data-mypage-inquiry-pagination]');
 
@@ -395,7 +372,9 @@
 
         let inquiryItems = [];
         let currentPage = 1;
-        const pageSize = 10;
+        let appliedInquiryStatus = '';
+        let appliedInquiryKeyword = '';
+        const pageSize = MY_PAGE_SIZE;
 
         function showMessage(message, isError) {
             const messageElement = document.createElement('p');
@@ -406,10 +385,8 @@
         }
 
         function getFilteredItems() {
-            const selectedStatus = statusFilter ? statusFilter.value : '';
-            const keyword = searchInput
-                ? searchInput.value.trim().toLocaleLowerCase()
-                : '';
+            const selectedStatus = appliedInquiryStatus;
+            const keyword = appliedInquiryKeyword.toLocaleLowerCase();
 
             return inquiryItems.filter(function (item) {
                 const statusMatches = !selectedStatus || item.qnaStatus === selectedStatus;
@@ -424,36 +401,21 @@
                 return;
             }
 
-            pagination.replaceChildren();
-
-            function appendPage(label, targetPage, disabled, active) {
-                const item = document.createElement('li');
-                item.className = 'page-item';
-                if (disabled) item.classList.add('disabled');
-                if (active) item.classList.add('active');
-
-                const button = document.createElement('button');
-                button.type = 'button';
-                button.className = 'page-link';
-                button.textContent = label;
-                button.disabled = disabled;
-                button.setAttribute('aria-label', label === '이전' || label === '다음'
-                    ? label + ' 페이지'
-                    : '페이지 ' + label);
-                button.addEventListener('click', function () {
+            window.renderHaebomPagination({
+                container: pagination,
+                currentPage: currentPage,
+                totalPages: totalPages,
+                groupSize: MY_PAGE_PAGE_GROUP_SIZE,
+                previousLabel: '이전',
+                nextLabel: '다음',
+                showBoundaryButtons: true,
+                bootstrap: true,
+                hideWhenSinglePage: true,
+                onPageChange: function (targetPage) {
                     currentPage = targetPage;
                     render();
-                });
-
-                item.appendChild(button);
-                pagination.appendChild(item);
-            }
-
-            appendPage('이전', currentPage - 1, currentPage <= 1, false);
-            for (let pageNumber = 1; pageNumber <= Math.max(1, totalPages); pageNumber++) {
-                appendPage(String(pageNumber), pageNumber, false, pageNumber === currentPage);
-            }
-            appendPage('다음', currentPage + 1, currentPage >= totalPages, false);
+                }
+            });
         }
 
         function render() {
@@ -703,14 +665,11 @@
             openModal('#mypageInquiryViewModal');
         });
 
-        if (statusFilter) {
-            statusFilter.addEventListener('change', function () {
-                currentPage = 1;
-                render();
-            });
-        }
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
+        if (searchForm) {
+            searchForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                appliedInquiryStatus = statusFilter ? statusFilter.value : '';
+                appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
                 currentPage = 1;
                 render();
             });
@@ -736,43 +695,17 @@
 
     function showNewPasswordGuidance() {
         const input = document.getElementById('newPassword');
-        setPasswordFieldStatus(input, 'newPasswordStatus',
-            '비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, >, <, _, -, ", \'는 사용할 수 없어요.',
-            'neutral');
-    }
-
-    function removeForbiddenPasswordCharacters(input) {
-        const original = input.value;
-        const caret = input.selectionStart;
-        const filtered = original.replace(/[><_\-"']/g, '');
-        if (filtered === original) return;
-
-        input.value = filtered;
-        if (typeof caret === 'number') {
-            const filteredCaret = original.slice(0, caret).replace(/[><_\-"']/g, '').length;
-            input.setSelectionRange(filteredCaret, filteredCaret);
-        }
+        const result = window.Haebom.passwordValidation.validate('');
+        setPasswordFieldStatus(input, 'newPasswordStatus', result.message, result.state);
     }
 
     function validateNewPassword() {
         const input = document.getElementById('newPassword');
         if (!input) return false;
 
-        const password = input.value;
-        if (password.length === 0) {
-            showNewPasswordGuidance();
-            return false;
-        }
-
-        const validLength = password.length >= 8 && password.length <= 20;
-        const hasForbiddenCharacter = /[><_\-"']/.test(password);
-        const valid = validLength && !hasForbiddenCharacter;
-        const message = !validLength ? '8~20자로 입력해 주세요.'
-            : hasForbiddenCharacter ? '사용할 수 없는 특수문자(>, <, _, -, ", \')가 포함되어 있습니다.'
-                : '사용 가능한 비밀번호입니다.';
-
-        setPasswordFieldStatus(input, 'newPasswordStatus', message, valid ? 'valid' : 'invalid');
-        return valid;
+        const result = window.Haebom.passwordValidation.validate(input.value);
+        setPasswordFieldStatus(input, 'newPasswordStatus', result.message, result.state);
+        return result.valid;
     }
 
     function showPasswordConfirmationGuidance() {
@@ -785,14 +718,11 @@
         const confirmInput = document.getElementById('confirmNewPassword');
         if (!passwordInput || !confirmInput) return false;
 
-        const confirmation = confirmInput.value;
-        const valid = confirmation.length > 0 && confirmation === passwordInput.value;
-        const message = confirmation.length === 0 ? '비밀번호를 다시 입력해 주세요.'
-            : valid ? '비밀번호가 일치합니다.' : '입력하신 비밀번호가 일치하지 않습니다. 비밀번호를 확인하세요.';
-
-        setPasswordFieldStatus(confirmInput, 'confirmNewPasswordStatus', message,
-            confirmation.length === 0 ? 'neutral' : valid ? 'valid' : 'invalid');
-        return valid;
+        const passwordResult = window.Haebom.passwordValidation.validate(passwordInput.value);
+        const result = window.Haebom.passwordValidation.validateConfirmation(
+            confirmInput.value, passwordInput.value, passwordResult.valid);
+        setPasswordFieldStatus(confirmInput, 'confirmNewPasswordStatus', result.message, result.state);
+        return result.valid;
     }
 
     function resetPasswordFormState(form) {
@@ -834,7 +764,7 @@
             newPasswordInput.addEventListener('focus', showNewPasswordGuidance);
             newPasswordInput.addEventListener('blur', validateNewPassword);
             newPasswordInput.addEventListener('input', function () {
-                removeForbiddenPasswordCharacters(newPasswordInput);
+                validateNewPassword();
                 validatePasswordConfirmation();
             });
         }
@@ -842,7 +772,6 @@
             confirmPasswordInput.addEventListener('focus', showPasswordConfirmationGuidance);
             confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
             confirmPasswordInput.addEventListener('input', function () {
-                removeForbiddenPasswordCharacters(confirmPasswordInput);
                 validatePasswordConfirmation();
             });
         }
