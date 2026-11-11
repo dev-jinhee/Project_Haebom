@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class AdminScenarioDTO {
 
 	private Integer scenarioId; // 시나리오 번호 (1, 2)
+	private String scenarioCode; // 시나리오 고정 식별 코드 (MOVE, IDENTITY_REISSUE, RESIDENT_RECORD_ISSUE)
 	private String scenarioTitle; // 시나리오 제목 (전입신고 등)
 	private String description; // 설명
 	private Integer estimatedMinutes; // 예상 소요시간 (분)

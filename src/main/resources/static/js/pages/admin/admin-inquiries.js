@@ -34,24 +34,28 @@
 			if (!response.ok) throw new Error('목록 조회 실패');
 			adminInquiryCache = await response.json();
 
-			// 1) 요약 카드 숫자 갱신 (답변 대기 / 답변 완료 / 총 접수)
+			// 1) 요약 카드 숫자 갱신 (답변 대기 / 답변 중 / 답변 완료 / 총 접수)
 			const waitingCount = adminInquiryCache.filter(item => item.qnaStatus === 'WAITING').length;
+			const answeringCount = adminInquiryCache.filter(item => item.qnaStatus === 'ANSWERING').length;
 			const doneCount = adminInquiryCache.filter(item => item.qnaStatus === 'ANSWERED').length;
+			const pendingCount = waitingCount + answeringCount;
 			const totalCount = adminInquiryCache.length;
 
-			// 사이드바 배지
+			// 사이드바 배지 (미완료: 답변 대기 + 답변 중)
 			const sideBadge = document.getElementById('adminSidebarInquiryBadge');
-			if (sideBadge) sideBadge.textContent = waitingCount;
+			if (sideBadge) sideBadge.textContent = pendingCount;
 
 			// 대시보드 메인 화면의 미답변 문의 카드 (두 자리 수 형식, 예: 01)
 			const dashWaitEl = document.getElementById('adminDashboardWaitingInquiryCount');
-			if (dashWaitEl) dashWaitEl.textContent = String(waitingCount).padStart(2, '0');
+			if (dashWaitEl) dashWaitEl.textContent = String(pendingCount).padStart(2, '0');
 
-			// 문의 게시판 화면 요약 카드 3종
+			// 문의 게시판 화면 요약 카드 4종
 			const waitingEl = document.getElementById('adminInquiryWaitingCount');
+			const answeringEl = document.getElementById('adminInquiryAnsweringCount');
 			const doneEl = document.getElementById('adminInquiryDoneCount');
 			const totalEl = document.getElementById('adminInquiryTotalCount');
 			if (waitingEl) waitingEl.innerHTML = `${waitingCount}<small>건</small>`;
+			if (answeringEl) answeringEl.innerHTML = `${answeringCount}<small>건</small>`;
 			if (doneEl) doneEl.innerHTML = `${doneCount}<small>건</small>`;
 			if (totalEl) totalEl.innerHTML = `${totalCount}<small>건</small>`;
 
@@ -139,9 +143,11 @@
 
 		let displayList = [...(adminInquiryCache || [])];
 		if (inquirySortDirection === 1) {
-			displayList.sort((a, b) => (a.qnaStatus === 'WAITING' ? -1 : 1));
+			const rank = { WAITING: 0, ANSWERING: 1, ANSWERED: 2 };
+			displayList.sort((a, b) => (rank[a.qnaStatus] ?? 9) - (rank[b.qnaStatus] ?? 9));
 		} else if (inquirySortDirection === -1) {
-			displayList.sort((a, b) => (a.qnaStatus === 'ANSWERED' ? -1 : 1));
+			const rank = { ANSWERED: 0, ANSWERING: 1, WAITING: 2 };
+			displayList.sort((a, b) => (rank[a.qnaStatus] ?? 9) - (rank[b.qnaStatus] ?? 9));
 		}
 
 		const totalCount = displayList.length;
@@ -173,12 +179,14 @@
 
 		// 15개 행만 테이블에 렌더링
 		tbody.innerHTML = pagedList.map(qna => {
-			const isAnswered = qna.qnaStatus === 'ANSWERED';
-			const statusBadge = isAnswered
-				? '<span class="badge text-bg-success">답변 완료</span>'
-				: '<span class="badge text-bg-warning">답변 대기</span>';
+			let statusBadge = '<span class="badge text-bg-warning">답변 대기</span>';
+			if (qna.qnaStatus === 'ANSWERED') {
+				statusBadge = '<span class="badge text-bg-success">답변 완료</span>';
+			} else if (qna.qnaStatus === 'ANSWERING') {
+				statusBadge = '<span class="badge text-bg-primary">답변 중</span>';
+			}
 			const dateText = qna.qnaCreatedAt ? String(qna.qnaCreatedAt).substring(0, 10).replace(/-/g, '.') : '';
-			const responder = qna.responderLoginId || (isAnswered ? 'admin' : '—');
+			const responder = qna.responderLoginId || (qna.qnaStatus === 'ANSWERED' ? 'admin' : '—');
 			const isSecret = Boolean(qna.isSecret);
 			const secretBadge = isSecret ? '<span class="badge text-bg-secondary ms-1"><i class="bi bi-lock-fill me-1"></i>비밀글</span>' : '';
 			const author = qna.memberName || ('회원' + qna.memberId);
@@ -281,21 +289,24 @@
 
 		document.getElementById('inquiryDetailTitle').textContent = typeof decodeHtml === 'function' ? decodeHtml(inquiry.qnaTitle) : inquiry.qnaTitle;
 		document.querySelector('[data-inquiry-author]').textContent = inquiry.memberName || ('회원' + inquiry.memberId);
-		document.getElementById('inquiryCategorySelect').value = inquiry.qnaCategoryName || '시뮬레이션 문의';
+		const categoryBadgeEl = document.querySelector('[data-inquiry-category]');
+		if (categoryBadgeEl) {
+			categoryBadgeEl.textContent = inquiry.qnaCategoryName || '일반 문의';
+		}
 		document.querySelector('[data-inquiry-date]').textContent = inquiry.qnaCreatedAt ? String(inquiry.qnaCreatedAt).substring(0, 10).replace(/-/g, '.') : '';
 		document.querySelector('[data-inquiry-content]').textContent = typeof decodeHtml === 'function' ? decodeHtml(inquiry.qnaContent) : inquiry.qnaContent;
-		document.getElementById('inquiryStatusSelect').value = inquiry.qnaStatus === 'ANSWERED' ? '답변 완료' : '답변 대기';
+		document.getElementById('inquiryStatusSelect').value = inquiry.qnaStatus || 'WAITING';
 		document.getElementById('inquiryReplyText').value = '';
 
 		// 실제 DB에서 해당 문의글의 답변 목록 로드
 		loadInquiryAnswers(selectedInquiryId);
 	});
 
-	// 새 답변 입력창에 글자를 치기 시작하면 답변 상태를 자동으로 '답변 대기'로 전환!
+	// 새 답변 입력창에 글자를 치기 시작하면 답변 상태를 자동으로 '답변 중'으로 전환!
 	document.getElementById('inquiryReplyText')?.addEventListener('input', (e) => {
 		const statusSelect = document.getElementById('inquiryStatusSelect');
-		if (statusSelect && e.target.value.trim().length > 0 && statusSelect.value === '답변 완료') {
-			statusSelect.value = '답변 대기';
+		if (statusSelect && e.target.value.trim().length > 0 && statusSelect.value === 'ANSWERED') {
+			statusSelect.value = 'ANSWERING';
 		}
 	});
 
@@ -329,7 +340,7 @@
 
 			// 모달 내 답변 상태 select를 '답변 완료'로 자동 변경
 			const statusSelect = document.getElementById('inquiryStatusSelect');
-			if (statusSelect) statusSelect.value = '답변 완료';
+			if (statusSelect) statusSelect.value = 'ANSWERED';
 
 			// 답변 목록 갱신
 			await loadInquiryAnswers(selectedInquiryId);
@@ -345,25 +356,14 @@
 		}
 	});
 
-	// 7. 관리자 문의 분류 및 상태 변경 저장 버튼 클릭 이벤트
+	// 7. 관리자 답변 상태 변경 저장 버튼 클릭 이벤트 (작성자 선택 분류는 유지)
 	document.querySelector('[data-save-inquiry-status]')?.addEventListener('click', async () => {
 		if (!selectedInquiryId) return;
 
-		const statusVal = document.getElementById('inquiryStatusSelect')?.value;
-		const categoryName = document.getElementById('inquiryCategorySelect')?.value;
-
-		const categoryMap = {
-			'회원·계정 문의': 1,
-			'시뮬레이션 문의': 2,
-			'오류·버그 신고': 3,
-			'기타 문의': 4
-		};
-		const categoryId = categoryMap[categoryName] || 1;
-		const qnaStatus = statusVal === '답변 완료' ? 'ANSWERED' : 'WAITING';
+		const qnaStatus = document.getElementById('inquiryStatusSelect')?.value || 'WAITING';
 
 		try {
 			const params = new URLSearchParams({
-				qnaCategoryId: categoryId,
 				qnaStatus: qnaStatus
 			});
 
@@ -374,7 +374,7 @@
 
 			if (!response.ok) throw new Error('상태 저장 실패');
 
-			toast('문의 분류와 상태를 저장했습니다.');
+			toast('문의 답변 상태를 저장했습니다.');
 			bootstrap.Modal.getOrCreateInstance(document.getElementById('inquiryDetailModal')).hide();
 
 			// 전체 문의 목록 및 카운트 새로고침

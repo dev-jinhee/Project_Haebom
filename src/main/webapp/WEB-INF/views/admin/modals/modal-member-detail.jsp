@@ -64,12 +64,15 @@
 							</div>
 						</div>
 						<div class="row g-3 mt-1">
+							<div class="col-12">
 								<label class="form-label" for="memberAccountStatus">계정 상태</label>
 								<select class="form-select" id="memberAccountStatus">
 									<option value="ACTIVE">정상</option>
 									<option value="SUSPENDED">이용 정지</option>
 									<option value="WITHDRAWN">탈퇴</option>
 								</select>
+								<p class="small mb-0 mt-2 d-none" id="memberStatusNotice" aria-live="polite"></p>
+							</div>
 						</div>
 					</section>
 					<section class="admin-detail-section admin-member-drafts"

@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class QnaService {
 
-    private static final Set<String> ALLOWED_QNA_STATUSES = Set.of("WAITING", "ANSWERED");
+    private static final Set<String> ALLOWED_QNA_STATUSES = Set.of("WAITING", "ANSWERING", "ANSWERED");
     private static final int MAX_QNA_TITLE_LENGTH = 200;
 
     private final QnaMapper qnaMapper;
@@ -74,8 +74,8 @@ public class QnaService {
         if (existing.getMemberId() == null || !existing.getMemberId().equals(currentMemberId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자 본인만 수정할 수 있습니다.");
         }
-        if ("ANSWERED".equals(existing.getQnaStatus())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "답변이 완료된 문의글은 수정할 수 없습니다.");
+        if (!"WAITING".equals(existing.getQnaStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "답변 중이거나 답변이 완료된 문의글은 수정할 수 없습니다.");
         }
 
         validateQnaInput(qnaDTO);
@@ -131,31 +131,19 @@ public class QnaService {
         return qnaMapper.selectAnswersByQnaId(qnaId);
     }
 
-    // 7. 문의글 분류 및 상태 변경
-    public void updateInquiryStatusAndCategory(Integer qnaId, Integer categoryId, String status) {
-        QnaDTO existing = requireActiveQna(qnaId);
-        if (categoryId == null && (status == null || status.isBlank())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "변경할 문의 분류 또는 상태를 입력해주세요.");
+    // 7. 문의글 답변 상태 변경 (작성자 선택 분류는 유지)
+    public void updateInquiryStatus(Integer qnaId, String status) {
+        requireActiveQna(qnaId);
+        if (status == null || status.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "변경할 문의 상태를 입력해주세요.");
         }
 
-        Integer resolvedCategoryId = existing.getQnaCategoryId();
-        if (categoryId != null) {
-            if (categoryId <= 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "올바른 문의 분류를 선택해주세요.");
-            }
-            resolvedCategoryId = categoryId;
+        String normalizedStatus = status.trim().toUpperCase(Locale.ROOT);
+        if (!ALLOWED_QNA_STATUSES.contains(normalizedStatus)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않은 문의 상태입니다.");
         }
 
-        String resolvedStatus = existing.getQnaStatus();
-        if (status != null && !status.isBlank()) {
-            String normalizedStatus = status.trim().toUpperCase(Locale.ROOT);
-            if (!ALLOWED_QNA_STATUSES.contains(normalizedStatus)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않은 문의 상태입니다.");
-            }
-            resolvedStatus = normalizedStatus;
-        }
-
-        int updatedRows = qnaMapper.updateQnaCategoryAndStatus(qnaId, resolvedCategoryId, resolvedStatus);
+        int updatedRows = qnaMapper.updateQnaStatus(qnaId, normalizedStatus);
         if (updatedRows != 1) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않거나 이미 삭제된 문의글입니다.");
         }
@@ -220,7 +208,14 @@ public class QnaService {
             String isSecretText = Boolean.TRUE.equals(qna.getIsSecret()) ? "비밀글" : "공개글";
             String categoryName = qna.getQnaCategoryName() != null ? qna.getQnaCategoryName() : "기타 문의";
             String author = qna.getMemberName() != null ? qna.getMemberName() : "익명";
-            String statusText = "ANSWERED".equalsIgnoreCase(qna.getQnaStatus()) ? "답변 완료" : "답변 대기";
+            String statusText;
+            if ("ANSWERED".equalsIgnoreCase(qna.getQnaStatus())) {
+                statusText = "답변 완료";
+            } else if ("ANSWERING".equalsIgnoreCase(qna.getQnaStatus())) {
+                statusText = "답변 중";
+            } else {
+                statusText = "답변 대기";
+            }
             String responder = qna.getResponderLoginId() != null ? qna.getResponderLoginId() : 
                                ("ANSWERED".equalsIgnoreCase(qna.getQnaStatus()) ? "관리자" : "미지정");
 

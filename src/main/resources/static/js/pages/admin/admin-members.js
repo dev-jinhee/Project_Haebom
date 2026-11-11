@@ -120,17 +120,48 @@
 		}
 	}
 
+	function syncMemberStatusModalState(isAlreadyWithdrawn, selectedStatus) {
+		const statusSelect = document.getElementById('memberAccountStatus');
+		const saveBtn = document.querySelector('[data-save-member-status]');
+		const noticeEl = document.getElementById('memberStatusNotice');
+
+		if (statusSelect) statusSelect.disabled = Boolean(isAlreadyWithdrawn);
+		if (saveBtn) saveBtn.disabled = Boolean(isAlreadyWithdrawn);
+
+		if (!noticeEl) return;
+		if (isAlreadyWithdrawn) {
+			noticeEl.textContent = '이미 탈퇴 처리된 회원은 개인정보가 파기되어 계정 상태를 변경할 수 없습니다.';
+			noticeEl.className = 'small mb-0 mt-2 text-secondary';
+		} else if (selectedStatus === 'WITHDRAWN') {
+			noticeEl.textContent = '탈퇴 처리 시 회원의 개인정보와 시뮬레이션 연습 기록이 즉시 파기되며 이후 복구할 수 없습니다.';
+			noticeEl.className = 'small mb-0 mt-2 text-danger fw-semibold';
+		} else {
+			noticeEl.textContent = '';
+			noticeEl.className = 'small mb-0 mt-2 d-none';
+		}
+	}
+
+	document.getElementById('memberAccountStatus')?.addEventListener('change', (e) => {
+		const currentMember = adminMemberCache.find(item => String(item.memberId) === String(selectedAdminMemberId));
+		const isAlreadyWithdrawn = currentMember?.memberStatus === 'WITHDRAWN';
+		syncMemberStatusModalState(isAlreadyWithdrawn, e.currentTarget.value);
+	});
+
 	// 회원 상세 모달 열릴 때 진짜 DB 데이터 바인딩!
 	document.getElementById('memberDetailModal')?.addEventListener('show.bs.modal', async (event) => {
 		selectedAdminMemberId = event.relatedTarget?.dataset.memberDetail || '';
 		const member = adminMemberCache.find(item => String(item.memberId) === String(selectedAdminMemberId));
 		if (!member) return;
 
-		document.getElementById('memberDetailTitle').textContent = `${member.memberName || member.loginId} 회원 상세`;
+		const titleName = member.memberName || member.loginId;
+		document.getElementById('memberDetailTitle').textContent = titleName ? `${titleName} 회원 상세` : '탈퇴 회원 상세';
 		document.querySelector('[data-member-detail-id]').textContent = member.loginId || '—';
 		document.querySelector('[data-member-detail-email]').textContent = member.email || '—';
 		document.querySelector('[data-member-detail-joined]').textContent = member.createdAt ? String(member.createdAt).substring(0, 10).replace(/-/g, '.') : '—';
-		document.getElementById('memberAccountStatus').value = member.memberStatus || 'ACTIVE';
+
+		const currentStatus = member.memberStatus || 'ACTIVE';
+		document.getElementById('memberAccountStatus').value = currentStatus;
+		syncMemberStatusModalState(currentStatus === 'WITHDRAWN', currentStatus);
 
 		const draftBody = document.querySelector('[data-member-drafts]');
 		const draftCount = document.querySelector('[data-member-draft-count]');
@@ -251,7 +282,11 @@
 
 		// 4) 데이터 없음 처리
 		if (totalCount === 0) {
-			draftBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">해당 시나리오의 연습 이력이 없습니다.</td></tr>';
+			const currentMember = adminMemberCache.find(item => String(item.memberId) === String(selectedAdminMemberId));
+			const emptyMsg = currentMember?.memberStatus === 'WITHDRAWN'
+				? '탈퇴 처리되어 연습 이력이 파기되었습니다.'
+				: '해당 시나리오의 연습 이력이 없습니다.';
+			draftBody.innerHTML = `<tr><td colspan="6" class="text-center text-secondary py-4">${emptyMsg}</td></tr>`;
 			if (paginationEl) paginationEl.innerHTML = '';
 			return;
 		}
@@ -338,27 +373,62 @@
 	});
 	
 	// 관리자 회원 상태 변경 저장 버튼 클릭 이벤트
-	document.querySelector('[data-save-member-status]')?.addEventListener('click', async () => {
+	document.querySelector('[data-save-member-status]')?.addEventListener('click', () => {
 		if (!selectedAdminMemberId) return;
-		const status = document.getElementById('memberAccountStatus').value;
-
-		try {
-			const response = await fetch(`/api/admin/members/${selectedAdminMemberId}/status`, {
-				method: 'PUT',
-				body: new URLSearchParams({ memberStatus: status })
-			});
-
-			if (!response.ok) throw new Error('회원 상태 변경 실패');
-
-			toast('회원 상태를 성공적으로 변경했습니다.');
-			bootstrap.Modal.getInstance(document.getElementById('memberDetailModal'))?.hide();
-
-			await loadAdminMembers();
-			if (typeof window.loadAdminActivityLog === 'function') window.loadAdminActivityLog();
-		} catch (error) {
-			console.error('회원 상태 변경 실패:', error);
-			toast('회원 상태 변경에 실패했습니다. 다시 시도해 주세요.');
+		const currentMember = adminMemberCache.find(item => String(item.memberId) === String(selectedAdminMemberId));
+		if (currentMember?.memberStatus === 'WITHDRAWN') {
+			toast('이미 탈퇴한 회원의 상태는 변경할 수 없습니다.');
+			return;
 		}
+
+		const status = document.getElementById('memberAccountStatus')?.value;
+		if (!status) return;
+
+		const submitStatusChange = async () => {
+			const saveBtn = document.querySelector('[data-save-member-status]');
+			if (saveBtn) saveBtn.disabled = true;
+
+			try {
+				const response = await fetch(`/api/admin/members/${selectedAdminMemberId}/status`, {
+					method: 'PUT',
+					body: new URLSearchParams({ memberStatus: status })
+				});
+
+				if (!response.ok) {
+					const errMsg = await response.text().catch(() => '');
+					throw new Error(errMsg || '회원 상태 변경에 실패했습니다.');
+				}
+
+				toast(status === 'WITHDRAWN'
+					? '회원 탈퇴 및 개인정보 파기 처리를 완료했습니다.'
+					: '회원 상태를 성공적으로 변경했습니다.');
+				bootstrap.Modal.getInstance(document.getElementById('memberDetailModal'))?.hide();
+
+				await loadAdminMembers();
+				if (typeof window.loadAdminActivityLog === 'function') window.loadAdminActivityLog();
+				if (status === 'WITHDRAWN' && typeof window.loadAdminDashboardStats === 'function') {
+					window.loadAdminDashboardStats();
+				}
+			} catch (error) {
+				console.error('회원 상태 변경 실패:', error);
+				toast(error.message || '회원 상태 변경에 실패했습니다. 다시 시도해 주세요.');
+			} finally {
+				const latestMember = adminMemberCache.find(item => String(item.memberId) === String(selectedAdminMemberId));
+				if (saveBtn) saveBtn.disabled = latestMember?.memberStatus === 'WITHDRAWN';
+			}
+		};
+
+		if (status === 'WITHDRAWN') {
+			const confirmMsg = '탈퇴 처리 시 회원의 개인정보(이름·아이디·이메일 등)와 시뮬레이션 연습 기록이 즉시 파기되며 이후 상태를 되돌릴 수 없습니다.\n\n정말 탈퇴 처리하시겠습니까?';
+			if (typeof haebomConfirm === 'function') {
+				haebomConfirm(confirmMsg, submitStatusChange, null, '회원 탈퇴 확인');
+			} else if (confirm(confirmMsg)) {
+				submitStatusChange();
+			}
+			return;
+		}
+
+		submitStatusChange();
 	});
 
 	// 회원 검색 필터
