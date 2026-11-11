@@ -8,6 +8,8 @@ if (page !== null) {
     const steps = document.querySelectorAll('[id^="signupStep"]');
     const stepLabels = document.querySelectorAll('[data-signup-step-label]');
     const consent = document.getElementById('signupRequiredConsent');
+    const termsConsent = document.getElementById('signupTermsConsent');
+    const agreeAll = document.getElementById('signupAgreeAll');
     const consentError = document.getElementById('signupConsentError');
     const accountError = document.getElementById('signupAccountError');
     const form = document.getElementById('signupAccountForm');
@@ -60,12 +62,15 @@ if (page !== null) {
     const nextButton = document.querySelector('[data-signup-next="1"]');
     if (nextButton !== null) {
         nextButton.addEventListener('click', function () {
-            if (consent === null || !consent.checked) {
+            if (consent === null || termsConsent === null
+                    || !consent.checked || !termsConsent.checked) {
                 if (consentError !== null) {
                     consentError.textContent = page.dataset.consentError;
                     consentError.hidden = false;
                 }
-                if (consent !== null) consent.focus();
+                const uncheckedConsent = termsConsent !== null && !termsConsent.checked
+                    ? termsConsent : consent;
+                if (uncheckedConsent !== null) uncheckedConsent.focus();
                 return;
             }
             if (consentError !== null) {
@@ -76,14 +81,52 @@ if (page !== null) {
         });
     }
 
-    if (consent !== null && consentError !== null) {
-        consent.addEventListener('change', function () {
-            if (consent.checked) {
+    const requiredConsents = [termsConsent, consent].filter(Boolean);
+    function syncAgreeAll() {
+        if (agreeAll === null) return;
+        const checkedCount = requiredConsents.filter(function (checkbox) {
+            return checkbox.checked;
+        }).length;
+        agreeAll.checked = checkedCount === requiredConsents.length;
+        agreeAll.indeterminate = false;
+    }
+
+    if (agreeAll !== null) {
+        agreeAll.addEventListener('change', function () {
+            requiredConsents.forEach(function (checkbox) {
+                checkbox.checked = agreeAll.checked;
+            });
+            syncAgreeAll();
+            if (agreeAll.checked && consentError !== null) {
                 consentError.textContent = '';
                 consentError.hidden = true;
             }
         });
     }
+
+    requiredConsents.forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
+            syncAgreeAll();
+            if (requiredConsents.every(function (item) { return item.checked; })
+                    && consentError !== null) {
+                consentError.textContent = '';
+                consentError.hidden = true;
+            }
+        });
+    });
+
+    document.querySelectorAll('[data-consent-details]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const details = document.getElementById(button.dataset.consentDetails);
+            if (details === null) return;
+            const willOpen = details.hidden;
+            details.hidden = !willOpen;
+            button.setAttribute('aria-expanded', String(willOpen));
+            button.textContent = willOpen ? '내용 접기' : '내용 보기';
+        });
+    });
+
+    syncAgreeAll();
 
     document.querySelectorAll('[data-signup-back="0"]').forEach(function (button) {
         button.addEventListener('click', function () {
