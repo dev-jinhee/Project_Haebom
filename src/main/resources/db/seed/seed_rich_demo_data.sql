@@ -24,7 +24,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ========================================================
 INSERT INTO category (category_id, category_name) VALUES
 (1, 'HOUSING'),
-(2, 'IDENTITY');
+(2, 'IDENTITY'),
+(3, 'FAMILY_WELFARE'),
+(4, 'EMPLOYMENT_ECONOMY'),
+(5, 'TAX_PAYMENT');
 
 INSERT INTO scenario (
     scenario_id, scenario_code, scenario_title, description, estimated_minutes, is_active, category_id

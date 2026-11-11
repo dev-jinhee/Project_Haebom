@@ -1,6 +1,7 @@
 package kr.co.oti.haebom.business.scenario.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +17,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.business.scenario.dto.ScenarioDTO;
 import kr.co.oti.haebom.business.scenario.dto.ScenarioListItemDTO;
 import kr.co.oti.haebom.business.scenario.dto.ScenarioStepDTO;
-import kr.co.oti.haebom.system.security.MemberPrincipal;
 import kr.co.oti.haebom.business.scenario.service.ScenarioService;
 import kr.co.oti.haebom.business.scenario.service.SimulationService;
+import kr.co.oti.haebom.system.security.MemberPrincipal;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -28,59 +29,46 @@ import lombok.RequiredArgsConstructor;
 public class ScenarioApiController {
 	private final ScenarioService scenarioService;
 	private final SimulationService simulationService;
-	
+
 	// 공개 시나리오 목록 조회
-    @Operation(
-        summary = "공개 시나리오 목록 조회",
-        description = "공개된 시나리오 목록과 회원별 최신 진행 이력을 조회합니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "조회 성공"
-    )
+	@Operation(summary = "공개 시나리오 목록 조회", description = "공개된 시나리오 목록과 회원별 최신 진행 이력을 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "조회 성공")
 	@GetMapping
-	public List<ScenarioListItemDTO> getScenarioList(@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
-	    return scenarioService.getScenarioList(memberPrincipal.getMemberId());
+	public List<ScenarioListItemDTO> getScenarioList(
+			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		return scenarioService.getScenarioList(memberPrincipal.getMemberId());
 	}
-    
-    // 선택 시나리오 상세 조회
-    @Operation(
-        summary = "선택 시나리오 상세 조회",
-        description = "선택한 시나리오의 상세 정보를 조회합니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "조회 성공"
-    )
+
+	// 선택 시나리오 상세 조회
+	@Operation(summary = "선택 시나리오 상세 조회", description = "선택한 시나리오의 상세 정보를 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "조회 성공")
 	@GetMapping("/{scenarioId}")
 	public ScenarioDTO getScenarioById(@PathVariable("scenarioId") Integer scenarioId) {
-	    return scenarioService.getScenarioById(scenarioId);
+		return scenarioService.getScenarioById(scenarioId);
 	}
-    
-    // 선택 시나리오 단계 조회
-    @Operation(
-        summary = "선택 시나리오 단계 조회",
-        description = "선택한 시나리오의 전체 단계를 순서대로 조회합니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "조회 성공"
-    )
+
+	// 선택 시나리오 단계 조회
+	@Operation(summary = "선택 시나리오 단계 조회", description = "선택한 시나리오의 전체 단계를 순서대로 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "조회 성공")
 	@GetMapping("/{scenarioId}/steps")
 	public List<ScenarioStepDTO> getScenarioSteps(@PathVariable("scenarioId") Integer scenarioId) {
-	    return scenarioService.getScenarioStep(scenarioId);
+		return scenarioService.getScenarioStep(scenarioId);
 	}
-    // 새 진행 이력 생성
-    @Operation(
-        summary = "새 진행 이력 생성",
-        description = "시뮬레이션의 새 진행 이력을 생성합니다."
-    )
-    @ApiResponse(
-        responseCode = "200",
-        description = "생성 성공"
-    )
+
+	// 새 진행 이력 생성
+	@Operation(summary = "새 진행 이력 생성", description = "시뮬레이션의 새 진행 이력을 생성합니다.")
+	@ApiResponse(responseCode = "200", description = "생성 성공")
 	@PostMapping("/{scenarioId}/start")
-	public Integer postScenarioStart(@PathVariable("scenarioId") Integer scenarioId, @Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
-	    return simulationService.startSimulation(scenarioId, memberPrincipal.getMemberId());
+	public Integer postScenarioStart(@PathVariable("scenarioId") Integer scenarioId,
+			@Parameter(hidden = true) @AuthenticationPrincipal MemberPrincipal memberPrincipal) {
+		return simulationService.startSimulation(scenarioId, memberPrincipal.getMemberId());
+	}
+
+	// 카테고리 전체 조회
+	@Operation(summary = "카테고리 조회", description = "카테고리 이름과 라벨을 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "조회 성공")
+	@GetMapping("/categories")
+	public List<Map<String, String>> getCategories() {
+		return scenarioService.getCategoryList();
 	}
 }

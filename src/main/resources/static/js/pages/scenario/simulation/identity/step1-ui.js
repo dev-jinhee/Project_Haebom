@@ -4,6 +4,8 @@
  * 저장 / 복원 / 검증은 step-1.js에서 처리
  */
 
+import { inspectPhotoFile } from "./photo-validator.js";
+
 export function initIdentityStepUi(root, { readOnly = false } = {}) {
 	if (!root) return;
 
@@ -66,9 +68,6 @@ export function initIdentityStepUi(root, { readOnly = false } = {}) {
 		if (resultStatus) {
 			resultStatus.textContent = message;
 		}
-	}
-	function clearResults() {
-		resultBody?.replaceChildren();
 	}
 	// 수령지역 검색 결과 출력
 	function renderOffices(regions) {
@@ -240,42 +239,6 @@ export function initIdentityStepUi(root, { readOnly = false } = {}) {
 
 
 	// ==============================
-	// 3. 검색 이벤트
-	// ==============================
-	if (!readOnly) {
-		openBtn?.addEventListener("click", () => {
-			if (!dialog) {
-				console.error("수령기관 모달을 찾을 수 없습니다.");
-				return;
-			}
-
-			if (searchInput) searchInput.value = "";
-			clearResults();
-
-			setStatus("지역명을 입력하고 검색해 주세요.");
-
-			if (!dialog.open) dialog.showModal();
-
-			searchInput?.focus();
-		});
-
-		closeBtn?.addEventListener("click", () => {
-			dialog?.close();
-		});
-
-		searchBtn?.addEventListener("click", searchOffices);
-
-		searchInput?.addEventListener("keydown", event => {
-			if (event.key === "Enter") {
-				event.preventDefault();
-				searchOffices();
-			}
-		});
-	} else if (openBtn) {
-		openBtn.disabled = true;
-	}
-
-	// ==============================
 	// 4. 구비서류 전체 동의
 	// ==============================
 	const all = find("#identityConsentAll");
@@ -309,89 +272,232 @@ export function initIdentityStepUi(root, { readOnly = false } = {}) {
 	// ==============================
 	// 5. 증명사진 미리보기
 	// ==============================
+	const photoConfirmations = root.querySelector(".identity-photo-confirmations");
+	if (photoConfirmations) photoConfirmations.hidden = false;
+	if (readOnly) {
+		[
+			"#identityPhotoRecentConfirmed",
+			"#identityPhotoAppearanceConfirmed"
+		].forEach(selector => {
+			const input = root.querySelector(selector);
+
+			if (input) {
+				input.checked = true;
+				input.disabled = true;
+			}
+		});
+	}
 	setupPhotoPreview(root, readOnly);
 }
 // ==============================
-// S3 증명사진 미리보기 복원
+// 사진 검사 상태: root별 메모리 보관, DB 저장 대상 아님
 // ==============================
-export function renderSavedPhotoPreview(root, photo, progressId) {
+const photoInspections = new WeakMap();
+const photoRequestIds = new WeakMap();
+const previewUrls = new WeakMap();
 
+export function getPhotoInspection(root) {
+	return photoInspections.get(root) ?? {
+		status: "empty", file: null, photoKey: null, report: null
+	};
+}
+
+function nextPhotoRequest(root) {
+	const next = (photoRequestIds.get(root) ?? 0) + 1;
+	photoRequestIds.set(root, next);
+	return next;
+}
+
+function isCurrentPhotoRequest(root, requestId) {
+	return photoRequestIds.get(root) === requestId;
+}
+
+function clearPreviewUrl(root) {
+	const url = previewUrls.get(root);
+	if (url) URL.revokeObjectURL(url);
+	previewUrls.delete(root);
+}
+
+function makeElement(tag, className, content) {
+	const element = document.createElement(tag);
+	if (className) element.className = className;
+	if (content != null) element.textContent = content;
+	return element;
+}
+
+function renderPhotoPanel(root, fileName, imageUrl = "") {
 	const preview = root.querySelector("#identityPhotoPreview");
+	if (!preview) return;
 
-	if (!preview || !photo?.s3Key || !progressId) return;
+	preview.replaceChildren();
+	const review = makeElement("div", "identity-photo-review");
+	const imageBox = makeElement("div", "identity-photo-image");
+	const title = makeElement("p", "identity-photo-file-name", `첨부 사진: ${fileName}`);
+	imageBox.appendChild(title);
 
-	// 서버가 생성한 파일 ID만 허용
-	const fileId = photo.s3Key.split("/").pop();
+	if (imageUrl) {
+		const image = makeElement("img");
+		image.src = imageUrl;
+		image.alt = "증명사진 미리보기";
+		image.addEventListener("error", () => {
+			image.replaceWith(makeElement("p", "identity-note", "사진 미리보기를 표시할 수 없습니다."));
+		});
+		imageBox.appendChild(image);
+	}
 
-	if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|jpeg|png)$/i.test(fileId)) {
-		console.error("올바르지 않은 증명사진 ID:", fileId);
+	const checksBox = makeElement("div", "identity-photo-checks");
+	checksBox.setAttribute("aria-live", "polite");
+	review.append(imageBox, checksBox);
+	preview.appendChild(review);
+	updatePhotoPanel(root);
+}
+
+function updatePhotoPanel(root) {
+	const box = root.querySelector("#identityPhotoPreview .identity-photo-checks");
+	if (!box) return;
+
+	const state = getPhotoInspection(root);
+	box.replaceChildren();
+	box.appendChild(makeElement("p", "identity-photo-checks-title", "증명사진 검사 결과"));
+
+	if (state.status === "checking") {
+		box.appendChild(makeElement("p", "identity-photo-status", "사진의 형식, 용량, 해상도와 비율을 검사하고 있습니다."));
+		return;
+	}
+	if (state.status === "failed" && !state.report) {
+		box.appendChild(makeElement("p", "identity-photo-status is-fail", state.error || "검사할 수 없는 사진입니다. 다시 선택해 주세요."));
 		return;
 	}
 
-	const url =
-		`/api/simulation/identity/${progressId}/photo/` +
-		encodeURIComponent(fileId);
+	for (const check of state.report?.checks ?? []) {
+		const item = makeElement("div", `identity-photo-check ${check.passed ? "is-pass" : "is-fail"}`);
+		const symbol = check.passed ? "✓" : "✕";
+		item.append(
+			makeElement("span", "identity-photo-check-label", `${symbol} ${check.label}`),
+			makeElement("span", "identity-photo-check-detail", check.detail)
+		);
+		box.appendChild(item);
+	}
 
-	preview.replaceChildren();
-
-	const note = document.createElement("p");
-	note.textContent = `첨부된 파일: ${photo.fileName || fileId}`;
-
-	const img = document.createElement("img");
-	img.src = url;
-	img.alt = "첨부된 증명사진";
-	img.style.cssText =
-		"max-width:160px;max-height:200px;" +
-		"object-fit:contain;display:block;";
-
-	img.addEventListener("error", () => {
-		preview.replaceChildren();
-
-		const error = document.createElement("p");
-		error.textContent = "증명사진을 불러오지 못했습니다.";
-
-		preview.appendChild(error);
-	});
-
-	preview.append(note, img);
+	const passed = state.status === "passed";
+	box.appendChild(makeElement(
+		"p", `identity-photo-status ${passed ? "is-pass" : "is-fail"}`,
+		passed ? "자동 검사 통과 · 아래 촬영 조건도 확인해 주세요." :
+			"자동 검사 미통과 · 사진을 다시 선택해 주세요."
+	));
 }
+
 // ==============================
-// 증명사진 미리보기
+// S3에 기존 업로드된 사진 복원 + 재검증
+// ==============================
+export async function renderSavedPhotoPreview(root, photo, progressId, { preserveValidation = false } = {}) {
+	const preview = root.querySelector("#identityPhotoPreview");
+	if (!preview || !photo?.s3Key || !progressId) return;
+
+	const requestId = nextPhotoRequest(root);
+	clearPreviewUrl(root);
+
+	const fileId = photo.s3Key.split("/").pop();
+	if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|jpeg|png)$/i.test(fileId)) {
+		photoInspections.set(root, {
+			status: "failed", file: null, photoKey: photo.s3Key, report: null,
+			error: "저장된 사진 ID가 올바르지 않습니다. 사진을 다시 첨부해 주세요."
+		});
+		renderPhotoPanel(root, photo.fileName || fileId);
+		return;
+	}
+
+	const url = `/api/simulation/identity/${encodeURIComponent(progressId)}/photo/${encodeURIComponent(fileId)}`;
+	const previous = getPhotoInspection(root);
+
+	// 새 파일을 방금 검증해서 업로드한 경우 검사 결과를 그대로 유지
+	if (preserveValidation && previous.status === "passed") {
+		photoInspections.set(root, {
+			status: "passed", file: null, photoKey: photo.s3Key, report: previous.report
+		});
+		renderPhotoPanel(root, photo.fileName || fileId, url);
+		return;
+	}
+
+	photoInspections.set(root, {
+		status: "checking", file: null, photoKey: photo.s3Key, report: null
+	});
+	renderPhotoPanel(root, photo.fileName || fileId, url);
+
+	try {
+		// 기존 미리보기 GET API로 파일을 읽고 검증한다. 검증 결과는 서버/DB로 보내지 않음.
+		const response = await fetch(url, { credentials: "same-origin" });
+		if (!response.ok) throw new Error(`사진 조회 실패 (${response.status})`);
+		const blob = await response.blob();
+		const file = new File([blob], photo.fileName || fileId, { type: blob.type });
+		const report = await inspectPhotoFile(file);
+		if (!isCurrentPhotoRequest(root, requestId)) return;
+
+		photoInspections.set(root, {
+			status: report.passed ? "passed" : "failed",
+			file: null, photoKey: photo.s3Key, report
+		});
+		updatePhotoPanel(root);
+	} catch (error) {
+		if (!isCurrentPhotoRequest(root, requestId)) return;
+		photoInspections.set(root, {
+			status: "failed", file: null, photoKey: photo.s3Key, report: null,
+			error: "저장된 증명사진을 확인할 수 없습니다. 다시 첨부해 주세요."
+		});
+		console.error("저장된 증명사진 검사 실패:", error);
+		updatePhotoPanel(root);
+	}
+}
+
+// ==============================
+// 새 증명사진 미리보기 + 자동 검사
 // ==============================
 function setupPhotoPreview(root, readOnly) {
 	const input = root.querySelector("#identityPhotoInput");
 	const preview = root.querySelector("#identityPhotoPreview");
-
 	if (!input || !preview || readOnly) return;
 
-	let currentUrl = null;
+	photoInspections.set(root, {
+		status: "empty", file: null, photoKey: null, report: null
+	});
 
-	input.addEventListener("change", () => {
-		if (currentUrl) {
-			URL.revokeObjectURL(currentUrl);
-		}
-
-		currentUrl = null;
+	input.addEventListener("change", async () => {
+		const requestId = nextPhotoRequest(root);
+		clearPreviewUrl(root);
 		preview.replaceChildren();
 
 		const file = input.files?.[0];
-		if (!file) return;
+		if (!file) {
+			photoInspections.set(root, {
+				status: "empty", file: null, photoKey: null, report: null
+			});
+			return;
+		}
 
-		const note = document.createElement("p");
-		note.textContent = `선택한 파일: ${file.name}`;
-		preview.appendChild(note);
+		const isImage = file.type.startsWith("image/") || /\.(jpe?g|png)$/i.test(file.name);
+		const url = isImage ? URL.createObjectURL(file) : "";
+		if (url) previewUrls.set(root, url);
+		photoInspections.set(root, {
+			status: "checking", file, photoKey: null, report: null
+		});
+		renderPhotoPanel(root, file.name, url);
 
-		if (file.type.startsWith("image/")) {
-			currentUrl = URL.createObjectURL(file);
-
-			const img = document.createElement("img");
-			img.src = currentUrl;
-			img.alt = "선택한 증명사진 미리보기";
-			img.style.cssText =
-				"max-width:160px;max-height:200px;" +
-				"object-fit:contain;display:block;";
-
-			preview.appendChild(img);
+		try {
+			const report = await inspectPhotoFile(file);
+			if (!isCurrentPhotoRequest(root, requestId)) return;
+			photoInspections.set(root, {
+				status: report.passed ? "passed" : "failed",
+				file, photoKey: null, report
+			});
+			updatePhotoPanel(root);
+		} catch (error) {
+			if (!isCurrentPhotoRequest(root, requestId)) return;
+			photoInspections.set(root, {
+				status: "failed", file, photoKey: null, report: null,
+				error: "파일을 검사할 수 없습니다. 다시 선택해 주세요."
+			});
+			console.error("증명사진 검사 실패:", error);
+			updatePhotoPanel(root);
 		}
 	});
 }

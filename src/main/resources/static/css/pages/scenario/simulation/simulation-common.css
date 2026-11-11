@@ -6,10 +6,10 @@
 
 /* 원본의 공통 카드 기본 스타일(원본 simulation.css L174-L179) */
 .guide-card, .privacy-card, .support-note {
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    background: #fff;
-    box-shadow: 0 7px 20px rgba(31, 58, 84, .035);
+	border: 1px solid var(--line);
+	border-radius: 20px;
+	background: #fff;
+	box-shadow: 0 7px 20px rgba(31, 58, 84, .035);
 }
 
 /* 원본 simulation.css L40–L125 */
@@ -478,8 +478,7 @@
    ============================== */
 
 /* 모든 시뮬레이션의 라디오 / 체크박스 */
-.sim-step-content input[type="radio"], .sim-step-content input[type="checkbox"]
-	{
+input[type="radio"], input[type="checkbox"] {
 	width: 18px;
 	height: 18px;
 	margin: 0;
@@ -490,8 +489,7 @@
 }
 
 /* input을 직접 감싸는 label 정렬 */
-.sim-step-content label:has(>input[type="radio"]), .sim-step-content label:has(>input[type="checkbox"])
-	{
+label:has(>input[type="radio"]), label:has(>input[type="checkbox"]) {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -505,7 +503,7 @@
    ============================== */
 
 /* input과 label이 형제인 경우 */
-.sim-step-content .form-check {
+.form-check {
 	display: flex;
 	align-items: flex-start;
 	gap: 8px;
@@ -513,7 +511,7 @@
 }
 
 /* Bootstrap 기본 float 및 음수 margin 제거 */
-.sim-step-content .form-check>.form-check-input {
+.form-check>.form-check-input {
 	float: none;
 	flex: 0 0 18px;
 	width: 18px;
@@ -524,11 +522,16 @@
 	accent-color: #164166;
 }
 
+/* Bootstrap 체크박스·라디오 선택 색상 */
+.form-check-input:checked {
+	background-color: #164166;
+	border-color: #164166;
+}
+
 /* 라디오·체크박스 옆 텍스트 */
-.sim-step-content .form-check>.form-check-label {
+.form-check>.form-check-label {
 	display: block;
 	margin: 0;
-	line-height: 1.5;
 	cursor: pointer;
 }
 
@@ -537,4 +540,3 @@
 		padding: 18px 16px;
 	}
 }
-
