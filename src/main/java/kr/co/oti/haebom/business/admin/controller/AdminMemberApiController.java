@@ -3,6 +3,8 @@ package kr.co.oti.haebom.business.admin.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.co.oti.haebom.business.admin.dto.AdminMemberDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminMemberProgressDTO;
 import kr.co.oti.haebom.business.admin.service.AdminMemberService;
+import kr.co.oti.haebom.system.security.MemberPrincipal;
+import kr.co.oti.haebom.system.security.PrincipalUtils;
 import lombok.RequiredArgsConstructor;
 
+@PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping("/api/admin/members")
 @RequiredArgsConstructor
@@ -34,9 +39,11 @@ public class AdminMemberApiController {
 	@PutMapping("/{memberId}/status")
 	public ResponseEntity<String> updateMemberStatus(
 			@PathVariable Integer memberId, 
-			@RequestParam("memberStatus") String memberStatus) {
+			@RequestParam("memberStatus") String memberStatus,
+			@AuthenticationPrincipal MemberPrincipal principal) {
 		
-		adminMemberService.updateMemberStatus(memberId, memberStatus);
+		int currentAdminId = PrincipalUtils.requireAdminId(principal);
+		adminMemberService.updateMemberStatus(memberId, memberStatus, currentAdminId);
 		
 		return ResponseEntity.ok("회원 상태가 성공적으로 변경되었습니다.");
 	}
