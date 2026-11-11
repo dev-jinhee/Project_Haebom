@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import kr.co.oti.haebom.business.admin.dto.AdminScenarioCategoryDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioStepStatsDTO;
 
@@ -14,7 +15,13 @@ public interface AdminScenarioMapper {
 	
 	// 1. 관리자용 전체 시나리오 목록 조회 (공개 / 비공개 모두 포함)
 	List<AdminScenarioDTO> selectScenarioList();
-	
+
+	// 1-1. 시나리오 카테고리 전체 목록 조회 (category 테이블 연동)
+	List<AdminScenarioCategoryDTO> selectCategoryList();
+
+	// 1-2. 시나리오 카테고리 존재 여부 확인
+	int countCategoryById(@Param("categoryId") Integer categoryId);
+
 	// 2. 시나리오 정보 및 운영 상태 (is_active) 수정
 	int updateScenario(AdminScenarioDTO scenarioDTO);
 	

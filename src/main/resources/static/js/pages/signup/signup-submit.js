@@ -45,7 +45,7 @@ export function initSignupSubmit(options) {
         const requestData = {
             memberName: document.getElementById('signupName').value.trim(),
             loginId: loginId,
-            password: password,
+            password: passwordInput.value,
             email: email,
             birthDate: document.getElementById('signupBirthDate').value || null,
             gender: selectedGender === null ? null : selectedGender.value,

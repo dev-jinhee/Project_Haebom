@@ -66,6 +66,13 @@
 											<span>답변 대기</span><strong id="adminInquiryWaitingCount">0<small>건</small></strong>
 										</div>
 									</article>
+									<article class="answering">
+										<span class="admin-inquiry-summary-icon"><i
+											class="bi bi-pencil-square" aria-hidden="true"></i></span>
+										<div>
+											<span>답변 중</span><strong id="adminInquiryAnsweringCount">0<small>건</small></strong>
+										</div>
+									</article>
 									<article class="done">
 										<span class="admin-inquiry-summary-icon"><i
 											class="bi bi-check2-circle" aria-hidden="true"></i></span>

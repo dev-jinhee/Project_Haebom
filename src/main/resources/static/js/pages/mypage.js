@@ -590,7 +590,7 @@
             }
         }
 
-        async function loadInquiryAnswers(qnaId) {
+        async function loadInquiryAnswers(qnaId, status) {
             const answerSection = document.querySelector('[data-mypage-inquiry-answer-section]');
             const answersList = document.querySelector('[data-mypage-inquiry-answers]');
             if (!answerSection || !answersList || !page.dataset.inquiryAnswersApiUrl) return;
@@ -613,7 +613,9 @@
                 if (!Array.isArray(answers) || answers.length === 0) {
                     const empty = document.createElement('p');
                     empty.className = 'mypage-inquiry-answer-message';
-                    empty.textContent = '등록된 답변이 없습니다.';
+                    empty.textContent = status === 'ANSWERING'
+                        ? '담당자가 문의를 확인하고 답변을 작성 중입니다.'
+                        : '등록된 답변이 없습니다.';
                     answersList.replaceChildren(empty);
                     return;
                 }
@@ -696,9 +698,10 @@
 
             const answerSection = modal.querySelector('[data-mypage-inquiry-answer-section]');
             const answersList = modal.querySelector('[data-mypage-inquiry-answers]');
-            answerSection.hidden = status !== 'ANSWERED';
+            const showAnswers = status === 'ANSWERED' || status === 'ANSWERING';
+            answerSection.hidden = !showAnswers;
             answersList.replaceChildren();
-            if (status === 'ANSWERED') loadInquiryAnswers(detail.qnaId);
+            if (showAnswers) loadInquiryAnswers(detail.qnaId, status);
             openModal('#mypageInquiryViewModal');
         });
 

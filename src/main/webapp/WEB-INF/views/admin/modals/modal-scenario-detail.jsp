@@ -7,8 +7,9 @@
 			<div class="modal-content admin-detail-modal">
 				<div class="modal-header admin-detail-header">
 					<div class="d-flex align-items-center gap-3">
-						<span class="admin-detail-icon"><i
-							class="bi bi-diagram-3-fill"></i></span>
+						<span class="admin-detail-icon"><span
+							class="material-symbols-outlined" id="scenarioDetailIcon"
+							aria-hidden="true">home</span></span>
 						<div>
 							<div class="admin-detail-eyebrow">
 								시나리오 관리 <span>&gt;</span> 상세 정보
@@ -42,8 +43,8 @@
 							</div>
 							<div class="col-md-3">
 								<label class="form-label" for="scenarioCategory">분류</label><select
-									class="form-select" id="scenarioCategory"><option value="1">주거·이사</option>
-									<option value="2">신분증·주민등록</option></select>
+									class="form-select" id="scenarioCategory" required>
+									<option value="">분류 선택</option></select>
 							</div>
 							<div class="col-md-2">
 								<label class="form-label" for="scenarioEstimatedMinutes">예상

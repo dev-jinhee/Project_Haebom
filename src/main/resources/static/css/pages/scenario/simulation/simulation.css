@@ -86,10 +86,6 @@
 	font-weight: 700;
 }
 
-.sim-layout {
-	margin-top: 20px;
-}
-
 .sim-card {
 	border: 1px solid var(--line);
 	border-radius: 20px;

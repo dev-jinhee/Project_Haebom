@@ -73,7 +73,7 @@ public class IdentityPhotoService {
 
             // 실제 재발급 시나리오 코드 확인 필요
             if (stepInfo == null
-                    || !"IDENTITY".equals(stepInfo.getScenarioCode())
+                    || !"IDENTITY_REISSUE".equals(stepInfo.getScenarioCode())
                     || !Integer.valueOf(1).equals(
                             stepInfo.getStepOrder())) {
 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import kr.co.oti.haebom.business.admin.dto.AdminScenarioCategoryDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDTO;
 import kr.co.oti.haebom.business.admin.dto.AdminScenarioDetailStatsDTO;
 import kr.co.oti.haebom.business.admin.service.AdminScenarioService;
@@ -33,6 +34,13 @@ public class AdminScenarioApiController {
     public ResponseEntity<List<AdminScenarioDTO>> getScenarioList() {
         List<AdminScenarioDTO> scenarios = adminScenarioService.getScenarioList();
         return ResponseEntity.ok(scenarios);
+    }
+
+    // 1-1. 관리자용 시나리오 카테고리 목록 조회 (GET /api/admin/scenarios/categories)
+    @GetMapping("/categories")
+    public ResponseEntity<List<AdminScenarioCategoryDTO>> getCategoryList() {
+        List<AdminScenarioCategoryDTO> categories = adminScenarioService.getCategoryList();
+        return ResponseEntity.ok(categories);
     }
 
     // 2. 관리자용 시나리오 정보 및 운영 상태 수정 (PUT /api/admin/scenarios/{scenarioId})

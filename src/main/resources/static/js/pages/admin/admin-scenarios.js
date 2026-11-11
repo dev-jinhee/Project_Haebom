@@ -17,17 +17,61 @@
 	// ========================================================
 	// [실제 DB 연동] 관리자 시나리오 관리
 	// ========================================================
+	const SIMULATION_ICONS = {
+		MOVE: 'home',
+		IDENTITY_REISSUE: 'badge',
+		RESIDENT_RECORD_ISSUE: 'docs'
+	};
+
+	function getScenarioIcon(scenarioCode) {
+		return SIMULATION_ICONS[scenarioCode] || 'info';
+	}
+
 	let adminScenarioCache = [];
+	let adminScenarioCategoryCache = [];
 	let selectedAdminScenarioId = null;
+
+	function renderScenarioCategoryOptions(selectedCategoryId) {
+		const categorySelect = document.getElementById('scenarioCategory');
+		if (!categorySelect) return;
+
+		if (!adminScenarioCategoryCache || adminScenarioCategoryCache.length === 0) {
+			categorySelect.innerHTML = '<option value="">분류 목록을 불러오지 못했습니다</option>';
+			return;
+		}
+
+		categorySelect.innerHTML = adminScenarioCategoryCache
+			.map(c => `<option value="${c.categoryId}">${escapeAdminHtml(c.categoryLabel || c.categoryName)}</option>`)
+			.join('');
+
+		if (selectedCategoryId != null && categorySelect.querySelector(`option[value="${selectedCategoryId}"]`)) {
+			categorySelect.value = String(selectedCategoryId);
+		}
+	}
+
+	async function loadAdminScenarioCategories() {
+		try {
+			const response = await fetch('/api/admin/scenarios/categories');
+			if (!response.ok) throw new Error('시나리오 카테고리 조회 실패');
+			const categories = await response.json();
+			adminScenarioCategoryCache = categories || [];
+			renderScenarioCategoryOptions(document.getElementById('scenarioCategory')?.value);
+		} catch (error) {
+			console.error('시나리오 카테고리 불러오기 실패:', error);
+		}
+	}
 
 	async function loadAdminScenarios() {
 		const tbody = document.getElementById('adminScenarioTableBody');
 		if (!tbody) return;
 
 		try {
-			const response = await fetch('/api/admin/scenarios');
-			if (!response.ok) throw new Error('시나리오 목록 조회 실패');
-			const list = await response.json();
+			const [scenarioRes] = await Promise.all([
+				fetch('/api/admin/scenarios'),
+				loadAdminScenarioCategories()
+			]);
+			if (!scenarioRes.ok) throw new Error('시나리오 목록 조회 실패');
+			const list = await scenarioRes.json();
 			adminScenarioCache = list || [];
 
 			renderAdminScenarioRows();
@@ -53,24 +97,18 @@
 			totalCountEl.textContent = `${adminScenarioCache.length}개 시나리오`;
 		}
 
-		const getIcon = (categoryName) => {
-			if (categoryName === 'HOUSING') return 'bi-house-check';
-			if (categoryName === 'IDENTITY') return 'bi-person-vcard';
-			return 'bi-diagram-3';
-		};
-
 		tbody.innerHTML = adminScenarioCache.map(s => {
 			const statusBadge = s.isActive
 				? '<span class="badge text-bg-success">운영 중</span>'
 				: '<span class="badge text-bg-warning">점검 중</span>';
-			const icon = getIcon(s.categoryName);
+			const iconName = getScenarioIcon(s.scenarioCode);
 			const categoryText = s.categoryLabel || s.categoryName || '기타';
 
 			return `
         <tr data-scenario-row data-scenario-id="${s.scenarioId}">
           <td class="ps-3">
             <div class="admin-scenario-table-title">
-              <span class="admin-scenario-table-icon"><i class="bi ${icon}"></i></span>
+              <span class="admin-scenario-table-icon"><span class="material-symbols-outlined" aria-hidden="true">${escapeAdminHtml(iconName)}</span></span>
               <div>
                 <strong data-scenario-name-display>${escapeAdminHtml(s.scenarioTitle)}</strong>
                 <small class="text-secondary">${escapeAdminHtml(s.description || '행정 절차 연습')}</small>
@@ -126,18 +164,22 @@
 		const scenario = adminScenarioCache.find(s => String(s.scenarioId) === String(selectedAdminScenarioId));
 		if (!scenario) return;
 
+		const iconEl = document.getElementById('scenarioDetailIcon');
 		const titleEl = document.getElementById('scenarioDetailTitle');
 		const idInput = document.getElementById('scenarioId');
 		const nameInput = document.getElementById('scenarioName');
-		const categorySelect = document.getElementById('scenarioCategory');
 		const minutesInput = document.getElementById('scenarioEstimatedMinutes');
 		const statusSelect = document.getElementById('scenarioStatus');
 		const descInput = document.getElementById('scenarioDescription');
 
+		if (iconEl) iconEl.textContent = getScenarioIcon(scenario.scenarioCode);
 		if (titleEl) titleEl.textContent = typeof decodeHtml === 'function' ? decodeHtml(scenario.scenarioTitle) : scenario.scenarioTitle;
 		if (idInput) idInput.value = scenario.scenarioId;
 		if (nameInput) nameInput.value = typeof decodeHtml === 'function' ? decodeHtml(scenario.scenarioTitle) : scenario.scenarioTitle;
-		if (categorySelect) categorySelect.value = scenario.categoryId || '1';
+		if (!adminScenarioCategoryCache || adminScenarioCategoryCache.length === 0) {
+			await loadAdminScenarioCategories();
+		}
+		renderScenarioCategoryOptions(scenario.categoryId);
 		if (minutesInput) minutesInput.value = scenario.estimatedMinutes || 5;
 		if (statusSelect) statusSelect.value = scenario.isActive ? 'true' : 'false';
 		if (descInput) descInput.value = typeof decodeHtml === 'function' ? decodeHtml(scenario.description || '') : (scenario.description || '');
@@ -215,11 +257,18 @@
 		const statusSelect = document.getElementById('scenarioStatus');
 		const descInput = document.getElementById('scenarioDescription');
 
+		const categoryId = categorySelect?.value;
+		if (!categoryId) {
+			toast('시나리오 분류를 선택해 주세요.');
+			categorySelect?.focus();
+			return;
+		}
+
 		const updateParams = new URLSearchParams({
 			scenarioId: selectedAdminScenarioId,
 			scenarioTitle: nameInput.value.trim(),
 			description: descInput ? descInput.value.trim() : '',
-			categoryId: categorySelect?.value || 1,
+			categoryId: categoryId,
 			estimatedMinutes: minutesInput.value,
 			isActive: statusSelect.value === 'true'
 		});
@@ -230,7 +279,10 @@
 				body: updateParams
 			});
 
-			if (!response.ok) throw new Error('시나리오 정보 수정 실패');
+			if (!response.ok) {
+				const errMsg = await response.text().catch(() => '');
+				throw new Error(errMsg || '시나리오 정보 수정에 실패했습니다.');
+			}
 
 			toast('시나리오 정보를 성공적으로 저장했습니다.');
 			bootstrap.Modal.getInstance(document.getElementById('scenarioDetailModal'))?.hide();
@@ -240,7 +292,7 @@
 			await loadAdminScenarios();
 		} catch (error) {
 			console.error('시나리오 수정 오류:', error);
-			toast('시나리오 정보 수정에 실패했습니다. 다시 시도해 주세요.');
+			toast(error.message || '시나리오 정보 수정에 실패했습니다. 다시 시도해 주세요.');
 		}
 	});
 

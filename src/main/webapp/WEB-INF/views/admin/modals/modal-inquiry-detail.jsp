@@ -48,12 +48,8 @@
 							<span id="inquiryContentLabel"><i
 								class="bi bi-card-text me-2"></i>문의 내용</span>
 							<div class="inquiry-category-inline">
-								<label for="inquiryCategorySelect">문의 분류</label><select
-									class="form-select form-select-sm" id="inquiryCategorySelect"><option>시뮬레이션
-										문의</option>
-									<option>회원·계정 문의</option>
-									<option>오류·버그 신고</option>
-									<option>기타 문의</option></select>
+								<span class="inquiry-category-label">문의 분류</span>
+								<span class="badge rounded-pill inquiry-category-badge" data-inquiry-category>—</span>
 							</div>
 						</div>
 						<p class="mb-0" data-inquiry-content></p>
@@ -96,9 +92,10 @@
 						<div class="row g-3 mt-1">
 							<div class="col-sm-6">
 								<label class="form-label" for="inquiryStatusSelect">답변
-									상태</label><select class="form-select" id="inquiryStatusSelect"><option>답변
-										대기</option>
-									<option>답변 완료</option></select>
+									상태</label><select class="form-select" id="inquiryStatusSelect"><option
+										value="WAITING">답변 대기</option>
+									<option value="ANSWERING">답변 중</option>
+									<option value="ANSWERED">답변 완료</option></select>
 							</div>
 						</div>
 					</section>
