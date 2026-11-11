@@ -68,7 +68,7 @@
 					class="move-step4-address-pagination mt-3"></div>
 			</div>
 			<div id="newAddressResultSection" class="mt-3 d-none">
-				<table class="gov24-result-table" aria-label="이사 온 곳 주소 조회 결과">
+				<table class="move-address-result-table" aria-label="이사 온 곳 주소 조회 결과">
 
 					<tbody>
 
