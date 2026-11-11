@@ -44,28 +44,6 @@
 		</ul>
 	</section>
 
-	<!-- 해봄 시뮬레이션 안내 -->
-	<aside class="sim-notice-panel"
-		aria-labelledby="identitySimulationTitle">
-
-		<h3 id="identitySimulationTitle">
-			<span class="material-symbols-outlined" aria-hidden="true">school</span>
-			해봄 시뮬레이션 안내
-		</h3>
-
-		<ul>
-			<li><spring:message code="simulation.notice" /></li>
-			<li><spring:message code="simulation.identity.notice" /></li>
-			<li><spring:message code="simulation.privacy" /></li>
-			<li><spring:message code="simulation.history" /></li>
-			<li><spring:message code="simulation.history.inprogress" /></li>
-			<li><strong> <spring:message
-						code="simulation.identity.result" />
-			</strong></li>
-		</ul>
-	</aside>
-
-
 	<%-- 해봄 학습 안내: 필요한 경우에만 펼치는 기초 설명 --%>
 	<details class="sim-learning-quick-guide">
 		<summary>
@@ -414,22 +392,6 @@
 			<p class="identity-note">※ 이 페이지는 행정절차 체험용 시뮬레이션 화면입니다.</p>
 		</div>
 	</section>
-	<!-- 공통 안내 문구: 기존 해봄 메시지 유지 -->
-	<div class="alert alert-info mb-3 mt-2" role="note">
-		<p class="small mb-0">
-			<spring:message code="simulation.notice" />
-		</p>
-	</div>
-	<div class="border rounded-3 bg-light p-3">
-		<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.history" />
-		</p>
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.privacy" />
-		</p>
-	</div>
-
 	<%-- 관할 수령기관 검색: 데이터는 SGIS 사용 --%>
 	<dialog id="identityOfficeDialog" class="identity-office-dialog"
 		aria-labelledby="identityOfficeDialogTitle">

@@ -181,31 +181,4 @@
 
 	</div>
 
-
-	<!-- ============================== -->
-	<!-- 시뮬레이션 공통 안내 -->
-	<!-- ============================== -->
-	<div class="alert alert-info mb-3" role="note">
-		<p class="small mb-0">
-			<spring:message code="simulation.notice" />
-		</p>
-	</div>
-
-	<!-- ============================== -->
-	<!-- 입력 정보 및 진행 기록 안내 -->
-	<!-- ============================== -->
-	<div class="border rounded-3 bg-light p-3">
-
-		<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
-
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.history" />
-		</p>
-
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.privacy" />
-		</p>
-
-	</div>
-
 </section>

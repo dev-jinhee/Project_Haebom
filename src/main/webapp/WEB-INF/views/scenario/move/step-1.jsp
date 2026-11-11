@@ -149,36 +149,6 @@
 		</section>
 	</div>
 
-
-	<!-- 3. 해봄 시뮬레이션 안내 (실제 민원과 구분) -->
-	<aside class="sim-notice-panel"
-		aria-labelledby="moveStep1SimTitle">
-
-		<h3 id="moveStep1SimTitle">
-			<span class="material-symbols-outlined" aria-hidden="true">school</span>
-			해봄 시뮬레이션 안내
-		</h3>
-
-		<ul>
-			<li><spring:message code="simulation.notice" /></li>
-
-			<li>입력한 정보는 정부24 또는 행정기관에 제출되지 않으며 <strong>실제 전입신고가
-					접수되지 않습니다.</strong>
-			</li>
-
-			<li><spring:message code="simulation.privacy" /></li>
-
-			<li>인증서 전자서명, 세대주·전입자 본인확인, 행정기관 심사는 실제로 수행되지 않습니다.</li>
-
-			<li><spring:message code="simulation.history" /></li>
-
-			<li><spring:message code="simulation.history.inprogress" /></li>
-
-			<li><strong> 시뮬레이션의 완료 표시는 실제 전입신고의 처리 완료를 의미하지 않습니다. </strong>
-			</li>
-		</ul>
-	</aside>
-
 	<!-- 4. 기존 JS에서 참조하는 ID 유지 -->
 	<div class="gov24-notice-check move-step1-agreement">
 		<input class="form-check-input ms-0 mt-0" type="checkbox"

@@ -86,25 +86,6 @@
 			</li>
 		</ul>
 	</section>
-
-	<%-- 기존 해봄 공통 .sim-notice-panel 스타일 재사용. --%>
-	<aside class="sim-notice-panel"
-		aria-labelledby="certificateSimulationTitle">
-		<h3 id="certificateSimulationTitle">
-			<span class="material-symbols-outlined" aria-hidden="true">school</span>
-			해봄 시뮬레이션 안내
-		</h3>
-		<ul>
-			<li><spring:message code="simulation.notice" /></li>
-			<li><spring:message code="simulation.residentRecord.notice" /></li>
-			<li><spring:message code="simulation.privacy" /></li>
-			<li><spring:message code="simulation.history" /></li>
-			<li><spring:message code="simulation.history.inprogress" /></li>
-			<li><strong><spring:message
-						code="simulation.residentRecord.result" /></strong></li>
-		</ul>
-	</aside>
-
 	<section class="certificate-panel certificate-form"
 		aria-labelledby="certFormTitle">
 		<h3 id="certFormTitle">신청 내용</h3>
@@ -606,21 +587,4 @@
 			</dl>
 		</details>
 	</section>
-	<!-- ============================== -->
-	<!-- 시뮬레이션 공통 안내 -->
-	<!-- ============================== -->
-	<div class="alert alert-info mb-3" role="note">
-		<p class="small mb-0">
-			<spring:message code="simulation.notice" />
-		</p>
-	</div>
-	<div class="border rounded-3 bg-light p-3">
-		<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.history" />
-		</p>
-		<p class="text-muted small mb-0">
-			<spring:message code="simulation.privacy" />
-		</p>
-	</div>
 </div>
