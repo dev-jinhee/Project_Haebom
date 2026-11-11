@@ -33,7 +33,7 @@
 
 			<!-- 조회 버튼 클릭 후 표시. SGIS에서 시도/시군구만 가져오고 나머지는 가상 데이터 -->
 			<div id="addressResultSection" class="mt-3 d-none">
-				<table class="gov24-result-table move-step3-info-table">
+				<table class="move-address-result-table move-step3-info-table">
 					<tbody>
 						<tr>
 							<th scope="row">기본 주소</th>
