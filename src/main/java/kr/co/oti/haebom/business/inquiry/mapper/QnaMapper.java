@@ -12,7 +12,10 @@ import kr.co.oti.haebom.business.inquiry.dto.QnaDTO;
 public interface QnaMapper {
 	
 	List<QnaDTO> selectQnaList();
-	
+
+	// 단건 문의글 조회 (권한, 비밀글, 상태, 삭제 여부 검증용)
+	QnaDTO selectQnaById(@Param("qnaId") Integer qnaId);
+
 	// 문의글 등록 메서드 추가?!(QnaMapper.xml의 id="insertQna"와 연결)
 	int insertQna(QnaDTO qnaDTO);
 	

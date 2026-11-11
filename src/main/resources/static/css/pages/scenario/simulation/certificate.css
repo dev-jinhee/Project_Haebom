@@ -4,478 +4,535 @@
 
 /* 1. 기본 설정 */
 .certificate-step1 {
-    --cert-primary: #164166;
-    --cert-link: #2167ea;
-    --cert-border: #b5bdc7;
-    --cert-subtle: #667085;
-    max-width: 1100px;
-    margin: 0 auto;
-    color: #111827;
+	--cert-primary: #164166;
+	--cert-link: #2167ea;
+	--cert-border: #b5bdc7;
+	--cert-subtle: #667085;
+	max-width: 1100px;
+	margin: 0 auto;
+	color: #111827;
 }
 
-.certificate-step1 *,
-.certificate-step1 *::before,
-.certificate-step1 *::after {
-    box-sizing: border-box;
+.certificate-step1 *, .certificate-step1 *::before, .certificate-step1 *::after
+	{
+	box-sizing: border-box;
 }
 
 .certificate-step1 [hidden] {
-    display: none !important;
+	display: none !important;
 }
 
 .certificate-step1 label {
-    cursor: pointer;
+	cursor: pointer;
 }
 
-.certificate-step1 input:disabled,
-.certificate-step1 select:disabled,
-.certificate-step1 button:disabled {
-    cursor: not-allowed;
-    opacity: .7;
+.certificate-step1 input:disabled, .certificate-step1 select:disabled,
+	.certificate-step1 button:disabled {
+	cursor: not-allowed;
+	opacity: .7;
 }
 
-.certificate-step1 input:focus-visible,
-.certificate-step1 select:focus-visible,
-.certificate-step1 button:focus-visible {
-    outline: 2px solid var(--cert-link);
-    outline-offset: 2px;
+.certificate-step1 input:focus-visible, .certificate-step1 select:focus-visible,
+	.certificate-step1 button:focus-visible {
+	outline: 2px solid var(--cert-link);
+	outline-offset: 2px;
 }
 
 /* 라디오와 체크박스: 브라우저 기본 margin/baseline 영향 제거 */
-.certificate-step1 input[type="radio"],
-.certificate-step1 input[type="checkbox"] {
-    display: block;
-    flex: 0 0 18px;
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    padding: 0;
-    accent-color: var(--cert-primary);
+.certificate-step1 input[type="radio"], .certificate-step1 input[type="checkbox"]
+	{
+	display: block;
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	padding: 0;
+	accent-color: var(--cert-primary);
 }
 
 /* 라디오·체크박스를 포함하는 라벨의 텍스트 수직 정렬 */
-.certificate-step1 .certificate-inline-options label,
-.certificate-step1 .certificate-option-content label,
-.certificate-step1 .certificate-receipt-grid label,
-.certificate-step1 .certificate-chobon-past-extras label,
-.certificate-step1 .certificate-recent-group > label {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 24px;
-    margin: 0;
-    line-height: 1.5;
+.certificate-step1 .certificate-inline-options label, .certificate-step1 .certificate-option-content label,
+	.certificate-step1 .certificate-receipt-grid label, .certificate-step1 .certificate-chobon-past-extras label,
+	.certificate-step1 .certificate-recent-group>label {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 26px;
+	margin: 0;
+	line-height: 1.5;
+	color: #1f2d3d;
 }
 
 /* 2. 화면 제목 / 공통 패널 */
 .certificate-step1 .certificate-heading {
-    margin: 12px 0 18px;
+	margin: 12px 0 18px;
 }
 
 .certificate-step1 .certificate-heading h2 {
-    margin: 0 0 28px;
-    font-size: 27px;
-    font-weight: 750;
-    line-height: 1.4;
+	margin: 0 0 28px;
+	font-size: 27px;
+	font-weight: 750;
+	line-height: 1.4;
 }
 
 .certificate-step1 .certificate-heading p {
-    margin: 0 0 12px;
-    font-weight: 700;
+	margin: 0 0 12px;
+	font-weight: 700;
 }
 
 .certificate-step1 .certificate-panel {
-    margin-bottom: 18px;
-    padding: 30px;
-    border: 1px solid var(--cert-border);
-    border-radius: 9px;
-    background: #fff;
+	margin-bottom: 18px;
+	padding: 30px;
+	border: 1px solid var(--cert-border);
+	border-radius: 9px;
+	background: #fff;
 }
 
 .certificate-step1 .certificate-panel h3 {
-    margin: 0 0 26px;
-    font-size: 17px;
-    font-weight: 750;
-    line-height: 1.5;
+	margin: 0 0 26px;
+	font-size: 17px;
+	font-weight: 750;
+	line-height: 1.5;
 }
 
 .certificate-step1 .certificate-types {
-    padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px;
 }
-
 /* 3. 등본·초본 종류 선택 */
 .certificate-step1 .certificate-type-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 49px;
-    padding: 10px 17px;
-    margin: 0;
-    border-radius: 6px;
-    line-height: 1.5;
-    cursor: pointer;
+	display: flex;
+	width: 100%;
+	align-items: center;
+	margin: 0;
+	min-height: 48px;
+	padding: 10px 17px;
+	cursor: pointer;
+}
+
+.certificate-step1 .certificate-type-option>span {
+	display: inline;
+	min-width: 0;
+}
+/* 영문 서비스 체험 미지원 안내 */
+.certificate-step1 .certificate-type-option small {
+	margin-left: 7px;
+	color: #77818f;
+	font-size: 0.875em;
+	font-weight: 400;
 }
 
 .certificate-step1 .certificate-type-option:has(input[type="radio"]:checked),
-.certificate-step1 .certificate-type-option.is-active {
-    background: #eaf0f5;
-    font-weight: 750;
+	.certificate-step1 .certificate-type-option.is-active {
+	background: #eaf0f5;
+	font-weight: 750;
 }
 
 .certificate-step1 .certificate-type-option.is-disabled {
-    color: #7c8591;
-    cursor: not-allowed;
-}
-
-.certificate-step1 .certificate-type-option small {
-    margin-left: 7px;
-    color: #77818f;
-    font-size: 12px;
-    font-weight: 400;
+	color: #7c8591;
+	cursor: not-allowed;
 }
 
 /* 4. 신청 내용 / 주소 선택 / 발급 형태 */
 .certificate-step1 .certificate-field {
-    margin: 0 0 34px;
+	margin: 0 0 34px;
 }
 
 .certificate-step1 .certificate-label {
-    display: block;
-    margin: 0 0 14px;
-    font-weight: 750;
+	display: block;
+	margin: 0 0 14px;
+	font-weight: 750;
 }
 
 .certificate-step1 .certificate-label em {
-    color: #df4537;
-    font-style: normal;
+	color: #df4537;
+	font-style: normal;
 }
 
+/* 입력 항목 하단 설명 문구 */
 .certificate-step1 .certificate-hint {
-    margin: 9px 0 0;
-    color: var(--cert-subtle);
-    font-size: 12px;
-    line-height: 1.6;
+	margin: 9px 0 0;
+	color: var(--cert-subtle);
+	font-size: 0.875em;
+	line-height: 1.6;
 }
 
 .certificate-step1 .certificate-address-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
 }
 
 /* JSP의 주소 select에 class="form-select" 사용 */
 .certificate-step1 .certificate-address-row .form-select {
-    flex: 0 1 230px;
-    width: 230px;
-    max-width: 100%;
-    min-height: 46px;
-    padding: 10px 36px 10px 13px;
-    border: 1px solid #aeb8c5;
-    border-radius: 5px;
-    background-color: #fff; /* Bootstrap background-image(화살표) 유지 */
-    font-size: .94rem;
-    line-height: 1.5;
+	flex: 0 1 230px;
+	width: 230px;
+	max-width: 100%;
+	min-height: 46px;
+	padding: 10px 36px 10px 13px;
+	border: 1px solid #aeb8c5;
+	border-radius: 5px;
+	background-color: #fff; /* Bootstrap background-image(화살표) 유지 */
+	font-size: .94rem;
+	line-height: 1.5;
 }
 
 .certificate-step1 .certificate-inline-options {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 22px 36px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 22px 36px;
 }
 
 .certificate-step1 .certificate-issue-radios {
-    max-width: 650px;
-    justify-content: space-between;
+	max-width: 650px;
+	justify-content: space-between;
 }
 
 /* 5. 선택 발급: 왼쪽 제목 / 오른쪽 세부 항목 */
 .certificate-step1 .certificate-option-row {
-    display: grid;
-    grid-template-columns: minmax(205px, 40%) minmax(0, 1fr);
-    align-items: start;
-    gap: 12px;
-    min-height: 78px;
-    padding: 27px 0;
-    border-bottom: 1px solid #dbe2eb;
+	display: grid;
+	grid-template-columns: minmax(205px, 40%) minmax(0, 1fr);
+	align-items: start;
+	gap: 12px;
+	min-height: 78px;
+	padding: 19px 0;
+	border-bottom: 1px solid #dbe2eb;
+}
+
+/* 등본·초본: 세대주 관계와 용도 및 목적 사이 구분선 제거 */
+.certificate-step1 .certificate-option-row:has(+.certificate-purpose) {
+	border-bottom: none;
 }
 
 .certificate-step1 .certificate-option-row:last-child {
-    border-bottom: 0;
+	border-bottom: 0;
 }
 
 .certificate-step1 .certificate-option-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 40px;
-    margin: 0;
-    font-weight: 750;
-    line-height: 1.5;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 26px;
+	margin: 0;
+	font-weight: 700;
+	line-height: 1.5;
 }
 
 .certificate-step1 .certificate-option-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px 22px;
-    min-height: 40px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 14px 22px;
+	min-width: 0;
+	min-height: 26px;
 }
 
 .certificate-step1 .certificate-check-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px 20px;
-}
-
-.certificate-step1 .certificate-check-grid label {
-    min-height: 40px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px 20px;
 }
 
 .certificate-step1 .certificate-check-grid .certificate-long-checkbox {
-    grid-column: 1 / -1;
-    max-width: 350px;
-    line-height: 1.5;
+	grid-column: 1/-1;
+	max-width: 350px;
+	line-height: 1.5;
 }
 
 .certificate-step1 .certificate-option-note {
-    grid-column: 1 / -1;
+	grid-column: 1/-1;
 }
 
 /* 6. 과거 주소: 직접입력 최근 N년 */
 .certificate-step1 .certificate-past-address {
-    justify-content: flex-start;
-    gap: 24px;
+	justify-content: flex-start;
+	gap: 24px;
 }
 
-.certificate-step1 .certificate-recent-group,
-.certificate-step1 .certificate-years-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+.certificate-step1 .certificate-recent-group, .certificate-step1 .certificate-years-wrap
+	{
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 }
 
 .certificate-step1 .certificate-recent-group {
-    flex-wrap: nowrap;
+	flex-wrap: nowrap;
 }
 
-.certificate-step1 .certificate-recent-group > label,
-.certificate-step1 .certificate-years-wrap {
-    white-space: nowrap;
+.certificate-step1 .certificate-recent-group>label, .certificate-step1 .certificate-years-wrap
+	{
+	white-space: nowrap;
 }
 
 .certificate-step1 .certificate-year-input {
-    width: 62px;
-    height: 40px;
-    margin: 0;
-    padding: 5px;
-    border: 1px solid #b4bdc6;
-    border-radius: 4px;
-    text-align: center;
+	width: 64px;
+	height: 40px;
+	margin: 0;
+	padding: 5px;
+	border: 1px solid #b4bdc6;
+	border-radius: 4px;
+	text-align: center;
 }
 
 /* 초본 과거 주소 발생일/변동사유 */
 .certificate-step1 .certificate-chobon-past-extras {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 18px 36px;
-    padding-left: 40%;
-    margin-top: 5px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 18px 36px;
+	margin-top: 5px;
 }
 
 /* 7. 용도 및 목적: 선택 발급의 좌·우 열 기준과 통일 */
 .certificate-step1 .certificate-purpose {
-    display: grid;
-    grid-template-columns: minmax(205px, 40%) minmax(0, 1fr);
-    align-items: center;
-    column-gap: 12px;
-    row-gap: 12px;
-    width: 100%;
-    max-width: none;
-    margin: 20px 0 0;
-    padding: 16px 0 0;
+	display: grid;
+	grid-template-columns: minmax(205px, 40%) minmax(0, 1fr);
+	align-items: center;
+	column-gap: 12px;
+	row-gap: 12px;
+	width: 100%;
+	max-width: none;
+	padding: 16px 0 0;
 }
 
-.certificate-step1 .certificate-purpose > .certificate-label {
-    grid-column: 1;
-    margin: 0;
-    line-height: 1.5;
+.certificate-step1 .certificate-purpose>.certificate-label {
+	grid-column: 1;
+	margin: 0;
+	line-height: 1.5;
 }
 
 /* 초본·등본 드롭다운: 전입신고 주소 선택과 같은 230×46px */
-.certificate-step1 .certificate-purpose > select.form-select {
-    grid-column: 2;
-    display: block;
-    width: 230px;
-    max-width: 100%;
-    height: 46px;
-    min-height: 46px;
-    margin: 0;
-    padding: 10px 36px 10px 13px;
-    border: 1px solid #aeb8c5;
-    border-radius: 5px;
-    background-color: #fff;
-    /* Bootstrap .form-select의 background-image(화살표)는 유지 */
-    font-size: .94rem;
-    line-height: 1.5;
+.certificate-step1 .certificate-purpose>select.form-select {
+	grid-column: 2;
+	display: block;
+	width: 230px;
+	max-width: 100%;
+	height: 46px;
+	min-height: 46px;
+	margin: 0;
+	padding: 10px 36px 10px 13px;
+	border: 1px solid #aeb8c5;
+	border-radius: 5px;
+	background-color: #fff;
+	/* Bootstrap .form-select의 background-image(화살표)는 유지 */
+	font-size: .94rem;
+	line-height: 1.5;
 }
 
 /* 기타 용도는 드롭다운과 같은 오른쪽 열에 배치 */
-.certificate-step1 #certificatePurposeOtherArea,
-.certificate-step1 #certificateChobonPurposeOtherArea {
-    grid-column: 2;
-    margin: 0;
+.certificate-step1 #certificatePurposeOtherArea, .certificate-step1 #certificateChobonPurposeOtherArea
+	{
+	grid-column: 2;
+	margin: 0;
 }
 
 .certificate-step1 .certificate-purpose input[type="text"] {
-    display: block;
-    width: 230px;
-    max-width: 100%;
-    height: 46px;
-    min-height: 46px;
-    margin: 0;
-    padding: 10px 13px;
-    border: 1px solid #aeb8c5;
-    border-radius: 5px;
-    background: #fff;
-    font-size: .94rem;
-    line-height: 1.5;
+	display: block;
+	width: 230px;
+	max-width: 100%;
+	height: 46px;
+	min-height: 46px;
+	margin: 0;
+	padding: 10px 13px;
+	border: 1px solid #aeb8c5;
+	border-radius: 5px;
+	background: #fff;
+	font-size: .94rem;
+	line-height: 1.5;
 }
 
-.certificate-step1 .certificate-purpose #certificatePurposeOtherArea > .certificate-label,
-.certificate-step1 .certificate-purpose #certificateChobonPurposeOtherArea > .certificate-label {
-    margin-bottom: 10px;
+.certificate-step1 .certificate-purpose #certificatePurposeOtherArea>.certificate-label,
+	.certificate-step1 .certificate-purpose #certificateChobonPurposeOtherArea>.certificate-label
+	{
+	margin-bottom: 10px;
 }
 
-/* 초본의 용도 및 목적은 선택 발급 항목 바로 아래로 이어지도록 */
-.certificate-step1 .certificate-chobon-purpose {
-    margin: 0 0 24px;
-    padding: 20px 0 0;
-    border-top: 0;
+/* 등본·초본 모두 같은 .certificate-purpose 규칙을 사용합니다.
+   초본 전용 여백 덮어쓰기는 사용하지 않습니다. */
+
+/* ==============================================
+   등본·초본 공통 선택 발급 레이아웃 보완
+   ============================================== */
+/* 항목명이 길어도 체크박스와 설명이 다른 열을 침범하지 않게 합니다. */
+.certificate-step1 .certificate-learning-field-heading {
+	min-width: 0;
+}
+
+.certificate-step1 .certificate-option-title {
+	max-width: 100%;
+	min-width: 0;
+	word-break: keep-all;
+	overflow-wrap: break-word;
+	align-items: flex-start;
+}
+
+.certificate-step1 .certificate-option-title>input {
+	align-self: flex-start;
+	margin-top: calc(( 1.5em - 18px)/2);
+}
+
+.certificate-step1 .certificate-option-content label {
+	min-width: 0;
+	word-break: keep-all;
+	overflow-wrap: break-word;
+}
+
+/* 펼쳐보기 안내: 공통 CSS의 dt nowrap을 등본·초본 안내에만 해제합니다. */
+.certificate-step1 .certificate-selective-guide .sim-learning-quick-guide-list>div
+	{
+	display: grid;
+	grid-template-columns: minmax(0, 34%) minmax(0, 1fr);
+	column-gap: 16px;
+	align-items: start;
+}
+
+.certificate-step1 .certificate-selective-guide .sim-learning-quick-guide-list dt
+	{
+	min-width: 0;
+	white-space: normal;
+	word-break: keep-all;
+	overflow-wrap: anywhere;
+}
+
+.certificate-step1 .certificate-selective-guide .sim-learning-quick-guide-list dd
+	{
+	min-width: 0;
+	overflow-wrap: break-word;
+}
+
+/* 초본 '발생일/신고일, 변동사유'도 첫 줄 옵션과 같은 오른쪽 열 시작선으로. */
+.certificate-step1 .certificate-option-row>.certificate-chobon-past-extras
+	{
+	grid-column: 2;
+	padding-left: 0;
+	margin-top: 0;
 }
 
 /* 8. 세대원 조회 및 선택 테이블 */
 .certificate-step1 .certificate-member-table-area {
-    grid-column: 1 / -1;
-    padding-top: 8px;
+	grid-column: 1/-1;
+	padding-top: 8px;
 }
 
 .certificate-step1 .certificate-member-table-area .certificate-hint {
-    margin-bottom: 14px;
+	margin-bottom: 14px;
 }
 
 .certificate-step1 .certificate-member-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    font-size: 13px;
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+	font-size: 13px;
 }
 
 .certificate-step1 .certificate-member-table th {
-    background: #eef2f6;
-    text-align: left;
-    font-weight: 700;
+	background: #eef2f6;
+	text-align: left;
+	font-weight: 700;
 }
 
-.certificate-step1 .certificate-member-table th,
-.certificate-step1 .certificate-member-table td {
-    padding: 11px 15px;
-    border-bottom: 1px solid #cfd8e1;
+.certificate-step1 .certificate-member-table th, .certificate-step1 .certificate-member-table td
+	{
+	padding: 11px 15px;
+	border-bottom: 1px solid #cfd8e1;
 }
 
 .certificate-step1 .certificate-member-table th:first-child,
-.certificate-step1 .certificate-member-table td:first-child {
-    width: 30%;
+	.certificate-step1 .certificate-member-table td:first-child {
+	width: 30%;
 }
 
 .certificate-step1 .certificate-lookup-button {
-    padding: 8px 13px;
-    border: 1px solid var(--cert-link);
-    border-radius: 4px;
-    background: #fff;
-    color: var(--cert-link);
-    white-space: nowrap;
-    cursor: pointer;
+	padding: 8px 13px;
+	border: 1px solid var(--cert-link);
+	border-radius: 4px;
+	background: #fff;
+	color: var(--cert-link);
+	white-space: nowrap;
+	cursor: pointer;
 }
 
 .certificate-step1 .certificate-lookup-button:hover {
-    background: #eef5ff;
+	background: #eef5ff;
 }
 
 /* 9. 수령 방법 */
 .certificate-step1 .certificate-receipt-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px 16px;
-    margin-top: 18px;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 18px 16px;
+	margin-top: 18px;
 }
 
 /* 10. 반응형 */
-@media (max-width: 780px) {
-    .certificate-step1 .certificate-panel {
-        padding: 20px;
-    }
-
-    .certificate-step1 .certificate-option-row {
-        grid-template-columns: 1fr;
-        gap: 11px;
-    }
-
-    .certificate-step1 .certificate-check-grid,
-    .certificate-step1 .certificate-receipt-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .certificate-step1 .certificate-chobon-past-extras {
-        padding-left: 0;
-    }
-
-    /* 작은 화면에서는 좌·우 열을 한 줄씩 쌓음 */
-    .certificate-step1 .certificate-purpose {
-        grid-template-columns: 1fr;
-    }
-    .certificate-step1 .certificate-purpose > .certificate-label,
-    .certificate-step1 .certificate-purpose > select.form-select,
-    .certificate-step1 #certificatePurposeOtherArea,
-    .certificate-step1 #certificateChobonPurposeOtherArea {
-        grid-column: 1;
-    }
-    .certificate-step1 .certificate-purpose > select.form-select,
-    .certificate-step1 .certificate-purpose input[type="text"] {
-        width: min(100%, 300px);
-    }
-
-    .certificate-step1 .certificate-address-row .form-select {
-        flex: 1 1 200px;
-        width: auto;
-        min-width: 145px;
-    }
+/* 옵션 제목과 내용은 좁은 화면에서 한 줄씩 배치 */
+@media ( max-width : 860px) {
+	.certificate-step1 .certificate-option-row>.certificate-chobon-past-extras
+		{
+		grid-column: 1;
+	}
+	.certificate-step1 .certificate-option-row {
+		grid-template-columns: 1fr;
+		row-gap: 12px;
+	}
+	.certificate-step1 .certificate-chobon-past-extras {
+		padding-left: 0;
+	}
+	.certificate-step1 .certificate-purpose {
+		grid-template-columns: 1fr;
+	}
+	.certificate-step1 .certificate-purpose>.certificate-label,
+		.certificate-step1 .certificate-purpose>select.form-select,
+		.certificate-step1 #certificatePurposeOtherArea, .certificate-step1 #certificateChobonPurposeOtherArea
+		{
+		grid-column: 1;
+	}
+	.certificate-step1 .certificate-purpose>select.form-select,
+		.certificate-step1 .certificate-purpose input[type="text"] {
+		width: min(100%, 300px);
+	}
 }
 
-@media (max-width: 500px) {
-    .certificate-step1 .certificate-heading h2 {
-        font-size: 23px;
-    }
+@media ( max-width : 780px) {
+	.certificate-step1 .certificate-selective-guide .sim-learning-quick-guide-list>div
+		{
+		grid-template-columns: minmax(0, 1fr);
+		row-gap: 4px;
+	}
+	.certificate-step1 .certificate-panel {
+		padding: 20px;
+	}
+	.certificate-step1 .certificate-check-grid, .certificate-step1 .certificate-receipt-grid
+		{
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+	.certificate-step1 .certificate-address-row .form-select {
+		flex: 1 1 200px;
+		width: auto;
+		min-width: 145px;
+	}
+}
 
-    .certificate-step1 .certificate-check-grid,
-    .certificate-step1 .certificate-receipt-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .certificate-step1 .certificate-address-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .certificate-step1 .certificate-address-row .form-select {
-        flex: 0 0 auto;
-        width: 100%;
-        min-width: 0;
-    }
-
-    .certificate-step1 .certificate-recent-group {
-        flex-wrap: wrap;
-    }
+@media ( max-width : 500px) {
+	.certificate-step1 .certificate-check-grid, .certificate-step1 .certificate-receipt-grid
+		{
+		grid-template-columns: 1fr;
+	}
+	.certificate-step1 .certificate-address-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.certificate-step1 .certificate-address-row .form-select {
+		flex: 0 0 auto;
+		width: 100%;
+		min-width: 0;
+	}
+	.certificate-step1 .certificate-recent-group {
+		flex-wrap: wrap;
+	}
 }

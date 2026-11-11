@@ -40,6 +40,24 @@
         ORDER BY q.qna_id DESC
     </select>
 
+    <!-- 1-1. 단건 문의글 조회 (작성자·비밀글·답변상태·존재여부 검증용) -->
+    <select id="selectQnaById" resultType="kr.co.oti.haebom.business.inquiry.dto.QnaDTO">
+        SELECT
+            qna_id,
+            member_id,
+            qna_category_id,
+            qna_title,
+            qna_content,
+            qna_status,
+            is_deleted,
+            is_secret,
+            qna_created_at,
+            qna_updated_at
+        FROM qna
+        WHERE qna_id = #{qnaId}
+          AND is_deleted = 0
+    </select>
+
     <!-- 2. 문의글 등록 (INSERT) ⭐ -->
     <insert id="insertQna" parameterType="kr.co.oti.haebom.business.inquiry.dto.QnaDTO" useGeneratedKeys="true" keyProperty="qnaId">
         INSERT INTO qna (
@@ -67,6 +85,7 @@
         SET is_deleted = 1,
             qna_updated_at = NOW()
         WHERE qna_id = #{qnaId}
+          AND is_deleted = 0
     </update>
 
     <!-- 4. 문의글 수정 (UPDATE) ⭐ -->
@@ -78,6 +97,7 @@
             is_secret = COALESCE(#{isSecret}, is_secret), 
             qna_updated_at = NOW()
         WHERE qna_id = #{qnaId}
+          AND is_deleted = 0
     </update>
 
 	<!-- 5. 관리자 답변 등록 (INSERT) -->
@@ -117,6 +137,7 @@
 		SET qna_status = #{qnaStatus}, 
 			qna_updated_at = NOW() 
 		WHERE qna_id = #{qnaId}
+		  AND is_deleted = 0
 	</update>
 	
 	<!-- 8. 문의글 분류 및 상태 동시 변경 -->
@@ -126,6 +147,7 @@
 			qna_status = #{qnaStatus}, 
 			qna_updated_at = NOW() 
 		WHERE qna_id = #{qnaId}
+		  AND is_deleted = 0
 	</update>
 	
 </mapper>

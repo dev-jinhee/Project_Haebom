@@ -6,8 +6,7 @@
 
 <div class="sim-step-content identity-step1" data-step="1">
 
-	<section class="sim-guide-panel"
-		aria-labelledby="identityGuideTitle">
+	<section class="sim-guide-panel" aria-labelledby="identityGuideTitle">
 		<h3 class="sim-guide-title" id="identityGuideTitle">
 			<span class="material-symbols-outlined" aria-hidden="true">edit_square</span>시작하기
 			전에
@@ -67,6 +66,48 @@
 	</aside>
 
 
+	<%-- 해봄 학습 안내: 필요한 경우에만 펼치는 기초 설명 --%>
+	<details class="sim-learning-quick-guide">
+		<summary>
+			<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+			주민등록증 재발급, 무엇부터 알아야 하나요? <span class="sim-learning-quick-guide-hint">눌러서
+				알아보기</span>
+		</summary>
+		<div class="sim-learning-quick-guide-body">
+			<dl class="sim-learning-quick-guide-list">
+				<div>
+					<dt>대상</dt>
+					<dd>주민등록증을 분실하거나 훼손했거나, 성명 등 기재사항이 바뀌어 다시 발급받아야 할 때 신청해요.</dd>
+				</div>
+				<div>
+					<dt>IC 포함</dt>
+					<dd>IC칩이 들어 있는 실물 주민등록증이에요. 카드를 휴대전화에 태그하여 모바일 주민등록증을 발급받는 데
+						사용할 수 있어요.</dd>
+				</div>
+				<div>
+					<dt>IC 미포함</dt>
+					<dd>일반 실물 주민등록증이에요. IC칩이 없어도 주민센터에서 QR 방식으로 모바일 주민등록증을 신청할 수
+						있어요.</dd>
+				</div>
+				<div>
+					<dt>수수료</dt>
+					<dd>정부24 안내 기준 일반 5,000원, IC칩 포함 10,000원이에요. 재발급 사유와 면제 대상에 따라
+						달라질 수 있어요.</dd>
+				</div>
+				<div>
+					<dt>기간</dt>
+					<dd>정부24 안내상 처리기간은 총 14일이에요. 수령기관과 실제 일정은 신청 시 확인해 주세요.</dd>
+				</div>
+			</dl>
+			<p class="sim-learning-quick-guide-tip">해봄은 실제 민원을 접수하지 않는 학습용
+				체험이에요. 선택 결과가 주민등록증 발급으로 이어지지 않아요.</p>
+			<p class="sim-learning-source">
+				출처: <a
+					href="https://plus.gov.kr/search/searchdtl?srvcId=13100000018&amp;typeSn=01"
+					target="_blank" rel="noopener noreferrer">정부24 주민등록증 재발급 민원안내</a>
+			</p>
+		</div>
+	</details>
 	<section class="gov24-form-panel identity-applicant-panel"
 		aria-labelledby="identityApplicantTitle">
 		<h3 id="identityApplicantTitle">신청인 정보</h3>
@@ -90,6 +131,8 @@
 		<div class="identity-field">
 			<label for="identityPhoneFirst">휴대전화번호 <span
 				class="identity-required">(필수)</span></label>
+			<p class="sim-learning-field-note">신청 과정의 연락이나 수령 안내를 받을 수 있는 번호를
+				입력하는 항목이에요. 해봄에서는 실제 문자를 발송하지 않아요.</p>
 			<div class="identity-phone-row">
 				<input type="tel" id="identityPhoneFirst" name="phoneFirst"
 					class="form-control" maxlength="3" value="010" inputmode="numeric"
@@ -118,6 +161,8 @@
 			</div>
 			<p id="addressStatus" class="text-muted small mt-2 mb-0"
 				role="status" aria-live="polite">주소를 선택해 주세요.</p>
+			<p class="sim-learning-field-note">주민등록이 되어 있는 시·도와 시·군·구를 선택해
+				보세요. 이 체험의 주소 선택은 실제 주민등록 주소를 변경하지 않아요.</p>
 		</div>
 	</section>
 
@@ -132,6 +177,16 @@
 				<label><input type="radio" name="icChipIncluded" value="Y" />
 					집적회로(IC) 칩 포함</label> <label><input type="radio"
 					name="icChipIncluded" value="N" /> 집적회로(IC) 칩 미포함</label>
+			</div>
+			<div class="sim-learning-tip">
+				<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+				<div class="sim-learning-tip-content">
+					<strong>알아두면 좋아요</strong>
+					<p>
+						모바일 주민등록증을 IC카드 태그로 발급받고 싶다면 <strong>IC칩 포함</strong>을 선택해요. 실물
+						주민등록증만 필요하다면 IC칩 미포함을 고를 수 있어요. QR 발급은 별도 주민센터 방문 절차예요.
+					</p>
+				</div>
 			</div>
 			<div class="identity-info-box">
 				<h4>집적회로(IC) 칩 발급 확인사항</h4>
@@ -167,6 +222,23 @@
 					id="identityOtherReasonOption" hidden><input type="radio"
 					name="reissueReason" value="OTHER" disabled /> 그 밖의 사유</label>
 			</div>
+			<details class="sim-learning-details">
+				<summary>재발급 사유가 헷갈린다면? (예시 보기)</summary>
+				<dl class="sim-learning-definition-list">
+					<dt>분실 / 훼손</dt>
+					<dd>주민등록증을 잃어버렸다면 분실, 가지고 있지만 손상되었다면 훼손을 선택해요. 분실 신고는 재발급 신청과
+						구분되는 절차예요.</dd>
+					<dt>성명·주민등록번호 변경</dt>
+					<dd>법적 정보가 변경되어 주민등록증 기재사항을 새로 반영해야 하는 경우예요. 관련 정보 정정 절차가 먼저
+						필요할 수 있어요.</dd>
+					<dt>주소 변경 칸 부족</dt>
+					<dd>주민등록증 뒷면에 주소 변경을 기록할 공간이 부족한 상황을 말해요. 단순히 이사했다는 이유만으로 선택하는
+						항목은 아니에요.</dd>
+					<dt>지문 재등록 / 용모 변경</dt>
+					<dd>신원 확인을 위한 지문 정보를 다시 등록해야 하거나 사진과 현재 모습이 달라 본인 확인이 어려운 경우를
+						뜻해요.</dd>
+				</dl>
+			</details>
 			<div class="identity-info-box">
 				<h4>재발급 시 확인사항</h4>
 				<ul>
@@ -187,6 +259,16 @@
 					신청</label> <label><input type="radio" name="feeExemption" value="N" />
 					미신청</label>
 			</div>
+			<div class="sim-learning-tip">
+				<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+				<div class="sim-learning-tip-content">
+					<strong>수수료 면제 신청이란?</strong>
+					<p>
+						면제 대상에 해당한다고 생각하는 경우 신청하는 항목이에요. <strong>‘신청’을 선택했다고 자동
+							면제되는 것은 아니며</strong>, 실제 면제 여부는 사유와 증빙자료 등을 기준으로 확인해요.
+					</p>
+				</div>
+			</div>
 			<div class="identity-info-box">
 				<h4>수수료 면제 확인사항</h4>
 				<ul>
@@ -206,6 +288,8 @@
 					신청</label> <label><input type="radio" name="pickupNotice" value="N" />
 					미신청</label>
 			</div>
+			<p class="sim-learning-field-note">신청 접수나 주민등록증 도착 여부 등을 문자로
+				안내받을지 선택하는 서비스예요. 해봄에서는 문자가 실제로 발송되지 않아요.</p>
 		</fieldset>
 
 		<fieldset class="identity-field">
@@ -217,7 +301,8 @@
 					신청</label> <label><input type="radio" name="brailleSticker"
 					value="N" /> 미신청</label>
 			</div>
-			<p class="identity-note">점자 스티커는 대상 요건에 따라 제공됩니다.</p>
+			<p class="identity-note">시각장애인 등 해당 대상자가 주민등록증을 구분할 수 있도록 도와주는
+				스티커예요. 실제 제공 여부는 대상 요건에 따라 결정돼요.</p>
 		</fieldset>
 
 		<div class="identity-field">
@@ -244,6 +329,8 @@
 		<div class="identity-field">
 			<span class="identity-field-label">구분</span> <label><input
 				type="radio" name="pickupMethod" value="VISIT" checked /> 방문수령</label>
+			<p class="sim-learning-field-note">해봄에서는 방문수령만 연습해요. 실제 신청에서는 신청
+				조건에 따라 등기우편 수령을 선택할 수도 있어요.</p>
 		</div>
 		<div class="identity-field">
 			<label for="identityPickupOffice">수령기관</label>
@@ -254,6 +341,8 @@
 					class="btn btn-outline-primary" aria-haspopup="dialog"
 					aria-controls="identityOfficeDialog">검색</button>
 			</div>
+			<p class="sim-learning-field-note">수령기관은 재발급된 실물 주민등록증을 찾으러 갈
+				장소예요. ‘검색’을 눌러 체험용 기관을 선택해 보세요. 실제 수령 가능 기관은 신청 시 확인해야 해요.</p>
 			<input type="hidden" id="identityPickupOfficeCode"
 				name="pickupOfficeCode" />
 		</div>
@@ -273,6 +362,8 @@
 					<li>검사 결과는 참고용이며, 실제 행정기관의 심사 결과와 다를 수 있습니다.</li>
 				</ul>
 			</div>
+			<p class="sim-learning-field-note">사진을 고르면 미리보기와 형식 검사 결과를 확인할 수
+				있어요. 이 검사는 학습용이며 실제 주민등록증 사진 심사를 대신하지 않아요.</p>
 			<input type="file" id="identityPhotoInput" name="idPhoto"
 				accept=".jpg,.jpeg,.png,image/jpeg,image/png" class="form-control"
 				aria-describedby="identityPhotoHint" />
@@ -290,6 +381,14 @@
 			<span class="identity-field-label">사전동의 <span
 				class="identity-required">(필수)</span></span>
 			<p>민원처리기관에서 행정정보 공동이용을 통해 확인할 수 있으므로 별도로 제출하지 않아도 됩니다.</p>
+			<div class="sim-learning-tip">
+				<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+				<div class="sim-learning-tip-content">
+					<strong>행정정보 공동이용이란?</strong>
+					<p>담당 공무원이 신청인의 동의를 받아 필요한 증명 정보를 행정기관 사이에서 확인하는 방식이에요. 실제 신청에서
+						동의하지 않으면 관련 서류를 직접 제출해야 할 수 있어요. 해봄에서는 실제 개인정보를 조회하지 않아요.</p>
+				</div>
+			</div>
 			<label class="identity-checkbox-label" for="identityConsentAll">
 				<input type="checkbox" id="identityConsentAll" name="consentAll" />
 				전체선택
@@ -306,7 +405,21 @@
 			<p class="identity-note">※ 이 페이지는 행정절차 체험용 시뮬레이션 화면입니다.</p>
 		</div>
 	</section>
-
+	<!-- 공통 안내 문구: 기존 해봄 메시지 유지 -->
+	<div class="alert alert-info mb-3 mt-2" role="note">
+		<p class="small mb-0">
+			<spring:message code="simulation.notice" />
+		</p>
+	</div>
+	<div class="border rounded-3 bg-light p-3">
+		<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
+		<p class="text-muted small mb-0">
+			<spring:message code="simulation.history" />
+		</p>
+		<p class="text-muted small mb-0">
+			<spring:message code="simulation.privacy" />
+		</p>
+	</div>
 
 	<%-- 관할 수령기관 검색: 데이터는 SGIS 사용 --%>
 	<dialog id="identityOfficeDialog" class="identity-office-dialog"

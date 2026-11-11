@@ -8,19 +8,57 @@
 		<p>신청할 서비스를 선택하세요.</p>
 	</header>
 
+
+	<%-- 해봄 학습 도움말: 기본은 접어 두고, 필요할 때 열어 비교합니다. --%>
+	<details class="sim-learning-quick-guide">
+		<summary>
+			<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+			<span>등본과 초본, 어떤 차이가 있나요?</span> <span
+				class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+		</summary>
+		<div class="sim-learning-quick-guide-body">
+			<dl class="sim-learning-quick-guide-list">
+				<div>
+					<dt>등본</dt>
+					<dd>
+						세대를 기준으로 구성원들의 주민등록 사항을 확인해요. <span>예: 현재 함께 등록된 세대원 확인</span>
+					</dd>
+				</div>
+				<div>
+					<dt>초본</dt>
+					<dd>
+						개인을 기준으로 주민등록 사항과 주소·인적사항의 변동 기록 등을 확인해요. <span>예: 본인의 과거
+							주소 이력 확인</span>
+					</dd>
+				</div>
+			</dl>
+			<p class="sim-learning-quick-guide-tip">제출기관에서 요청한 서류 종류와 주민등록번호
+				뒷자리·주소 이력의 표시 여부를 먼저 확인하세요.</p>
+			<p class="sim-learning-source">
+				출처: <a
+					href="https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=13100000015&amp;HighCtgCD=A01010001&amp;tp_seq=01&amp;Mcode=10200"
+					target="_blank" rel="noopener noreferrer">정부24 주민등록표 등본(초본) 발급
+					안내</a>
+			</p>
+		</div>
+	</details>
+
+	<%-- 기존의 라디오 4개를 세로로 한 줄씩 배치합니다. value/name 유지. --%>
 	<section class="certificate-panel certificate-types"
 		aria-label="발급 서비스 선택">
-		<label class="certificate-type-option"><input type="radio"
-			name="certificateType" value="DEUNGBON" checked><span>주민등록표
-				등본 발급</span></label> <label class="certificate-type-option"><input
-			type="radio" name="certificateType" value="CHOBON"><span>주민등록표
-				초본 발급</span></label> <label class="certificate-type-option is-disabled"><input
-			type="radio" name="certificateType" value="DEUNGBON_EN" disabled><span>주민등록표
-				등본(영문) 발급 <small>체험 미지원</small>
-		</span></label> <label class="certificate-type-option is-disabled"><input
-			type="radio" name="certificateType" value="CHOBON_EN" disabled><span>주민등록표
-				초본(영문) 발급 <small>체험 미지원</small>
-		</span></label>
+		<label class="certificate-type-option"> <input type="radio"
+			name="certificateType" value="DEUNGBON" checked> <span>주민등록표
+				등본 발급</span>
+		</label> <label class="certificate-type-option"> <input type="radio"
+			name="certificateType" value="CHOBON"> <span>주민등록표 초본
+				발급</span>
+		</label> <label class="certificate-type-option is-disabled"> <input
+			type="radio" name="certificateType" value="DEUNGBON_EN" disabled>
+			<span>주민등록표 등본(영문) 발급 <small>체험 미지원</small></span>
+		</label> <label class="certificate-type-option is-disabled"> <input
+			type="radio" name="certificateType" value="CHOBON_EN" disabled>
+			<span>주민등록표 초본(영문) 발급 <small>체험 미지원</small></span>
+		</label>
 	</section>
 
 	<%-- 정부24 화면 참고: 발급 안내. 실제 정부24 공지 변경 시 내용 점검 필요. --%>
@@ -85,6 +123,13 @@
 				</select>
 
 			</div>
+			<div class="sim-learning-tip">
+				<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+				<div class="sim-learning-tip-content">
+					<strong>무엇을 선택하나요?</strong>
+					<p>주민등록이 되어 있는 지역의 시·도와 시·군·구를 고르세요. 이 체험에서는 상세주소를 입력하지 않아요.</p>
+				</div>
+			</div>
 			<p id="certificateAddressStatus" class="certificate-hint"
 				aria-live="polite">주민등록상 주소를 선택해 주세요.</p>
 		</div>
@@ -98,6 +143,16 @@
 					checked> 전체 발급</label> <label><input type="radio"
 					name="issueMode" value="SELECT"> 선택 발급</label>
 			</div>
+			<div class="sim-learning-tip">
+				<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+				<div class="sim-learning-tip-content">
+					<strong>전체 발급과 선택 발급의 차이</strong>
+					<p>
+						<strong>전체 발급</strong>은 기본 표시 범위를 한 번에 선택하는 방식이고, <strong>선택
+							발급</strong>은 필요한 정보만 골라 표시하는 방식이에요. 어떤 정보를 넣어야 하는지는 제출기관에 먼저 확인하세요.
+					</p>
+				</div>
+			</div>
 			<p id="certificateIssueHint" class="certificate-hint">과거주소 변동사항을
 				제외한 모든 정보가 표시됩니다.</p>
 		</div>
@@ -105,10 +160,50 @@
 		<%-- 전체 발급: 아래 전체 숨김. 선택 발급: 항목 체크박스만 먼저 노출. --%>
 		<div id="certificateSelectiveOptions" hidden>
 			<div id="certificateDeungbonFields">
+				<%-- 화면이 복잡해지지 않도록 선택 항목의 학습 설명은 접어서 제공합니다. --%>
+				<details
+					class="sim-learning-quick-guide certificate-selective-guide">
+					<summary>
+						<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+						<span>등본 선택 항목, 어떤 정보인가요?</span> <span
+							class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+					</summary>
+					<div class="sim-learning-quick-guide-body">
+						<dl class="sim-learning-quick-guide-list">
+							<div>
+								<dt>과거의 주소 변동사항</dt>
+								<dd>과거에 주민등록한 주소의 변동 기록을 표시해요. 전체 또는 최근 몇 년을 선택할 수 있어요.</dd>
+							</div>
+							<div>
+								<dt>세대 구성 정보</dt>
+								<dd>세대가 구성된 사유와 날짜, 변동 사유를 표시할지 선택해요.</dd>
+							</div>
+							<div>
+								<dt>세대 구성원 정보</dt>
+								<dd>세대 구성원의 변동 사유, 발생일·신고일 및 이름 표시 범위를 선택해요.</dd>
+							</div>
+							<div>
+								<dt>주민등록번호 뒷자리</dt>
+								<dd>번호 뒷자리를 세대원 전체에 표시할지, 일부만 표시할지 정해요.</dd>
+							</div>
+							<div>
+								<dt>세대원의 세대주와의 관계</dt>
+								<dd>일반은 세대원·동거인 중심, 상세는 부모·자녀 등 구체적인 관계를 표시해요. 상세를 선택하면 용도도
+									입력해요.</dd>
+							</div>
+						</dl>
+						<p class="sim-learning-quick-guide-tip">필요한 항목은 서류를 제출할 기관에서
+							요구하는 기준에 맞춰 선택해 주세요.</p>
+					</div>
+				</details>
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"><input
-						type="checkbox" name="deungbonPastAddressIncluded"> 과거의 주소
-						변동사항</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"><input
+							type="checkbox" name="deungbonPastAddressIncluded"
+							aria-describedby="certHelpDeungbonPast"> 과거의 주소 변동사항</label>
+						<p class="visually-hidden" id="certHelpDeungbonPast">예전에
+							주민등록했던 주소의 변동 이력이에요. 전체 이력 또는 최근 몇 년의 이력만 표시하도록 선택할 수 있어요.</p>
+					</div>
 					<div class="certificate-option-content certificate-past-address"
 						hidden>
 						<label><input type="radio" name="deungbonPastAddressScope"
@@ -121,9 +216,13 @@
 					</div>
 				</div>
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"><input
-						type="checkbox" name="deungbonHouseholdCompositionIncluded">
-						세대 구성 정보</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"><input
+							type="checkbox" name="deungbonHouseholdCompositionIncluded"
+							aria-describedby="certHelpDeungbonComposition"> 세대 구성 정보</label>
+						<p class="visually-hidden" id="certHelpDeungbonComposition">세대가
+							만들어진 사유와 날짜 등 세대 구성 자체에 관한 정보예요.</p>
+					</div>
 					<div class="certificate-option-content certificate-check-grid"
 						hidden>
 						<label><input type="checkbox"
@@ -135,9 +234,13 @@
 					</div>
 				</div>
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"><input
-						type="checkbox" name="deungbonHouseholdMemberIncluded"> 세대
-						구성원 정보</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"><input
+							type="checkbox" name="deungbonHouseholdMemberIncluded"
+							aria-describedby="certHelpDeungbonMembers"> 세대 구성원 정보</label>
+						<p class="visually-hidden" id="certHelpDeungbonMembers">세대
+							구성원의 변동사유·발생일/신고일이나 표시할 이름 범위 등을 정하는 항목이에요.</p>
+					</div>
 					<div class="certificate-option-content certificate-check-grid"
 						hidden>
 						<label><input type="checkbox"
@@ -152,8 +255,13 @@
 					</div>
 				</div>
 				<div class="certificate-option-row certificate-member-row">
-					<label class="certificate-option-title"><input
-						type="checkbox" name="deungbonRrnBackIncluded"> 주민등록번호 뒷자리</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"><input
+							type="checkbox" name="deungbonRrnBackIncluded"
+							aria-describedby="certHelpDeungbonRrn"> 주민등록번호 뒷자리</label>
+						<p class="visually-hidden" id="certHelpDeungbonRrn">주민등록번호 뒷자리
+							표시 범위를 결정해요. 세대전부 또는 필요한 세대원 일부만 선택할 수 있어요.</p>
+					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
 						<label><input type="radio" name="deungbonRrnBackScope"
@@ -202,9 +310,14 @@
 					</div>
 				</div>
 				<div class="certificate-option-row certificate-relation-row">
-					<label class="certificate-option-title"><input
-						type="checkbox" name="deungbonRelationshipIncluded"> 세대원의
-						세대주와의 관계</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"><input
+							type="checkbox" name="deungbonRelationshipIncluded"
+							aria-describedby="certHelpDeungbonRelation"> 세대원의 세대주와의
+							관계</label>
+						<p class="visually-hidden" id="certHelpDeungbonRelation">세대주와의
+							관계를 간단히 표시할지, 부모·자녀 같은 구체적 관계로 표시할지 정해요. 상세 선택 시 용도를 입력해요.</p>
+					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
 						<label><input type="radio" name="deungbonRelationshipType"
@@ -214,38 +327,86 @@
 					</div>
 					<div class="certificate-option-note" hidden>
 						<p class="certificate-hint">일반: 세대원/동거인 표시 · 상세: 구체적인 가족관계 표시</p>
-						<div id="certificatePurposeArea" class="certificate-purpose"
-							hidden>
-							<label class="certificate-label" for="certificatePurpose">용도
-								및 목적 <em>(필수)</em>
-							</label> <select class="form-select" id="certificatePurpose" name="deungbonPurpose">
-								<option value="">선택해 주세요.</option>
-								<option value="ADMIN">행정기관 제출용</option>
-								<option value="FINANCE">금융기관(은행 등) 제출용</option>
-								<option value="REAL_ESTATE">부동산 업무용</option>
-								<option value="COURT">법원 제출용</option>
-								<option value="PRIVATE">민간기관 제출용</option>
-								<option value="OTHER">기타</option>
-							</select>
-							<div id="certificatePurposeOtherArea" hidden>
-								<label class="certificate-label" for="certificatePurposeOther">기타
-									용도 <em>(필수)</em>
-								</label><input id="certificatePurposeOther" name="deungbonPurposeDetail"
-									maxlength="100" type="text" placeholder="용도를 입력해 주세요.">
-							</div>
-						</div>
+					</div>
+				</div>
+				<%-- 등본 상세 선택 용도: 초본과 동일하게 선택 행 바깥 배치 --%>
+				<div id="certificatePurposeArea" class="certificate-purpose" hidden>
+					<label class="certificate-label" for="certificatePurpose">용도
+						및 목적 <em>(필수)</em>
+					</label> <select class="form-select" id="certificatePurpose"
+						name="deungbonPurpose">
+						<option value="">선택해 주세요.</option>
+						<option value="ADMIN">행정기관 제출용</option>
+						<option value="FINANCE">금융기관(은행 등) 제출용</option>
+						<option value="REAL_ESTATE">부동산 업무용</option>
+						<option value="COURT">법원 제출용</option>
+						<option value="PRIVATE">민간기관 제출용</option>
+						<option value="OTHER">기타</option>
+					</select>
+					<p class="visually-hidden">왜 필요한가요? 가족관계를 ‘상세’로 표시할 때 어떤 목적으로
+						사용하는지 선택하는 항목이에요. ‘기타’를 고르면 아래에 직접 적어 주세요.</p>
+					<div id="certificatePurposeOtherArea" hidden>
+						<label class="certificate-label" for="certificatePurposeOther">기타
+							용도 <em>(필수)</em>
+						</label><input id="certificatePurposeOther" name="deungbonPurposeDetail"
+							maxlength="100" type="text" placeholder="용도를 입력해 주세요.">
 					</div>
 				</div>
 			</div>
 
 			<%-- 초본 선택 발급: 정부24 화면 참고 (국문) --%>
 			<div id="certificateChobonFields" hidden>
+				<%-- 화면이 복잡해지지 않도록 선택 항목의 학습 설명은 접어서 제공합니다. --%>
+				<details
+					class="sim-learning-quick-guide certificate-selective-guide">
+					<summary>
+						<span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+						<span>초본 선택 항목, 어떤 정보인가요?</span> <span
+							class="sim-learning-quick-guide-hint">눌러서 알아보기</span>
+					</summary>
+					<div class="sim-learning-quick-guide-body">
+						<dl class="sim-learning-quick-guide-list">
+							<div>
+								<dt>과거의 주소 변동사항</dt>
+								<dd>이전에 주민등록한 주소 기록이에요. 전체 또는 최근 N년을 고르고 발생일·신고일과 변동 사유의 표시
+									여부를 정해요.</dd>
+							</div>
+							<div>
+								<dt>과거 주소의 세대주 관계</dt>
+								<dd>예전 주소에서 등록되어 있던 세대주의 성명 및 그 당시의 관계 정보예요.</dd>
+							</div>
+							<div>
+								<dt>개인 인적사항 변경 내용</dt>
+								<dd>성명이나 주민등록번호가 변경된 기록에서 표시할 범위를 정해요.</dd>
+							</div>
+							<div>
+								<dt>주민등록번호 등 식별번호</dt>
+								<dd>주민등록번호 뒷자리, 국내거소신고번호, 외국인등록번호의 표시 여부를 선택해요. 민감한 번호는 필요할
+									때만 표시하세요.</dd>
+							</div>
+							<div>
+								<dt>병역사항</dt>
+								<dd>입영·전역일자만 표시할지, 전체 병역사항을 표시할지 정해요.</dd>
+							</div>
+							<div>
+								<dt>세대주 성명과 세대주와의 관계</dt>
+								<dd>현재 세대주의 성명 및 본인과의 관계를 일반 또는 상세로 표시해요. 상세는 용도 입력이 필요해요.</dd>
+							</div>
+						</dl>
+						<p class="sim-learning-quick-guide-tip">필요한 항목은 서류를 제출할 기관에서
+							요구하는 기준에 맞춰 선택해 주세요.</p>
+					</div>
+				</details>
 				<!-- 1. 과거의 주소 변동사항 -->
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"> <input
-						type="checkbox" name="chobonPastAddressIncluded"> 과거의 주소
-						변동사항
-					</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"> <input
+							type="checkbox" name="chobonPastAddressIncluded"
+							aria-describedby="certHelpChobonPast"> 과거의 주소 변동사항
+						</label>
+						<p class="visually-hidden" id="certHelpChobonPast">본인이 이전에
+							주민등록했던 주소의 변동 기록이에요. 전체 또는 최근 N년을 고르고, 날짜·변동사유의 표시 여부도 정할 수 있어요.</p>
+					</div>
 					<div class="certificate-option-content certificate-past-address"
 						hidden>
 						<label><input type="radio" name="chobonPastAddressScope"
@@ -272,10 +433,15 @@
 
 				<!-- 2. 과거 주소 변동사항 중 세대주와의 관계 -->
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"> <input
-						type="checkbox" name="chobonPastHouseholdRelationIncluded">
-						과거의 주소 변동사항 중 세대주 성명과 세대주의 관계
-					</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"> <input
+							type="checkbox" name="chobonPastHouseholdRelationIncluded"
+							aria-describedby="certHelpChobonPastRelation"> 과거의 주소
+							변동사항 중 세대주 성명과 세대주의 관계
+						</label>
+						<p class="visually-hidden" id="certHelpChobonPastRelation">예전
+							주소에서 함께 등록됐던 세대주의 성명과 그 당시의 관계에 관한 정보예요.</p>
+					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
 						<label><input type="radio"
@@ -291,10 +457,14 @@
 
 				<!-- 3. 개인 인적사항 변경 내용 -->
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"> <input
-						type="checkbox" name="chobonPersonalChangeIncluded"> 개인
-						인적사항 변경 내용
-					</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"> <input
+							type="checkbox" name="chobonPersonalChangeIncluded"
+							aria-describedby="certHelpChobonPersonal"> 개인 인적사항 변경 내용
+						</label>
+						<p class="visually-hidden" id="certHelpChobonPersonal">본인의
+							성명이나 주민등록번호가 변경된 기록 중 표시할 범위를 선택하는 항목이에요.</p>
+					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
 						<label><input type="radio"
@@ -308,10 +478,15 @@
 
 				<!-- 4. 식별번호 표기 -->
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"> <input
-						type="checkbox" name="chobonIdNumbersIncluded"> 주민등록번호
-						뒷자리, 국내거소신고번호, 외국인등록번호
-					</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"> <input
+							type="checkbox" name="chobonIdNumbersIncluded"
+							aria-describedby="certHelpChobonIds"> 주민등록번호 뒷자리,
+							국내거소신고번호, 외국인등록번호
+						</label>
+						<p class="visually-hidden" id="certHelpChobonIds">주민등록번호 뒷자리 및
+							해당하는 국내거소신고번호·외국인등록번호의 표시 여부를 선택해요. 민감한 번호는 필요한 경우에만 표시하세요.</p>
+					</div>
 					<div class="certificate-option-content certificate-check-grid"
 						hidden>
 						<label><input type="checkbox" name="chobonRrnBackIncluded"
@@ -323,9 +498,14 @@
 
 				<!-- 5. 병역사항 -->
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"> <input
-						type="checkbox" name="chobonMilitaryServiceIncluded"> 병역사항
-					</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"> <input
+							type="checkbox" name="chobonMilitaryServiceIncluded"
+							aria-describedby="certHelpChobonMilitary"> 병역사항
+						</label>
+						<p class="visually-hidden" id="certHelpChobonMilitary">병역 기록을
+							표시할 때 입영·전역일자만 선택할지, 전체 병역사항을 표시할지 정해요.</p>
+					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
 						<label><input type="radio"
@@ -337,10 +517,15 @@
 
 				<!-- 6. 현 세대주 성명과 관계 -->
 				<div class="certificate-option-row">
-					<label class="certificate-option-title"> <input
-						type="checkbox" name="chobonHouseholdRelationIncluded">
-						세대주 성명과 세대주와의 관계
-					</label>
+					<div class="certificate-learning-field-heading">
+						<label class="certificate-option-title"> <input
+							type="checkbox" name="chobonHouseholdRelationIncluded"
+							aria-describedby="certHelpChobonRelation"> 세대주 성명과 세대주와의
+							관계
+						</label>
+						<p class="visually-hidden" id="certHelpChobonRelation">현재 세대주의
+							성명과 본인이 세대주와 어떤 관계인지 보여주는 항목이에요. 상세 선택 시 용도를 입력해요.</p>
+					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
 						<label><input type="radio"
@@ -359,7 +544,8 @@
 					class="certificate-purpose certificate-chobon-purpose" hidden>
 					<label class="certificate-label" for="certificateChobonPurpose">용도
 						및 목적 <em>(필수)</em>
-					</label> <select class="form-select" id="certificateChobonPurpose" name="chobonPurpose">
+					</label> <select class="form-select" id="certificateChobonPurpose"
+						name="chobonPurpose">
 						<option value="">선택해 주세요.</option>
 						<option value="ADMIN">행정기관 제출용</option>
 						<option value="FINANCE">금융기관(은행 등) 제출용</option>
@@ -368,6 +554,8 @@
 						<option value="PRIVATE">민간기관 제출용</option>
 						<option value="OTHER">기타</option>
 					</select>
+					<p class="visually-hidden">‘상세’ 관계 표기 시 사용하는 목적을 고르는 항목이에요.
+						선택지에 없다면 ‘기타’를 선택하고 목적을 입력하세요.</p>
 					<div id="certificateChobonPurposeOtherArea" hidden>
 						<label class="certificate-label"
 							for="certificateChobonPurposeOther">기타 용도 <em>(필수)</em></label> <input
@@ -385,6 +573,14 @@
 		<div class="certificate-label">
 			구분 <em>(필수)</em>
 		</div>
+		<div class="sim-learning-tip">
+			<span class="material-symbols-outlined" aria-hidden="true">lightbulb</span>
+			<div class="sim-learning-tip-content">
+				<strong>어떤 방법이 좋을까요?</strong>
+				<p>종이 서류가 필요하면 본인출력, 모바일로 보관·제출하려면 전자문서지갑을 먼저 살펴보세요. 실제 사용 가능
+					여부는 제출기관에 확인하세요.</p>
+			</div>
+		</div>
 		<div class="certificate-receipt-grid">
 			<label><input type="radio" name="receiveMethod"
 				value="ONLINE_PRINT"> 온라인발급(본인출력)</label> <label><input
@@ -396,7 +592,35 @@
 				type="radio" name="receiveMethod" value="NORMAL_MAIL">
 				일반보통우편</label>
 		</div>
-		<p class="certificate-hint">모든 선택은 학습용이며 실제 수령·제출이 이루어지지 않습니다. 제3자
-			제출 및 우편 수령의 추가 신청 절차는 아직 재현하지 않았습니다.</p>
+		<details class="sim-learning-details">
+			<summary>수령 방법별 차이 자세히 알아보기</summary>
+			<dl class="sim-learning-definition-list">
+				<dt>온라인발급(본인출력)</dt>
+				<dd>발급된 증명서를 본인이 확인하고 프린터로 출력하는 방식이에요.</dd>
+				<dt>온라인발급(전자문서지갑)</dt>
+				<dd>전자증명서를 디지털 지갑에서 보관하고 지원 기관에 전자적으로 제출하는 방식이에요.</dd>
+				<dt>온라인발급(제3자제출)</dt>
+				<dd>서류를 받을 대상을 지정해 제출하는 방식이에요. 실제 서비스에서는 수신인 확인 과정이 필요할 수 있어요.</dd>
+				<dt>등기보통우편 / 일반보통우편</dt>
+				<dd>우편으로 받는 방법을 뜻해요. 실제 신청에서는 가능 여부·수수료·배송 조건을 별도로 확인해야 해요.</dd>
+			</dl>
+		</details>
 	</section>
+	<!-- ============================== -->
+	<!-- 시뮬레이션 공통 안내 -->
+	<!-- ============================== -->
+	<div class="alert alert-info mb-3" role="note">
+		<p class="small mb-0">
+			<spring:message code="simulation.notice" />
+		</p>
+	</div>
+	<div class="border rounded-3 bg-light p-3">
+		<h4 class="fw-semibold small mb-2">입력 정보 및 진행 기록 안내</h4>
+		<p class="text-muted small mb-0">
+			<spring:message code="simulation.history" />
+		</p>
+		<p class="text-muted small mb-0">
+			<spring:message code="simulation.privacy" />
+		</p>
+	</div>
 </div>

@@ -25,6 +25,7 @@
 		UPDATE member
 		SET member_status = #{memberStatus}
 		WHERE member_id = #{memberId}
+		  AND role != 'ADMIN'
 	</update>
 	
 	<!-- 3. 특정 회원의 시뮬레이션 진행/완료 내역 조회 -->
