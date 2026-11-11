@@ -78,6 +78,7 @@ public interface MyPageMapper {
 		    WHERE sp.member_id = #{memberId}
 		    AND sp.progress_status IN ('IN_PROGRESS', 'COMPLETED')
 		    AND (#{scenarioId} IS NULL OR sp.scenario_id = #{scenarioId})
+		    AND (#{status} IS NULL OR sp.progress_status = #{status})
 		    AND (#{keyword} IS NULL OR #{keyword} = ''
 		    OR s.scenario_title LIKE CONCAT('%', #{keyword}, '%'))
 		    ORDER BY COALESCE(sp.completed_at, sp.last_saved_at) DESC,
@@ -88,6 +89,7 @@ public interface MyPageMapper {
 			@Param("memberId") Integer memberId,
 		    @Param("scenarioId") Integer scenarioId,
 		    @Param("keyword") String keyword,
+		    @Param("status") String status,
 		    @Param("size") int size,
 		    @Param("offset") int offset);
 
@@ -98,11 +100,13 @@ public interface MyPageMapper {
 		WHERE sp.member_id = #{memberId}
 		AND sp.progress_status IN ('IN_PROGRESS', 'COMPLETED')
 		AND (#{scenarioId} IS NULL OR sp.scenario_id = #{scenarioId})
+		AND (#{status} IS NULL OR sp.progress_status = #{status})
 		AND (#{keyword} IS NULL OR #{keyword} = ''
 		OR s.scenario_title LIKE CONCAT('%', #{keyword}, '%'))
 		""")
 	long countScenarioHistory(
 			@Param("memberId") Integer memberId,
 		    @Param("scenarioId") Integer scenarioId,
-		    @Param("keyword") String keyword);
+		    @Param("keyword") String keyword,
+		    @Param("status") String status);
 }

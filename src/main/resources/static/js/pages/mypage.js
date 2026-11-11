@@ -149,6 +149,27 @@
     let scenarioHistoryTotalCount = 0;
     let scenarioHistoryItems = null;
     let appliedScenarioHistoryKeyword = '';
+    let appliedScenarioHistoryStatus = 'ALL';
+    let scenarioHistoryRequestId = 0;
+
+    function scrollToListStart(element) {
+        if (!element) return;
+
+        const top = window.scrollY + element.getBoundingClientRect().top - 112;
+        const reduceMotion = window.matchMedia
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const behavior = reduceMotion ? 'auto' : 'smooth';
+        window.scrollTo({ top: Math.max(0, top), behavior: behavior });
+    }
+
+    function setScenarioHistoryLoading(list, pagination, isLoading) {
+        list.classList.toggle('is-loading', isLoading && scenarioHistoryItems !== null);
+        list.setAttribute('aria-busy', String(isLoading));
+        if (pagination) {
+            pagination.classList.toggle('is-loading', isLoading);
+            pagination.setAttribute('aria-busy', String(isLoading));
+        }
+    }
 
     function showScenarioHistoryMessage(message, isError) {
         const list = document.querySelector('[data-scenario-history-list]');
@@ -175,7 +196,9 @@
             showBoundaryButtons: true,
             bootstrap: true,
             hideWhenSinglePage: true,
-            onPageChange: loadScenarioHistory
+            onPageChange: function (targetPage) {
+                loadScenarioHistory(targetPage, true);
+            }
         });
     }
 
@@ -259,16 +282,22 @@
         renderScenarioHistoryPagination();
     }
 
-    async function loadScenarioHistory(requestedPage) {
+    async function loadScenarioHistory(requestedPage, scrollAfterLoad) {
         const list = document.querySelector('[data-scenario-history-list]');
         if (!page || !page.dataset.scenarioHistoryApiUrl || !list) return;
 
+        const requestId = ++scenarioHistoryRequestId;
+        const pagination = document.querySelector('[data-scenario-history-pagination]');
         const requested = Math.max(1, Number(requestedPage) || 1);
         const params = new URLSearchParams({
             page: String(requested),
-            keyword: appliedScenarioHistoryKeyword
+            keyword: appliedScenarioHistoryKeyword,
+            status: appliedScenarioHistoryStatus
         });
-        showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
+        if (scenarioHistoryItems === null) {
+            showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
+        }
+        setScenarioHistoryLoading(list, pagination, true);
 
         try {
             const response = await fetch(page.dataset.scenarioHistoryApiUrl + '?' + params.toString(), {
@@ -283,18 +312,23 @@
             if (!response.ok) throw new Error('진행 내역을 불러오지 못했습니다.');
 
             const result = await response.json();
+            if (requestId !== scenarioHistoryRequestId) return;
             if (!result || !Array.isArray(result.items)) {
                 throw new Error('진행 내역 응답 형식이 올바르지 않습니다.');
             }
             scenarioHistoryTotalCount = Number(result.totalCount) || 0;
             scenarioHistoryTotalPages = Number(result.totalPages) || 0;
             if (scenarioHistoryTotalPages > 0 && requested > scenarioHistoryTotalPages) {
-                return loadScenarioHistory(scenarioHistoryTotalPages);
+                return loadScenarioHistory(scenarioHistoryTotalPages, scrollAfterLoad);
             }
             scenarioHistoryPage = scenarioHistoryTotalPages === 0 ? 1 : requested;
             scenarioHistoryItems = result.items;
+            setScenarioHistoryLoading(list, pagination, false);
             renderScenarioHistory(result.items);
+            if (scrollAfterLoad) scrollToListStart(list);
         } catch (error) {
+            if (requestId !== scenarioHistoryRequestId) return;
+            setScenarioHistoryLoading(list, pagination, false);
             const total = document.querySelector('[data-scenario-history-total]');
             if (total) total.textContent = '';
             showScenarioHistoryMessage(error.message || '진행 내역을 불러오지 못했습니다.', true);
@@ -345,11 +379,13 @@
     function initializeScenarioHistory() {
         const searchForm = document.querySelector('[data-scenario-history-search-form]');
         const keywordInput = document.getElementById('mypageHistoryKeyword');
+        const statusFilter = document.getElementById('mypageHistoryStatus');
 
         if (searchForm) {
             searchForm.addEventListener('submit', function (event) {
                 event.preventDefault();
                 appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
+                appliedScenarioHistoryStatus = statusFilter ? statusFilter.value : 'ALL';
                 loadScenarioHistory(1);
             });
         }
@@ -414,6 +450,7 @@
                 onPageChange: function (targetPage) {
                     currentPage = targetPage;
                     render();
+                    scrollToListStart(rows);
                 }
             });
         }

@@ -52,10 +52,16 @@
                         <h2 id="historyTitle">진행 내역</h2>
                         <p class="mypage-history-retention-note">
                             <span class="material-symbols-outlined" aria-hidden="true">info</span>
-                            진행 중인 내역은 마지막 저장일로부터 30일이 지나면 자동 삭제됩니다. 완료한 내역은 자동 삭제되지 않습니다.
+                            진행 중인 내역은 마지막 저장일로부터 30일이 지나면 자동 삭제됩니다.
                         </p>
                     </div>
                     <form class="mypage-history-search mypage-search-form" data-scenario-history-search-form role="search">
+                        <label class="visually-hidden" for="mypageHistoryStatus">진행 내역 상태</label>
+                        <select class="form-select form-select-sm" id="mypageHistoryStatus">
+                            <option value="ALL">전체 상태</option>
+                            <option value="IN_PROGRESS">진행 중</option>
+                            <option value="COMPLETED">완료</option>
+                        </select>
                         <label class="visually-hidden" for="mypageHistoryKeyword">시나리오 제목 검색</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text" aria-hidden="true">
