@@ -66,6 +66,7 @@
 	border-radius: 18px;
 	background: #fff;
 	box-shadow: 0 4px 14px rgba(34, 55, 76, .035);
+	margin-bottom: 20px;
 }
 
 .sim-progress-card .progress {

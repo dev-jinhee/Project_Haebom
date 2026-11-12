@@ -564,10 +564,10 @@
 		</div>
 		<div class="certificate-receipt-grid">
 			<label><input type="radio" name="receiveMethod"
-				value="ONLINE_PRINT"> 온라인발급(본인출력)</label> <label><input
+				value="ONLINE_PRINT" checked> 온라인발급(본인출력)</label> <label><input
 				type="radio" name="receiveMethod" value="ONLINE_E_DOC">
 				온라인발급(전자문서지갑)</label> <label><input type="radio"
-				name="receiveMethod" value="ONLINE_THIRD_PARTY" checked>
+				name="receiveMethod" value="ONLINE_THIRD_PARTY">
 				온라인발급(제3자제출) 수신인 등록</label> <label><input type="radio"
 				name="receiveMethod" value="REGISTERED_MAIL"> 등기보통우편</label> <label><input
 				type="radio" name="receiveMethod" value="NORMAL_MAIL">

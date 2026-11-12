@@ -410,6 +410,36 @@ export async function renderSavedPhotoPreview(root, photo, progressId, { preserv
 	const url = `/api/simulation/identity/${encodeURIComponent(progressId)}/photo/${encodeURIComponent(fileId)}`;
 	const previous = getPhotoInspection(root);
 
+	/* 완료 후 다시보기에서 저장된 파일명 표시 */
+	const fileInput = root.querySelector("#identityPhotoInput");
+	const isCompleted = document.body.classList.contains("is-completed");
+
+	if (fileInput && isCompleted && photo?.s3Key) {
+		// 원래 파일 선택창 숨김
+		fileInput.classList.add("d-none");
+
+		// 중복 생성 방지
+		fileInput.parentElement
+			.querySelector(".identity-photo-file-readonly")
+			?.remove();
+
+		const display = document.createElement("div");
+		display.className = "identity-photo-file-readonly";
+
+		const label = document.createElement("span");
+		label.className = "file-label";
+		label.textContent = "첨부 완료";
+
+		const name = document.createElement("span");
+		name.className = "file-name";
+		name.textContent = photo.fileName || fileId;
+
+		display.append(label, name);
+		fileInput.insertAdjacentElement("afterend", display);
+	}
+
+
+
 	// 새 파일을 방금 검증해서 업로드한 경우 검사 결과를 그대로 유지
 	if (preserveValidation && previous.status === "passed") {
 		photoInspections.set(root, {
@@ -428,9 +458,20 @@ export async function renderSavedPhotoPreview(root, photo, progressId, { preserv
 		// 기존 미리보기 GET API로 파일을 읽고 검증한다. 검증 결과는 서버/DB로 보내지 않음.
 		const response = await fetch(url, { credentials: "same-origin" });
 		if (!response.ok) throw new Error(`사진 조회 실패 (${response.status})`);
+
 		const blob = await response.blob();
-		const file = new File([blob], photo.fileName || fileId, { type: blob.type });
+
+		// MIME 타입에 포함된 charset 제거
+		const contentType = blob.type.split(";")[0].trim().toLowerCase();
+
+		const file = new File(
+			[blob],
+			photo.fileName || fileId,
+			{ type: contentType }
+		);
+
 		const report = await inspectPhotoFile(file);
+
 		if (!isCurrentPhotoRequest(root, requestId)) return;
 
 		photoInspections.set(root, {
