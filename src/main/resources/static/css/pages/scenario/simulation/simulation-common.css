@@ -445,7 +445,7 @@
 	border-left: 4px solid #164166;
 	border-radius: 10px;
 	padding: 24px 28px;
-	margin: 20px 2px;
+	margin: 0 2px 20px;
 }
 
 .sim-notice-panel h3 {
@@ -630,6 +630,13 @@ label:has(>input[type="radio"]), label:has(>input[type="checkbox"]) {
 	margin: 0;
 	line-height: 1.5;
 	cursor: pointer;
+}
+
+/* 완료 후 다시보기: 선택 상태를 명확하게 표시 */
+.simulation-page.is-completed .sim-step-content
+input:is([type="checkbox"], [type="radio"]):disabled:checked {
+	border-color: #164166;
+	background-color: #164166;
 }
 
 @media ( max-width : 768px) {
