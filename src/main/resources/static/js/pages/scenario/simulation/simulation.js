@@ -13,7 +13,7 @@ const simulationState = {
 const SIMULATION_ICONS = {
 	MOVE: "home",
 	IDENTITY_REISSUE: "badge",
-	RESIDENT_RECORD_ISSUE:"docs"
+	RESIDENT_RECORD_ISSUE: "docs"
 };
 
 let activeStepModule = null;
@@ -29,10 +29,10 @@ const stepModules = {
 		3: () => import("/js/pages/scenario/simulation/move/step-3.js"),
 		4: () => import("/js/pages/scenario/simulation/move/step-4.js")
 	},
-	IDENTITY_REISSUE : {
+	IDENTITY_REISSUE: {
 		1: () => import("/js/pages/scenario/simulation/identity/step-1.js")
 	},
-	RESIDENT_RECORD_ISSUE : {
+	RESIDENT_RECORD_ISSUE: {
 		1: () => import("/js/pages/scenario/simulation/certificate/step-1.js")
 	}
 };
@@ -107,7 +107,7 @@ async function loadSimulation() {
 				link.dataset.scenario = "MOVE";
 				document.head.appendChild(link);
 			}
-		}else if(simulationState.scenarioCode === "IDENTITY_REISSUE"){
+		} else if (simulationState.scenarioCode === "IDENTITY_REISSUE") {
 			// CSS 중복 로드 방지
 			if (!document.querySelector('link[data-scenario="IDENTITY_REISSUE"]')) {
 				const link = document.createElement("link");
@@ -116,7 +116,7 @@ async function loadSimulation() {
 				link.dataset.scenario = "IDENTITY_REISSUE";
 				document.head.appendChild(link);
 			}
-		}else if(simulationState.scenarioCode === "RESIDENT_RECORD_ISSUE"){
+		} else if (simulationState.scenarioCode === "RESIDENT_RECORD_ISSUE") {
 			// CSS 중복 로드 방지
 			if (!document.querySelector('link[data-scenario="RESIDENT_RECORD_ISSUE"]')) {
 				const link = document.createElement("link");
@@ -126,7 +126,7 @@ async function loadSimulation() {
 				document.head.appendChild(link);
 			}
 		}
-		
+
 
 		// 브레드 크럼
 		document.querySelector("#breadcrumbScenarioTitle").textContent =
@@ -326,6 +326,12 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 
 	const stepContent = document.querySelector("#stepContent");
 	stepContent.innerHTML = html;
+
+	const notice = document.getElementById("simulationNotice");
+
+	if (notice) {
+		notice.hidden = isCompleted && stepOrder === "complete";
+	}
 
 	// 현재 단계 모듈 초기화
 	activeStepModule = null;

@@ -78,7 +78,7 @@
 		<!-- ============================== -->
 		<!-- 시뮬레이션 공통 이용 안내 -->
 		<!-- ============================== -->
-		<aside class="sim-notice-panel"
+		<aside class="sim-notice-panel" id="simulationNotice"
 			aria-labelledby="simulationNoticeTitle">
 
 			<h3 id="simulationNoticeTitle">
