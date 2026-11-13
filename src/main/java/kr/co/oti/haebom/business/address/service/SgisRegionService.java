@@ -1,4 +1,3 @@
-
 package kr.co.oti.haebom.business.address.service;
 
 import java.net.URI;
@@ -205,7 +204,7 @@ public class SgisRegionService {
 			throw new IllegalStateException("기존 데이터보다 수집 건수가 크게 감소했습니다.");
 		}
 
-		regionWriter.replaceRegions(collected);
+		regionWriter.syncRegions(collected);
 	}
 
 	// ==============================
