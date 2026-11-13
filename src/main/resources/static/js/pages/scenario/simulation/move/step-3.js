@@ -1,7 +1,6 @@
 // ============================================================
 // 전입신고 3단계 | 이사 전 주소 / 이사 대상 가족 / 새 세대주
 // simulation.js의 init / validate / save / getData 계약 유지
-
 // ============================================================
 import { isMinor } from "../utils/age.js";
 import { fetchRegions } from "../utils/sgis-api.js";
@@ -70,7 +69,7 @@ function validateConsents(root) {
 			? "본인정보 제공요구서 및 공동이용 동의"
 			: "행정정보 공동이용 동의";
 		alert(`${title}의 동의 여부를 선택해 주세요.`);
-		const radio = root.querySelector(`input[name="${key}"]`);
+		const radio = root.querySelector(`input[name="${key}"]:not(:disabled)`);
 		radio?.closest("details")?.setAttribute("open", "");
 		radio?.focus();
 		return false;
@@ -136,6 +135,9 @@ export async function init({ root, progressId, stepId, readOnly = false }) {
 	searchFamilyBtn.addEventListener("click", async () => {
 		if (!sidoSelect.value || !sigunguSelect.value) {
 			alert("시·도와 시·군·구를 선택해 주세요.");
+			const target = !sidoSelect.value || sigunguSelect.disabled
+				? sidoSelect : sigunguSelect;
+			target.focus();
 			return;
 		}
 		const selectedSido = sidoSelect.value;
@@ -549,6 +551,9 @@ export function validate({ root }) {
 	const sigungu = root.querySelector("#sigunguSelect");
 	if (!sido.value || !sigungu.value || !familySearchCompleted || families.length === 0) {
 		alert("이전 주소를 선택하고 주소조회를 완료해 주세요.");
+		const target = !sido.value || sigungu.disabled ? sido
+			: !sigungu.value ? sigungu : root.querySelector("#searchFamilyBtn");
+		if (target && !target.disabled) target.focus();
 		return false;
 	}
 	const moving = selectedMovingIds(root);
@@ -570,7 +575,7 @@ export function validate({ root }) {
 		const remaining = families.filter(family => !moving.has(String(family.familyId)));
 		if (!chosen || !remaining.some(family => String(family.familyId) === chosen.value)) {
 			alert("남는 가족 중 새로운 세대주를 선택해 주세요.");
-			root.querySelector('input[name="remainingHead"]')?.focus();
+			root.querySelector('input[name="remainingHead"]:not(:disabled)')?.focus();
 			return false;
 		}
 
@@ -588,7 +593,12 @@ export function validate({ root }) {
 		}
 		if (!/^010-\d{4}-\d{4}$/.test(getHeadPhone(root))) {
 			alert("새 세대주의 휴대전화번호를 올바르게 입력해 주세요.");
-			root.querySelector("#newHeadPhoneFirst").focus();
+			const phoneInputs = ["newHeadPhoneFirst", "newHeadPhoneMiddle", "newHeadPhoneLast"]
+				.map(id => root.querySelector(`#${id}`));
+			const invalid = phoneInputs.find((input, index) =>
+				!(index === 0 ? /^010$/ : /^\d{4}$/).test(input?.value.trim() ?? "")
+			);
+			(invalid ?? phoneInputs[0])?.focus();
 			return false;
 		}
 	}

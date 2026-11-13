@@ -165,7 +165,7 @@ export function init({ root, progressId, readOnly, reload }) {
 			const familyMembers = collectFamilyMembers(tbody);
 
 			// 2. 입력값 검증
-			validateFamilyMembers(familyMembers);
+			validateFamilyMembers(familyMembers, tbody);
 
 			// 3. 신청인 정보 조회
 			const applicant = familyMembers.find(
@@ -236,12 +236,21 @@ export function init({ root, progressId, readOnly, reload }) {
 			console.error("전입신고 시작 실패:", error);
 			alert(error.message);
 
-		} finally {
-			startButton.disabled = false;
-		}
-	});
+			const target = error.focusTarget;
 
-	updateRemoveButton();
+			if (target?.isConnected && !target.disabled) {
+				target.focus({ preventScroll: true });
+				target.scrollIntoView({
+					behavior: "smooth",
+					block: "center"
+				});
+			}
+		} finally {
+		startButton.disabled = false;
+	}
+});
+
+updateRemoveButton();
 }
 
 // ==============================
@@ -341,32 +350,55 @@ function collectFamilyMembers(tbody) {
 	}));
 }
 
+//검증 처리
+function createValidationError(message, element) {
+	const error = new Error(message);
+	error.focusTarget = element;
+	return error;
+}
 
 // ==============================
 // 가족 구성원 정보 검증
 // ==============================
-function validateFamilyMembers(members) {
+function validateFamilyMembers(members, tbody) {
+
+	const rows = Array.from(
+		tbody.querySelectorAll("tr[data-person-row]")
+	);
 
 	if (members.length === 0) {
 		throw new Error("가족 구성원을 입력해주세요.");
 	}
 
-	for (const member of members) {
+	for (const [index, member] of members.entries()) {
+		const row = rows[index];
 
 		if (!member.familyName) {
-			throw new Error("가족 구성원의 이름을 입력해주세요.");
+			throw createValidationError(
+				"가족 구성원의 이름을 입력해주세요.",
+				row.querySelector('[name="personName"]')
+			);
 		}
 
 		if (!member.birthDate) {
-			throw new Error("생년월일을 입력해주세요.");
+			throw createValidationError(
+				"생년월일을 입력해주세요.",
+				row.querySelector('[name="personBirthdate"]')
+			);
 		}
 
 		if (!member.gender) {
-			throw new Error("성별을 선택해주세요.");
+			throw createValidationError(
+				"성별을 선택해주세요.",
+				row.querySelector('[name="personGender"]')
+			);
 		}
 
 		if (!member.originalRelationship) {
-			throw new Error("세대주와의 관계를 선택해주세요.");
+			throw createValidationError(
+				"세대주와의 관계를 선택해주세요.",
+				row.querySelector('[name="householdRelation"]')
+			);
 		}
 	}
 

@@ -217,20 +217,30 @@ button, input, select {
 /* ==========================================
    공통 포커스 스타일
 ========================================== */
-
-/* 입력창 · 드롭다운 · 텍스트 영역 */
-:is(input, select, textarea):not([type="checkbox"]):not([type="radio"]):focus {
-    border-color: #86b7fe;
-    outline: none;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+:root {
+	--focus-border: #86b7fe;
+	--focus-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* 모든 키보드 포커스 */
-:is(input, select, textarea, button, a, summary, [role="button"], [tabindex]):focus-visible {
-    outline: 2px solid #86b7fe;
-    outline-offset: 3px;
+/* 입력 요소 + 키보드 포커스 + 검증 실패 버튼 */
+:is(input, select, textarea):focus, .form-check-input:focus, :is(button,
+	a, summary, [role="button"], [tabindex]):focus-visible, button.validation-focus:focus
+	{
+	border-color: var(--focus-border);
+	outline: 2px solid transparent;
+	outline-offset: 2px;
+	box-shadow: var(--focus-shadow);
 }
 
+/* 고대비 모드에서도 포커스 표시 유지 */
+@media ( forced-colors : active) {
+	:is(input, select, textarea):focus, .form-check-input:focus, :is(button,
+		a, summary, [role="button"], [tabindex]):focus-visible, button.validation-focus:focus
+		{
+		outline-color: Highlight;
+		box-shadow: none;
+	}
+}
 
 /* 공통 헤더 버튼 아이콘 & 텍스트 수직 중앙 정렬 */
 .site-header .btn {
