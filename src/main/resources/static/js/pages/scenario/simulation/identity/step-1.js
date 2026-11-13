@@ -423,65 +423,82 @@ export async function restore({ root, data = {}}) {
 	return true;
 }
 
+function focusValidationTarget(root, target) {
+	const element = typeof target === "string" ? root.querySelector(target) : target;
+	if (!element || element.disabled || !element.getClientRects().length) return;
+
+	// 버튼은 JS로 focus()해도 :focus-visible이 안 보일 수 있으므로
+	// 프로젝트의 공통 validation-focus 스타일을 사용한다.
+	if (element.matches("button")) {
+		element.classList.add("validation-focus");
+		element.addEventListener("blur", () => element.classList.remove("validation-focus"), { once: true });
+	}
+	element.focus({ preventScroll: true });
+	element.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 export function validate({ root }) {
-	const required = [
-		[checked(root, "icChipIncluded"), "발급 형태"],
-		[checked(root, "reissueReason"), "재발급 사유"],
-		[checked(root, "feeExemption"), "수수료 면제 신청"],
-		[checked(root, "pickupNotice"), "수령 안내 서비스"],
-		[checked(root, "brailleSticker"), "점자 스티커 제공 서비스"],
-		[value(root, "#identitySido") && value(root, "#identitySigungu"), "주소"],
-		[value(root, "#identityPickupOfficeCode"), "수령지역"]
-	];
-	for (const [val, label] of required) {
-		if (!val) { alert(`${label} 항목을 입력해 주세요.`); return false; }
-	}
-	const phone = ["#identityPhoneFirst", "#identityPhoneMiddle", "#identityPhoneLast"]
-		.map(sel => value(root, sel)).join("-");
-	if (!/^01\d-\d{3,4}-\d{4}$/.test(phone)) {
-		alert("휴대전화번호를 확인해 주세요."); return false;
-	}
-	if (!isChecked(root, "#identityNoticeConfirmed")) {
-		alert("유의사항 확인이 필요합니다."); return false;
-	}
-	const consentItems = [
-		...root.querySelectorAll('input[name="documentConsent"]')
-	];
-
-	if (consentItems.length !== 3 ||
-		!consentItems.every(input => input.checked)) {
-
-		alert("구비서류 열람 사전동의 항목에 모두 동의해 주세요.");
+	const fail = (message, target) => {
+		alert(message);
+		focusValidationTarget(root, target);
 		return false;
+	};
+	for (const [name, label] of [
+		["icChipIncluded", "발급 형태"],
+		["reissueReason", "재발급 사유"],
+		["feeExemption", "수수료 면제 신청"],
+		["pickupNotice", "수령 안내 서비스"],
+		["brailleSticker", "점자 스티커 제공 서비스"]
+	]) {
+		if (!checked(root, name)) {
+			return fail(`${label} 항목을 입력해 주세요.`, `input[name="${name}"]:not(:disabled)`);
+		}
 	}
+
+	if (!value(root, "#identitySido")) return fail("주소 항목을 입력해 주세요.", "#identitySido");
+	if (!value(root, "#identitySigungu")) return fail("주소 항목을 입력해 주세요.", "#identitySigungu");
+	if (!value(root, "#identityPickupOfficeCode")) {
+		// 수령기관 코드는 hidden input이므로 검색 버튼을 포커스한다.
+		return fail("수령지역 항목을 입력해 주세요.", "#identityPickupOffice");
+	}
+
+	const parts = ["#identityPhoneFirst", "#identityPhoneMiddle", "#identityPhoneLast"]
+		.map(selector => value(root, selector));
+	if (!/^01\d$/.test(parts[0])) return fail("휴대전화번호를 확인해 주세요.", "#identityPhoneFirst");
+	if (!/^\d{3,4}$/.test(parts[1])) return fail("휴대전화번호를 확인해 주세요.", "#identityPhoneMiddle");
+	if (!/^\d{4}$/.test(parts[2])) return fail("휴대전화번호를 확인해 주세요.", "#identityPhoneLast");
+
+	if (!isChecked(root, "#identityNoticeConfirmed")) {
+		return fail("유의사항 확인이 필요합니다.", "#identityNoticeConfirmed");
+	}
+	const consentItems = [...root.querySelectorAll('input[name="documentConsent"]')];
+	if (consentItems.length !== 3 || !consentItems.every(input => input.checked)) {
+		return fail("구비서류 열람 사전동의 항목에 모두 동의해 주세요.",
+			consentItems.find(input => !input.checked) || consentItems[0]);
+	}
+
 	const photo = $(root, "#identityPhotoInput")?.files?.[0];
 	const uploadedPhoto = getUploadedPhoto(root);
-
 	if (!photo && !uploadedPhoto) {
-		alert("증명사진 1장을 첨부해 주세요.");
-		return false;
+		return fail("증명사진 1장을 첨부해 주세요.", "#identityPhotoInput");
 	}
-
 	const inspection = getPhotoInspection(root);
-	// 현재 화면의 파일 혹은 S3에서 복원한 정확히 그 파일에 대한 검사 결과만 유효
 	const isCurrentPhoto = photo
 		? inspection.file === photo
 		: inspection.photoKey === uploadedPhoto?.s3Key;
-
 	if (inspection.status !== "passed" || !isCurrentPhoto) {
 		const message = inspection.status === "checking"
 			? "증명사진 검사 중입니다. 검사가 완료된 뒤 다시 시도해 주세요."
 			: "증명사진의 형식, 용량, 해상도 및 비율을 모두 통과해야 신청할 수 있습니다.";
-		alert(message);
-		$(root, "#identityPhotoInput")?.focus();
-		return false;
+		return fail(message, "#identityPhotoInput");
 	}
 
-	// 아래 2개 항목은 이미지 분석으로 검증한 것이 아닌 사용자 확인 항목이다.
-	if (!isChecked(root, "#identityPhotoRecentConfirmed") ||
-		!isChecked(root, "#identityPhotoAppearanceConfirmed")) {
-		alert("최근 6개월 촬영 여부와 정면 상반신 사진 여부를 모두 확인해 주세요.");
-		return false;
+	// 촬영 조건은 이미지 분석이 아닌 사용자의 별도 확인 사항이다.
+	if (!isChecked(root, "#identityPhotoRecentConfirmed")) {
+		return fail("최근 6개월 촬영 여부와 정면 상반신 사진 여부를 모두 확인해 주세요.", "#identityPhotoRecentConfirmed");
+	}
+	if (!isChecked(root, "#identityPhotoAppearanceConfirmed")) {
+		return fail("최근 6개월 촬영 여부와 정면 상반신 사진 여부를 모두 확인해 주세요.", "#identityPhotoAppearanceConfirmed");
 	}
 	return true;
 }

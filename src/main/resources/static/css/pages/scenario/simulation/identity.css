@@ -86,10 +86,9 @@
 	margin-bottom: 0;
 }
 
-.identity-step1 .identity-field > label:not(.identity-checkbox-label):not(:has(> input[type="radio"], > input[type="checkbox"])),
-.identity-step1 .identity-field-label,
-.identity-step1 .identity-field > legend
-	{
+.identity-step1 .identity-field>label:not(.identity-checkbox-label):not(:has(>input[type="radio"],
+	> input[type="checkbox"])), .identity-step1 .identity-field-label,
+	.identity-step1 .identity-field>legend {
 	display: block;
 	width: auto;
 	float: none;
@@ -294,13 +293,6 @@
 	background-color: #205580;
 }
 
-/* 포커스 */
-.identity-step1 #identityPhotoInput.form-control:focus {
-	border-color: #164166;
-	box-shadow: 0 0 0 3px rgba(22, 65, 102, 0.12);
-	outline: none;
-}
-
 /* 비활성화 */
 .identity-step1 #identityPhotoInput.form-control:disabled {
 	background-color: #f1f3f5;
@@ -316,14 +308,6 @@
 /* 주민등록증 재발급 증명사진 검사 UI*/
 .identity-step1 .identity-photo-preview {
 	margin-top: 16px;
-}
-
-.identity-step1 .identity-photo-preview img {
-	max-width: 160px;
-	max-height: 200px;
-	object-fit: contain;
-	border: 1px solid #ccd5df;
-	border-radius: 5px;
 }
 
 .identity-step1 .identity-photo-review {
@@ -347,14 +331,33 @@
 	overflow-wrap: anywhere;
 }
 
-.identity-step1 .identity-photo-image img {
+/* 사진 및 파일명 영역 */
+.identity-step1 .identity-photo-image {
+	min-width: 0;
+}
+
+/* 증명사진 기준 비율 가이드 */
+.identity-step1 .identity-photo-ratio-guide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 160px;
+	max-width: 100%;
+	aspect-ratio: 7/9;
+	background: #f5f8fc;
+	outline: 2px dashed #8aa3bf;
+	outline-offset: 3px;
+}
+
+/* 실제 업로드한 사진 */
+.identity-step1 .identity-photo-ratio-guide img {
 	display: block;
-	width: 100%;
-	max-width: 160px;
-	max-height: 200px;
+	width: auto;
+	height: auto;
+	max-width: 100%;
+	max-height: 100%;
 	object-fit: contain;
 	border: 1px solid #ccd5df;
-	border-radius: 5px;
 }
 
 .identity-step1 .identity-photo-checks {
@@ -420,6 +423,17 @@
 	padding: 14px 16px;
 	border-radius: 8px;
 	background: #f7f8fa;
+}
+
+.identity-step1 .identity-photo-ratio-legend {
+	margin-top: 12px;
+	font-size: 0.75rem;
+	color: #64748b;
+	line-height: 1.5;
+}
+
+.identity-step1 .identity-photo-ratio-legend p {
+	margin: 0 0 4px;
 }
 
 @media ( max-width : 640px) {

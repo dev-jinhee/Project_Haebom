@@ -405,16 +405,16 @@
 						<div class="move-step4-phone-fields sim-phone-group"
 							id="existingHeadPhoneGroup" data-phone-group="existingHeadPhone">
 
-							<input id="existingHeadPhoneFirst" class="form-control"
+							<input id="existingHeadPhoneFirst" class="form-control" data-digits-only
 								type="tel" inputmode="numeric" maxlength="3" autocomplete="off"
 								value="010" aria-label="기존 세대주 연락처 앞자리"> <span
 								aria-hidden="true">–</span> <input id="existingHeadPhoneMiddle"
-								class="form-control" type="tel" inputmode="numeric"
+								class="form-control" type="tel" inputmode="numeric" data-digits-only
 								maxlength="4" autocomplete="off" placeholder="0000"
 								aria-label="기존 세대주 연락처 가운데자리"> <span aria-hidden="true">–</span>
 
 							<input id="existingHeadPhoneLast" class="form-control" type="tel"
-								inputmode="numeric" maxlength="4" autocomplete="off"
+								inputmode="numeric" maxlength="4" autocomplete="off" data-digits-only
 								placeholder="0000" aria-label="기존 세대주 연락처 뒷자리">
 
 						</div>
@@ -658,13 +658,13 @@
 						class="small text-secondary">(선택)</span>
 					</label>
 					<div id="mailForwardLandlineGroup" class="sim-phone-group">
-						<input type="text" class="form-control text-center" maxlength="3"
+						<input type="text" class="form-control text-center" maxlength="3" data-digits-only
 							inputmode="numeric" aria-label="신청인 전화번호 앞자리"> <span
 							class="text-muted">-</span> <input type="text"
-							class="form-control text-center" maxlength="4"
+							class="form-control text-center" maxlength="4" data-digits-only
 							inputmode="numeric" aria-label="신청인 전화번호 가운데 자리"> <span
 							class="text-muted">-</span> <input type="text"
-							class="form-control text-center" maxlength="4"
+							class="form-control text-center" maxlength="4" data-digits-only
 							inputmode="numeric" aria-label="신청인 전화번호 마지막 자리">
 					</div>
 				</div>
@@ -675,14 +675,14 @@
 						class="text-primary small">(필수)</span>
 					</label>
 					<div id="mailForwardPhoneGroup" class="sim-phone-group">
-						<input type="text" class="form-control text-center" maxlength="3"
+						<input type="text" class="form-control text-center" maxlength="3" data-digits-only
 							inputmode="numeric" value="010" aria-label="신청인 휴대전화번호 앞자리">
-						<span class="text-muted">-</span> <input type="text"
+						<span class="text-muted">-</span> <input type="text" data-digits-only
 							class="form-control text-center" maxlength="4"
 							inputmode="numeric" placeholder="0000"
 							aria-label="신청인 휴대전화번호 가운데 자리"> <span class="text-muted">-</span>
 						<input type="text" class="form-control text-center" maxlength="4"
-							inputmode="numeric" placeholder="0000"
+							inputmode="numeric" placeholder="0000" data-digits-only
 							aria-label="신청인 휴대전화번호 마지막 자리">
 					</div>
 				</div>

@@ -10,7 +10,6 @@
    공통 입력 요소 및 테이블
    전입신고의 여러 단계에서 재사용되는 선택·표 스타일
    ============================================================ */
-
 .gov24-people-table {
 	min-width: 820px;
 	font-size: .84rem;
@@ -45,13 +44,12 @@
 	font-size: .84rem;
 }
 
-
 /* 전입신고 테이블 내부 라디오·체크박스 정렬 */
 .simulation-page .sim-step-content
 .gov24-people-table input:is([type="checkbox"], [type="radio"]),
-.simulation-page .sim-step-content
+	.simulation-page .sim-step-content
 .move-step4-family-table input:is([type="checkbox"], [type="radio"]) {
-    margin: 0;
+	margin: 0;
 }
 
 /* ============================================================
@@ -1080,10 +1078,6 @@
 	width: 59px;
 }
 
-.move-step4 .move-step4-phone-fields .form-control:focus, .move-step4 .move-step4-family-table .form-select:focus
-	{
-	border-color: var(--step4-accent);
-}
 /* Step4 기존 세대주 휴대전화번호 */
 .move-step4 .move-step4-existing-fields {
 	display: grid;
@@ -1229,6 +1223,13 @@
 
 /* input에 포커스가 생겨도 내부 테두리 제거 */
 .move-step4-detail-input .form-control:focus {
+	border: none;
+	outline: none;
+	box-shadow: none;
+	background: transparent;
+}
+
+#newDetailAddress {
 	border: none;
 	outline: none;
 	box-shadow: none;

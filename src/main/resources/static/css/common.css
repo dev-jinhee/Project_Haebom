@@ -214,11 +214,32 @@ button, input, select {
 	--bs-btn-hover-border-color: #1769aa;
 }
 
-.form-control:focus, .form-check-input:focus, .btn:focus-visible, a:focus-visible
+/* ==========================================
+   공통 포커스 스타일
+========================================== */
+:root {
+	--focus-border: #86b7fe;
+	--focus-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* 입력 요소 + 키보드 포커스 + 검증 실패 버튼 */
+:is(input, select, textarea):focus, .form-check-input:focus, :is(button,
+	a, summary, [role="button"], [tabindex]):focus-visible, button.validation-focus:focus
 	{
-	outline: 3px solid #ffbf47;
+	border-color: var(--focus-border);
+	outline: 2px solid transparent;
 	outline-offset: 2px;
-	box-shadow: 0 0 0 .2rem rgba(255, 191, 71, .2);
+	box-shadow: var(--focus-shadow);
+}
+
+/* 고대비 모드에서도 포커스 표시 유지 */
+@media ( forced-colors : active) {
+	:is(input, select, textarea):focus, .form-check-input:focus, :is(button,
+		a, summary, [role="button"], [tabindex]):focus-visible, button.validation-focus:focus
+		{
+		outline-color: Highlight;
+		box-shadow: none;
+	}
 }
 
 /* 공통 헤더 버튼 아이콘 & 텍스트 수직 중앙 정렬 */
@@ -246,24 +267,22 @@ button, input, select {
 }
 
 /* 헤더 버튼 내 텍스트 세로 줄바꿈 방지 및 모바일 반응형 최적화 */
-.site-header .btn,
-.sim-topbar .btn {
+.site-header .btn, .sim-topbar .btn {
 	white-space: nowrap;
 	flex-shrink: 0;
 }
 
-.site-header .navbar-brand,
-.sim-topbar .navbar-brand {
+.site-header .navbar-brand, .sim-topbar .navbar-brand {
 	flex-shrink: 0;
 }
 
 .site-header .navbar.container {
-	padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
-	padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+	padding-left: calc(var(--bs-gutter-x, 1.5rem)* 0.5);
+	padding-right: calc(var(--bs-gutter-x, 1.5rem)* 0.5);
 }
 
-@media (min-width: 1200px) {
-	.site-header > .navbar.container {
+@media ( min-width : 1200px) {
+	.site-header>.navbar.container {
 		flex-wrap: nowrap;
 	}
 	.site-header .header-actions {
@@ -271,8 +290,8 @@ button, input, select {
 	}
 }
 
-@media (min-width: 1200px) and (max-width: 1399.98px) {
-	.site-header > .navbar.container {
+@media ( min-width : 1200px) and (max-width: 1399.98px) {
+	.site-header>.navbar.container {
 		gap: 14px;
 	}
 	.site-header .home-primary-nav {
@@ -292,15 +311,14 @@ button, input, select {
 	.site-header .btn-access {
 		padding: 0.48rem 0.85rem;
 	}
-	html[data-text-size="larger"] .site-header .home-primary-nav,
-	html[data-text-size="largest"] .site-header .home-primary-nav {
+	html[data-text-size="larger"] .site-header .home-primary-nav, html[data-text-size="largest"] .site-header .home-primary-nav
+		{
 		display: none !important;
 	}
 }
 
-@media (max-width: 767.98px) {
-	.site-header .navbar,
-	.sim-topbar > .container {
+@media ( max-width : 767.98px) {
+	.site-header .navbar, .sim-topbar>.container {
 		padding-top: 0.65rem !important;
 		padding-bottom: 0.65rem !important;
 		padding-left: 16px !important;
@@ -308,34 +326,28 @@ button, input, select {
 		gap: 8px;
 		flex-wrap: wrap;
 	}
-	.site-header .brand-mark,
-	.sim-topbar .brand-mark {
+	.site-header .brand-mark, .sim-topbar .brand-mark {
 		height: 36px;
 	}
-	.site-header .brand-logo-wordmark,
-	.sim-topbar .brand-logo-wordmark {
+	.site-header .brand-logo-wordmark, .sim-topbar .brand-logo-wordmark {
 		height: 23px;
 	}
-	.site-header .navbar-brand strong,
-	.sim-topbar .navbar-brand strong {
+	.site-header .navbar-brand strong, .sim-topbar .navbar-brand strong {
 		font-size: 1.12rem;
 	}
-	.site-header .navbar-brand small,
-	.sim-topbar .navbar-brand small {
+	.site-header .navbar-brand small, .sim-topbar .navbar-brand small {
 		font-size: 0.62rem;
 	}
-	.site-header .header-actions,
-	.sim-topbar .header-actions {
+	.site-header .header-actions, .sim-topbar .header-actions {
 		gap: 6px !important;
 		justify-content: flex-end;
 	}
-	.site-header .btn,
-	.sim-topbar .btn {
+	.site-header .btn, .sim-topbar .btn {
 		font-size: 0.76rem;
 		padding: 0.42rem 0.68rem;
 	}
-	.site-header .btn .material-symbols-outlined,
-	.sim-topbar .btn .material-symbols-outlined {
+	.site-header .btn .material-symbols-outlined, .sim-topbar .btn .material-symbols-outlined
+		{
 		font-size: 1.02rem !important;
 		margin-right: 3px !important;
 	}
@@ -888,7 +900,7 @@ button, input, select {
 	padding-inline: 1.125rem;
 }
 
-.site-footer .container > div {
+.site-footer .container>div {
 	display: flex;
 	align-items: center;
 	line-height: 1.4;
@@ -1104,9 +1116,6 @@ body.high-contrast :is(.hero-section, .site-footer, .utility-bar) {
 	.gov24-notices {
 		font-size: .82rem;
 	}
-	.review-list>div {
-		grid-template-columns: 110px 1fr;
-	}
 	.site-footer {
 		min-height: 0;
 		padding-block: 1rem;
@@ -1116,7 +1125,7 @@ body.high-contrast :is(.hero-section, .site-footer, .utility-bar) {
 		align-items: flex-start;
 		gap: 0.5rem;
 	}
-	.site-footer .container > div {
+	.site-footer .container>div {
 		flex-wrap: wrap;
 	}
 }
@@ -1664,29 +1673,28 @@ body.high-contrast :is(.hero-section, .site-footer, .utility-bar) {
 /* ========================================
    공통 브레드크럼
 ======================================== */
-
-.breadcrumb-line{
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-bottom: 25px;
-    color: #8a97a5;
-    font-size: 0.78rem;
-    line-height: 1.65;
+.breadcrumb-line {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin-bottom: 25px;
+	color: #8a97a5;
+	font-size: 0.78rem;
+	line-height: 1.65;
 }
 
-.breadcrumb-line a{
-    color: #5c7187;
-    text-decoration: none;
+.breadcrumb-line a {
+	color: #5c7187;
+	text-decoration: none;
 }
 
 .breadcrumb-line .material-symbols-outlined {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 16px;
-    line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	font-size: 16px;
+	line-height: 1;
 }
 
 body.large-text-mode .content-panel {
@@ -2093,12 +2101,6 @@ main {
 	transition: all 0.2s ease;
 }
 
-.hb-input:focus, .hb-select:focus, .hb-textarea:focus {
-	border-color: var(--main-color);
-	outline: none;
-	box-shadow: 0 0 0 3px rgba(22, 65, 102, 0.12);
-}
-
 .hb-input::placeholder, .hb-textarea::placeholder {
 	color: var(--text-muted);
 }
@@ -2226,7 +2228,7 @@ main {
 	font-weight: 600;
 }
 
-@media (max-width: 575.98px) {
+@media ( max-width : 575.98px) {
 	.hb-pagination button {
 		min-width: 34px;
 		height: 34px;

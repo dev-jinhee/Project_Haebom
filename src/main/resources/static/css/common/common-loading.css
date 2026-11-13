@@ -1,0 +1,65 @@
+/* 해봄 공통 로딩 UI — 어떤 화면에서든 사용 가능 */
+.hb-loading-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(16, 39, 61, 0.28);
+}
+
+.hb-loading-overlay[hidden] {
+    display: none !important;
+}
+
+.hb-loading-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: min(100%, 360px);
+    padding: 32px 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 14px 40px rgba(18, 40, 64, 0.16);
+    text-align: center;
+}
+
+.hb-loading-spinner {
+    display: block;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 4px;
+    border: 4px solid #e6eef5;
+    border-top-color: #164166;
+    border-radius: 50%;
+    animation: hb-loading-spin 0.85s linear infinite;
+}
+
+.hb-loading-title {
+    color: #164166;
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.hb-loading-description {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+@keyframes hb-loading-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hb-loading-spinner { animation: none; }
+}
+
+@media print {
+    .hb-loading-overlay { display: none !important; }
+}

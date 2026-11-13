@@ -517,6 +517,8 @@ export function validateServices(root) {
 		}
 		if (!checkedIds(root, "mailFamilyId").length) {
 			alert("우편물 주소 이전 서비스 신청 대상자를 한 명 이상 선택해 주세요.");
+			(root.querySelector('input[name="mailFamilyId"]:not(:disabled)')
+				?? root.querySelector('input[name="additionalService"][value="MAIL_FORWARD"]'))?.focus();
 			return false;
 		}
 		const landline = getPhoneGroup(root, "mailForwardLandlineGroup")
@@ -530,14 +532,18 @@ export function validateServices(root) {
 	}
 	if (selected(root, "SCHOOL_ADDRESS") && !checkedIds(root, "schoolFamilyId").length) {
 		alert("초등학교 배정정보 신청 대상 아동을 선택해 주세요. 대상자가 없다면 서비스를 해제해 주세요.");
+		(root.querySelector('input[name="schoolFamilyId"]:not(:disabled)')
+			?? root.querySelector('input[name="additionalService"][value="SCHOOL_ADDRESS"]'))?.focus();
 		return false;
 	}
 	if (selected(root, "UTILITY_ADDRESS") && !checked(root, "electricNoticeConsent")) {
 		alert("전기사용자 명의변경 유의사항을 확인해 주세요.");
+		root.querySelector('[name="electricNoticeConsent"]:not(:disabled)')?.focus();
 		return false;
 	}
 	if (selected(root, "WELFARE_BENEFIT") && !checked(root, "welfareNoticeConsent")) {
 		alert("요금감면 일괄신청 유의사항을 확인해 주세요.");
+		root.querySelector('[name="welfareNoticeConsent"]:not(:disabled)')?.focus();
 		return false;
 	}
 	return true;
