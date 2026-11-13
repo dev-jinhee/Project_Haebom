@@ -1,5 +1,6 @@
 export function initEmailVerification(page) {
     const emailField = document.getElementById('signupEmail');
+    const emailHelp = document.getElementById('signupEmailHelp');
     const emailCodeField = document.getElementById('signupEmailCode');
     const emailSendStatus = document.getElementById('signupEmailSendStatus');
     const emailExpiryStatus = document.getElementById('signupEmailExpiryStatus');
@@ -13,7 +14,9 @@ export function initEmailVerification(page) {
     let resendTimer = null;
     let resendUntil = 0;
     let resendEmail = '';
+    let resendHelpMessage = '';
     let sendInProgress = false;
+    const defaultEmailHelp = '아이디·비밀번호 찾기에 사용할 이메일을 입력해 주세요.';
 
     function showMessage(element, message, success) {
         if (element === null) return;
@@ -40,23 +43,31 @@ export function initEmailVerification(page) {
         }
         resendUntil = 0;
         resendEmail = '';
+        resendHelpMessage = '';
     }
 
     function updateResendButton() {
         if (emailSendButton === null) return;
         const isEmailChange = verifiedEmail !== null;
+        const currentEmail = emailField.value.trim().toLowerCase();
         const isCoolingDown = resendUntil > Date.now()
-            && emailField.value.trim().toLowerCase() === resendEmail;
+            && currentEmail === resendEmail;
 
         if (isCoolingDown && !isEmailChange) {
-            const remaining = Math.ceil((resendUntil - Date.now()) / 1000);
-            emailSendButton.textContent = remaining + '초';
-            emailSendButton.setAttribute('aria-label', '인증번호 재전송까지 ' + remaining + '초');
+            emailSendButton.textContent = '인증번호 받기';
+            emailSendButton.setAttribute('aria-label', '인증번호 받기');
             emailSendButton.disabled = true;
         } else {
-            emailSendButton.textContent = isEmailChange ? '이메일 변경' : '인증번호 받기';
-            emailSendButton.setAttribute('aria-label', isEmailChange ? '이메일 변경' : '인증번호 받기');
+            const buttonLabel = isEmailChange ? '이메일 변경' : '인증번호 받기';
+            emailSendButton.textContent = buttonLabel;
+            emailSendButton.setAttribute('aria-label', buttonLabel);
             emailSendButton.disabled = sendInProgress;
+        }
+
+        if (emailHelp !== null) {
+            emailHelp.textContent = isCoolingDown && !isEmailChange
+                ? resendHelpMessage
+                : defaultEmailHelp;
         }
 
         if (resendUntil > 0 && resendUntil <= Date.now()) clearResendTimer();
@@ -65,6 +76,9 @@ export function initEmailVerification(page) {
     function startResendTimer(email, seconds) {
         clearResendTimer();
         resendEmail = email.trim().toLowerCase();
+        resendHelpMessage = seconds <= 30
+            ? '인증번호 발송 후 30초 뒤 다시 요청할 수 있습니다.'
+            : '인증번호 발송 한도에 도달했습니다. 잠시 후 다시 요청해 주세요.';
         resendUntil = Date.now() + (Math.max(1, seconds) * 1000);
         updateResendButton();
         resendTimer = window.setInterval(updateResendButton, 1000);
@@ -178,7 +192,7 @@ export function initEmailVerification(page) {
                 if (response.status === 429) {
                     const message = result && result.message
                         ? result.message
-                        : '인증번호는 60초 간격으로 요청할 수 있으며, 1시간에 최대 5회까지 발송할 수 있습니다.';
+                        : '인증번호는 30초 간격으로 요청할 수 있으며, 1시간에 최대 10회까지 발송할 수 있습니다.';
                     const retrySeconds = retrySecondsFrom(message);
                     if (retrySeconds !== null) startResendTimer(email, retrySeconds);
                     const error = new Error(message);
@@ -203,7 +217,7 @@ export function initEmailVerification(page) {
                 if (result.sent) {
                     showMessage(emailSendStatus, '인증번호를 이메일로 보냈습니다.', true);
                     startExpiryTimer();
-                    startResendTimer(email, 60);
+                    startResendTimer(email, 30);
                     if (emailCodeField !== null) emailCodeField.disabled = false;
                 } else {
                     clearExpiryTimer();
