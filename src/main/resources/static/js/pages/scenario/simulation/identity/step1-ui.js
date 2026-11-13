@@ -325,32 +325,64 @@ function makeElement(tag, className, content) {
 	return element;
 }
 
+
 function renderPhotoPanel(root, fileName, imageUrl = "") {
 	const preview = root.querySelector("#identityPhotoPreview");
 	if (!preview) return;
 
 	preview.replaceChildren();
+
 	const review = makeElement("div", "identity-photo-review");
 	const imageBox = makeElement("div", "identity-photo-image");
-	const title = makeElement("p", "identity-photo-file-name", `첨부 사진: ${fileName}`);
+
+	const title = makeElement(
+		"p",
+		"identity-photo-file-name",
+		`첨부 사진: ${fileName}`
+	);
 	imageBox.appendChild(title);
 
 	if (imageUrl) {
+		// 3.5:4.5 기준 비율 가이드
+		const ratioGuide = makeElement("div", "identity-photo-ratio-guide");
+
 		const image = makeElement("img");
 		image.src = imageUrl;
 		image.alt = "증명사진 미리보기";
+
 		image.addEventListener("error", () => {
-			image.replaceWith(makeElement("p", "identity-note", "사진 미리보기를 표시할 수 없습니다."));
+			ratioGuide.replaceWith(
+				makeElement(
+					"p",
+					"identity-note",
+					"사진 미리보기를 표시할 수 없습니다."
+				)
+			);
 		});
-		imageBox.appendChild(image);
+
+		ratioGuide.appendChild(image);
+		imageBox.appendChild(ratioGuide);
+
+		const legend = makeElement("div", "identity-photo-ratio-legend");
+
+		legend.append(
+			makeElement("p", "", "점선: 권장 비율 3.5:4.5"),
+			makeElement("p", "", "실선: 첨부한 사진")
+		);
+
+		imageBox.appendChild(legend);
+
 	}
 
 	const checksBox = makeElement("div", "identity-photo-checks");
 	checksBox.setAttribute("aria-live", "polite");
+
 	review.append(imageBox, checksBox);
 	preview.appendChild(review);
+
 	updatePhotoPanel(root);
 }
+
 
 function updatePhotoPanel(root) {
 	const box = root.querySelector("#identityPhotoPreview .identity-photo-checks");
