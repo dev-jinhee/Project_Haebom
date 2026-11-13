@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-17" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-21" rel="stylesheet">
 </head>
 <body class="member-signup-page"
       data-context-path="${pageContext.request.contextPath}"
@@ -102,11 +102,10 @@
             </div>
             <p class="member-signup-error" id="signupConsentError" role="alert" hidden></p>
 
-            <div class="member-signup-actions">
+            <div class="member-signup-actions member-signup-consent-actions">
                 <a class="btn btn-light rounded-pill" href="${pageContext.request.contextPath}/login"><spring:message code="common.cancel" /></a>
                 <button class="btn btn-primary rounded-pill px-4" type="button" data-signup-next="1">
                     <spring:message code="common.next" />
-                    <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                 </button>
             </div>
         </div>
@@ -181,7 +180,21 @@
 
             <div class="member-signup-field">
                 <label class="form-label" for="signupBirthDate">생년월일 <em class="member-signup-optional">(선택)</em></label>
-                <input class="form-control" type="date" id="signupBirthDate" autocomplete="bday">
+                <div class="member-signup-birth-date">
+                    <div class="input-group">
+                        <input class="form-control" type="text" id="signupBirthDate"
+                               inputmode="numeric" autocomplete="bday" maxlength="10"
+                               pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" placeholder="YYYYMMDD"
+                               aria-describedby="signupBirthDateHelp">
+                        <button class="btn btn-outline-primary" type="button"
+                                data-birth-date-picker aria-label="생년월일 달력 열기">
+                            <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                        </button>
+                    </div>
+                    <input class="member-signup-native-date" type="date" id="signupBirthDatePicker"
+                           tabindex="-1" aria-hidden="true">
+                    <p class="member-signup-field-help text-muted" id="signupBirthDateHelp">생년월일을 숫자 8자리로 입력하거나 달력에서 선택해 주세요. 예: 20030217</p>
+                </div>
             </div>
 
             <fieldset class="member-signup-field member-signup-radio-field" aria-describedby="signupDemographicNote">
@@ -205,7 +218,6 @@
                 <button class="btn btn-light rounded-pill" type="button" data-signup-back="0"><spring:message code="common.previous" /></button>
                 <button class="btn btn-primary rounded-pill px-4" type="submit">
                     가입하기
-                    <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                 </button>
             </div>
         </form>
@@ -245,6 +257,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-6"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-11"></script>
 </body>
 </html>

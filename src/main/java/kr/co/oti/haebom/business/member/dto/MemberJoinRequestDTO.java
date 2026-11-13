@@ -6,6 +6,7 @@ import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -41,6 +42,7 @@ public class MemberJoinRequestDTO {
 	private String email;
 	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+	@PastOrPresent(message = "오늘 이후 날짜는 입력할 수 없습니다.")
 	private LocalDate birthDate;
 	
 	@Pattern(regexp = "^[MF]$")

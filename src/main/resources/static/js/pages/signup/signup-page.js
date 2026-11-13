@@ -135,13 +135,96 @@ if (page !== null) {
     });
 
     const birthDateInput = document.getElementById('signupBirthDate');
-    if (birthDateInput !== null && typeof birthDateInput.showPicker === 'function') {
-        birthDateInput.addEventListener('click', function () {
-            try {
-                birthDateInput.showPicker();
-            } catch (error) {
-                // 브라우저에서 제공하는 달력 버튼을 사용할 수 있습니다.
+    const birthDatePickerInput = document.getElementById('signupBirthDatePicker');
+    const birthDatePickerButton = document.querySelector('[data-birth-date-picker]');
+    const birthDateHelp = document.getElementById('signupBirthDateHelp');
+    if (birthDateInput !== null && birthDatePickerInput !== null && birthDatePickerButton !== null) {
+        const birthDateHint = '생년월일을 숫자 8자리로 입력하거나 달력에서 선택해 주세요. 예: 20030217';
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const padDatePart = function (value) { return String(value).padStart(2, '0'); };
+        birthDatePickerInput.max = `${today.getFullYear()}-${padDatePart(today.getMonth() + 1)}-${padDatePart(today.getDate())}`;
+        let birthDateTouched = false;
+        let birthDateFocused = false;
+
+        function validateBirthDate(revealError) {
+            if (revealError) birthDateTouched = true;
+            const value = birthDateInput.value.trim();
+            let message = '';
+
+            if (value !== '') {
+                const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (!match) {
+                    message = '생년월일을 숫자 8자리로 입력해 주세요. 예: 20030217';
+                } else {
+                    const year = Number(match[1]);
+                    const month = Number(match[2]);
+                    const day = Number(match[3]);
+                    const date = new Date(year, month - 1, day);
+                    if (year < 1900 || date.getFullYear() !== year
+                            || date.getMonth() !== month - 1 || date.getDate() !== day) {
+                        message = '실제 달력에 있는 날짜를 입력해 주세요.';
+                    } else if (date > today) {
+                        message = '오늘 이후 날짜는 입력할 수 없습니다.';
+                    }
+                }
             }
+
+            birthDateInput.setCustomValidity(message);
+            const showError = birthDateTouched && !birthDateFocused && Boolean(message);
+            birthDateInput.setAttribute('aria-invalid', String(showError));
+            if (birthDateHelp !== null) {
+                birthDateHelp.textContent = showError ? message : birthDateHint;
+                birthDateHelp.classList.toggle('text-danger', showError);
+                birthDateHelp.classList.toggle('text-muted', !showError);
+            }
+            birthDatePickerInput.value = message === '' ? value : '';
+            return message === '';
+        }
+
+        birthDateInput.setAttribute('aria-invalid', 'false');
+        birthDateInput.addEventListener('input', function () {
+            const digits = birthDateInput.value.replace(/[^0-9]/g, '').slice(0, 8);
+            if (digits.length <= 4) {
+                birthDateInput.value = digits;
+            } else if (digits.length <= 6) {
+                birthDateInput.value = `${digits.slice(0, 4)}-${digits.slice(4)}`;
+            } else {
+                birthDateInput.value = `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+            }
+            validateBirthDate(false);
+        });
+        birthDateInput.addEventListener('focus', function () {
+            birthDateFocused = true;
+            validateBirthDate(false);
+        });
+        birthDateInput.addEventListener('blur', function () {
+            birthDateFocused = false;
+            validateBirthDate(true);
+        });
+        if (form !== null) {
+            form.addEventListener('submit', function () {
+                birthDateFocused = false;
+                validateBirthDate(true);
+            });
+        }
+
+        function copyDateFromPicker() {
+            birthDateInput.value = birthDatePickerInput.value;
+            validateBirthDate(false);
+        }
+        birthDatePickerInput.addEventListener('input', copyDateFromPicker);
+        birthDatePickerInput.addEventListener('change', copyDateFromPicker);
+        birthDatePickerButton.addEventListener('click', function () {
+            if (typeof birthDatePickerInput.showPicker === 'function') {
+                try {
+                    birthDatePickerInput.showPicker();
+                    return;
+                } catch (error) {
+                    // Use the browser's native date control as a fallback.
+                }
+            }
+            birthDatePickerInput.click();
         });
     }
 

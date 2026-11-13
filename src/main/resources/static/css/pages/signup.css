@@ -316,6 +316,15 @@
   gap: 5px;
 }
 
+.member-signup-consent-actions .btn {
+  flex: 0 0 84px;
+  width: 84px;
+  height: 42px;
+  padding: 0;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
 .member-signup-actions .material-symbols-outlined {
   font-size: 1.1rem;
 }
@@ -425,6 +434,29 @@
   min-width: 108px;
   border-radius: 8px;
   font-size: 1rem;
+}
+
+.member-signup-birth-date {
+  position: relative;
+}
+
+.member-signup-birth-date .input-group .btn {
+  min-width: 56px;
+}
+
+.member-signup-birth-date .input-group .material-symbols-outlined {
+  font-size: 1.3rem;
+}
+
+.member-signup-native-date {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  width: 56px;
+  height: 56px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .member-signup-password-wrap {
