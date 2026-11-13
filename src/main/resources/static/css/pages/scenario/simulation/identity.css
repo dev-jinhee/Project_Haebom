@@ -293,13 +293,6 @@
 	background-color: #205580;
 }
 
-/* 포커스 */
-.identity-step1 #identityPhotoInput.form-control:focus {
-	border-color: #164166;
-	box-shadow: 0 0 0 3px rgba(22, 65, 102, 0.12);
-	outline: none;
-}
-
 /* 비활성화 */
 .identity-step1 #identityPhotoInput.form-control:disabled {
 	background-color: #f1f3f5;

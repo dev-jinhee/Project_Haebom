@@ -32,24 +32,6 @@
 	opacity: .7;
 }
 
-.certificate-step1 input:focus-visible, .certificate-step1 select:focus-visible,
-	.certificate-step1 button:focus-visible {
-	outline: 2px solid var(--cert-link);
-	outline-offset: 2px;
-}
-
-/* 라디오와 체크박스: 브라우저 기본 margin/baseline 영향 제거 */
-.certificate-step1 input[type="radio"], .certificate-step1 input[type="checkbox"]
-	{
-	display: block;
-	flex: 0 0 18px;
-	width: 18px;
-	height: 18px;
-	margin: 0;
-	padding: 0;
-	accent-color: var(--cert-primary);
-}
-
 /* 라디오·체크박스를 포함하는 라벨의 텍스트 수직 정렬 */
 .certificate-step1 .certificate-inline-options label, .certificate-step1 .certificate-option-content label,
 	.certificate-step1 .certificate-receipt-grid label, .certificate-step1 .certificate-chobon-past-extras label,

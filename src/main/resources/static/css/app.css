@@ -175,7 +175,6 @@ body.high-contrast :is(.hero-section,.site-footer,.utility-bar) { filter: contra
   .gov24-consent-options { justify-content: flex-start; }
   .gov24-before { padding: 17px; }
   .gov24-notices { font-size: .82rem; }
-  .review-list > div { grid-template-columns: 110px 1fr; }
   .site-footer .container { flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
