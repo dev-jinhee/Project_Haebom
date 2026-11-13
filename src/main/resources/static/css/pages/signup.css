@@ -460,6 +460,18 @@
   box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .16);
 }
 
+.member-signup-page #signupId.form-control[aria-invalid="true"]:focus {
+  border-color: #f04438;
+  outline: none;
+  box-shadow: none;
+}
+
+.member-signup-page #signupId.form-control[aria-invalid="true"]:focus-visible {
+  outline: 3px solid rgba(240, 68, 56, .28);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
 .member-signup-consent-all .form-check-input:focus {
   border-color: #5792c4;
   box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .16);

@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-12" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/signup.css?v=signup-layout-16" rel="stylesheet">
 </head>
 <body class="member-signup-page"
       data-context-path="${pageContext.request.contextPath}"
@@ -131,10 +131,9 @@
             <div class="member-signup-field">
                 <label class="form-label" for="signupId">아이디 <em>(필수)</em></label>
                 <div class="input-group">
-                    <input class="form-control" id="signupId" autocomplete="username" minlength="4" maxlength="16" pattern="[A-Za-z0-9]+" required>
+                    <input class="form-control" id="signupId" autocomplete="username" minlength="4" maxlength="16" pattern="[A-Za-z0-9]+" aria-describedby="signupIdCheckStatus" required>
                     <button class="btn btn-outline-primary" type="button" data-check-id>중복확인</button>
                 </div>
-                <p class="member-signup-field-help">아이디는 4~16자로 입력해 주세요.</p>
                 <p class="member-signup-field-help" id="signupIdCheckStatus" aria-live="polite"></p>
             </div>
 
@@ -246,6 +245,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-1"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-4"></script>
 </body>
 </html>
