@@ -1001,7 +1001,11 @@ function updateExistingHouseholdNotice(root) {
 function validatePhoneGroup(group, label) {
 	if (PHONE_PATTERN.test(readPhone(group) || "")) return true;
 	alert(`${label}를 010-0000-0000 형식으로 모두 입력해 주세요.`);
-	group?.querySelector("input")?.focus();
+	const inputs = [...(group?.querySelectorAll("input") ?? [])];
+	const invalid = inputs.find((input, index) =>
+		!(index === 0 ? /^010$/ : /^\d{4}$/).test(input.value.trim())
+	);
+	(invalid ?? inputs[0])?.focus();
 	return false;
 }
 function validateFamilyPhones(root, bodyId) {
@@ -1014,7 +1018,7 @@ function validateFamilyPhones(root, bodyId) {
 export function validate({ root }) {
 	if (!addressSelected || !$(root, "newRoadAddress").value.trim()) {
 		alert("이사 온 곳의 주소를 검색하여 선택해 주세요.");
-		$(root, "searchNewAddressBtn").focus();
+		$(root, "addressKeyword").focus();
 		return false;
 	}
 	if (!movingFamilies.length || !applicant) {
@@ -1031,6 +1035,7 @@ export function validate({ root }) {
 		const strategy = getStrategy(root);
 		if (!strategy) {
 			alert("기존 세대주 유지 또는 새 세대주 변경을 선택해 주세요.");
+			root.querySelector('input[name="emptyHeadType"]:not(:disabled)')?.focus();
 			return false;
 		}
 		if (strategy === "KEEP_ORIGINAL") {
@@ -1050,6 +1055,7 @@ export function validate({ root }) {
 		if (strategy === "CHANGE_HEAD") {
 			if (!selectedNewHeadId || !movingFamilies.some(f => sameId(f.familyId, selectedNewHeadId))) {
 				alert("이사하는 가족 중 새로운 세대주를 선택해 주세요.");
+				root.querySelector('input[name="newHeadFamilyId"]:not(:disabled)')?.focus();
 				return false;
 			}
 			for (const row of $(root, "changeNewHeadTableBody").querySelectorAll("tr[data-family-id]")) {
@@ -1071,8 +1077,10 @@ export function validate({ root }) {
 			return false;
 		}
 		if (!existingHeadMockConfirmed) {
+			const button = $(root, "mockExistingHeadConfirmBtn");
 			alert("기존 세대주 확인 체험을 완료해 주세요.");
-			$(root, "mockExistingHeadConfirmBtn").focus();
+			button?.classList.add("validation-focus");
+			button?.focus();
 			return false;
 		}
 		if (!validatePhoneGroup($(root, "existingHeadPhoneGroup"), "기존 세대주의 휴대전화번호")) return false;
@@ -1087,5 +1095,6 @@ export function validate({ root }) {
 		return validateFamilyPhones(root, "existingHouseholdTableBody") && validateServices(root);
 	}
 	alert("올바른 세대 구성 방법을 선택해 주세요.");
+	root.querySelector('input[name="householdType"]:not(:disabled)')?.focus();
 	return false;
 }

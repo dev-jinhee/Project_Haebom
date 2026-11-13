@@ -30,15 +30,15 @@
 
 			<div class="sim-phone-group">
 
-				<input type="text" class="form-control text-center" id="phoneFirst"
+				<input type="text" class="form-control text-center" id="phoneFirst" data-digits-only
 					name="phoneFirst" value="010" maxlength="3" inputmode="numeric"
 					aria-label="휴대전화번호 앞자리" style="max-width: 130px;"> <span
 					class="text-muted">-</span> <input type="text"
-					class="form-control text-center" id="phoneMiddle"
+					class="form-control text-center" id="phoneMiddle" data-digits-only
 					name="phoneMiddle" placeholder="0000" maxlength="4"
 					inputmode="numeric" aria-label="휴대전화번호 가운데 자리"
 					style="max-width: 130px;"> <span class="text-muted">-</span>
-				<input type="text" class="form-control text-center" id="phoneLast"
+				<input type="text" class="form-control text-center" id="phoneLast" data-digits-only
 					name="phoneLast" placeholder="0000" maxlength="4"
 					inputmode="numeric" aria-label="휴대전화번호 마지막 자리"
 					style="max-width: 130px;">

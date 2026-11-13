@@ -131,7 +131,7 @@ export function validate({ root }) {
 
 		if (phoneInputs[0].value !== "010") {
 			phoneInputs[0].focus();
-		} else if (!/^\d{4}$/.test(phoneMiddle.value)) {
+		} else if (!/^\d{4}$/.test(phoneInputs[1].value)) {
 			phoneInputs[1].focus();
 		} else {
 			phoneInputs[2].focus();
@@ -140,14 +140,21 @@ export function validate({ root }) {
 		return false;
 	}
 	// 전입 사유 라디오 버튼 검증
-	if (!selectedReason || (otherRadio.checked && !otherInput.value.trim())) {
-		if (!selectedReason) {
-			alert("전입 사유를 선택해 주세요.");
-			reasonRadios.focus();
-		} else if (otherRadio.checked && !otherInput.value.trim()) {
-			alert("기타 전입 사유를 입력해주세요.");
-			otherInput.focus();
-		}
+	if (!selectedReason) {
+		alert("전입 사유를 선택해 주세요.");
+
+		// 첫 번째 활성화된 라디오 버튼으로 포커스 이동
+		Array.from(reasonRadios)
+			.find(radio => !radio.disabled)
+			?.focus();
+
+		return false;
+	}
+
+	// 기타 사유 입력 검증
+	if (otherRadio.checked && !otherInput.value.trim()) {
+		alert("기타 전입 사유를 입력해주세요.");
+		otherInput.focus();
 		return false;
 	}
 	// 모든 검증 통과
@@ -188,9 +195,9 @@ export async function save({ root, progressId }) {
 	const phoneNum = phoneInputs
 		.map(input => input.value)
 		.join("-");
-		
+
 	const params = new URLSearchParams();
-	params.append("phoneNum",phoneNum);
+	params.append("phoneNum", phoneNum);
 
 	// 신청인 휴대전화번호 UPDATE
 	const response = await fetch(

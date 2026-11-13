@@ -9,6 +9,41 @@ const simulationState = {
 	currentStep: null,
 	viewingStep: null
 };
+
+let savedFormSnapshot = null;
+let allowUnload = false;
+
+function getFormSnapshot() {
+	const root = document.querySelector("#stepContent");
+	if (!root) return null;
+
+	const fields = [...root.querySelectorAll(
+		"input, select, textarea"
+	)].filter(el =>
+		!["button", "submit", "reset"].includes(el.type)
+	);
+
+	return JSON.stringify(fields.map(el => ({
+		key: el.name || el.id,
+		type: el.type,
+		value: el.type === "checkbox" || el.type === "radio"
+			? el.checked
+			: el.type === "file"
+				? [...el.files].map(file => [
+					file.name,
+					file.size,
+					file.lastModified
+				])
+				: el.value
+	})));
+}
+
+function hasUnsavedChanges() {
+	return !simulationState.isCompleted &&
+		savedFormSnapshot !== null &&
+		getFormSnapshot() !== savedFormSnapshot;
+}
+
 // 시뮬레이션별 대표 아이콘
 const SIMULATION_ICONS = {
 	MOVE: "home",
@@ -60,6 +95,11 @@ async function loadSimulation() {
 		window.location.href = "/scenario";
 		return;
 	}
+
+	window.HaebomLoading.show(
+		"학습을 준비하고 있어요",
+		"시뮬레이션 정보를 불러오고 있습니다."
+	);
 
 	try {
 		// 진행 이력 조회 API 호출
@@ -184,6 +224,8 @@ async function loadSimulation() {
 		await renderSimulation();
 	} catch (error) {
 		console.error("시뮬레이션 조회 오류:", error);
+	} finally {
+		window.HaebomLoading.hide();
 	}
 }
 
@@ -326,6 +368,7 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 
 	const stepContent = document.querySelector("#stepContent");
 	stepContent.innerHTML = html;
+	savedFormSnapshot = null;
 
 	const notice = document.getElementById("simulationNotice");
 
@@ -354,7 +397,6 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 			top: 0,
 			behavior: "smooth"
 		});
-
 
 		return;
 	}
@@ -396,7 +438,8 @@ async function loadStepFragment(scenarioCode, stepOrder, isCompleted) {
 		top: 0,
 		behavior: "smooth"
 	});
-
+	// 단계별 JS 초기화 및 저장 데이터 복원이 끝난 뒤 기준값 설정
+	savedFormSnapshot = isCompleted ? null : getFormSnapshot();
 }
 
 // ==============================
@@ -501,6 +544,15 @@ async function collectStepAnswers() {
 // ==============================
 async function handlePrevStep() {
 	const steps = simulationState.displaySteps;
+	if (!simulationState.isCompleted && hasUnsavedChanges()) {
+		const confirmed = confirm(
+			"현재 단계에서 입력한 내용은 저장되지 않았습니다.\n" +
+			"이전 단계로 이동하면 작성 중인 내용이 사라질 수 있습니다.\n" +
+			"이동하시겠습니까?"
+		);
+
+		if (!confirmed) return;
+	}
 
 	if (simulationState.isCompleted) {
 		// 완료 화면이라면 마지막 단계로 이동
@@ -741,10 +793,59 @@ function filterSpecialCharacters(event) {
 // ==============================
 // 이벤트 등록
 // ==============================
+// 버튼 연속 클릭 시 중복 저장/이동 API 호출 방지
+let simulationActionInProgress = false;
+
+async function runSimulationNavigation(action, title, description) {
+	if (simulationActionInProgress) return;
+	simulationActionInProgress = true;
+
+	const prevButton = document.querySelector("#prevStep");
+	const nextButton = document.querySelector("#nextStep");
+	const prevDisabled = prevButton?.disabled;
+	const nextDisabled = nextButton?.disabled;
+
+	if (prevButton) prevButton.disabled = true;
+	if (nextButton) nextButton.disabled = true;
+
+	try {
+		await window.HaebomLoading.run(action, title, description);
+	} catch (error) {
+		console.error("시뮬레이션 단계 처리 오류:", error);
+		alert("요청을 처리하지 못했습니다. 다시 시도해 주세요.");
+	} finally {
+		simulationActionInProgress = false;
+		if (prevButton) prevButton.disabled = prevDisabled;
+		if (nextButton) nextButton.disabled = nextDisabled;
+		if (simulationState.displaySteps.length > 0) updateNavigation();
+	}
+}
+
 document.querySelector("#prevStep")
-	.addEventListener("click", handlePrevStep);
+	.addEventListener("click", () => {
+		void runSimulationNavigation(
+			handlePrevStep,
+			"이전 단계를 불러오고 있어요",
+			"작성 내용을 준비하고 있습니다."
+		);
+	});
+
 document.querySelector("#nextStep")
-	.addEventListener("click", handleNextStep);
+	.addEventListener("click", () => {
+		const steps = simulationState.displaySteps;
+		const isLastStep = !simulationState.isCompleted &&
+			simulationState.currentStep?.stepId === steps[steps.length - 1]?.stepId;
+		const title = simulationState.isCompleted
+			? "작성 내용을 불러오고 있어요"
+			: isLastStep
+				? "신청 체험을 마무리하고 있어요"
+				: "다음 단계를 준비하고 있어요";
+		const description = simulationState.isCompleted
+			? "이전 학습 내용을 확인하고 있습니다."
+			: "입력한 내용을 저장하고 있습니다.";
+
+		void runSimulationNavigation(handleNextStep, title, description);
+	});
 document.querySelector("#printBtn")
 	.addEventListener("click", () => {
 		window.print();
@@ -753,5 +854,83 @@ document.querySelector("#stepContent").addEventListener(
 	"input",
 	filterSpecialCharacters
 );
+
+//휴대전화번호 숫자만 입력 허용
+function sanitizeDigitsOnly(input) {
+	input.value = input.value.replace(/\D/g, "");
+}
+
+// 숫자가 아닌 문자 제거
+document.addEventListener("input", (event) => {
+	const input = event.target;
+
+	if (!input.matches?.("input[data-digits-only]")) return;
+	if (event.isComposing) return;
+
+	sanitizeDigitsOnly(input);
+});
+
+// 한글 입력기(IME) 조합이 끝난 경우에도 처리
+document.addEventListener("compositionend", (event) => {
+	const input = event.target;
+
+	if (!input.matches?.("input[data-digits-only]")) return;
+
+	sanitizeDigitsOnly(input);
+});
+
 // 최초 실행
 loadSimulation();
+
+
+// 새로고침, 탭 닫기, 브라우저 뒤로 가기 등
+window.addEventListener("beforeunload", event => {
+	if (allowUnload || !hasUnsavedChanges()) return;
+
+	event.preventDefault();
+	event.returnValue = "";
+});
+
+// 페이지 내 링크를 클릭하여 이동하려는 경우
+document.addEventListener("click", event => {
+	const link = event.target.closest?.("a[href]");
+	if (!link || event.defaultPrevented) return;
+
+	// 새 탭 열기, 다운로드, Ctrl/Command 클릭은 제외
+	if (
+		(link.target && link.target !== "_self") ||
+		link.hasAttribute("download") ||
+		event.ctrlKey || event.metaKey ||
+		event.shiftKey || event.altKey
+	) return;
+
+	const destination = new URL(link.href, location.href);
+
+	if (!["http:", "https:"].includes(destination.protocol)) return;
+
+	// 같은 페이지 내부 앵커 이동은 제외
+	const samePageHash =
+		destination.origin === location.origin &&
+		destination.pathname === location.pathname &&
+		destination.search === location.search &&
+		destination.hash &&
+		destination.hash !== location.hash;
+
+	if (samePageHash || !hasUnsavedChanges()) return;
+
+	const confirmed = confirm(
+		"현재 단계에서 입력한 내용은 저장되지 않았습니다.\n" +
+		"페이지를 나가면 입력한 내용이 사라질 수 있습니다.\n" +
+		"정말 나가시겠습니까?"
+	);
+
+	if (!confirmed) {
+		event.preventDefault();
+		event.stopPropagation();
+		return;
+	}
+
+	// 확인한 경우 브라우저 기본 경고가 중복되지 않도록 처리
+	allowUnload = true;
+}, true);
+

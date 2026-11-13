@@ -12,6 +12,10 @@ const SIMULATION_ICONS = {
 };
 
 async function loadScenarios() {
+	window.HaebomLoading.show(
+		"학습을 준비하고 있어요",
+		"시뮬레이션 정보를 불러오고 있습니다."
+	);
 	// API 호출
 	try {
 		const [scenarioResponse, categoryResponse] = await Promise.all([
@@ -144,13 +148,30 @@ async function loadScenarios() {
 
 					deleteBtn.disabled = true;
 
-					const deleted = await deleteProgress(progress.progressId);
+					try {
+						const deleted = await window.HaebomLoading.run(
+							async () => {
+								const success = await deleteProgress(
+									progress.progressId
+								);
 
-					if (deleted) {
-						alert("진행기록이 삭제되었습니다.");
-						await loadScenarios();
-					} else {
-						deleteBtn.disabled = false;
+								if (success) {
+									await loadScenarios();
+								}
+
+								return success;
+							},
+							"진행 기록을 삭제하고 있어요",
+							"삭제한 내용을 목록에 반영하고 있습니다."
+						);
+
+						if (deleted) {
+							alert("진행기록이 삭제되었습니다.");
+						}
+					} finally {
+						if (deleteBtn.isConnected) {
+							deleteBtn.disabled = false;
+						}
 					}
 				});
 			}
@@ -170,6 +191,8 @@ async function loadScenarios() {
 		filterScenarios();
 	} catch (error) {
 		console.error("시나리오 목록 조회 오류:", error);
+	} finally {
+		HaebomLoading.hide();
 	}
 }
 
@@ -179,21 +202,35 @@ function openSimulation(progressId) {
 	sessionStorage.setItem("progressId", progressId);
 	window.location.href = "/simulation";
 }
+
+let isStartingSimulation = false;
 //시뮬 시작
 async function startSimulation(scenarioId) {
+	if (isStartingSimulation) return;
+
+	isStartingSimulation = true;
 	try {
-		const response = await fetch(`/api/scenario/${scenarioId}/start`, {
-			method: "POST"
-		});
-		if (!response.ok) {
-			throw new Error("시나리오 시작 실패");
-		}
-		const progressId = await response.json();
+		await window.HaebomLoading.run(async () => {
+			const response = await fetch(
+				`/api/scenario/${scenarioId}/start`,
+				{ method: "POST" }
+			);
 
-		openSimulation(progressId);
+			if (!response.ok) {
+				throw new Error("시나리오 시작 실패");
+			}
 
+			const progressId = await response.json();
+			openSimulation(progressId);
+		},
+			"학습을 시작하고 있어요",
+			"시뮬레이션 진행 정보를 준비하고 있습니다."
+		);
 	} catch (error) {
 		console.error("시나리오 시작 오류:", error);
+		alert("시뮬레이션 시작 중 오류가 발생했습니다.");
+	} finally {
+		isStartingSimulation = false;
 	}
 }
 //시뮬 진행기록 삭제
