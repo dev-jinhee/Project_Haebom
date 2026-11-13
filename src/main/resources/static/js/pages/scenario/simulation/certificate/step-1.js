@@ -90,16 +90,6 @@ function updateUi(root) {
 		const yearsWrap = container.querySelector(".certificate-years-wrap");
 		const yearsInput = yearsWrap?.querySelector("input");
 		if (yearsInput) yearsInput.disabled = readOnly || !(active && pastChecked && recent);
-		const years = yearsInput.value.trim();
-
-		if (!/^\d+$/.test(years) ||
-			Number(years) < 1 ||
-			Number(years) > 99) {
-
-			alert("과거 주소 조회 연수는 1~99 사이의 정수로 입력해 주세요.");
-			yearsInput.focus();
-			return false;
-		}
 	});
 
 	// 세대 일부: '세대원 조회' 버튼이 나타나고 클릭 시 가족 테이블 표시.
@@ -352,27 +342,57 @@ export async function restore({ root, data = {}, readOnly = false }) {
 	if (readOnly) root.querySelectorAll("input,select,textarea,button").forEach(el => { el.disabled = true; });
 }
 
+function focusValidationTarget(root, target) {
+	const element = typeof target === "string" ? root.querySelector(target) : target;
+	if (!element || element.disabled || !element.getClientRects().length) return;
+
+	// 버튼은 JS로 focus()해도 :focus-visible이 안 보일 수 있으므로
+	// 프로젝트의 공통 validation-focus 스타일을 사용한다.
+	if (element.matches("button")) {
+		element.classList.add("validation-focus");
+		element.addEventListener("blur", () => element.classList.remove("validation-focus"), { once: true });
+	}
+	element.focus({ preventScroll: true });
+	element.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 export function validate({ root }) {
 	const data = getData({ root });
-	const fail = message => { alert(message); return false; };
-	if (!Object.keys(PREFIXES).includes(data.certificateType)) return fail("지원하는 발급 서비스를 선택해 주세요.");
-	if (!data.residentSidoCode || !data.residentSigunguCode) return fail("주민등록상 주소를 선택해 주세요.");
-	if (!["ALL", "SELECT"].includes(data.issueMode)) return fail("발급 형태를 선택해 주세요.");
-	if (!["ONLINE_PRINT", "ONLINE_E_DOC", "ONLINE_THIRD_PARTY", "REGISTERED_MAIL", "NORMAL_MAIL"].includes(data.receiveMethod)) {
-		return fail("수령 방법을 선택해 주세요.");
+	const fail = (message, target) => {
+		alert(message);
+		focusValidationTarget(root, target);
+		return false;
+	};
+	const option = name => `input[name="${name}"]:not(:disabled)`;
+
+	if (!Object.keys(PREFIXES).includes(data.certificateType)) {
+		return fail("지원하는 발급 서비스를 선택해 주세요.", option("certificateType"));
 	}
+	if (!data.residentSidoCode) return fail("주민등록상 주소를 선택해 주세요.", "#certificateSido");
+	if (!data.residentSigunguCode) return fail("주민등록상 주소를 선택해 주세요.", "#certificateSigungu");
+	if (!["ALL", "SELECT"].includes(data.issueMode)) {
+		return fail("발급 형태를 선택해 주세요.", option("issueMode"));
+	}
+	if (!["ONLINE_PRINT", "ONLINE_E_DOC", "ONLINE_THIRD_PARTY", "REGISTERED_MAIL", "NORMAL_MAIL"].includes(data.receiveMethod)) {
+		return fail("수령 방법을 선택해 주세요.", option("receiveMethod"));
+	}
+
 	if (data.issueMode === "SELECT") {
 		const prefix = PREFIXES[data.certificateType];
 		const selectedParents = data.certificateType === "DEUNGBON"
 			? ["deungbonPastAddressIncluded", "deungbonHouseholdCompositionIncluded", "deungbonHouseholdMemberIncluded", "deungbonRrnBackIncluded", "deungbonRelationshipIncluded"]
-			: ["chobonPastAddressIncluded", "chobonPastHouseholdRelationIncluded",
-				"chobonPersonalChangeIncluded", "chobonIdNumbersIncluded",
-				"chobonMilitaryServiceIncluded", "chobonHouseholdRelationIncluded"];
-		if (!selectedParents.some(name => data[name] === "Y")) return fail("선택 발급 시 표시할 항목을 하나 이상 선택해 주세요.");
+			: ["chobonPastAddressIncluded", "chobonPastHouseholdRelationIncluded", "chobonPersonalChangeIncluded", "chobonIdNumbersIncluded", "chobonMilitaryServiceIncluded", "chobonHouseholdRelationIncluded"];
+		if (!selectedParents.some(name => data[name] === "Y")) {
+			return fail("선택 발급 시 표시할 항목을 하나 이상 선택해 주세요.", option(selectedParents[0]));
+		}
+
 		if (data[`${prefix}PastAddressIncluded`] === "Y" && data[`${prefix}PastAddressScope`] === "RECENT") {
 			const years = Number(data[`${prefix}PastAddressYears`]);
-			if (!Number.isInteger(years) || years < 1 || years > 99) return fail("과거 주소 변동사항은 최근 1~99년 사이로 입력해 주세요.");
+			if (!Number.isInteger(years) || years < 1 || years > 99) {
+				return fail("과거 주소 변동사항은 최근 1~99년 사이로 입력해 주세요.", `input[name="${prefix}PastAddressYears"]`);
+			}
 		}
+
 		if (data.certificateType === "CHOBON") {
 			for (const [parent, name, allowed] of [
 				["chobonPastHouseholdRelationIncluded", "chobonPastHouseholdRelationType", ["GENERAL", "DETAIL"]],
@@ -381,28 +401,32 @@ export function validate({ root }) {
 				["chobonHouseholdRelationIncluded", "chobonHouseholdRelationType", ["GENERAL", "DETAIL"]]
 			]) {
 				if (data[parent] === "Y" && !allowed.includes(data[name])) {
-					return fail("초본 선택 발급 항목을 확인해 주세요.");
+					return fail("초본 선택 발급 항목을 확인해 주세요.", option(name));
 				}
 			}
 			const detailed =
 				(data.chobonPastHouseholdRelationIncluded === "Y" && data.chobonPastHouseholdRelationType === "DETAIL") ||
 				(data.chobonHouseholdRelationIncluded === "Y" && data.chobonHouseholdRelationType === "DETAIL");
 			if (detailed) {
-				if (!PURPOSES.has(data.chobonPurpose)) return fail("초본 발급 용도 및 목적을 선택해 주세요.");
-				if (data.chobonPurpose === "OTHER" &&
-					(!data.chobonPurposeDetail || data.chobonPurposeDetail.length > 100)) {
-					return fail("초본 기타 용도를 1~100자로 입력해 주세요.");
+				if (!PURPOSES.has(data.chobonPurpose)) return fail("초본 발급 용도 및 목적을 선택해 주세요.", "#certificateChobonPurpose");
+				if (data.chobonPurpose === "OTHER" && (!data.chobonPurposeDetail || data.chobonPurposeDetail.length > 100)) {
+					return fail("초본 기타 용도를 1~100자로 입력해 주세요.", "#certificateChobonPurposeOther");
 				}
 			}
 		}
+
 		if (data.deungbonRrnBackIncluded === "Y" && data.deungbonRrnBackScope === "HOUSEHOLD_PART") {
 			const ids = String(data.deungbonSelectedMemberIds || "").split(",").filter(Boolean);
-			if (!ids.length || ids.some(id => !MEMBER_IDS.has(id))) return fail("세대원 조회 후 표시할 세대원을 선택해 주세요.");
+			if (!ids.length || ids.some(id => !MEMBER_IDS.has(id))) {
+				const target = root.querySelector('input[name="certificateSelectedMember"]:not(:disabled)')
+					|| root.querySelector("#certificateLookupMembers");
+				return fail("세대원 조회 후 표시할 세대원을 선택해 주세요.", target);
+			}
 		}
 		if (data.deungbonRelationshipIncluded === "Y" && data.deungbonRelationshipType === "DETAIL") {
-			if (!PURPOSES.has(data.deungbonPurpose)) return fail("용도 및 목적을 선택해 주세요.");
+			if (!PURPOSES.has(data.deungbonPurpose)) return fail("용도 및 목적을 선택해 주세요.", "#certificatePurpose");
 			if (data.deungbonPurpose === "OTHER" && (!data.deungbonPurposeDetail || data.deungbonPurposeDetail.length > 100)) {
-				return fail("기타 용도를 1~100자로 입력해 주세요.");
+				return fail("기타 용도를 1~100자로 입력해 주세요.", "#certificatePurposeOther");
 			}
 		}
 	}

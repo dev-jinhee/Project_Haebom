@@ -119,12 +119,12 @@
 			<label for="newHeadPhoneFirst" class="form-label small">휴대전화번호</label>
 			<div class="move-step3-phone-group sim-phone-group">
 				<input id="newHeadPhoneFirst" class="form-control" type="text"
-					inputmode="numeric" maxlength="3" autocomplete="off"
+					inputmode="numeric" maxlength="3" autocomplete="off" data-digits-only
 					aria-label="세대주 휴대전화번호 앞자리" value="010"> <span
-					aria-hidden="true">-</span> <input id="newHeadPhoneMiddle"
+					aria-hidden="true">-</span> <input id="newHeadPhoneMiddle" data-digits-only
 					class="form-control" type="text" inputmode="numeric" maxlength="4"
 					autocomplete="off" placeholder="0000" aria-label="세대주 휴대전화번호 중간자리">
-				<span aria-hidden="true">-</span> <input id="newHeadPhoneLast"
+				<span aria-hidden="true">-</span> <input id="newHeadPhoneLast" data-digits-only
 					class="form-control" type="text" inputmode="numeric" maxlength="4"
 					autocomplete="off" placeholder="0000" aria-label="세대주 휴대전화번호 뒷자리">
 			</div>

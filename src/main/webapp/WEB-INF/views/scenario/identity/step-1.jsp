@@ -112,13 +112,13 @@
 			<p class="sim-learning-field-note">신청 과정의 연락이나 수령 안내를 받을 수 있는 번호를
 				입력하는 항목이에요. 해봄에서는 실제 문자를 발송하지 않아요.</p>
 			<div class="identity-phone-row">
-				<input type="tel" id="identityPhoneFirst" name="phoneFirst"
+				<input type="tel" id="identityPhoneFirst" name="phoneFirst" data-digits-only
 					class="form-control" maxlength="3" value="010" inputmode="numeric"
 					aria-label="휴대전화번호 앞자리" /> <span aria-hidden="true">-</span> <input
-					type="tel" id="identityPhoneMiddle" name="phoneMiddle"
+					type="tel" id="identityPhoneMiddle" name="phoneMiddle" data-digits-only
 					class="form-control" placeholder="0000" maxlength="4"
 					inputmode="numeric" aria-label="휴대전화번호 가운데 자리" /> <span
-					aria-hidden="true">-</span> <input type="tel"
+					aria-hidden="true">-</span> <input type="tel" data-digits-only
 					id="identityPhoneLast" name="phoneLast" class="form-control"
 					placeholder="0000" maxlength="4" inputmode="numeric"
 					aria-label="휴대전화번호 뒷자리" />
