@@ -636,7 +636,8 @@ button, input, select {
 	width: min(100%, 280px);
 }
 
-.scenario-search i {
+.scenario-search i,
+.scenario-search .material-symbols-outlined {
 	position: absolute;
 	z-index: 1;
 	left: 15px;

@@ -10,8 +10,8 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-common-select-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-5" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-scenario-search-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-6" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -64,11 +64,11 @@
                         </select>
                         <label class="visually-hidden" for="mypageHistoryKeyword">시나리오 제목 검색</label>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text" aria-hidden="true">
-                                <span class="material-symbols-outlined">search</span>
-                            </span>
-                            <input class="form-control" id="mypageHistoryKeyword"
+                            <div class="scenario-search mypage-search-input">
+                                <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                                <input class="form-control form-control-sm" id="mypageHistoryKeyword"
                                    type="search" maxlength="100" placeholder="시나리오 제목 검색">
+                            </div>
                             <button class="btn btn-primary" type="submit">검색</button>
                         </div>
                     </form>
@@ -100,11 +100,11 @@
                         </select>
                         <label class="visually-hidden" for="mypageInquirySearch">문의 검색</label>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text" aria-hidden="true">
-                                <span class="material-symbols-outlined">search</span>
-                            </span>
-                            <input class="form-control" id="mypageInquirySearch"
+                            <div class="scenario-search mypage-search-input">
+                                <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                                <input class="form-control form-control-sm" id="mypageInquirySearch"
                                    type="search" placeholder="문의 검색">
+                            </div>
                             <button class="btn btn-primary" type="submit">검색</button>
                         </div>
                     </form>
