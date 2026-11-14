@@ -1,6 +1,6 @@
 (function () {
-    const MY_PAGE_SIZE = 10;
-    const MY_PAGE_PAGE_GROUP_SIZE = 10;
+    const MY_PAGE_SIZE = 5;
+    const MY_PAGE_PAGE_GROUP_SIZE = 5;
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');
     const withdrawConfirmText = document.getElementById('withdrawConfirmText');
@@ -137,6 +137,24 @@
         }).format(date);
     }
 
+    function formatDateTime(value) {
+        if (!value) {
+            return '정보 없음';
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return '정보 없음';
+        }
+
+        const pad = function (part) {
+            return String(part).padStart(2, '0');
+        };
+        const dateText = date.getFullYear() + '. ' + pad(date.getMonth() + 1) + '. ' + pad(date.getDate()) + '.';
+        const timeText = pad(date.getHours()) + ':' + pad(date.getMinutes());
+        return dateText + ' ' + timeText;
+    }
+
     function openMyPageSimulation(progressId) {
         sessionStorage.setItem('progressId', progressId);
         const simulationUrl = new URL(page.dataset.simulationUrl, window.location.href);
@@ -150,17 +168,8 @@
     let scenarioHistoryItems = null;
     let appliedScenarioHistoryKeyword = '';
     let appliedScenarioHistoryStatus = 'ALL';
+    let appliedScenarioHistorySort = 'NEWEST';
     let scenarioHistoryRequestId = 0;
-
-    function scrollToListStart(element) {
-        if (!element) return;
-
-        const top = window.scrollY + element.getBoundingClientRect().top - 112;
-        const reduceMotion = window.matchMedia
-            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const behavior = reduceMotion ? 'auto' : 'smooth';
-        window.scrollTo({ top: Math.max(0, top), behavior: behavior });
-    }
 
     function setScenarioHistoryLoading(list, pagination, isLoading) {
         list.classList.toggle('is-loading', isLoading && scenarioHistoryItems !== null);
@@ -171,10 +180,11 @@
         }
     }
 
-    function showScenarioHistoryMessage(message, isError) {
+    function showScenarioHistoryMessage(message, isError, isEmpty) {
         const list = document.querySelector('[data-scenario-history-list]');
         if (!list) return;
 
+        list.classList.toggle('is-empty', Boolean(isEmpty));
         const paragraph = document.createElement('p');
         paragraph.className = 'mypage-history-message' + (isError ? ' is-error' : '');
         paragraph.setAttribute('role', isError ? 'alert' : 'status');
@@ -194,10 +204,10 @@
             previousLabel: '이전',
             nextLabel: '다음',
             showBoundaryButtons: true,
-            bootstrap: true,
+            bootstrap: false,
             hideWhenSinglePage: true,
             onPageChange: function (targetPage) {
-                loadScenarioHistory(targetPage, true);
+                loadScenarioHistory(targetPage);
             }
         });
     }
@@ -210,7 +220,7 @@
         if (total) total.textContent = '총 ' + scenarioHistoryTotalCount + '건';
         if (!Array.isArray(items) || items.length === 0) {
             showScenarioHistoryMessage(
-                scenarioHistoryTotalCount === 0 ? '아직 진행 내역이 없습니다.' : '검색 결과가 없습니다.', false);
+                scenarioHistoryTotalCount === 0 ? '아직 진행 내역이 없습니다.' : '검색 결과가 없습니다.', false, true);
             renderScenarioHistoryPagination();
             return;
         }
@@ -243,12 +253,12 @@
             if (record.progressStatus === 'IN_PROGRESS') {
                 const saved = document.createElement('time');
                 saved.dateTime = record.lastSavedAt || '';
-                saved.textContent = '최근 저장 ' + formatDate(record.lastSavedAt).replace(/\.$/, '');
+                saved.textContent = '최근 저장 ' + formatDateTime(record.lastSavedAt);
                 metadata.appendChild(saved);
             } else if (record.completedAt) {
                 const completed = document.createElement('time');
                 completed.dateTime = record.completedAt;
-                completed.textContent = '완료 ' + formatDate(record.completedAt).replace(/\.$/, '');
+                completed.textContent = '완료 시각 ' + formatDateTime(record.completedAt);
                 metadata.appendChild(completed);
             }
             detail.append(heading, metadata);
@@ -258,7 +268,8 @@
             if (record.progressStatus === 'IN_PROGRESS' || record.progressStatus === 'COMPLETED') {
                 const openButton = document.createElement('button');
                 openButton.type = 'button';
-                openButton.className = 'btn btn-outline-primary btn-sm rounded-pill';
+                openButton.className = 'btn btn-sm rounded-pill mypage-history-action '
+                    + (record.progressStatus === 'COMPLETED' ? 'is-completed' : 'is-progress');
                 openButton.textContent = record.progressStatus === 'COMPLETED' ? '작성 내용 확인' : '이어하기';
                 openButton.addEventListener('click', function () {
                     openMyPageSimulation(record.progressId);
@@ -268,7 +279,7 @@
 
             const deleteButton = document.createElement('button');
             deleteButton.type = 'button';
-            deleteButton.className = 'btn btn-outline-secondary btn-sm rounded-pill';
+            deleteButton.className = 'btn btn-sm rounded-pill mypage-history-delete';
             deleteButton.textContent = '삭제';
             deleteButton.addEventListener('click', function () {
                 deleteScenarioHistory(record, deleteButton);
@@ -278,11 +289,12 @@
             return row;
         });
 
+        list.classList.remove('is-empty');
         list.replaceChildren.apply(list, rows);
         renderScenarioHistoryPagination();
     }
 
-    async function loadScenarioHistory(requestedPage, scrollAfterLoad) {
+    async function loadScenarioHistory(requestedPage) {
         const list = document.querySelector('[data-scenario-history-list]');
         if (!page || !page.dataset.scenarioHistoryApiUrl || !list) return;
 
@@ -292,7 +304,8 @@
         const params = new URLSearchParams({
             page: String(requested),
             keyword: appliedScenarioHistoryKeyword,
-            status: appliedScenarioHistoryStatus
+            status: appliedScenarioHistoryStatus,
+            sort: appliedScenarioHistorySort
         });
         if (scenarioHistoryItems === null) {
             showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
@@ -319,13 +332,12 @@
             scenarioHistoryTotalCount = Number(result.totalCount) || 0;
             scenarioHistoryTotalPages = Number(result.totalPages) || 0;
             if (scenarioHistoryTotalPages > 0 && requested > scenarioHistoryTotalPages) {
-                return loadScenarioHistory(scenarioHistoryTotalPages, scrollAfterLoad);
+                return loadScenarioHistory(scenarioHistoryTotalPages);
             }
             scenarioHistoryPage = scenarioHistoryTotalPages === 0 ? 1 : requested;
             scenarioHistoryItems = result.items;
             setScenarioHistoryLoading(list, pagination, false);
             renderScenarioHistory(result.items);
-            if (scrollAfterLoad) scrollToListStart(list);
         } catch (error) {
             if (requestId !== scenarioHistoryRequestId) return;
             setScenarioHistoryLoading(list, pagination, false);
@@ -342,8 +354,18 @@
         }
     }
 
-    async function deleteScenarioHistory(record, button) {
-        if (!window.confirm('이 진행 내역을 삭제하시겠습니까? 삭제한 내역은 복구할 수 없습니다.')) return;
+    function deleteScenarioHistory(record, button) {
+        window.haebomConfirm(
+            '이 진행 내역을 삭제하시겠습니까? 삭제한 내역은 복구할 수 없습니다.',
+            function () {
+                performScenarioHistoryDeletion(record, button);
+            },
+            null,
+            '진행 내역 삭제'
+        );
+    }
+
+    async function performScenarioHistoryDeletion(record, button) {
         button.disabled = true;
 
         try {
@@ -380,12 +402,31 @@
         const searchForm = document.querySelector('[data-scenario-history-search-form]');
         const keywordInput = document.getElementById('mypageHistoryKeyword');
         const statusFilter = document.getElementById('mypageHistoryStatus');
+        const sortFilter = document.getElementById('mypageHistorySort');
 
         if (searchForm) {
             searchForm.addEventListener('submit', function (event) {
                 event.preventDefault();
                 appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
                 appliedScenarioHistoryStatus = statusFilter ? statusFilter.value : 'ALL';
+                appliedScenarioHistorySort = sortFilter ? sortFilter.value : 'NEWEST';
+                loadScenarioHistory(1);
+            });
+        }
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function () {
+                appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
+                appliedScenarioHistoryStatus = statusFilter.value;
+                loadScenarioHistory(1);
+            });
+        }
+
+        if (sortFilter) {
+            sortFilter.addEventListener('change', function () {
+                appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
+                appliedScenarioHistoryStatus = statusFilter ? statusFilter.value : 'ALL';
+                appliedScenarioHistorySort = sortFilter.value;
                 loadScenarioHistory(1);
             });
         }
@@ -397,6 +438,7 @@
     function initializeMyInquiries() {
         const rows = document.querySelector('[data-mypage-inquiry-rows]');
         const statusFilter = document.getElementById('mypageInquiryStatus');
+        const sortFilter = document.getElementById('mypageInquirySort');
         const searchInput = document.getElementById('mypageInquirySearch');
         const searchForm = document.querySelector('[data-mypage-inquiry-search-form]');
         const totalElement = document.querySelector('[data-mypage-inquiry-total]');
@@ -410,6 +452,7 @@
         let currentPage = 1;
         let appliedInquiryStatus = '';
         let appliedInquiryKeyword = '';
+        let appliedInquirySort = 'NEWEST';
         const pageSize = MY_PAGE_SIZE;
 
         function showMessage(message, isError) {
@@ -429,6 +472,12 @@
                 const title = String(item.qnaTitle || '').toLocaleLowerCase();
                 const keywordMatches = !keyword || title.indexOf(keyword) !== -1;
                 return statusMatches && keywordMatches;
+            }).sort(function (left, right) {
+                const leftTime = Date.parse(String(left.qnaCreatedAt || '').replace(' ', 'T')) || 0;
+                const rightTime = Date.parse(String(right.qnaCreatedAt || '').replace(' ', 'T')) || 0;
+                const direction = appliedInquirySort === 'OLDEST' ? 1 : -1;
+                return (leftTime - rightTime) * direction
+                    || (Number(left.qnaId) - Number(right.qnaId)) * direction;
             });
         }
 
@@ -445,12 +494,11 @@
                 previousLabel: '이전',
                 nextLabel: '다음',
                 showBoundaryButtons: true,
-                bootstrap: true,
+                bootstrap: false,
                 hideWhenSinglePage: true,
                 onPageChange: function (targetPage) {
                     currentPage = targetPage;
                     render();
-                    scrollToListStart(rows);
                 }
             });
         }
@@ -467,37 +515,20 @@
             }
 
             if (filteredItems.length === 0) {
-                const emptyState = document.createElement('div');
-                emptyState.className = 'mypage-inquiry-empty';
+                const emptyMessage = document.createElement('p');
+                emptyMessage.className = 'mypage-history-message';
+                emptyMessage.setAttribute('role', 'status');
+                emptyMessage.textContent = inquiryItems.length === 0
+                    ? '작성하신 문의 내역이 없습니다.'
+                    : '검색 결과가 없습니다.';
 
-                const icon = document.createElement('span');
-                icon.className = 'material-symbols-outlined mypage-inquiry-empty-icon';
-                icon.setAttribute('aria-hidden', 'true');
-                icon.textContent = 'chat';
-
-                const title = document.createElement('strong');
-                title.textContent = inquiryItems.length === 0
-                    ? '작성하신 문의 내역이 없습니다'
-                    : '검색 결과가 없습니다';
-
-                emptyState.append(icon, title);
-
-                if (inquiryItems.length === 0) {
-                    const description = document.createElement('p');
-                    description.textContent = '궁금한 점이 있으시다면 언제든 편하게 문의를 남겨주세요.';
-
-                    const link = document.createElement('a');
-                    link.className = 'btn btn-outline-primary btn-sm rounded-pill px-4';
-                    link.href = page.dataset.inquiryBoardUrl;
-                    link.textContent = '문의 작성하기';
-                    emptyState.append(description, link);
-                }
-
-                rows.replaceChildren(emptyState);
+                rows.classList.add('is-empty');
+                rows.replaceChildren(emptyMessage);
                 renderPagination(totalPages, 0);
                 return;
             }
 
+            rows.classList.remove('is-empty');
             const startIndex = (currentPage - 1) * pageSize;
             const visibleItems = filteredItems.slice(startIndex, startIndex + pageSize);
             const renderedItems = visibleItems.map(function (item) {
@@ -520,9 +551,8 @@
                 category.textContent = item.qnaCategoryName || '-';
 
                 const date = document.createElement('time');
-                const createdAt = item.qnaCreatedAt ? String(item.qnaCreatedAt).substring(0, 10) : '';
-                date.dateTime = createdAt;
-                date.textContent = createdAt ? createdAt.replace(/-/g, '.') : '-';
+                date.dateTime = item.qnaCreatedAt || '';
+                date.textContent = item.qnaCreatedAt ? '작성 시각 ' + formatDateTime(item.qnaCreatedAt) : '-';
                 metadata.append(category, date);
                 content.append(title, metadata);
 
@@ -710,6 +740,26 @@
                 event.preventDefault();
                 appliedInquiryStatus = statusFilter ? statusFilter.value : '';
                 appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
+                appliedInquirySort = sortFilter ? sortFilter.value : 'NEWEST';
+                currentPage = 1;
+                render();
+            });
+        }
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function () {
+                appliedInquiryStatus = statusFilter.value;
+                appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
+                currentPage = 1;
+                render();
+            });
+        }
+
+        if (sortFilter) {
+            sortFilter.addEventListener('change', function () {
+                appliedInquiryStatus = statusFilter ? statusFilter.value : '';
+                appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
+                appliedInquirySort = sortFilter.value;
                 currentPage = 1;
                 render();
             });
@@ -731,6 +781,13 @@
         status.classList.add(state === 'valid' ? 'text-success'
             : state === 'invalid' ? 'text-danger' : 'text-muted');
         input.setAttribute('aria-invalid', String(state === 'invalid'));
+    }
+
+    function setPasswordChangeError(message) {
+        const error = document.getElementById('passwordChangeError');
+        if (!error) return;
+        error.textContent = message || '';
+        error.hidden = !message;
     }
 
     function showNewPasswordGuidance() {
@@ -767,9 +824,15 @@
 
     function resetPasswordFormState(form) {
         if (form) form.reset();
+        const currentPasswordInput = document.getElementById('currentPassword');
+        setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '', 'neutral');
+        setPasswordChangeError('');
         ['currentPassword', 'newPassword', 'confirmNewPassword'].forEach(function (id) {
             const input = document.getElementById(id);
-            if (input) input.type = 'password';
+            if (input) {
+                input.type = 'password';
+                input.setAttribute('aria-invalid', 'false');
+            }
         });
         document.querySelectorAll('[data-mypage-toggle-password] .material-symbols-outlined').forEach(function (icon) {
             icon.textContent = 'visibility_off';
@@ -784,6 +847,7 @@
     function initializePasswordChangeForm() {
         const form = document.getElementById('passwordChangeForm');
         const modal = document.getElementById('passwordChangeModal');
+        const currentPasswordInput = document.getElementById('currentPassword');
         const newPasswordInput = document.getElementById('newPassword');
         const confirmPasswordInput = document.getElementById('confirmNewPassword');
 
@@ -800,18 +864,30 @@
             });
         });
 
+        if (currentPasswordInput) {
+            currentPasswordInput.addEventListener('input', function () {
+                setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '', 'neutral');
+                setPasswordChangeError('');
+            });
+        }
         if (newPasswordInput) {
-            newPasswordInput.addEventListener('focus', showNewPasswordGuidance);
+            newPasswordInput.addEventListener('focus', function () {
+                if (newPasswordInput.getAttribute('aria-invalid') !== 'true') showNewPasswordGuidance();
+            });
             newPasswordInput.addEventListener('blur', validateNewPassword);
             newPasswordInput.addEventListener('input', function () {
+                setPasswordChangeError('');
                 validateNewPassword();
                 validatePasswordConfirmation();
             });
         }
         if (confirmPasswordInput) {
-            confirmPasswordInput.addEventListener('focus', showPasswordConfirmationGuidance);
+            confirmPasswordInput.addEventListener('focus', function () {
+                if (confirmPasswordInput.getAttribute('aria-invalid') !== 'true') showPasswordConfirmationGuidance();
+            });
             confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
             confirmPasswordInput.addEventListener('input', function () {
+                setPasswordChangeError('');
                 validatePasswordConfirmation();
             });
         }
@@ -834,17 +910,18 @@
         const currentPassword = currentPasswordInput ? currentPasswordInput.value : '';
         const password = newPasswordInput ? newPasswordInput.value : '';
         const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+        setPasswordChangeError('');
 
         if (!currentPassword.trim()) {
-            toast('현재 비밀번호를 입력해 주세요.');
+            setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '현재 비밀번호를 입력해 주세요.', 'invalid');
             if (currentPasswordInput) {
                 currentPasswordInput.focus();
             }
             return;
         }
+        setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '', 'neutral');
 
         if (!validateNewPassword()) {
-            toast(document.getElementById('newPasswordStatus')?.textContent || '새 비밀번호를 확인해 주세요.');
             if (newPasswordInput) {
                 newPasswordInput.focus();
             }
@@ -852,7 +929,6 @@
         }
 
         if (!validatePasswordConfirmation()) {
-            toast(document.getElementById('confirmNewPasswordStatus')?.textContent || '새 비밀번호 확인이 일치하지 않습니다.');
             if (confirmPasswordInput) {
                 confirmPasswordInput.focus();
             }
@@ -860,14 +936,14 @@
         }
 
         if (!apiUrl) {
-            toast('비밀번호 변경 요청 주소를 찾을 수 없습니다.');
+            setPasswordChangeError('비밀번호 변경 요청 주소를 찾을 수 없습니다.');
             return;
         }
 
         const body = new URLSearchParams();
-        body.set('currentPassword', currentPassword);
-        body.set('newPassword', password);
-        body.set('passwordConfirm', confirmPassword);
+        body.set('currentPassword', encodeURIComponent(currentPassword));
+        body.set('newPassword', encodeURIComponent(password));
+        body.set('passwordConfirm', encodeURIComponent(confirmPassword));
 
         if (submitButton) {
             submitButton.disabled = true;
@@ -890,7 +966,8 @@
                     throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
                 }
                 if (response.status === 400) {
-                    throw new Error('현재 비밀번호를 확인하거나 입력값을 다시 확인해 주세요.');
+                    throw new Error(result && (result.detail || result.message)
+                        || '현재 비밀번호 또는 새 비밀번호 입력값을 확인해 주세요.');
                 }
                 throw new Error('비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해 주세요.');
             }
@@ -903,7 +980,13 @@
             form.reset();
             toast('비밀번호를 변경했습니다.');
         } catch (error) {
-            toast(error.message || '비밀번호 변경 중 오류가 발생했습니다.');
+            const message = error.message || '비밀번호 변경 중 오류가 발생했습니다.';
+            if (message.includes('현재 비밀번호')) {
+                setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', message, 'invalid');
+                if (currentPasswordInput) currentPasswordInput.focus();
+            } else {
+                setPasswordChangeError(message);
+            }
         } finally {
             if (submitButton) {
                 submitButton.disabled = false;
