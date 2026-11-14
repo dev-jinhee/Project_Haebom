@@ -184,7 +184,10 @@
 
         const params = new URLSearchParams();
         Object.entries(body).forEach(function ([key, value]) {
-            params.append(key, value);
+            const requestValue = key === 'newPassword' || key === 'passwordConfirm'
+                ? encodeURIComponent(String(value))
+                : String(value);
+            params.append(key, requestValue);
         });
 
         const response = await fetch(contextPath + path, {
