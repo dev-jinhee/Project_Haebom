@@ -81,7 +81,10 @@ public interface MyPageMapper {
 		    AND (#{status} IS NULL OR sp.progress_status = #{status})
 		    AND (#{keyword} IS NULL OR #{keyword} = ''
 		    OR s.scenario_title LIKE CONCAT('%', #{keyword}, '%'))
-		    ORDER BY COALESCE(sp.completed_at, sp.last_saved_at) DESC,
+		    ORDER BY CASE WHEN #{sort} = 'OLDEST'
+		                  THEN COALESCE(sp.completed_at, sp.last_saved_at, sp.started_at) END ASC,
+		             CASE WHEN #{sort} <> 'OLDEST'
+		                  THEN COALESCE(sp.completed_at, sp.last_saved_at, sp.started_at) END DESC,
 		             sp.progress_id DESC
 		    LIMIT #{size} OFFSET #{offset}
 		    """)
@@ -90,6 +93,7 @@ public interface MyPageMapper {
 		    @Param("scenarioId") Integer scenarioId,
 		    @Param("keyword") String keyword,
 		    @Param("status") String status,
+			@Param("sort") String sort,
 		    @Param("size") int size,
 		    @Param("offset") int offset);
 

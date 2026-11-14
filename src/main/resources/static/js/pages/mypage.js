@@ -168,6 +168,7 @@
     let scenarioHistoryItems = null;
     let appliedScenarioHistoryKeyword = '';
     let appliedScenarioHistoryStatus = 'ALL';
+    let appliedScenarioHistorySort = 'NEWEST';
     let scenarioHistoryRequestId = 0;
 
     function setScenarioHistoryLoading(list, pagination, isLoading) {
@@ -302,7 +303,8 @@
         const params = new URLSearchParams({
             page: String(requested),
             keyword: appliedScenarioHistoryKeyword,
-            status: appliedScenarioHistoryStatus
+            status: appliedScenarioHistoryStatus,
+            sort: appliedScenarioHistorySort
         });
         if (scenarioHistoryItems === null) {
             showScenarioHistoryMessage('진행 내역을 불러오는 중입니다.', false);
@@ -389,12 +391,14 @@
         const searchForm = document.querySelector('[data-scenario-history-search-form]');
         const keywordInput = document.getElementById('mypageHistoryKeyword');
         const statusFilter = document.getElementById('mypageHistoryStatus');
+        const sortFilter = document.getElementById('mypageHistorySort');
 
         if (searchForm) {
             searchForm.addEventListener('submit', function (event) {
                 event.preventDefault();
                 appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
                 appliedScenarioHistoryStatus = statusFilter ? statusFilter.value : 'ALL';
+                appliedScenarioHistorySort = sortFilter ? sortFilter.value : 'NEWEST';
                 loadScenarioHistory(1);
             });
         }
@@ -407,6 +411,15 @@
             });
         }
 
+        if (sortFilter) {
+            sortFilter.addEventListener('change', function () {
+                appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
+                appliedScenarioHistoryStatus = statusFilter ? statusFilter.value : 'ALL';
+                appliedScenarioHistorySort = sortFilter.value;
+                loadScenarioHistory(1);
+            });
+        }
+
         // 각 기록의 상태에 따라 이어하기 또는 작성 내용 확인 버튼을 표시합니다.
         loadScenarioHistory(1);
     }
@@ -414,6 +427,7 @@
     function initializeMyInquiries() {
         const rows = document.querySelector('[data-mypage-inquiry-rows]');
         const statusFilter = document.getElementById('mypageInquiryStatus');
+        const sortFilter = document.getElementById('mypageInquirySort');
         const searchInput = document.getElementById('mypageInquirySearch');
         const searchForm = document.querySelector('[data-mypage-inquiry-search-form]');
         const totalElement = document.querySelector('[data-mypage-inquiry-total]');
@@ -427,6 +441,7 @@
         let currentPage = 1;
         let appliedInquiryStatus = '';
         let appliedInquiryKeyword = '';
+        let appliedInquirySort = 'NEWEST';
         const pageSize = MY_PAGE_SIZE;
 
         function showMessage(message, isError) {
@@ -446,6 +461,12 @@
                 const title = String(item.qnaTitle || '').toLocaleLowerCase();
                 const keywordMatches = !keyword || title.indexOf(keyword) !== -1;
                 return statusMatches && keywordMatches;
+            }).sort(function (left, right) {
+                const leftTime = Date.parse(String(left.qnaCreatedAt || '').replace(' ', 'T')) || 0;
+                const rightTime = Date.parse(String(right.qnaCreatedAt || '').replace(' ', 'T')) || 0;
+                const direction = appliedInquirySort === 'OLDEST' ? 1 : -1;
+                return (leftTime - rightTime) * direction
+                    || (Number(left.qnaId) - Number(right.qnaId)) * direction;
             });
         }
 
@@ -708,6 +729,7 @@
                 event.preventDefault();
                 appliedInquiryStatus = statusFilter ? statusFilter.value : '';
                 appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
+                appliedInquirySort = sortFilter ? sortFilter.value : 'NEWEST';
                 currentPage = 1;
                 render();
             });
@@ -717,6 +739,16 @@
             statusFilter.addEventListener('change', function () {
                 appliedInquiryStatus = statusFilter.value;
                 appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
+                currentPage = 1;
+                render();
+            });
+        }
+
+        if (sortFilter) {
+            sortFilter.addEventListener('change', function () {
+                appliedInquiryStatus = statusFilter ? statusFilter.value : '';
+                appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
+                appliedInquirySort = sortFilter.value;
                 currentPage = 1;
                 render();
             });

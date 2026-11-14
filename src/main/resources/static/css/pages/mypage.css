@@ -20,9 +20,14 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-history-count { margin:4px 0 0; color:#758395; font-size:.76rem; }
 .mypage-history-retention-note { display:flex; align-items:flex-start; gap:5px; margin:0 0 12px; color:#758395; font-size:.74rem; line-height:1.5; }
 .mypage-history-retention-note .material-symbols-outlined { flex:0 0 auto; margin-top:2px; font-size:1rem; line-height:1; }
-.mypage-history-search { display:flex; align-items:center; gap:8px; flex:0 1 488px; width:488px; max-width:100%; }
-.mypage-history-search > .hb-select { flex:0 0 150px; width:150px; min-width:0; }
-.mypage-history-search .input-group { flex:1 1 0; width:auto; min-width:0; }
+.mypage-history-search,
+.mypage-inquiry-controls { display:flex; align-items:center; gap:8px; flex:0 1 640px; width:640px; max-width:100%; }
+.mypage-history-search > .hb-select,
+.mypage-inquiry-controls > .hb-select { flex:0 0 150px; width:150px; min-width:0; }
+.mypage-history-search > .mypage-sort-select,
+.mypage-inquiry-controls > .mypage-sort-select { flex-basis:138px; width:138px; }
+.mypage-history-search .input-group,
+.mypage-inquiry-controls .input-group { flex:1 1 0; width:auto; min-width:0; }
 .mypage-search-form .scenario-search { flex:1 1 0; width:auto; min-width:0; }
 .mypage-search-form .scenario-search .material-symbols-outlined { font-size:18px; line-height:1; }
 .mypage-search-form .scenario-search .form-control { border-radius:0; }
@@ -60,9 +65,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-inquiries-panel { overflow:hidden; }
 .mypage-inquiries-toolbar { align-items:center; gap:16px; }
 .mypage-inquiries-toolbar h2 { margin:0; }
-.mypage-inquiry-controls { display:flex; align-items:center; gap:8px; }
-.mypage-inquiry-controls > .hb-select { width:150px; }
-.mypage-inquiry-controls .input-group { width:330px; }
+.mypage-inquiry-controls { margin:0; }
 .mypage-inquiry-list { margin-top:4px; border-top:1px solid #e4eaf0; }
 .mypage-history-list,
 .mypage-inquiry-list { scroll-margin-top:7rem; }
@@ -92,11 +95,24 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-inquiry-answer-message.is-error { color:#a33d3d; }
 .mypage-inquiry-footer { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-top:18px; padding-top:16px; border-top:1px solid #e4eaf0; }
 .mypage-inquiry-footer > nav { grid-column:2; justify-self:center; }
+@media(max-width:767.98px) {
+    .mypage-history-toolbar,
+    .mypage-inquiries-toolbar { align-items:stretch; flex-direction:column; }
+    .mypage-history-search,
+    .mypage-inquiry-controls { width:100%; max-width:100%; flex-wrap:wrap; }
+    .mypage-history-search,
+    .mypage-inquiry-controls { flex:0 1 auto; height:auto; align-content:flex-start; }
+    .mypage-history-search > .form-select,
+    .mypage-inquiry-controls > .form-select { flex:1 1 calc(50% - 4px); width:auto; min-width:0; }
+    .mypage-history-search .input-group,
+    .mypage-inquiry-controls .input-group { flex:1 1 100%; width:100%; min-width:0; }
+}
 @media(max-width:575.98px) {
     .mypage-history-toolbar { align-items:stretch; flex-direction:column; }
     .mypage-history-search { flex-basis:auto; width:100%; }
-    .mypage-history-search > .form-select { flex:0 1 38%; width:auto; }
-    .mypage-history-search .input-group { flex:1 1 58%; width:auto; }
+    .mypage-history-search { flex-wrap:wrap; }
+    .mypage-history-search > .form-select { flex:1 1 calc(50% - 4px); width:auto; }
+    .mypage-history-search .input-group { flex:1 1 100%; width:100%; }
     .mypage-history-item { align-items:flex-start; flex-direction:column; gap:11px; padding:13px 6px; }
     .mypage-history-heading h3 { font-size:.84rem; }
     .mypage-history-metadata { gap:5px 8px; font-size:.7rem; }
@@ -105,8 +121,8 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-history-footer { align-items:center; gap:10px; }
     .mypage-inquiries-toolbar { align-items:stretch; flex-direction:column; }
     .mypage-inquiry-controls { width:100%; flex-wrap:wrap; }
-    .mypage-inquiry-controls > .form-select { flex:1 1 38%; width:auto; min-width:0; }
-    .mypage-inquiry-controls .input-group { flex:1 1 58%; width:auto; min-width:0; }
+    .mypage-inquiry-controls > .form-select { flex:1 1 calc(50% - 4px); width:auto; min-width:0; }
+    .mypage-inquiry-controls .input-group { flex:1 1 100%; width:100%; min-width:0; }
     .mypage-inquiry-item { grid-template-columns:minmax(0,1fr) auto; gap:8px; min-height:72px; padding:12px 6px; }
     .mypage-inquiry-title { font-size:.84rem; }
     .mypage-inquiry-metadata { flex-wrap:wrap; gap:5px 8px; font-size:.7rem; }

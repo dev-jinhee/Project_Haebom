@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-scenario-search-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-10" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-13" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -56,6 +56,11 @@
                             <option value="IN_PROGRESS">진행 중</option>
                             <option value="COMPLETED">완료</option>
                         </select>
+                        <label class="visually-hidden" for="mypageHistorySort">진행 내역 정렬</label>
+                        <select class="form-select form-select-sm hb-select mypage-sort-select" id="mypageHistorySort">
+                            <option value="NEWEST" selected>최신순</option>
+                            <option value="OLDEST">오래된순</option>
+                        </select>
                         <label class="visually-hidden" for="mypageHistoryKeyword">시나리오 제목 검색</label>
                         <div class="input-group input-group-sm">
                             <div class="scenario-search mypage-search-input">
@@ -96,6 +101,11 @@
                             <option value="WAITING">답변 대기</option>
                             <option value="ANSWERING">답변 중</option>
                             <option value="ANSWERED">답변 완료</option>
+                        </select>
+                        <label class="visually-hidden" for="mypageInquirySort">문의 내역 정렬</label>
+                        <select class="form-select form-select-sm hb-select mypage-sort-select" id="mypageInquirySort">
+                            <option value="NEWEST" selected>최신순</option>
+                            <option value="OLDEST">오래된순</option>
                         </select>
                         <label class="visually-hidden" for="mypageInquirySearch">문의 검색</label>
                         <div class="input-group input-group-sm">
@@ -293,7 +303,7 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-17"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-18"></script>
 </body>
 </html>
 

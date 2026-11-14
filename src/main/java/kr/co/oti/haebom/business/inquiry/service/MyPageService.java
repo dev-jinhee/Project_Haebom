@@ -129,7 +129,7 @@ public class MyPageService {
 	}
 	
 	public MyPageScenarioHistoryPageDTO getScenarioHistory(
-	        Integer memberId, Integer scenarioId, String keyword, String status, int requestedPage) {
+	        Integer memberId, Integer scenarioId, String keyword, String status, String sort, int requestedPage) {
 	    
 		int page = Math.max(requestedPage, 1);
 	    int size = SCENARIO_HISTORY_PAGE_SIZE;
@@ -140,9 +140,13 @@ public class MyPageService {
 	        normalizedStatus = "ALL";
 	    }
 	    String statusFilter = "ALL".equals(normalizedStatus) ? null : normalizedStatus;
+	    String normalizedSort = sort == null ? "NEWEST" : sort.trim().toUpperCase(Locale.ROOT);
+	    if (!"OLDEST".equals(normalizedSort)) {
+	        normalizedSort = "NEWEST";
+	    }
 
 	    List<MyPageScenarioHistoryDTO> items = myPageMapper.selectScenarioHistory(
-	            memberId, scenarioId, normalizedKeyword, statusFilter, size, offset);
+	            memberId, scenarioId, normalizedKeyword, statusFilter, normalizedSort, size, offset);
 	    
 	    long totalCount = myPageMapper.countScenarioHistory(
 	            memberId, scenarioId, normalizedKeyword, statusFilter);
