@@ -257,7 +257,7 @@
             } else if (record.completedAt) {
                 const completed = document.createElement('time');
                 completed.dateTime = record.completedAt;
-                completed.textContent = '완료 ' + formatDate(record.completedAt).replace(/\.$/, '');
+                completed.textContent = '완료 시각 ' + formatDateTime(record.completedAt);
                 metadata.appendChild(completed);
             }
             detail.append(heading, metadata);
