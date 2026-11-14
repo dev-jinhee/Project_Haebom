@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.oti.haebom.business.common.EmailCodeService;
 import kr.co.oti.haebom.business.common.EmailCodeService.Purpose;
+import kr.co.oti.haebom.business.common.EmailCodeService.VerificationResult;
 import kr.co.oti.haebom.business.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -51,10 +52,12 @@ public class AccountRecoveryService {
         return true;
     }
 
-    public String verifyFindIdCode(String email, String code, HttpSession session) {
+    public FindIdCodeResult verifyFindIdCode(String email, String code, HttpSession session) {
         String normalizedEmail = emailCodeService.normalize(email);
-        if (!emailCodeService.verifyCode(Purpose.FIND_ID, normalizedEmail, code, session)) {
-            return null;
+        VerificationResult result = emailCodeService.verifyCode(
+                Purpose.FIND_ID, normalizedEmail, code, session);
+        if (result != VerificationResult.VERIFIED) {
+            return new FindIdCodeResult(null, result);
         }
 
         Object savedName = session.getAttribute(NAME);
@@ -63,22 +66,27 @@ public class AccountRecoveryService {
                 : null;
 
         clearRecoveryMetadata(session);
-        return loginId;
+        return new FindIdCodeResult(loginId, result);
     }
 
-    public boolean verifyFindPasswordCode(String email, String code, HttpSession session) {
+    public VerificationResult verifyFindPasswordCode(String email, String code, HttpSession session) {
         String normalizedEmail = emailCodeService.normalize(email);
         Object savedLoginId = session.getAttribute(LOGIN_ID);
 
-        if (!(savedLoginId instanceof String)
-                || !emailCodeService.verifyCode(Purpose.FIND_PASSWORD, normalizedEmail, code, session)) {
-            return false;
+        if (!(savedLoginId instanceof String)) {
+            return VerificationResult.INVALID;
+        }
+
+        VerificationResult result = emailCodeService.verifyCode(
+                Purpose.FIND_PASSWORD, normalizedEmail, code, session);
+        if (result != VerificationResult.VERIFIED) {
+            return result;
         }
 
         session.setAttribute(VERIFIED_LOGIN_ID, savedLoginId);
         session.setAttribute(VERIFIED_EMAIL, normalizedEmail);
         clearRecoveryMetadata(session);
-        return true;
+        return result;
     }
 
     @Transactional
@@ -134,5 +142,23 @@ public class AccountRecoveryService {
     private void clearRecoveryMetadata(HttpSession session) {
         session.removeAttribute(NAME);
         session.removeAttribute(LOGIN_ID);
+    }
+
+    public static class FindIdCodeResult {
+        private final String loginId;
+        private final VerificationResult verificationResult;
+
+        public FindIdCodeResult(String loginId, VerificationResult verificationResult) {
+            this.loginId = loginId;
+            this.verificationResult = verificationResult;
+        }
+
+        public String getLoginId() {
+            return loginId;
+        }
+
+        public VerificationResult getVerificationResult() {
+            return verificationResult;
+        }
     }
 }

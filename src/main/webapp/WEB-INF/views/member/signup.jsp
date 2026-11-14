@@ -246,6 +246,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-2"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-3"></script>
 </body>
 </html>

@@ -255,6 +255,7 @@ export function initEmailVerification(page) {
             }
 
             emailVerifyButton.disabled = true;
+            let attemptsExceeded = false;
             try {
                 const params = new URLSearchParams();
                 params.append('email', email);
@@ -281,6 +282,16 @@ export function initEmailVerification(page) {
 
                 if (emailField.value.trim() !== email) return;
                 verifiedEmail = result.verified ? email : null;
+                if (result.attemptsExceeded) {
+                    attemptsExceeded = true;
+                    clearExpiryTimer();
+                    showMessage(emailExpiryStatus, '', false);
+                    if (emailCodeField !== null) emailCodeField.value = '';
+                    emailVerifyButton.disabled = true;
+                    showMessage(emailVerifyStatus,
+                        '입력 횟수를 초과했습니다. 인증번호를 다시 받아주세요.', false);
+                    return;
+                }
                 if (result.verified) {
                     clearExpiryTimer();
                     clearResendTimer();
@@ -304,7 +315,7 @@ export function initEmailVerification(page) {
                         error.message || '이메일 인증 확인에 실패했습니다.', false);
                 }
             } finally {
-                emailVerifyButton.disabled = verifiedEmail === email;
+                emailVerifyButton.disabled = verifiedEmail === email || attemptsExceeded;
             }
         });
     }

@@ -232,6 +232,16 @@
                 email: emailField.value.trim(),
                 code: code
             });
+            if (data.attemptsExceeded) {
+                clearExpiryTimer();
+                codeSent = false;
+                codeField.value = '';
+                setStatus(expiryStatus, '', null);
+                setFieldInvalid(codeField, true);
+                setStatus(verifyStatus,
+                    '입력 횟수를 초과했습니다. 인증번호를 다시 받아주세요.', 'text-danger');
+                return;
+            }
             if (!data.verified || !data.loginId) {
                 setFieldInvalid(codeField, true);
                 setStatus(verifyStatus, '인증번호가 틀렸거나 만료되었습니다.', 'text-danger');

@@ -38,6 +38,15 @@ public class EmailCodeService {
     @Value("${email.verification.ip-max-sends-per-hour:50}")
     private int maxSendsPerIpWindow;
 
+    @Value("${email.verification.max-attempts-per-code:5}")
+    private int maxAttemptsPerCode;
+
+    public enum VerificationResult {
+        VERIFIED,
+        INVALID,
+        ATTEMPTS_EXCEEDED
+    }
+
     public enum Purpose {
         SIGNUP("signup", "[해봄] 회원가입 인증번호"),
         FIND_ID("find-id", "[해봄] 아이디 찾기 인증번호"),
@@ -112,29 +121,41 @@ public class EmailCodeService {
         }
     }
 
-    public boolean verifyCode(Purpose purpose, String email, String code, HttpSession session) {
-        String prefix = prefix(purpose);
-        Object savedEmail = session.getAttribute(prefix + "email");
-        Object savedCode = session.getAttribute(prefix + "code");
-        Object expiresAt = session.getAttribute(prefix + "expiresAt");
+    public VerificationResult verifyCode(Purpose purpose, String email, String code, HttpSession session) {
+        synchronized (session) {
+            String prefix = prefix(purpose);
+            Object savedEmail = session.getAttribute(prefix + "email");
+            Object savedCode = session.getAttribute(prefix + "code");
+            Object expiresAt = session.getAttribute(prefix + "expiresAt");
 
-        if (!(savedEmail instanceof String)
-                || !(savedCode instanceof String)
-                || !(expiresAt instanceof Long)
-                || !normalize(email).equals(savedEmail)
-                || code == null
-                || !code.equals(savedCode)) {
-            return false;
-        }
+            if (!(savedEmail instanceof String)
+                    || !(savedCode instanceof String)
+                    || !(expiresAt instanceof Long)
+                    || !normalize(email).equals(savedEmail)) {
+                return VerificationResult.INVALID;
+            }
 
-        if (Instant.now().toEpochMilli() > (Long) expiresAt) {
+            if (Instant.now().toEpochMilli() > (Long) expiresAt) {
+                clear(purpose, session);
+                return VerificationResult.INVALID;
+            }
+
+            if (code == null || !code.equals(savedCode)) {
+                Object savedAttempts = session.getAttribute(prefix + "failedAttempts");
+                int attempts = savedAttempts instanceof Number
+                        ? ((Number) savedAttempts).intValue() + 1 : 1;
+                if (attempts >= Math.max(1, maxAttemptsPerCode)) {
+                    clear(purpose, session);
+                    return VerificationResult.ATTEMPTS_EXCEEDED;
+                }
+                session.setAttribute(prefix + "failedAttempts", attempts);
+                return VerificationResult.INVALID;
+            }
+
+            // 인증 성공 코드는 재사용하지 못하도록 즉시 폐기합니다.
             clear(purpose, session);
-            return false;
+            return VerificationResult.VERIFIED;
         }
-
-        // 인증 성공 코드는 재사용하지 못하도록 즉시 폐기합니다.
-        clear(purpose, session);
-        return true;
     }
 
     public void clear(Purpose purpose, HttpSession session) {
@@ -142,6 +163,7 @@ public class EmailCodeService {
         session.removeAttribute(prefix + "email");
         session.removeAttribute(prefix + "code");
         session.removeAttribute(prefix + "expiresAt");
+        session.removeAttribute(prefix + "failedAttempts");
     }
 
     public String normalize(String email) {

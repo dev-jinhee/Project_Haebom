@@ -22,6 +22,7 @@ import kr.co.oti.haebom.business.member.dto.EmailVerificationConfirmRequestDTO;
 import kr.co.oti.haebom.business.member.dto.EmailVerificationSendRequestDTO;
 import kr.co.oti.haebom.business.member.dto.MemberJoinRequestDTO;
 import kr.co.oti.haebom.business.member.service.EmailVerificationService;
+import kr.co.oti.haebom.business.common.EmailCodeService.VerificationResult;
 import kr.co.oti.haebom.business.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 
@@ -91,9 +92,11 @@ public class MemberApiController {
 	public Map<String, Boolean> confirmEmailCode(
 	        @Valid @ModelAttribute EmailVerificationConfirmRequestDTO request,
 	        HttpSession session) {
-	    boolean verified = emailVerificationService.verifyCode(
+	    VerificationResult result = emailVerificationService.verifyCode(
 	            request.getEmail(), request.getCode(), session);
-	    return Map.of("verified", verified);
+	    return Map.of(
+	            "verified", result == VerificationResult.VERIFIED,
+	            "attemptsExceeded", result == VerificationResult.ATTEMPTS_EXCEEDED);
 	}
 	
 }
