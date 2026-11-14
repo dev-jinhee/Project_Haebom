@@ -8,6 +8,7 @@
     const verificationSection = document.getElementById('verificationSection');
     const codeField = document.getElementById('verificationCode');
     const sendButton = document.getElementById('sendCodeButton');
+    const emailHelp = document.getElementById('emailResendHelp');
     const confirmButton = document.getElementById('confirmCodeButton');
     const sendStatus = document.getElementById('sendCodeStatus');
     const resendHelp = document.getElementById('resendHelp');
@@ -26,14 +27,33 @@
     let resendEmail = '';
     let resendHelpMessage = '';
     let sendInProgress = false;
+    let emailFormatErrorShown = false;
+    let resendHelpMessage = '';
+    const defaultEmailHelp = '';
+
+    function setFieldInvalid(field, invalid) {
+        if (field) field.setAttribute('aria-invalid', String(invalid));
+    }
 
     codeField.addEventListener('input', function () {
         codeField.value = codeField.value.replace(/\D/g, '').slice(0, 6);
+        setFieldInvalid(codeField, false);
+    });
+    nameField.addEventListener('input', function () { setFieldInvalid(nameField, false); });
+    emailField.addEventListener('input', function () {
+        setFieldInvalid(emailField, false);
+        if (emailFormatErrorShown && emailField.checkValidity()) {
+            emailFormatErrorShown = false;
+            setStatus(sendStatus, '', null);
+        }
+    });
+    emailField.addEventListener('blur', function () {
+        if (emailFormatErrorShown) setFieldInvalid(emailField, !emailField.checkValidity());
     });
 
     function setStatus(element, message, type) {
         element.textContent = message;
-        element.classList.remove('text-success', 'text-danger');
+        element.classList.remove('text-success', 'text-danger', 'text-muted');
         if (type) element.classList.add(type);
     }
 
@@ -56,23 +76,16 @@
     }
 
     function updateResendButton() {
+        if (resendUntil > 0 && resendUntil <= Date.now()) clearResendTimer();
         const coolingDown = resendUntil > Date.now()
             && emailField.value.trim().toLowerCase() === resendEmail;
-        if (coolingDown) {
-            sendButton.textContent = '인증번호 받기';
-            sendButton.setAttribute('aria-label', '인증번호 받기');
-            sendButton.disabled = true;
-        } else {
-            sendButton.textContent = '인증번호 받기';
-            sendButton.setAttribute('aria-label', '인증번호 받기');
-            sendButton.disabled = sendInProgress;
-        }
+        sendButton.textContent = '인증번호 받기';
+        sendButton.setAttribute('aria-label', '인증번호 받기');
+        sendButton.disabled = coolingDown || sendInProgress;
+
         if (resendHelp !== null) {
-            resendHelp.textContent = coolingDown
-                ? resendHelpMessage
-                : '';
+            resendHelp.textContent = coolingDown ? resendHelpMessage : '';
         }
-        if (resendUntil > 0 && resendUntil <= Date.now()) clearResendTimer();
     }
 
     function startResendTimer(email, seconds) {
@@ -102,7 +115,7 @@
 
         const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
         const seconds = String(remainingSeconds % 60).padStart(2, '0');
-        setStatus(expiryStatus, '인증번호 유효시간 ' + minutes + ':' + seconds, 'text-muted');
+        setStatus(expiryStatus, '인증번호 유효시간 ' + minutes + ':' + seconds, 'text-success');
     }
 
     function startExpiryTimer() {
@@ -152,19 +165,27 @@
         const memberName = nameField.value.trim();
         const email = emailField.value.trim();
         if (!memberName) {
+            setFieldInvalid(nameField, true);
             nameField.focus();
             setStatus(sendStatus, '이름을 입력해 주세요.', 'text-danger');
             return;
         }
         if (!emailField.checkValidity()) {
+            emailFormatErrorShown = true;
+            setFieldInvalid(emailField, true);
             emailField.focus();
             setStatus(sendStatus, '올바른 이메일 주소를 입력해 주세요.', 'text-danger');
             return;
         }
+        emailFormatErrorShown = false;
+        setFieldInvalid(nameField, false);
+        setFieldInvalid(emailField, false);
 
         sendInProgress = true;
         updateResendButton();
-        setStatus(sendStatus, '인증번호를 보내고 있습니다.', null);
+        setStatus(sendStatus, '', null);
+        const loading = window.HaebomLoading;
+        if (loading) loading.show('인증번호 발송 요청을 처리하고 있어요', '잠시만 기다려 주세요.');
         try {
             const data = await postForm('/api/members/recovery/find-id/send-code', {
                 memberName: memberName,
@@ -177,6 +198,8 @@
                 setStatus(sendStatus, '입력한 이름과 이메일이 가입 정보와 일치하지 않습니다.', 'text-danger');
                 return;
             }
+            setFieldInvalid(nameField, false);
+            setFieldInvalid(emailField, false);
             verificationSection.hidden = false;
             setStatus(sendStatus, '인증번호를 이메일로 보냈습니다.', 'text-success');
             startExpiryTimer();
@@ -187,6 +210,7 @@
             if (retrySeconds !== null) startResendTimer(email, retrySeconds);
             setStatus(sendStatus, error.message, 'text-danger');
         } finally {
+            if (loading) loading.hide();
             sendInProgress = false;
             updateResendButton();
         }
@@ -199,10 +223,12 @@
         }
         const code = codeField.value.trim();
         if (!/^[0-9]{6}$/.test(code)) {
+            setFieldInvalid(codeField, true);
             codeField.focus();
             setStatus(verifyStatus, '인증번호 6자리를 입력해 주세요.', 'text-danger');
             return;
         }
+        setFieldInvalid(codeField, false);
 
         confirmButton.disabled = true;
         setStatus(verifyStatus, '인증번호를 확인하고 있습니다.', null);
@@ -211,11 +237,23 @@
                 email: emailField.value.trim(),
                 code: code
             });
+            if (data.attemptsExceeded) {
+                clearExpiryTimer();
+                codeSent = false;
+                codeField.value = '';
+                setStatus(expiryStatus, '', null);
+                setFieldInvalid(codeField, true);
+                setStatus(verifyStatus,
+                    '입력 횟수를 초과했습니다. 인증번호를 다시 받아주세요.', 'text-danger');
+                return;
+            }
             if (!data.verified || !data.loginId) {
+                setFieldInvalid(codeField, true);
                 setStatus(verifyStatus, '인증번호가 틀렸거나 만료되었습니다.', 'text-danger');
                 return;
             }
 
+            setFieldInvalid(codeField, false);
             clearExpiryTimer();
             foundLoginId.textContent = data.loginId;
             title.textContent = '아이디 찾기 결과';

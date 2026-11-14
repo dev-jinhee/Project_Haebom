@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import kr.co.oti.haebom.business.common.EmailCodeService;
 import kr.co.oti.haebom.business.common.EmailCodeService.Purpose;
+import kr.co.oti.haebom.business.common.EmailCodeService.VerificationResult;
 import kr.co.oti.haebom.business.member.mapper.MemberMapper;
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +19,7 @@ public class EmailVerificationService {
     private final MemberMapper memberMapper;
     private final EmailCodeService emailCodeService;
 
-    public boolean sendCode(String email, HttpSession session) {
+    public boolean sendCode(String email, String clientIp, HttpSession session) {
         String normalizedEmail = emailCodeService.normalize(email);
 
         // 새 인증 요청에서는 이전 인증 완료 상태와 코드를 재사용하지 않습니다.
@@ -29,19 +30,20 @@ public class EmailVerificationService {
             return false;
         }
 
-        emailCodeService.sendCode(Purpose.SIGNUP, normalizedEmail, session);
+        emailCodeService.sendCode(Purpose.SIGNUP, normalizedEmail, clientIp, session);
         return true;
     }
 
-    public boolean verifyCode(String email, String code, HttpSession session) {
+    public VerificationResult verifyCode(String email, String code, HttpSession session) {
         String normalizedEmail = emailCodeService.normalize(email);
-        boolean verified = emailCodeService.verifyCode(Purpose.SIGNUP, normalizedEmail, code, session);
+        VerificationResult result = emailCodeService.verifyCode(
+                Purpose.SIGNUP, normalizedEmail, code, session);
 
-        if (verified) {
+        if (result == VerificationResult.VERIFIED) {
             // 회원가입 API가 기존에 참조하는 세션 키를 유지합니다.
             session.setAttribute(VERIFIED_KEY, normalizedEmail);
         }
-        return verified;
+        return result;
     }
 
     public void clearVerification(HttpSession session) {

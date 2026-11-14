@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-brand-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-shadow-none-1" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -77,11 +77,18 @@
             <div class="login-divider" aria-hidden="true">또는</div>
             <a class="btn btn-outline-secondary login-signup-link"
                href="${pageContext.request.contextPath}/member/signup">회원가입</a>
+            <a class="login-home-link" href="${pageContext.request.contextPath}/">메인페이지로 돌아가기</a>
         </section>
+        <div class="login-support-help">
+            <div class="login-support-contact">
+                <span>계정 이용에 문제가 있으신가요?</span>
+                <a class="login-support-mail-link" href="mailto:haebom1592@gmail.com">이메일로 문의하기</a>
+            </div>
+        </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/common.js"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/login.js"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/login.js?v=login-validation-4"></script>
 </body>
 </html>
