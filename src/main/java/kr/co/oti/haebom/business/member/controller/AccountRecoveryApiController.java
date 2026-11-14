@@ -2,6 +2,7 @@ package kr.co.oti.haebom.business.member.controller;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.co.oti.haebom.business.common.EmailCodeService.VerificationResult;
 import kr.co.oti.haebom.business.member.dto.EmailVerificationConfirmRequestDTO;
 import kr.co.oti.haebom.business.member.dto.FindIdSendRequestDTO;
 import kr.co.oti.haebom.business.member.dto.FindPasswordSendRequestDTO;
@@ -32,9 +34,10 @@ public class AccountRecoveryApiController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @Operation(summary = "아이디 찾기 인증번호 발송")
     public Map<String, Boolean> sendFindIdCode(
-            @Valid @ModelAttribute FindIdSendRequestDTO request, HttpSession session) {
+            @Valid @ModelAttribute FindIdSendRequestDTO request,
+            HttpServletRequest httpRequest, HttpSession session) {
         return Map.of("sent", recoveryService.sendFindIdCode(
-                request.getMemberName(), request.getEmail(), session));
+                request.getMemberName(), request.getEmail(), httpRequest.getRemoteAddr(), session));
     }
 
     @PostMapping(value = "/find-id/confirm",
@@ -43,19 +46,25 @@ public class AccountRecoveryApiController {
     public Map<String, Object> confirmFindId(
             @Valid @ModelAttribute EmailVerificationConfirmRequestDTO request,
             HttpSession session) {
-        String loginId = recoveryService.verifyFindIdCode(
+        AccountRecoveryService.FindIdCodeResult result = recoveryService.verifyFindIdCode(
                 request.getEmail(), request.getCode(), session);
-        if (loginId == null) return Map.of("verified", false);
-        return Map.of("verified", true, "loginId", loginId);
+        boolean verified = result.getVerificationResult() == VerificationResult.VERIFIED
+                && result.getLoginId() != null;
+        return Map.of(
+                "verified", verified,
+                "attemptsExceeded", result.getVerificationResult() == VerificationResult.ATTEMPTS_EXCEEDED,
+                "loginId", verified ? result.getLoginId() : "");
     }
 
     @PostMapping(value = "/find-password/send-code",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @Operation(summary = "비밀번호 찾기 인증번호 발송")
     public Map<String, Boolean> sendFindPasswordCode(
-            @Valid @ModelAttribute FindPasswordSendRequestDTO request, HttpSession session) {
+            @Valid @ModelAttribute FindPasswordSendRequestDTO request,
+            HttpServletRequest httpRequest, HttpSession session) {
         return Map.of("sent", recoveryService.sendFindPasswordCode(
-                request.getLoginId(), request.getMemberName(), request.getEmail(), session));
+                request.getLoginId(), request.getMemberName(), request.getEmail(),
+                httpRequest.getRemoteAddr(), session));
     }
 
     @PostMapping(value = "/find-password/confirm",
@@ -64,8 +73,11 @@ public class AccountRecoveryApiController {
     public Map<String, Boolean> confirmFindPassword(
             @Valid @ModelAttribute EmailVerificationConfirmRequestDTO request,
             HttpSession session) {
-        return Map.of("verified", recoveryService.verifyFindPasswordCode(
-                request.getEmail(), request.getCode(), session));
+        VerificationResult result = recoveryService.verifyFindPasswordCode(
+                request.getEmail(), request.getCode(), session);
+        return Map.of(
+                "verified", result == VerificationResult.VERIFIED,
+                "attemptsExceeded", result == VerificationResult.ATTEMPTS_EXCEEDED);
     }
 
     @PostMapping(value = "/find-password/reset",

@@ -2,6 +2,7 @@ package kr.co.oti.haebom.business.common;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,16 +23,29 @@ import lombok.RequiredArgsConstructor;
 public class EmailCodeService {
 
     private static final long VALID_MILLIS = 5 * 60 * 1000L;
-    private static final long RESEND_COOLDOWN_MILLIS = 60 * 1000L;
+    private static final long RESEND_COOLDOWN_MILLIS = 30 * 1000L;
     private static final long SEND_WINDOW_MILLIS = 60 * 60 * 1000L;
-    private static final int MAX_SENDS_PER_WINDOW = 5;
+    private static final int MAX_SENDS_PER_WINDOW = 10;
 
     private final JavaMailSender mailSender;
     private final SecureRandom random = new SecureRandom();
     private final Map<String, SendLimit> sendLimits = new ConcurrentHashMap<>();
+    private final Map<String, IpSendLimit> ipSendLimits = new ConcurrentHashMap<>();
 
     @Value("${spring.mail.username}")
     private String senderAddress;
+
+    @Value("${email.verification.ip-max-sends-per-hour:50}")
+    private int maxSendsPerIpWindow;
+
+    @Value("${email.verification.max-attempts-per-code:5}")
+    private int maxAttemptsPerCode;
+
+    public enum VerificationResult {
+        VERIFIED,
+        INVALID,
+        ATTEMPTS_EXCEEDED
+    }
 
     public enum Purpose {
         SIGNUP("signup", "[해봄] 회원가입 인증번호"),
@@ -55,62 +69,93 @@ public class EmailCodeService {
         }
     }
 
-    public void sendCode(Purpose purpose, String email, HttpSession session) {
+    public void sendCode(Purpose purpose, String email, String clientIp, HttpSession session) {
         String normalizedEmail = normalize(email);
+        String normalizedIp = normalizeClientIp(clientIp);
         long now = Instant.now().toEpochMilli();
         SendLimit limit = sendLimits.computeIfAbsent(normalizedEmail, key -> new SendLimit(now));
+        IpSendLimit ipLimit = ipSendLimits.computeIfAbsent(normalizedIp, key -> new IpSendLimit(now));
 
         // 이메일별로 발송을 직렬화해 동시에 여러 번 요청해도 제한 횟수를 넘기지 않게 합니다.
         synchronized (limit) {
-            long retryAfterSeconds = limit.getRetryAfterSeconds(now);
-            if (retryAfterSeconds > 0) {
-                throw new ResponseStatusException(
-                        HttpStatus.TOO_MANY_REQUESTS,
-                        "인증번호 요청 제한에 걸렸습니다. " + retryAfterSeconds + "초 후 다시 시도해 주세요.");
+            // 여러 이메일로 보내는 요청도 같은 IP 기준으로 합산하고 직렬화합니다.
+            synchronized (ipLimit) {
+                long retryAfterSeconds = limit.getRetryAfterSeconds(purpose, now);
+                if (retryAfterSeconds > 0) {
+                    throw new ResponseStatusException(
+                            HttpStatus.TOO_MANY_REQUESTS,
+                            "인증번호 요청 제한에 걸렸습니다. " + retryAfterSeconds + "초 후 다시 시도해 주세요.");
+                }
+
+                long retryAfterIpSeconds = ipLimit.getRetryAfterSeconds(
+                        now, Math.max(1, maxSendsPerIpWindow));
+                if (retryAfterIpSeconds > 0) {
+                    throw new ResponseStatusException(
+                            HttpStatus.TOO_MANY_REQUESTS,
+                            "이 네트워크의 인증번호 발송 한도를 초과했습니다. "
+                                    + retryAfterIpSeconds + "초 후 다시 시도해 주세요.");
+                }
+
+                String code = String.format(Locale.ROOT, "%06d", random.nextInt(1_000_000));
+
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(senderAddress);
+                message.setTo(normalizedEmail);
+                message.setSubject(purpose.getSubject());
+                message.setText("안녕하세요, 해봄입니다.\n"
+                        + "요청하신 인증번호입니다.\n\n"
+                        + code + "\n\n"
+                        + "인증번호를 타인에게 알려주지 마세요.");
+                mailSender.send(message);
+
+                // 메일 발송에 성공한 경우에만 이메일·IP별 횟수를 기록합니다.
+                long sentAt = Instant.now().toEpochMilli();
+                limit.recordSuccessfulSend(purpose, sentAt);
+                ipLimit.recordSuccessfulSend(sentAt);
+                clear(purpose, session);
+                String prefix = prefix(purpose);
+                session.setAttribute(prefix + "email", normalizedEmail);
+                session.setAttribute(prefix + "code", code);
+                session.setAttribute(prefix + "expiresAt", sentAt + VALID_MILLIS);
             }
-
-            String code = String.format(Locale.ROOT, "%06d", random.nextInt(1_000_000));
-
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(senderAddress);
-            message.setTo(normalizedEmail);
-            message.setSubject(purpose.getSubject());
-            message.setText("인증번호는 [" + code + "] 입니다. 인증번호는 발송 후 5분 동안 유효합니다.");
-            mailSender.send(message);
-
-            // 메일 발송에 성공한 경우에만 쿨다운과 시간당 횟수를 기록합니다.
-            limit.recordSuccessfulSend(Instant.now().toEpochMilli());
-            clear(purpose, session);
-            String prefix = prefix(purpose);
-            session.setAttribute(prefix + "email", normalizedEmail);
-            session.setAttribute(prefix + "code", code);
-            session.setAttribute(prefix + "expiresAt", Instant.now().toEpochMilli() + VALID_MILLIS);
         }
     }
 
-    public boolean verifyCode(Purpose purpose, String email, String code, HttpSession session) {
-        String prefix = prefix(purpose);
-        Object savedEmail = session.getAttribute(prefix + "email");
-        Object savedCode = session.getAttribute(prefix + "code");
-        Object expiresAt = session.getAttribute(prefix + "expiresAt");
+    public VerificationResult verifyCode(Purpose purpose, String email, String code, HttpSession session) {
+        synchronized (session) {
+            String prefix = prefix(purpose);
+            Object savedEmail = session.getAttribute(prefix + "email");
+            Object savedCode = session.getAttribute(prefix + "code");
+            Object expiresAt = session.getAttribute(prefix + "expiresAt");
 
-        if (!(savedEmail instanceof String)
-                || !(savedCode instanceof String)
-                || !(expiresAt instanceof Long)
-                || !normalize(email).equals(savedEmail)
-                || code == null
-                || !code.equals(savedCode)) {
-            return false;
-        }
+            if (!(savedEmail instanceof String)
+                    || !(savedCode instanceof String)
+                    || !(expiresAt instanceof Long)
+                    || !normalize(email).equals(savedEmail)) {
+                return VerificationResult.INVALID;
+            }
 
-        if (Instant.now().toEpochMilli() > (Long) expiresAt) {
+            if (Instant.now().toEpochMilli() > (Long) expiresAt) {
+                clear(purpose, session);
+                return VerificationResult.INVALID;
+            }
+
+            if (code == null || !code.equals(savedCode)) {
+                Object savedAttempts = session.getAttribute(prefix + "failedAttempts");
+                int attempts = savedAttempts instanceof Number
+                        ? ((Number) savedAttempts).intValue() + 1 : 1;
+                if (attempts >= Math.max(1, maxAttemptsPerCode)) {
+                    clear(purpose, session);
+                    return VerificationResult.ATTEMPTS_EXCEEDED;
+                }
+                session.setAttribute(prefix + "failedAttempts", attempts);
+                return VerificationResult.INVALID;
+            }
+
+            // 인증 성공 코드는 재사용하지 못하도록 즉시 폐기합니다.
             clear(purpose, session);
-            return false;
+            return VerificationResult.VERIFIED;
         }
-
-        // 인증 성공 코드는 재사용하지 못하도록 즉시 폐기합니다.
-        clear(purpose, session);
-        return true;
     }
 
     public void clear(Purpose purpose, HttpSession session) {
@@ -118,10 +163,18 @@ public class EmailCodeService {
         session.removeAttribute(prefix + "email");
         session.removeAttribute(prefix + "code");
         session.removeAttribute(prefix + "expiresAt");
+        session.removeAttribute(prefix + "failedAttempts");
     }
 
     public String normalize(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeClientIp(String clientIp) {
+        if (clientIp == null || clientIp.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "요청 IP를 확인할 수 없습니다.");
+        }
+        return clientIp.trim();
     }
 
     private String prefix(Purpose purpose) {
@@ -130,17 +183,16 @@ public class EmailCodeService {
 
     private static class SendLimit {
         private long windowStartedAt;
-        private long lastSentAt;
         private int sendCount;
+        private final Map<Purpose, Long> lastSentAtByPurpose = new EnumMap<>(Purpose.class);
 
         private SendLimit(long now) {
             this.windowStartedAt = now;
         }
 
-        private long getRetryAfterSeconds(long now) {
+        private long getRetryAfterSeconds(Purpose purpose, long now) {
             if (sendCount > 0 && now - windowStartedAt >= SEND_WINDOW_MILLIS) {
                 windowStartedAt = now;
-                lastSentAt = 0;
                 sendCount = 0;
             }
 
@@ -148,19 +200,53 @@ public class EmailCodeService {
                 return secondsUntil(windowStartedAt + SEND_WINDOW_MILLIS, now);
             }
 
-            if (lastSentAt > 0 && now < lastSentAt + RESEND_COOLDOWN_MILLIS) {
+            Long lastSentAt = lastSentAtByPurpose.get(purpose);
+            if (lastSentAt != null && now < lastSentAt + RESEND_COOLDOWN_MILLIS) {
                 return secondsUntil(lastSentAt + RESEND_COOLDOWN_MILLIS, now);
             }
             return 0;
         }
 
-        private void recordSuccessfulSend(long now) {
+        private void recordSuccessfulSend(Purpose purpose, long now) {
             if (sendCount == 0 || now - windowStartedAt >= SEND_WINDOW_MILLIS) {
                 windowStartedAt = now;
                 sendCount = 0;
             }
             sendCount++;
-            lastSentAt = now;
+            lastSentAtByPurpose.put(purpose, now);
+        }
+
+        private long secondsUntil(long deadline, long now) {
+            return Math.max(1, (deadline - now + 999) / 1000);
+        }
+    }
+
+    private static class IpSendLimit {
+        private long windowStartedAt;
+        private int sendCount;
+
+        private IpSendLimit(long now) {
+            this.windowStartedAt = now;
+        }
+
+        private long getRetryAfterSeconds(long now, int maxSends) {
+            resetWindowIfExpired(now);
+            if (sendCount >= maxSends) {
+                return secondsUntil(windowStartedAt + SEND_WINDOW_MILLIS, now);
+            }
+            return 0;
+        }
+
+        private void recordSuccessfulSend(long now) {
+            resetWindowIfExpired(now);
+            sendCount++;
+        }
+
+        private void resetWindowIfExpired(long now) {
+            if (sendCount > 0 && now - windowStartedAt >= SEND_WINDOW_MILLIS) {
+                windowStartedAt = now;
+                sendCount = 0;
+            }
         }
 
         private long secondsUntil(long deadline, long now) {

@@ -168,7 +168,7 @@
                     <button class="btn btn-outline-primary" type="button"
                             data-send-email-code>인증번호 받기</button>
                 </div>
-                <p class="member-signup-field-help">아이디·비밀번호 찾기에 사용할 이메일을 입력해 주세요.</p>
+                <p class="member-signup-field-help" id="signupEmailHelp">아이디·비밀번호 찾기에 사용할 이메일을 입력해 주세요.</p>
                 <p class="member-signup-field-help" id="signupEmailSendStatus" aria-live="polite"></p>
                 <div class="input-group mt-2">
                     <input class="form-control" id="signupEmailCode" inputmode="numeric"
@@ -246,6 +246,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
-<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-1"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/pages/signup/signup-page.js?v=signup-modules-3"></script>
 </body>
 </html>

@@ -10,7 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-brand-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/common/common-loading.css?v=common-loading-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=account-find-verification-status-1" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -26,6 +27,7 @@
                  data-context-path="${pageContext.request.contextPath}">
             <header class="login-heading">
                 <h1 id="findPasswordTitle">비밀번호 찾기</h1>
+                <p class="account-find-intro">가입 시 등록한 정보로 본인 확인을 진행합니다.</p>
             </header>
 
             <div class="account-find-form" id="passwordRecoveryForm">
@@ -54,12 +56,13 @@
                             <span class="material-symbols-outlined login-input-icon" aria-hidden="true">mail</span>
                             <input class="form-control" id="email" name="email" type="email"
                                    autocomplete="email" maxlength="50"
-                                   placeholder="회원가입 시 등록한 이메일을 입력해 주세요" required>
+                                   placeholder="이메일을 입력해 주세요" required>
                         </div>
                         <button class="btn btn-outline-primary" id="sendCodeButton" type="button">
                             인증번호 받기
                         </button>
                     </div>
+                    <p class="account-find-help" id="emailResendHelp"></p>
                     <p class="account-find-status" id="sendCodeStatus" aria-live="polite"></p>
                 </div>
 
@@ -71,20 +74,22 @@
                                 <span class="material-symbols-outlined login-input-icon" aria-hidden="true">pin</span>
                                 <input class="form-control" id="verificationCode" name="code" type="text"
                                        inputmode="numeric" autocomplete="one-time-code" maxlength="6"
-                                       pattern="[0-9]{6}" placeholder="인증번호 6자리를 입력해 주세요"
+                                       pattern="[0-9]{6}"
                                        aria-label="이메일 인증번호">
                             </div>
                             <button class="btn btn-outline-primary" id="confirmCodeButton" type="button">
                                 인증 확인
                             </button>
                         </div>
-                        <p class="account-find-status" id="verifyCodeStatus" aria-live="polite"></p>
                         <p class="account-find-status text-muted" id="codeExpiryStatus" aria-live="polite"></p>
+                        <p class="account-find-status" id="verifyCodeStatus" aria-live="polite"></p>
                     </div>
                 </div>
 
                 <input type="hidden" id="csrfToken" name="${_csrf.parameterName}"
                        value="${_csrf.token}" data-header="${_csrf.headerName}">
+                <div class="account-find-footer-divider" aria-hidden="true"></div>
+                <a class="account-login-link" href="${pageContext.request.contextPath}/login">로그인으로 돌아가기</a>
             </div>
         </section>
 
@@ -95,20 +100,19 @@
             </header>
 
             <section id="resetPasswordSection">
-                <p class="account-find-help" id="verifiedAccountSummary"></p>
                 <div class="login-field mb-3">
                     <label for="newPassword">새 비밀번호</label>
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
                         <input class="form-control" id="newPassword" name="newPassword" type="password"
                                autocomplete="new-password" minlength="8" maxlength="20"
-                               placeholder="8~20자로 입력해 주세요" aria-describedby="newPasswordStatus" required>
+                               aria-describedby="newPasswordStatus" required>
                         <button class="login-password-toggle" type="button" data-toggle-password="newPassword"
                                 aria-label="비밀번호 표시">
                             <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
                         </button>
                     </div>
-                    <p class="account-find-status text-muted" id="newPasswordStatus" aria-live="polite">비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, &gt;, &lt;, _, -, &quot;, '는 사용할 수 없어요.</p>
+                    <p class="account-find-status account-find-password-status text-muted" id="newPasswordStatus" aria-live="polite">비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, &gt;, &lt;, _, -, &quot;, '는 사용할 수 없어요.</p>
                 </div>
                 <div class="login-field mb-3">
                     <label for="passwordConfirm">새 비밀번호 확인</label>
@@ -116,18 +120,20 @@
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
                         <input class="form-control" id="passwordConfirm" name="passwordConfirm" type="password"
                                autocomplete="new-password" minlength="8" maxlength="20"
-                               placeholder="새 비밀번호를 다시 입력해 주세요" aria-describedby="passwordConfirmStatus" required>
+                               aria-describedby="passwordConfirmStatus" required>
                         <button class="login-password-toggle" type="button" data-toggle-password="passwordConfirm"
                                 aria-label="비밀번호 표시">
                             <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
                         </button>
                     </div>
-                    <p class="account-find-status text-muted" id="passwordConfirmStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
+                    <p class="account-find-status account-find-password-status text-muted" id="passwordConfirmStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
                 </div>
                 <p class="account-find-status" id="resetPasswordStatus" aria-live="polite"></p>
                 <button class="btn btn-primary login-submit w-100" id="resetPasswordButton" type="button">
                     비밀번호 변경
                 </button>
+                <div class="account-find-footer-divider" aria-hidden="true"></div>
+                <a class="account-login-link" href="${pageContext.request.contextPath}/login">로그인으로 돌아가기</a>
             </section>
 
             <section class="account-find-result" id="passwordRecoveryComplete" aria-live="polite" hidden>
@@ -143,6 +149,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/common.js"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=reset-password-validation-2"></script>
+    <script src="${pageContext.request.contextPath}/js/common/common-loading.js?v=common-loading-1"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=account-find-password-encoding-1"></script>
 </body>
 </html>
