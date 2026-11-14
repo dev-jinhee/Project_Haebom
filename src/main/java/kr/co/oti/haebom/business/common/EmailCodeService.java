@@ -2,6 +2,7 @@ package kr.co.oti.haebom.business.common;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +63,7 @@ public class EmailCodeService {
 
         // 이메일별로 발송을 직렬화해 동시에 여러 번 요청해도 제한 횟수를 넘기지 않게 합니다.
         synchronized (limit) {
-            long retryAfterSeconds = limit.getRetryAfterSeconds(now);
+            long retryAfterSeconds = limit.getRetryAfterSeconds(purpose, now);
             if (retryAfterSeconds > 0) {
                 throw new ResponseStatusException(
                         HttpStatus.TOO_MANY_REQUESTS,
@@ -82,7 +83,7 @@ public class EmailCodeService {
             mailSender.send(message);
 
             // 메일 발송에 성공한 경우에만 쿨다운과 시간당 횟수를 기록합니다.
-            limit.recordSuccessfulSend(Instant.now().toEpochMilli());
+            limit.recordSuccessfulSend(purpose, Instant.now().toEpochMilli());
             clear(purpose, session);
             String prefix = prefix(purpose);
             session.setAttribute(prefix + "email", normalizedEmail);
@@ -133,17 +134,16 @@ public class EmailCodeService {
 
     private static class SendLimit {
         private long windowStartedAt;
-        private long lastSentAt;
         private int sendCount;
+        private final Map<Purpose, Long> lastSentAtByPurpose = new EnumMap<>(Purpose.class);
 
         private SendLimit(long now) {
             this.windowStartedAt = now;
         }
 
-        private long getRetryAfterSeconds(long now) {
+        private long getRetryAfterSeconds(Purpose purpose, long now) {
             if (sendCount > 0 && now - windowStartedAt >= SEND_WINDOW_MILLIS) {
                 windowStartedAt = now;
-                lastSentAt = 0;
                 sendCount = 0;
             }
 
@@ -151,19 +151,20 @@ public class EmailCodeService {
                 return secondsUntil(windowStartedAt + SEND_WINDOW_MILLIS, now);
             }
 
-            if (lastSentAt > 0 && now < lastSentAt + RESEND_COOLDOWN_MILLIS) {
+            Long lastSentAt = lastSentAtByPurpose.get(purpose);
+            if (lastSentAt != null && now < lastSentAt + RESEND_COOLDOWN_MILLIS) {
                 return secondsUntil(lastSentAt + RESEND_COOLDOWN_MILLIS, now);
             }
             return 0;
         }
 
-        private void recordSuccessfulSend(long now) {
+        private void recordSuccessfulSend(Purpose purpose, long now) {
             if (sendCount == 0 || now - windowStartedAt >= SEND_WINDOW_MILLIS) {
                 windowStartedAt = now;
                 sendCount = 0;
             }
             sendCount++;
-            lastSentAt = now;
+            lastSentAtByPurpose.put(purpose, now);
         }
 
         private long secondsUntil(long deadline, long now) {
