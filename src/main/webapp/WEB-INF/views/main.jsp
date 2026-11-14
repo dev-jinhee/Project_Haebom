@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v33-common-pagination" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v34-responsive-scroll" rel="stylesheet">
 
 </head>
 <body>
@@ -186,6 +186,6 @@
     </nav>
 </main>
 
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v17-common-pagination"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v18-responsive-scroll"></script>
 </body>
 </html>

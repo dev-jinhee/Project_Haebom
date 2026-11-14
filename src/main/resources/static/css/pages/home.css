@@ -290,7 +290,7 @@
 .policy-search-pagination-wrap { margin-top: 0.625rem; }
 .policy-home-panel .policy-panel { display: flex; min-height: 0; flex: none; flex-direction: column; }
 .policy-home-panel .policy-search-results:not(.d-none) { flex: none; align-content: start; overflow: visible; }
-.home-section-dots { position: fixed; top: 50%; right: 1.125rem; z-index: 25; display: grid; gap: 0.625rem; transform: translateY(-50%); }
+.home-section-dots { display: none; }
 .home-section-dots a { width: 0.6875rem; height: 0.6875rem; border: 0.125rem solid #fff; border-radius: 50%; background: #b9c8d5; box-shadow: 0 0 0 0.0625rem #b9c8d5; }
 .home-section-dots a.active { background: #1769aa; box-shadow: 0 0 0 0.1875rem #1769aa35; }
 html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
@@ -344,9 +344,37 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
 @media (max-width: 48em) {
   .home-panel { min-height: 0; }
 }
-@media (max-width: 62em), (max-height: 50rem) {
-  html.home-snap-enabled { scroll-snap-type: none; }
-  .home-panel { display: block; height: auto; min-height: 0; scroll-snap-align: none; scroll-snap-stop: normal; }
+@media (max-width: 68em), (max-height: 50rem), (hover: none) and (pointer: coarse) {
+  html.home-snap-enabled { scroll-snap-type: none; scroll-behavior: auto; }
+
+  .home-main { height: auto; min-height: 0; overflow: visible; }
+  .home-panel {
+    display: block;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    scroll-snap-align: none;
+    scroll-snap-stop: normal;
+  }
+  .home-panel > .home-panel-inner {
+    height: auto;
+    min-height: 0;
+    flex: none;
+    overflow: visible;
+  }
+  .center-map-panel .home-panel-inner { height: auto; min-height: 0; flex: none; }
+  .center-map-content-layout {
+    height: auto;
+    min-height: 0;
+    flex: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .center-map-panel .center-map-canvas { height: min(56svh, 32rem); min-height: 19rem; }
+  .center-map-list { max-height: none; overflow: visible; }
+  .center-list-results { flex: initial; overflow: visible; }
+  .policy-home-panel { min-height: 0; }
+  .policy-home-panel .home-panel-inner { height: auto; min-height: 0; flex: none; }
+  .policy-home-panel .site-footer { margin-top: 1rem; }
   .home-section-dots { display: none; }
 }
 
