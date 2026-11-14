@@ -722,7 +722,7 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
     gap: 1.25rem;
   }
 
-  .practice-panel .home-hero .hero-visual { justify-content: flex-start; }
+  .practice-panel .home-hero .hero-visual { display: none; }
 }
 
 @media (max-width: 48em) {
