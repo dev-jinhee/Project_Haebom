@@ -13,12 +13,6 @@ if (page !== null) {
     const consentError = document.getElementById('signupConsentError');
     const accountError = document.getElementById('signupAccountError');
     const form = document.getElementById('signupAccountForm');
-    const noticeElement = document.getElementById('signupNoticeModal');
-    const noticeMessage = document.getElementById('signupNoticeMessage');
-    const noticeModal = noticeElement !== null && window.bootstrap !== undefined
-        ? window.bootstrap.Modal.getOrCreateInstance(noticeElement)
-        : null;
-
     function showError(message) {
         if (accountError === null) return;
         accountError.textContent = message;
@@ -26,9 +20,8 @@ if (page !== null) {
     }
 
     function showNotice(message) {
-        if (noticeMessage !== null && noticeModal !== null) {
-            noticeMessage.textContent = message;
-            noticeModal.show();
+        if (typeof window.haebomAlert === 'function') {
+            window.haebomAlert(message, '아이디 중복확인', null, 'warn');
         } else {
             window.alert(message);
         }
