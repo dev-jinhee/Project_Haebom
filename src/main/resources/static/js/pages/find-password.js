@@ -33,6 +33,8 @@
     let resendUntil = 0;
     let resendEmail = '';
     let sendInProgress = false;
+    let loginIdFormatErrorShown = false;
+    let emailFormatErrorShown = false;
     let resendHelpMessage = '';
     const defaultEmailHelp = '가입 시 등록한 이메일 주소를 입력해 주세요.';
 
@@ -221,11 +223,25 @@
     [loginIdField, nameField, emailField].forEach(function (field) {
         field.addEventListener('input', function () {
             setFieldInvalid(field, false);
+            if (field === loginIdField && loginIdFormatErrorShown && loginIdField.checkValidity()) {
+                loginIdFormatErrorShown = false;
+                setStatus(sendStatus, '', null);
+            }
+            if (field === emailField && emailFormatErrorShown && emailField.checkValidity()) {
+                emailFormatErrorShown = false;
+                setStatus(sendStatus, '', null);
+            }
             if (verified) return;
             if (codeSent) {
                 resetVerificationUi('정보가 변경되었습니다. 다시 인증번호를 받아 주세요.');
             }
         });
+    });
+    loginIdField.addEventListener('blur', function () {
+        if (loginIdFormatErrorShown) setFieldInvalid(loginIdField, !loginIdField.checkValidity());
+    });
+    emailField.addEventListener('blur', function () {
+        if (emailFormatErrorShown) setFieldInvalid(emailField, !emailField.checkValidity());
     });
     emailField.addEventListener('input', updateResendButton);
 
@@ -240,11 +256,13 @@
         const email = emailField.value.trim();
 
         if (!loginIdField.checkValidity()) {
+            loginIdFormatErrorShown = true;
             setFieldInvalid(loginIdField, true);
             loginIdField.focus();
             setStatus(sendStatus, '아이디를 4~16자로 입력해 주세요.', 'text-danger');
             return;
         }
+        loginIdFormatErrorShown = false;
         if (!memberName) {
             setFieldInvalid(nameField, true);
             nameField.focus();
@@ -252,11 +270,13 @@
             return;
         }
         if (!emailField.checkValidity()) {
+            emailFormatErrorShown = true;
             setFieldInvalid(emailField, true);
             emailField.focus();
             setStatus(sendStatus, '올바른 이메일 주소를 입력해 주세요.', 'text-danger');
             return;
         }
+        emailFormatErrorShown = false;
         [loginIdField, nameField, emailField].forEach(function (field) {
             setFieldInvalid(field, false);
         });
@@ -277,9 +297,6 @@
                 setStatus(expiryStatus, '', null);
                 codeSent = false;
                 verificationSection.hidden = true;
-                [loginIdField, nameField, emailField].forEach(function (field) {
-                    setFieldInvalid(field, true);
-                });
                 setStatus(sendStatus, '입력한 아이디, 이름, 이메일이 가입 정보와 일치하지 않습니다.', 'text-danger');
                 return;
             }

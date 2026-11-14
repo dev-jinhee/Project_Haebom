@@ -39,8 +39,7 @@
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
                         <input class="form-control" id="loginId" name="loginId" type="text"
-                               autocomplete="username" placeholder="아이디를 입력해 주세요" required autofocus
-                               <c:if test="${param.error != null}">aria-invalid="true"</c:if>>
+                               autocomplete="username" placeholder="아이디를 입력해 주세요" required autofocus>
                     </div>
                 </div>
 
@@ -50,8 +49,7 @@
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
                         <input class="form-control login-password-input" id="loginPassword" name="password"
                                type="password" autocomplete="current-password"
-                               placeholder="비밀번호를 입력해 주세요" required
-                               <c:if test="${param.error != null}">aria-invalid="true"</c:if>>
+                               placeholder="비밀번호를 입력해 주세요" required>
                         <button class="login-password-toggle" type="button" data-password-toggle
                                 aria-label="비밀번호 표시" aria-controls="loginPassword">
                             <span class="material-symbols-outlined" id="loginPasswordToggleIcon" aria-hidden="true">visibility</span>

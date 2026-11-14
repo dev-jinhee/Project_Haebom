@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common/common-loading.css?v=common-loading-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-focus-3" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-focus-4" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -92,6 +92,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/common.js"></script>
     <script src="${pageContext.request.contextPath}/js/common/common-loading.js?v=common-loading-1"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/find-id.js?v=account-focus-validation-4"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/find-id.js?v=account-focus-validation-6"></script>
 </body>
 </html>

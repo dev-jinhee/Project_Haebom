@@ -85,6 +85,10 @@ body.large-text-mode .account-found-value span { font-size:1.08rem; }
 .login-page :is(.login-form, .account-find-card, .account-reset-card) .form-control.is-invalid {
   border:2px solid #f04438;
 }
+.login-page .account-find-card :is(#email, #loginId)[aria-invalid="true"]:focus {
+  border:1px solid var(--focus-border);
+  box-shadow:var(--focus-shadow);
+}
 .login-input-icon { position:absolute; z-index:2; top:50%; left:12px; color:#8493a3; font-size:19px; transform:translateY(-50%); pointer-events:none; }
 .login-password-toggle { position:absolute; z-index:3; top:50%; right:8px; display:grid; width:32px; height:32px; place-items:center; padding:0; border:0; border-radius:5px; color:#77879a; background:transparent; transform:translateY(-50%); }
 .login-password-toggle:hover { color:#1769aa; background:#f1f6fa; }

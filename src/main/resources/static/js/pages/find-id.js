@@ -25,6 +25,7 @@
     let resendUntil = 0;
     let resendEmail = '';
     let sendInProgress = false;
+    let emailFormatErrorShown = false;
     let resendHelpMessage = '';
     const defaultEmailHelp = '가입 시 등록한 이메일 주소를 입력해 주세요.';
 
@@ -37,7 +38,16 @@
         setFieldInvalid(codeField, false);
     });
     nameField.addEventListener('input', function () { setFieldInvalid(nameField, false); });
-    emailField.addEventListener('input', function () { setFieldInvalid(emailField, false); });
+    emailField.addEventListener('input', function () {
+        setFieldInvalid(emailField, false);
+        if (emailFormatErrorShown && emailField.checkValidity()) {
+            emailFormatErrorShown = false;
+            setStatus(sendStatus, '', null);
+        }
+    });
+    emailField.addEventListener('blur', function () {
+        if (emailFormatErrorShown) setFieldInvalid(emailField, !emailField.checkValidity());
+    });
 
     function setStatus(element, message, type) {
         element.textContent = message;
@@ -156,11 +166,13 @@
             return;
         }
         if (!emailField.checkValidity()) {
+            emailFormatErrorShown = true;
             setFieldInvalid(emailField, true);
             emailField.focus();
             setStatus(sendStatus, '올바른 이메일 주소를 입력해 주세요.', 'text-danger');
             return;
         }
+        emailFormatErrorShown = false;
         setFieldInvalid(nameField, false);
         setFieldInvalid(emailField, false);
 
@@ -178,8 +190,6 @@
                 clearExpiryTimer();
                 codeSent = false;
                 setStatus(expiryStatus, '', null);
-                setFieldInvalid(nameField, true);
-                setFieldInvalid(emailField, true);
                 setStatus(sendStatus, '입력한 이름과 이메일이 가입 정보와 일치하지 않습니다.', 'text-danger');
                 return;
             }
