@@ -115,5 +115,6 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-password-toggle { position:absolute; top:50%; right:11px; display:grid; width:32px; height:32px; padding:0; transform:translateY(-50%); place-items:center; border:0; color:#536273; background:transparent; }
 .mypage-password-toggle .material-symbols-outlined { font-size:1.25rem; }
 .mypage-password-status { min-height:1.35em; margin:7px 2px 0; font-size:.78rem; line-height:1.5; }
+.mypage-password-form-error { margin:12px 2px 0; font-size:.8rem; }
 .mypage-password-wrap .form-control[aria-invalid="true"]:not(:focus) { border-color:#f04438; }
 .mypage-password-wrap .form-control[aria-invalid="false"]:not(:focus) { border-color:#b7c1cc; }

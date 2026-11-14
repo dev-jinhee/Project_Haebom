@@ -733,6 +733,13 @@
         input.setAttribute('aria-invalid', String(state === 'invalid'));
     }
 
+    function setPasswordChangeError(message) {
+        const error = document.getElementById('passwordChangeError');
+        if (!error) return;
+        error.textContent = message || '';
+        error.hidden = !message;
+    }
+
     function showNewPasswordGuidance() {
         const input = document.getElementById('newPassword');
         const result = window.Haebom.passwordValidation.validate('');
@@ -767,9 +774,15 @@
 
     function resetPasswordFormState(form) {
         if (form) form.reset();
+        const currentPasswordInput = document.getElementById('currentPassword');
+        setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '', 'neutral');
+        setPasswordChangeError('');
         ['currentPassword', 'newPassword', 'confirmNewPassword'].forEach(function (id) {
             const input = document.getElementById(id);
-            if (input) input.type = 'password';
+            if (input) {
+                input.type = 'password';
+                input.setAttribute('aria-invalid', 'false');
+            }
         });
         document.querySelectorAll('[data-mypage-toggle-password] .material-symbols-outlined').forEach(function (icon) {
             icon.textContent = 'visibility_off';
@@ -784,6 +797,7 @@
     function initializePasswordChangeForm() {
         const form = document.getElementById('passwordChangeForm');
         const modal = document.getElementById('passwordChangeModal');
+        const currentPasswordInput = document.getElementById('currentPassword');
         const newPasswordInput = document.getElementById('newPassword');
         const confirmPasswordInput = document.getElementById('confirmNewPassword');
 
@@ -800,18 +814,30 @@
             });
         });
 
+        if (currentPasswordInput) {
+            currentPasswordInput.addEventListener('input', function () {
+                setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '', 'neutral');
+                setPasswordChangeError('');
+            });
+        }
         if (newPasswordInput) {
-            newPasswordInput.addEventListener('focus', showNewPasswordGuidance);
+            newPasswordInput.addEventListener('focus', function () {
+                if (newPasswordInput.getAttribute('aria-invalid') !== 'true') showNewPasswordGuidance();
+            });
             newPasswordInput.addEventListener('blur', validateNewPassword);
             newPasswordInput.addEventListener('input', function () {
+                setPasswordChangeError('');
                 validateNewPassword();
                 validatePasswordConfirmation();
             });
         }
         if (confirmPasswordInput) {
-            confirmPasswordInput.addEventListener('focus', showPasswordConfirmationGuidance);
+            confirmPasswordInput.addEventListener('focus', function () {
+                if (confirmPasswordInput.getAttribute('aria-invalid') !== 'true') showPasswordConfirmationGuidance();
+            });
             confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
             confirmPasswordInput.addEventListener('input', function () {
+                setPasswordChangeError('');
                 validatePasswordConfirmation();
             });
         }
@@ -834,17 +860,18 @@
         const currentPassword = currentPasswordInput ? currentPasswordInput.value : '';
         const password = newPasswordInput ? newPasswordInput.value : '';
         const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : '';
+        setPasswordChangeError('');
 
         if (!currentPassword.trim()) {
-            toast('현재 비밀번호를 입력해 주세요.');
+            setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '현재 비밀번호를 입력해 주세요.', 'invalid');
             if (currentPasswordInput) {
                 currentPasswordInput.focus();
             }
             return;
         }
+        setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', '', 'neutral');
 
         if (!validateNewPassword()) {
-            toast(document.getElementById('newPasswordStatus')?.textContent || '새 비밀번호를 확인해 주세요.');
             if (newPasswordInput) {
                 newPasswordInput.focus();
             }
@@ -852,7 +879,6 @@
         }
 
         if (!validatePasswordConfirmation()) {
-            toast(document.getElementById('confirmNewPasswordStatus')?.textContent || '새 비밀번호 확인이 일치하지 않습니다.');
             if (confirmPasswordInput) {
                 confirmPasswordInput.focus();
             }
@@ -860,7 +886,7 @@
         }
 
         if (!apiUrl) {
-            toast('비밀번호 변경 요청 주소를 찾을 수 없습니다.');
+            setPasswordChangeError('비밀번호 변경 요청 주소를 찾을 수 없습니다.');
             return;
         }
 
@@ -890,7 +916,8 @@
                     throw new Error('로그인이 만료되었습니다. 다시 로그인해 주세요.');
                 }
                 if (response.status === 400) {
-                    throw new Error('현재 비밀번호를 확인하거나 입력값을 다시 확인해 주세요.');
+                    throw new Error(result && (result.detail || result.message)
+                        || '현재 비밀번호 또는 새 비밀번호 입력값을 확인해 주세요.');
                 }
                 throw new Error('비밀번호 변경에 실패했습니다. 잠시 후 다시 시도해 주세요.');
             }
@@ -903,7 +930,13 @@
             form.reset();
             toast('비밀번호를 변경했습니다.');
         } catch (error) {
-            toast(error.message || '비밀번호 변경 중 오류가 발생했습니다.');
+            const message = error.message || '비밀번호 변경 중 오류가 발생했습니다.';
+            if (message.includes('현재 비밀번호')) {
+                setPasswordFieldStatus(currentPasswordInput, 'currentPasswordStatus', message, 'invalid');
+                if (currentPasswordInput) currentPasswordInput.focus();
+            } else {
+                setPasswordChangeError(message);
+            }
         } finally {
             if (submitButton) {
                 submitButton.disabled = false;

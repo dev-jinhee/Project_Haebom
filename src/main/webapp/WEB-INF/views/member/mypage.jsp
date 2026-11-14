@@ -186,7 +186,7 @@
     <div class="modal" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form id="passwordChangeForm">
+                <form id="passwordChangeForm" novalidate>
                     <div class="modal-header">
                         <h2 class="modal-title fs-5" id="passwordChangeTitle">비밀번호 변경</h2>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
@@ -195,11 +195,12 @@
                         <div class="mypage-password-field">
                             <label class="form-label" for="currentPassword">현재 비밀번호</label>
                             <div class="mypage-password-wrap">
-                                <input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
+                                <input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" aria-describedby="currentPasswordStatus" required>
                                 <button class="mypage-password-toggle" type="button" data-mypage-toggle-password="currentPassword" aria-label="비밀번호 표시">
                                     <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
                                 </button>
                             </div>
+                            <p class="form-text mypage-password-status" id="currentPasswordStatus" aria-live="polite"></p>
                         </div>
                         <div class="mypage-password-field">
                             <label class="form-label" for="newPassword">새 비밀번호</label>
@@ -221,6 +222,7 @@
                             </div>
                             <p class="form-text mypage-password-status" id="confirmNewPasswordStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
                         </div>
+                        <p class="form-text text-danger mypage-password-form-error" id="passwordChangeError" role="alert" hidden></p>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-outline-secondary rounded-pill" type="button" data-bs-dismiss="modal">취소</button>
