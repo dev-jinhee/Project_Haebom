@@ -61,6 +61,7 @@
                             인증번호 받기
                         </button>
                     </div>
+                    <p class="account-find-help" id="emailResendHelp">가입 시 등록한 이메일 주소를 입력해 주세요.</p>
                     <p class="account-find-status" id="sendCodeStatus" aria-live="polite"></p>
                 </div>
 
@@ -145,6 +146,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/common.js"></script>
     <script src="${pageContext.request.contextPath}/js/common/common-loading.js?v=common-loading-1"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=reset-password-validation-4"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=reset-password-validation-5"></script>
 </body>
 </html>

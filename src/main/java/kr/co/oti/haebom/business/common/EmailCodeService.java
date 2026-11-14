@@ -22,9 +22,9 @@ import lombok.RequiredArgsConstructor;
 public class EmailCodeService {
 
     private static final long VALID_MILLIS = 5 * 60 * 1000L;
-    private static final long RESEND_COOLDOWN_MILLIS = 60 * 1000L;
+    private static final long RESEND_COOLDOWN_MILLIS = 30 * 1000L;
     private static final long SEND_WINDOW_MILLIS = 60 * 60 * 1000L;
-    private static final int MAX_SENDS_PER_WINDOW = 5;
+    private static final int MAX_SENDS_PER_WINDOW = 10;
 
     private final JavaMailSender mailSender;
     private final SecureRandom random = new SecureRandom();
