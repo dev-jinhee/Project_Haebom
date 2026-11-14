@@ -10,6 +10,7 @@
     const sendButton = document.getElementById('sendCodeButton');
     const confirmButton = document.getElementById('confirmCodeButton');
     const sendStatus = document.getElementById('sendCodeStatus');
+    const resendHelp = document.getElementById('resendHelp');
     const expiryStatus = document.getElementById('codeExpiryStatus');
     const verifyStatus = document.getElementById('verifyCodeStatus');
     const result = document.getElementById('findIdResult');
@@ -23,6 +24,7 @@
     let resendTimer = null;
     let resendUntil = 0;
     let resendEmail = '';
+    let resendHelpMessage = '';
     let sendInProgress = false;
 
     codeField.addEventListener('input', function () {
@@ -50,20 +52,25 @@
         }
         resendUntil = 0;
         resendEmail = '';
+        resendHelpMessage = '';
     }
 
     function updateResendButton() {
         const coolingDown = resendUntil > Date.now()
             && emailField.value.trim().toLowerCase() === resendEmail;
         if (coolingDown) {
-            const remaining = Math.ceil((resendUntil - Date.now()) / 1000);
-            sendButton.textContent = remaining + '초';
-            sendButton.setAttribute('aria-label', '인증번호 재전송까지 ' + remaining + '초');
+            sendButton.textContent = '인증번호 받기';
+            sendButton.setAttribute('aria-label', '인증번호 받기');
             sendButton.disabled = true;
         } else {
             sendButton.textContent = '인증번호 받기';
             sendButton.setAttribute('aria-label', '인증번호 받기');
             sendButton.disabled = sendInProgress;
+        }
+        if (resendHelp !== null) {
+            resendHelp.textContent = coolingDown
+                ? resendHelpMessage
+                : '';
         }
         if (resendUntil > 0 && resendUntil <= Date.now()) clearResendTimer();
     }
@@ -71,6 +78,9 @@
     function startResendTimer(email, seconds) {
         clearResendTimer();
         resendEmail = email.trim().toLowerCase();
+        resendHelpMessage = seconds <= 30
+            ? '인증번호 발송 후 30초 뒤 다시 요청할 수 있습니다.'
+            : '인증번호 발송 한도에 도달했습니다. 잠시 후 다시 요청해 주세요.';
         resendUntil = Date.now() + (Math.max(1, seconds) * 1000);
         updateResendButton();
         resendTimer = window.setInterval(updateResendButton, 1000);
@@ -128,7 +138,7 @@
         if (response.status === 429) {
             throw new Error(data && data.message
                 ? data.message
-                : '인증번호는 60초 간격으로 요청할 수 있으며, 1시간에 최대 5회까지 발송할 수 있습니다.');
+                : '인증번호는 30초 간격으로 요청할 수 있으며, 1시간에 최대 10회까지 발송할 수 있습니다.');
         }
         if (!response.ok || data === null) {
             throw new Error('요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
@@ -170,7 +180,7 @@
             verificationSection.hidden = false;
             setStatus(sendStatus, '인증번호를 이메일로 보냈습니다.', 'text-success');
             startExpiryTimer();
-            startResendTimer(email, 60);
+            startResendTimer(email, 30);
             codeField.focus();
         } catch (error) {
             const retrySeconds = retrySecondsFrom(error.message);

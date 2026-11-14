@@ -62,7 +62,10 @@ export function initSignupSubmit(options) {
             const params = new URLSearchParams();
             Object.entries(requestData).forEach(function ([key, value]) {
                 if (value !== null && value !== undefined) {
-                    params.append(key, String(value));
+                    const requestValue = key === 'password'
+                        ? encodeURIComponent(String(value))
+                        : String(value);
+                    params.append(key, requestValue);
                 }
             });
 
