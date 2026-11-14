@@ -1,5 +1,5 @@
 (function () {
-    const MY_PAGE_SIZE = 10;
+    const MY_PAGE_SIZE = 5;
     const MY_PAGE_PAGE_GROUP_SIZE = 10;
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');

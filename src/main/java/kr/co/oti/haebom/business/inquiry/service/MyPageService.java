@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
-	private static final int SCENARIO_HISTORY_PAGE_SIZE = 10;
+	private static final int SCENARIO_HISTORY_PAGE_SIZE = 5;
 	
 	private final MyPageMapper myPageMapper;
 	private final SimulationAnswerMapper simulationAnswerMapper;
