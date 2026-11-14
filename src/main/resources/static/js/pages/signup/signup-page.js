@@ -1,5 +1,5 @@
-import { initSignupValidation } from './signup-validation.js?v=signup-modules-1';
-import { initIdAvailability } from './signup-id-availability.js?v=signup-modules-7';
+import { initSignupValidation } from './signup-validation.js?v=signup-modules-2';
+import { initIdAvailability } from './signup-id-availability.js?v=signup-modules-8';
 import { initEmailVerification } from './signup-email-verification.js?v=signup-modules-3';
 import { initSignupSubmit } from './signup-submit.js?v=signup-modules-1';
 

@@ -7,6 +7,7 @@ export function initIdAvailability(page, showNotice) {
     let checkedLoginId = null;
     let statusKind = null;
     let isChecking = false;
+    let preserveErrorOnNextFocus = false;
 
     function clearStatus() {
         if (idStatus !== null) {
@@ -29,11 +30,23 @@ export function initIdAvailability(page, showNotice) {
     }
 
     function showGuidance() {
-        if (idStatus === null || statusKind !== null) return;
+        if (idStatus === null || statusKind === 'success') return;
+        if (statusKind === 'error' && preserveErrorOnNextFocus) {
+            preserveErrorOnNextFocus = false;
+            return;
+        }
+
         idStatus.textContent = '아이디는 4~16자로 입력해 주세요.';
         idStatus.classList.remove('text-success', 'text-danger');
         idStatus.classList.add('text-muted');
-        statusKind = 'guidance';
+        if (statusKind !== 'error') statusKind = 'guidance';
+        if (idField !== null) idField.setAttribute('aria-invalid', 'false');
+    }
+
+    function focusIdPreservingError() {
+        if (idField === null || document.activeElement === idField) return;
+        preserveErrorOnNextFocus = true;
+        idField.focus();
     }
 
     showGuidance();
@@ -56,7 +69,7 @@ export function initIdAvailability(page, showNotice) {
                 if (loginId === '') {
                     return;
                 }
-                if (checkedLoginId === loginId || statusKind === 'error') return;
+                if (checkedLoginId === loginId) return;
 
                 showStatus(/^[A-Za-z0-9]{4,16}$/.test(loginId)
                     ? '아이디 중복확인을 해주세요.'
@@ -73,7 +86,7 @@ export function initIdAvailability(page, showNotice) {
                 checkedLoginId = null;
                 clearStatus();
                 showStatus('아이디는 4~16자의 영문 대소문자와 숫자로 입력해 주세요.', 'error');
-                idField.focus();
+                focusIdPreservingError();
                 return;
             }
 
@@ -137,7 +150,7 @@ export function initIdAvailability(page, showNotice) {
         },
         showRequiredMessage: function () {
             showStatus('아이디 중복확인을 해주세요.', 'error');
-            if (idField !== null) idField.focus();
+            focusIdPreservingError();
         },
         clear: function () {
             checkedLoginId = null;
