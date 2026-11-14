@@ -891,9 +891,9 @@
         }
 
         const body = new URLSearchParams();
-        body.set('currentPassword', currentPassword);
-        body.set('newPassword', password);
-        body.set('passwordConfirm', confirmPassword);
+        body.set('currentPassword', encodeURIComponent(currentPassword));
+        body.set('newPassword', encodeURIComponent(password));
+        body.set('passwordConfirm', encodeURIComponent(confirmPassword));
 
         if (submitButton) {
             submitButton.disabled = true;
