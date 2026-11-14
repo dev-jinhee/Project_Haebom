@@ -359,10 +359,13 @@
 
 .member-signup-field .form-control {
   min-height: 56px;
-  border-color: #b7c1cc;
   border-radius: 8px;
   color: #172b4d;
   font-size: 1rem;
+}
+
+.member-signup-field .form-control:not(:focus) {
+  border-color: #b7c1cc;
 }
 
 .member-signup-field .form-control:disabled {
@@ -435,7 +438,7 @@
   border: 2px solid #f04438;
 }
 
-.member-signup-field .form-control[aria-invalid="false"] {
+.member-signup-field .form-control[aria-invalid="false"]:not(:focus) {
   border-color: #b7c1cc;
 }
 
@@ -493,29 +496,6 @@
 
 .member-signup-password-toggle .material-symbols-outlined {
   font-size: 1.25rem;
-}
-
-.member-signup-field .form-control:focus,
-.member-signup-consent-row .form-check-input:focus {
-  border-color: #5792c4;
-  box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .16);
-}
-
-.member-signup-page #signupId.form-control[aria-invalid="true"]:focus {
-  border-color: #f04438;
-  outline: none;
-  box-shadow: none;
-}
-
-.member-signup-page #signupId.form-control[aria-invalid="true"]:focus-visible {
-  outline: 3px solid rgba(240, 68, 56, .28);
-  outline-offset: 2px;
-  box-shadow: none;
-}
-
-.member-signup-consent-all .form-check-input:focus {
-  border-color: #5792c4;
-  box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .16);
 }
 
 .member-signup-demographic-note {
@@ -602,11 +582,6 @@
   margin: 0 auto 22px;
   color: #68788e;
   font-size: .88rem;
-}
-
-.member-signup-page :focus-visible {
-  outline: 3px solid #ffbf47;
-  outline-offset: 3px;
 }
 
 .signup-notice-dialog {
