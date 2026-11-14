@@ -268,7 +268,8 @@
             if (record.progressStatus === 'IN_PROGRESS' || record.progressStatus === 'COMPLETED') {
                 const openButton = document.createElement('button');
                 openButton.type = 'button';
-                openButton.className = 'btn btn-outline-primary btn-sm rounded-pill';
+                openButton.className = 'btn btn-sm rounded-pill mypage-history-action '
+                    + (record.progressStatus === 'COMPLETED' ? 'is-completed' : 'is-progress');
                 openButton.textContent = record.progressStatus === 'COMPLETED' ? '작성 내용 확인' : '이어하기';
                 openButton.addEventListener('click', function () {
                     openMyPageSimulation(record.progressId);
@@ -278,7 +279,7 @@
 
             const deleteButton = document.createElement('button');
             deleteButton.type = 'button';
-            deleteButton.className = 'btn btn-outline-secondary btn-sm rounded-pill';
+            deleteButton.className = 'btn btn-sm rounded-pill mypage-history-delete';
             deleteButton.textContent = '삭제';
             deleteButton.addEventListener('click', function () {
                 deleteScenarioHistory(record, deleteButton);

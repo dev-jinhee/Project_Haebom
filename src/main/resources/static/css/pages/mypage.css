@@ -48,6 +48,13 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-history-metadata { display:flex; flex-wrap:wrap; gap:6px 10px; color:#788697; font-size:.75rem; }
 .mypage-history-metadata > * + * { padding-left:10px; border-left:1px solid #dce3ea; }
 .mypage-history-actions { display:flex; flex:0 0 auto; align-items:center; gap:7px; }
+.mypage-history-actions .btn { padding:.32rem .72rem; font-size:.75rem; font-weight:600; line-height:1.25; transition:background-color .16s ease,border-color .16s ease,color .16s ease; }
+.mypage-history-action.is-progress { border:1px solid #bfd9eb; color:#1769aa; background:#f2f8fc; }
+.mypage-history-action.is-progress:hover { border-color:#a6cbe2; color:#145b91; background:#e7f2f9; }
+.mypage-history-action.is-completed { border:1px solid #c5e2d1; color:#287253; background:#f2faf5; }
+.mypage-history-action.is-completed:hover { border-color:#add4bd; color:#205d43; background:#e8f5ee; }
+.mypage-history-delete { padding:.32rem .65rem; border:1px solid #e4eaf0; color:#748295; background:#fff; }
+.mypage-history-delete:hover { border-color:#f1caca; color:#a33d3d; background:#fff4f4; }
 .mypage-history-message { margin:0; padding:40px 16px; color:#758395; text-align:center; font-size:.86rem; }
 .mypage-history-list.is-empty .mypage-history-message { padding:24px 16px; }
 .mypage-history-message.is-error { color:#a33d3d; }
