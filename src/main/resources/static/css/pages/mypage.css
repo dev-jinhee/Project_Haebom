@@ -9,7 +9,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-history-retention-note { display:flex; align-items:flex-start; gap:5px; margin:7px 0 0; color:#758395; font-size:.74rem; line-height:1.5; }
 .mypage-history-retention-note .material-symbols-outlined { flex:0 0 auto; font-size:1rem; }
 .mypage-history-search { display:flex; align-items:center; gap:8px; flex:0 1 488px; width:488px; max-width:100%; }
-.mypage-history-search > .form-select { flex:0 0 150px; width:150px; min-width:0; }
+.mypage-history-search > .hb-select { flex:0 0 150px; width:150px; min-width:0; }
 .mypage-history-search .input-group { flex:1 1 0; width:auto; min-width:0; }
 .mypage-history-search .input-group-text { color:#53677b; background:#f8fafc; }
 .mypage-search-form .input-group { overflow:hidden; border:1px solid #dce5ef; border-radius:.75rem; }
@@ -47,7 +47,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-inquiries-toolbar { align-items:center; gap:16px; }
 .mypage-inquiries-toolbar h2 { margin:0; }
 .mypage-inquiry-controls { display:flex; align-items:center; gap:8px; }
-.mypage-inquiry-controls > .form-select { width:150px; }
+.mypage-inquiry-controls > .hb-select { width:150px; }
 .mypage-inquiry-controls .input-group { width:330px; }
 .mypage-inquiry-controls .input-group-text { color:#53677b; background:#f8fafc; }
 .mypage-inquiry-controls .input-group { overflow:hidden; border:1px solid #dce5ef; border-radius:.75rem; }

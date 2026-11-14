@@ -2105,6 +2105,14 @@ main {
 	color: var(--text-muted);
 }
 
+/* 공통 셀렉트의 작은 크기 변형: 검색 조건처럼 좁은 영역에서 사용 */
+.hb-select.form-select-sm {
+	width: 100%;
+	padding: 0.375rem 2rem 0.375rem 0.75rem;
+	font-size: 0.875rem;
+	border-radius: 0.375rem;
+}
+
 .hb-input:disabled, .hb-select:disabled, .hb-textarea:disabled {
 	background-color: #f8fafc;
 	color: #94a3b8;

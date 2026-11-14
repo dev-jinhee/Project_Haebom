@@ -10,7 +10,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-common-select-1" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-5" rel="stylesheet">
 </head>
 <body class="mypage-page">
@@ -57,7 +57,7 @@
                     </div>
                     <form class="mypage-history-search mypage-search-form" data-scenario-history-search-form role="search">
                         <label class="visually-hidden" for="mypageHistoryStatus">진행 내역 상태</label>
-                        <select class="form-select form-select-sm" id="mypageHistoryStatus">
+                        <select class="form-select form-select-sm hb-select" id="mypageHistoryStatus">
                             <option value="ALL">전체 상태</option>
                             <option value="IN_PROGRESS">진행 중</option>
                             <option value="COMPLETED">완료</option>
@@ -92,7 +92,7 @@
                     <h2 id="inquiriesTitle">내 문의 내역</h2>
                     <form class="mypage-inquiry-controls mypage-search-form" data-mypage-inquiry-search-form role="search">
                         <label class="visually-hidden" for="mypageInquiryStatus">문의 상태</label>
-                        <select class="form-select form-select-sm" id="mypageInquiryStatus">
+                        <select class="form-select form-select-sm hb-select" id="mypageInquiryStatus">
                             <option value="">전체 상태</option>
                             <option value="WAITING">답변 대기</option>
                             <option value="ANSWERING">답변 중</option>
