@@ -354,8 +354,18 @@
         }
     }
 
-    async function deleteScenarioHistory(record, button) {
-        if (!window.confirm('이 진행 내역을 삭제하시겠습니까? 삭제한 내역은 복구할 수 없습니다.')) return;
+    function deleteScenarioHistory(record, button) {
+        window.haebomConfirm(
+            '이 진행 내역을 삭제하시겠습니까? 삭제한 내역은 복구할 수 없습니다.',
+            function () {
+                performScenarioHistoryDeletion(record, button);
+            },
+            null,
+            '진행 내역 삭제'
+        );
+    }
+
+    async function performScenarioHistoryDeletion(record, button) {
         button.disabled = true;
 
         try {
