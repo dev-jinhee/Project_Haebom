@@ -261,7 +261,9 @@
 
         sendInProgress = true;
         updateResendButton();
-        setStatus(sendStatus, '인증번호를 보내고 있습니다.', null);
+        setStatus(sendStatus, '', null);
+        const loading = window.HaebomLoading;
+        if (loading) loading.show('인증번호 발송 요청을 처리하고 있어요', '잠시만 기다려 주세요.');
         try {
             const data = await postForm('/api/members/recovery/find-password/send-code', {
                 loginId: loginId,
@@ -297,6 +299,7 @@
             if (retrySeconds !== null) startResendTimer(email, retrySeconds);
             setStatus(sendStatus, error.message, 'text-danger');
         } finally {
+            if (loading) loading.hide();
             sendInProgress = false;
             updateResendButton();
         }
