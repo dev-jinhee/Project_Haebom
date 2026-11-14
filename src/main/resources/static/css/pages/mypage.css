@@ -3,11 +3,11 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .account-list .btn { padding:.18rem .55rem; font-size:.7rem; }
 .mypage-tabs { display:flex; gap:30px; margin:24px 0 16px; border-bottom:1px solid #e4eaf0; }
 .mypage-tabs button { padding-right:6px; padding-left:6px; }
-.mypage-history-toolbar { align-items:flex-start; gap:16px; }
+.mypage-history-toolbar { align-items:center; gap:16px; margin-bottom:10px; }
 .mypage-history-toolbar h2 { margin:0; }
 .mypage-history-count { margin:4px 0 0; color:#758395; font-size:.76rem; }
-.mypage-history-retention-note { display:flex; align-items:flex-start; gap:5px; margin:7px 0 0; color:#758395; font-size:.74rem; line-height:1.5; }
-.mypage-history-retention-note .material-symbols-outlined { flex:0 0 auto; font-size:1rem; }
+.mypage-history-retention-note { display:flex; align-items:flex-start; gap:5px; margin:0 0 12px; color:#758395; font-size:.74rem; line-height:1.5; }
+.mypage-history-retention-note .material-symbols-outlined { flex:0 0 auto; margin-top:2px; font-size:1rem; line-height:1; }
 .mypage-history-search { display:flex; align-items:center; gap:8px; flex:0 1 488px; width:488px; max-width:100%; }
 .mypage-history-search > .hb-select { flex:0 0 150px; width:150px; min-width:0; }
 .mypage-history-search .input-group { flex:1 1 0; width:auto; min-width:0; }

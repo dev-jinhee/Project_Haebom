@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-scenario-search-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-6" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-7" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -48,13 +48,7 @@
         <section data-my-panel="history" aria-labelledby="historyTitle">
             <div class="content-panel mypage-history-panel">
                 <div class="panel-heading mypage-history-toolbar">
-                    <div>
-                        <h2 id="historyTitle">진행 내역</h2>
-                        <p class="mypage-history-retention-note">
-                            <span class="material-symbols-outlined" aria-hidden="true">info</span>
-                            진행 중인 내역은 마지막 저장일로부터 30일이 지나면 자동 삭제됩니다.
-                        </p>
-                    </div>
+                    <h2 id="historyTitle">진행 내역</h2>
                     <form class="mypage-history-search mypage-search-form" data-scenario-history-search-form role="search">
                         <label class="visually-hidden" for="mypageHistoryStatus">진행 내역 상태</label>
                         <select class="form-select form-select-sm hb-select" id="mypageHistoryStatus">
@@ -73,6 +67,11 @@
                         </div>
                     </form>
                 </div>
+
+                <p class="mypage-history-retention-note">
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+                    진행 중인 내역은 마지막 저장일로부터 30일이 지나면 자동 삭제됩니다.
+                </p>
 
                 <div class="mypage-history-list" data-scenario-history-list aria-live="polite">
                     <p class="mypage-history-message" role="status">진행 내역을 불러오는 중입니다.</p>
