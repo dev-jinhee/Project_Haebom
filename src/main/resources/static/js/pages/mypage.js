@@ -194,7 +194,7 @@
             previousLabel: '이전',
             nextLabel: '다음',
             showBoundaryButtons: true,
-            bootstrap: true,
+            bootstrap: false,
             hideWhenSinglePage: true,
             onPageChange: function (targetPage) {
                 loadScenarioHistory(targetPage, true);
@@ -445,7 +445,7 @@
                 previousLabel: '이전',
                 nextLabel: '다음',
                 showBoundaryButtons: true,
-                bootstrap: true,
+                bootstrap: false,
                 hideWhenSinglePage: true,
                 onPageChange: function (targetPage) {
                     currentPage = targetPage;

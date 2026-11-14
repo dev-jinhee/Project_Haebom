@@ -35,7 +35,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-history-footer { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-top:18px; padding-top:16px; border-top:1px solid #e4eaf0; }
 .mypage-history-footer > nav { grid-column:2; justify-self:center; }
 .mypage-history-footer > nav.is-loading { pointer-events:none; opacity:.55; }
-.mypage-history-footer .pagination { justify-content:center; flex-wrap:wrap; }
+.mypage-history-footer .hb-pagination { justify-content:center; flex-wrap:wrap; }
 .mypage-inquiry-summary { display:grid; grid-template-columns:1fr 1fr; gap:12px; }.mypage-inquiry-summary > div { display:flex; align-items:center; gap:12px; min-width:0; padding:15px; border:1px solid #e9edf1; border-radius:12px; }.mypage-inquiry-summary > div > span:nth-child(2) { display:grid; gap:3px; flex:1; min-width:0; }.mypage-inquiry-summary strong { font-size:.86rem; }.mypage-inquiry-summary small { overflow:hidden; color:#758395; font-size:.76rem; text-overflow:ellipsis; white-space:nowrap; }.mypage-inquiry-summary b { color:#53677b; font-size:.82rem; white-space:nowrap; }.inquiry-status-dot { width:10px; height:10px; flex:0 0 10px; border-radius:50%; background:#d99a35; }.inquiry-status-dot.answered { background:#45a47b; }
 @media(max-width:767.98px) { .mypage-inquiry-summary { grid-template-columns:1fr; }.mypage-single .mypage-stats .stat-card { min-height:72px; } }
 .sim-progress-card { position:static; margin-bottom:1.25rem; }.sim-progress-heading { display:flex; align-items:baseline; gap:12px; }.sim-progress-heading strong { color:var(--ink); font-size:.98rem; }.sim-progress-heading > span { font-size:.82rem; white-space:nowrap; }
@@ -104,7 +104,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-inquiry-metadata > span + time { padding-left:8px; }
     .mypage-inquiry-status { padding:5px 9px; font-size:.68rem; }
     .mypage-inquiry-footer { align-items:center; gap:10px; }
-    .mypage-inquiry-footer .pagination { flex-wrap:wrap; }
+    .mypage-inquiry-footer .hb-pagination { flex-wrap:wrap; }
 }
 
 /* 마이페이지 비밀번호 변경 입력: 회원가입 화면과 같은 표시 토글 및 안내 간격 */

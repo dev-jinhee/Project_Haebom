@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-4" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-5" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -80,7 +80,7 @@
 
                 <div class="table-footer mypage-history-footer">
                     <nav aria-label="진행 내역 페이지">
-                        <ul class="pagination pagination-sm mb-0" data-scenario-history-pagination></ul>
+                        <ul class="hb-pagination" data-scenario-history-pagination></ul>
                     </nav>
                 </div>
             </div>
@@ -116,7 +116,7 @@
 
                 <div class="table-footer mypage-inquiry-footer">
                     <nav aria-label="내 문의 페이지">
-                        <ul class="pagination pagination-sm mb-0" data-mypage-inquiry-pagination></ul>
+                        <ul class="hb-pagination" data-mypage-inquiry-pagination></ul>
                     </nav>
                 </div>
             </div>
@@ -294,7 +294,7 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-5"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-6"></script>
 </body>
 </html>
 
