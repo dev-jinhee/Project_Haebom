@@ -75,7 +75,10 @@ public class EmailCodeService {
             message.setFrom(senderAddress);
             message.setTo(normalizedEmail);
             message.setSubject(purpose.getSubject());
-            message.setText("인증번호는 [" + code + "] 입니다.");
+            message.setText("안녕하세요, 해봄입니다.\n"
+                    + "요청하신 인증번호입니다.\n\n"
+                    + code + "\n\n"
+                    + "인증번호를 타인에게 알려주지 마세요.");
             mailSender.send(message);
 
             // 메일 발송에 성공한 경우에만 쿨다운과 시간당 횟수를 기록합니다.
