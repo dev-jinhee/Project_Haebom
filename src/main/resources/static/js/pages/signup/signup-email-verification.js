@@ -49,16 +49,18 @@ export function initEmailVerification(page) {
     function updateResendButton() {
         if (emailSendButton === null) return;
         const isEmailChange = verifiedEmail !== null;
+        const currentEmail = emailField.value.trim().toLowerCase();
         const isCoolingDown = resendUntil > Date.now()
-            && emailField.value.trim().toLowerCase() === resendEmail;
+            && currentEmail === resendEmail;
 
         if (isCoolingDown && !isEmailChange) {
             emailSendButton.textContent = '인증번호 받기';
             emailSendButton.setAttribute('aria-label', '인증번호 받기');
             emailSendButton.disabled = true;
         } else {
-            emailSendButton.textContent = isEmailChange ? '이메일 변경' : '인증번호 받기';
-            emailSendButton.setAttribute('aria-label', isEmailChange ? '이메일 변경' : '인증번호 받기');
+            const buttonLabel = isEmailChange ? '이메일 변경' : '인증번호 받기';
+            emailSendButton.textContent = buttonLabel;
+            emailSendButton.setAttribute('aria-label', buttonLabel);
             emailSendButton.disabled = sendInProgress;
         }
 
@@ -168,6 +170,10 @@ export function initEmailVerification(page) {
 
             sendInProgress = true;
             updateResendButton();
+            const loading = window.HaebomLoading;
+            if (loading !== undefined) {
+                loading.show('인증번호 발송 요청을 처리하고 있어요', '잠시만 기다려 주세요.');
+            }
             try {
                 const params = new URLSearchParams();
                 params.append('email', email);
@@ -228,6 +234,7 @@ export function initEmailVerification(page) {
                         error.message || '인증번호 발송에 실패했습니다.', false);
                 }
             } finally {
+                if (loading !== undefined) loading.hide();
                 sendInProgress = false;
                 updateResendButton();
             }

@@ -316,6 +316,15 @@
   gap: 5px;
 }
 
+.member-signup-consent-actions .btn {
+  flex: 0 0 84px;
+  width: 84px;
+  height: 42px;
+  padding: 0;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
 .member-signup-actions .material-symbols-outlined {
   font-size: 1.1rem;
 }
@@ -350,10 +359,13 @@
 
 .member-signup-field .form-control {
   min-height: 56px;
-  border-color: #b7c1cc;
   border-radius: 8px;
   color: #172b4d;
   font-size: 1rem;
+}
+
+.member-signup-field .form-control:not(:focus) {
+  border-color: #b7c1cc;
 }
 
 .member-signup-field .form-control:disabled {
@@ -365,6 +377,15 @@
 .member-signup-field .form-control:disabled:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 1000px #e9ecef inset;
   -webkit-text-fill-color: #172b4d;
+}
+
+.member-signup-field .form-control:not(:disabled):-webkit-autofill,
+.member-signup-field .form-control:not(:disabled):-webkit-autofill:hover,
+.member-signup-field .form-control:not(:disabled):-webkit-autofill:focus,
+.member-signup-field .form-control:not(:disabled):-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #fff inset;
+  -webkit-text-fill-color: #172b4d;
+  caret-color: #172b4d;
 }
 
 .member-signup-radio-field {
@@ -413,11 +434,11 @@
   cursor: pointer;
 }
 
-.member-signup-field .form-control[aria-invalid="true"] {
+.member-signup-field .form-control[aria-invalid="true"]:not(:focus) {
   border: 2px solid #f04438;
 }
 
-.member-signup-field .form-control[aria-invalid="false"] {
+.member-signup-field .form-control[aria-invalid="false"]:not(:focus) {
   border-color: #b7c1cc;
 }
 
@@ -425,6 +446,29 @@
   min-width: 108px;
   border-radius: 8px;
   font-size: 1rem;
+}
+
+.member-signup-birth-date {
+  position: relative;
+}
+
+.member-signup-birth-date .input-group .btn {
+  min-width: 56px;
+}
+
+.member-signup-birth-date .input-group .material-symbols-outlined {
+  font-size: 1.3rem;
+}
+
+.member-signup-native-date {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  width: 56px;
+  height: 56px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .member-signup-password-wrap {
@@ -452,17 +496,6 @@
 
 .member-signup-password-toggle .material-symbols-outlined {
   font-size: 1.25rem;
-}
-
-.member-signup-field .form-control:focus,
-.member-signup-consent-row .form-check-input:focus {
-  border-color: #5792c4;
-  box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .16);
-}
-
-.member-signup-consent-all .form-check-input:focus {
-  border-color: #5792c4;
-  box-shadow: 0 0 0 .2rem rgba(23, 105, 170, .16);
 }
 
 .member-signup-demographic-note {
@@ -525,10 +558,6 @@
   color: #6f7e91;
 }
 
-.member-signup-field-help.member-signup-password-status.text-muted {
-  color: #1769aa;
-}
-
 .member-signup-complete {
   padding: 44px 38px;
   text-align: center;
@@ -553,53 +582,6 @@
   margin: 0 auto 22px;
   color: #68788e;
   font-size: .88rem;
-}
-
-.member-signup-page :focus-visible {
-  outline: 3px solid #ffbf47;
-  outline-offset: 3px;
-}
-
-.signup-notice-dialog {
-  max-width: 400px;
-  padding-right: 12px;
-  padding-left: 12px;
-}
-
-.signup-notice-dialog .modal-content {
-  overflow: hidden;
-  border: 0;
-  border-radius: 14px;
-  box-shadow: 0 18px 48px rgba(18, 39, 70, .18);
-}
-
-.signup-notice-dialog .modal-header {
-  align-items: flex-start;
-  padding: 25px 24px 0;
-  border-bottom: 0;
-}
-
-.signup-notice-dialog .modal-title {
-  color: #172b45;
-  font-size: 1rem;
-  font-weight: 750;
-}
-
-.signup-notice-dialog .modal-body {
-  padding: 11px 24px 22px;
-  color: #26384f;
-  font-size: .98rem;
-  line-height: 1.6;
-}
-
-.signup-notice-dialog .modal-footer {
-  padding: 0 24px 22px;
-  border-top: 0;
-}
-
-.signup-notice-dialog .modal-footer .btn {
-  min-width: 80px;
-  border-radius: 7px;
 }
 
 @media (max-width: 600px) {

@@ -52,6 +52,7 @@
                     </div>
                     <p class="account-find-help" id="emailResendHelp"></p>
                     <p class="account-find-status" id="sendCodeStatus" aria-live="polite"></p>
+                    <p class="account-find-help" id="resendHelp" aria-live="polite"></p>
                 </div>
 
                 <div class="login-field mb-3" id="verificationSection" hidden>

@@ -12,6 +12,7 @@
     const confirmButton = document.getElementById('confirmCodeButton');
     const resetButton = document.getElementById('resetPasswordButton');
     const sendStatus = document.getElementById('sendCodeStatus');
+    const resendHelp = document.getElementById('resendHelp');
     const expiryStatus = document.getElementById('codeExpiryStatus');
     const verifyStatus = document.getElementById('verifyCodeStatus');
     const resetStatus = document.getElementById('resetPasswordStatus');
@@ -32,6 +33,7 @@
     let resendTimer = null;
     let resendUntil = 0;
     let resendEmail = '';
+    let resendHelpMessage = '';
     let sendInProgress = false;
     let loginIdFormatErrorShown = false;
     let emailFormatErrorShown = false;
@@ -131,7 +133,10 @@
         sendButton.textContent = '인증번호 받기';
         sendButton.setAttribute('aria-label', '인증번호 받기');
         sendButton.disabled = coolingDown || sendInProgress;
-        if (emailHelp) emailHelp.textContent = coolingDown ? resendHelpMessage : defaultEmailHelp;
+
+        if (resendHelp !== null) {
+            resendHelp.textContent = coolingDown ? resendHelpMessage : '';
+        }
     }
 
     function startResendTimer(email, seconds) {
