@@ -33,6 +33,10 @@
 .account-find-status:empty { display:none; }
 .account-find-status.text-success { color:#16835d; }
 .account-find-status.text-danger { color:#c0392b; }
+.account-find-password-status:not(:empty)::before { display:inline-block; margin-right:6px; font-family:'Material Symbols Outlined'; font-size:1rem; line-height:1; vertical-align:-2px; content:'info'; }
+.account-find-password-status.text-success:not(:empty)::before { content:'check_circle'; }
+.account-find-password-status.text-danger:not(:empty)::before { content:'cancel'; }
+.account-find-password-status.text-muted { color:#1769aa; }
 .account-find-result { margin-top:24px; padding:22px 0; border:0; border-radius:0; background:transparent; text-align:center; }
 .account-result-icon { display:grid; width:44px; height:44px; margin:0 auto 10px; place-items:center; border-radius:50%; color:#fff; background:#32836a; font-size:1.25rem; }
 .account-find-result h2 { margin:0 0 5px; font-size:1.12rem; font-weight:800; }

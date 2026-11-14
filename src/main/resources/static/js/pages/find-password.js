@@ -19,7 +19,6 @@
     const resetSection = document.getElementById('resetPasswordSection');
     const resetCard = document.getElementById('resetPasswordCard');
     const completeSection = document.getElementById('passwordRecoveryComplete');
-    const verifiedSummary = document.getElementById('verifiedAccountSummary');
     const newPasswordField = document.getElementById('newPassword');
     const passwordConfirmField = document.getElementById('passwordConfirm');
     const newPasswordStatus = document.getElementById('newPasswordStatus');
@@ -91,16 +90,18 @@
     });
 
     newPasswordField.addEventListener('focus', showNewPasswordGuidance);
-    newPasswordField.addEventListener('blur', validateNewPassword);
-    newPasswordField.addEventListener('input', function () {
-        if (newPasswordField.value.length > 0) validateNewPassword();
+    newPasswordField.addEventListener('blur', function () {
+        validateNewPassword();
         if (passwordConfirmField.value.length > 0) validatePasswordConfirmation();
+    });
+    newPasswordField.addEventListener('input', function () {
+        showNewPasswordGuidance();
+        if (passwordConfirmField.value.length > 0) showPasswordConfirmationGuidance();
     });
     passwordConfirmField.addEventListener('focus', showPasswordConfirmationGuidance);
     passwordConfirmField.addEventListener('blur', validatePasswordConfirmation);
     passwordConfirmField.addEventListener('input', function () {
-        if (passwordConfirmField.value.length > 0) validatePasswordConfirmation();
-        else showPasswordConfirmationGuidance();
+        showPasswordConfirmationGuidance();
     });
 
     function clearExpiryTimer() {
@@ -341,7 +342,6 @@
             emailField.disabled = true;
             codeField.disabled = true;
             confirmButton.textContent = '인증 완료 ✓';
-            verifiedSummary.textContent = '인증된 이메일: ' + emailField.value.trim();
             resetSection.hidden = false;
             setStatus(verifyStatus, '이메일 인증이 완료되었습니다.', 'text-success');
             card.hidden = true;

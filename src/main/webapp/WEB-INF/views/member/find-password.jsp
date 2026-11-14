@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common/common-loading.css?v=common-loading-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-focus-3" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-focus-4" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -97,20 +97,19 @@
             </header>
 
             <section id="resetPasswordSection">
-                <p class="account-find-help" id="verifiedAccountSummary"></p>
                 <div class="login-field mb-3">
                     <label for="newPassword">새 비밀번호</label>
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
                         <input class="form-control" id="newPassword" name="newPassword" type="password"
                                autocomplete="new-password" minlength="8" maxlength="20"
-                               placeholder="8~20자로 입력해 주세요" aria-describedby="newPasswordStatus" required>
+                               aria-describedby="newPasswordStatus" required>
                         <button class="login-password-toggle" type="button" data-toggle-password="newPassword"
                                 aria-label="비밀번호 표시">
                             <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
                         </button>
                     </div>
-                    <p class="account-find-status text-muted" id="newPasswordStatus" aria-live="polite">비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, &gt;, &lt;, _, -, &quot;, '는 사용할 수 없어요.</p>
+                    <p class="account-find-status account-find-password-status text-muted" id="newPasswordStatus" aria-live="polite">비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, &gt;, &lt;, _, -, &quot;, '는 사용할 수 없어요.</p>
                 </div>
                 <div class="login-field mb-3">
                     <label for="passwordConfirm">새 비밀번호 확인</label>
@@ -118,13 +117,13 @@
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
                         <input class="form-control" id="passwordConfirm" name="passwordConfirm" type="password"
                                autocomplete="new-password" minlength="8" maxlength="20"
-                               placeholder="새 비밀번호를 다시 입력해 주세요" aria-describedby="passwordConfirmStatus" required>
+                               aria-describedby="passwordConfirmStatus" required>
                         <button class="login-password-toggle" type="button" data-toggle-password="passwordConfirm"
                                 aria-label="비밀번호 표시">
                             <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
                         </button>
                     </div>
-                    <p class="account-find-status text-muted" id="passwordConfirmStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
+                    <p class="account-find-status account-find-password-status text-muted" id="passwordConfirmStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
                 </div>
                 <p class="account-find-status" id="resetPasswordStatus" aria-live="polite"></p>
                 <button class="btn btn-primary login-submit w-100" id="resetPasswordButton" type="button">
@@ -146,6 +145,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/common.js"></script>
     <script src="${pageContext.request.contextPath}/js/common/common-loading.js?v=common-loading-1"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=reset-password-validation-5"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=reset-password-validation-7"></script>
 </body>
 </html>
