@@ -25,7 +25,7 @@ public class AccountRecoveryService {
     private final MemberMapper memberMapper;
     private final EmailCodeService emailCodeService;
 
-    public boolean sendFindIdCode(String memberName, String email, HttpSession session) {
+    public boolean sendFindIdCode(String memberName, String email, String clientIp, HttpSession session) {
         String normalizedName = memberName.trim();
         String normalizedEmail = emailCodeService.normalize(email);
 
@@ -33,11 +33,12 @@ public class AccountRecoveryService {
             return false;
         }
 
-        issueCode(Purpose.FIND_ID, normalizedName, null, normalizedEmail, session);
+        issueCode(Purpose.FIND_ID, normalizedName, null, normalizedEmail, clientIp, session);
         return true;
     }
 
-    public boolean sendFindPasswordCode(String loginId, String memberName, String email, HttpSession session) {
+    public boolean sendFindPasswordCode(
+            String loginId, String memberName, String email, String clientIp, HttpSession session) {
         String normalizedEmail = emailCodeService.normalize(email);
         String normalizedId = loginId.trim();
         String normalizedName = memberName.trim();
@@ -46,7 +47,7 @@ public class AccountRecoveryService {
             return false;
         }
 
-        issueCode(Purpose.FIND_PASSWORD, normalizedName, normalizedId, normalizedEmail, session);
+        issueCode(Purpose.FIND_PASSWORD, normalizedName, normalizedId, normalizedEmail, clientIp, session);
         return true;
     }
 
@@ -105,12 +106,13 @@ public class AccountRecoveryService {
         return false;
     }
 
-    private void issueCode(Purpose purpose, String name, String loginId, String email, HttpSession session) {
+    private void issueCode(
+            Purpose purpose, String name, String loginId, String email, String clientIp, HttpSession session) {
         clearChallenge(session);
         session.removeAttribute(VERIFIED_LOGIN_ID);
         session.removeAttribute(VERIFIED_EMAIL);
 
-        emailCodeService.sendCode(purpose, email, session);
+        emailCodeService.sendCode(purpose, email, clientIp, session);
         session.setAttribute(NAME, name);
         if (loginId != null) {
             session.setAttribute(LOGIN_ID, loginId);

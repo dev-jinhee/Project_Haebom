@@ -18,7 +18,7 @@ public class EmailVerificationService {
     private final MemberMapper memberMapper;
     private final EmailCodeService emailCodeService;
 
-    public boolean sendCode(String email, HttpSession session) {
+    public boolean sendCode(String email, String clientIp, HttpSession session) {
         String normalizedEmail = emailCodeService.normalize(email);
 
         // 새 인증 요청에서는 이전 인증 완료 상태와 코드를 재사용하지 않습니다.
@@ -29,7 +29,7 @@ public class EmailVerificationService {
             return false;
         }
 
-        emailCodeService.sendCode(Purpose.SIGNUP, normalizedEmail, session);
+        emailCodeService.sendCode(Purpose.SIGNUP, normalizedEmail, clientIp, session);
         return true;
     }
 

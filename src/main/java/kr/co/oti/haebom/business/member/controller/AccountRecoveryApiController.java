@@ -2,6 +2,7 @@ package kr.co.oti.haebom.business.member.controller;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -32,9 +33,10 @@ public class AccountRecoveryApiController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @Operation(summary = "아이디 찾기 인증번호 발송")
     public Map<String, Boolean> sendFindIdCode(
-            @Valid @ModelAttribute FindIdSendRequestDTO request, HttpSession session) {
+            @Valid @ModelAttribute FindIdSendRequestDTO request,
+            HttpServletRequest httpRequest, HttpSession session) {
         return Map.of("sent", recoveryService.sendFindIdCode(
-                request.getMemberName(), request.getEmail(), session));
+                request.getMemberName(), request.getEmail(), httpRequest.getRemoteAddr(), session));
     }
 
     @PostMapping(value = "/find-id/confirm",
@@ -53,9 +55,11 @@ public class AccountRecoveryApiController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @Operation(summary = "비밀번호 찾기 인증번호 발송")
     public Map<String, Boolean> sendFindPasswordCode(
-            @Valid @ModelAttribute FindPasswordSendRequestDTO request, HttpSession session) {
+            @Valid @ModelAttribute FindPasswordSendRequestDTO request,
+            HttpServletRequest httpRequest, HttpSession session) {
         return Map.of("sent", recoveryService.sendFindPasswordCode(
-                request.getLoginId(), request.getMemberName(), request.getEmail(), session));
+                request.getLoginId(), request.getMemberName(), request.getEmail(),
+                httpRequest.getRemoteAddr(), session));
     }
 
     @PostMapping(value = "/find-password/confirm",
