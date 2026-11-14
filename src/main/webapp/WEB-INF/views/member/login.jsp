@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-autofill-2" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-focus-3" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -39,7 +39,8 @@
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
                         <input class="form-control" id="loginId" name="loginId" type="text"
-                               autocomplete="username" placeholder="아이디를 입력해 주세요" required autofocus>
+                               autocomplete="username" placeholder="아이디를 입력해 주세요" required autofocus
+                               <c:if test="${param.error != null}">aria-invalid="true"</c:if>>
                     </div>
                 </div>
 
@@ -49,7 +50,8 @@
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
                         <input class="form-control login-password-input" id="loginPassword" name="password"
                                type="password" autocomplete="current-password"
-                               placeholder="비밀번호를 입력해 주세요" required>
+                               placeholder="비밀번호를 입력해 주세요" required
+                               <c:if test="${param.error != null}">aria-invalid="true"</c:if>>
                         <button class="login-password-toggle" type="button" data-password-toggle
                                 aria-label="비밀번호 표시" aria-controls="loginPassword">
                             <span class="material-symbols-outlined" id="loginPasswordToggleIcon" aria-hidden="true">visibility</span>
@@ -82,6 +84,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/common.js"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/login.js"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/login.js?v=login-validation-2"></script>
 </body>
 </html>

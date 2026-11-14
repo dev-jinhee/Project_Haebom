@@ -19,6 +19,12 @@
     if (errorElement) errorElement.textContent = message;
   }
 
+  [document.getElementById('loginId'), document.getElementById('loginPassword')]
+    .filter(Boolean)
+    .forEach((input) => {
+      input.addEventListener('input', () => input.removeAttribute('aria-invalid'));
+    });
+
   loginForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     showLoginRequestError('');

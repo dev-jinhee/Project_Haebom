@@ -34,6 +34,10 @@
     let resendEmail = '';
     let sendInProgress = false;
 
+    function setFieldInvalid(field, invalid) {
+        if (field) field.setAttribute('aria-invalid', String(invalid));
+    }
+
     function setStatus(element, message, type) {
         element.textContent = message;
         element.classList.remove('text-success', 'text-danger', 'text-muted');
@@ -214,6 +218,7 @@
 
     [loginIdField, nameField, emailField].forEach(function (field) {
         field.addEventListener('input', function () {
+            setFieldInvalid(field, false);
             if (verified) return;
             if (codeSent) {
                 resetVerificationUi('정보가 변경되었습니다. 다시 인증번호를 받아 주세요.');
@@ -224,6 +229,7 @@
 
     codeField.addEventListener('input', function () {
         codeField.value = codeField.value.replace(/\D/g, '').slice(0, 6);
+        setFieldInvalid(codeField, false);
     });
 
     sendButton.addEventListener('click', async function () {
@@ -232,20 +238,26 @@
         const email = emailField.value.trim();
 
         if (!loginIdField.checkValidity()) {
+            setFieldInvalid(loginIdField, true);
             loginIdField.focus();
             setStatus(sendStatus, '아이디를 4~16자로 입력해 주세요.', 'text-danger');
             return;
         }
         if (!memberName) {
+            setFieldInvalid(nameField, true);
             nameField.focus();
             setStatus(sendStatus, '이름을 입력해 주세요.', 'text-danger');
             return;
         }
         if (!emailField.checkValidity()) {
+            setFieldInvalid(emailField, true);
             emailField.focus();
             setStatus(sendStatus, '올바른 이메일 주소를 입력해 주세요.', 'text-danger');
             return;
         }
+        [loginIdField, nameField, emailField].forEach(function (field) {
+            setFieldInvalid(field, false);
+        });
 
         sendInProgress = true;
         updateResendButton();
@@ -261,10 +273,16 @@
                 setStatus(expiryStatus, '', null);
                 codeSent = false;
                 verificationSection.hidden = true;
+                [loginIdField, nameField, emailField].forEach(function (field) {
+                    setFieldInvalid(field, true);
+                });
                 setStatus(sendStatus, '입력한 아이디, 이름, 이메일이 가입 정보와 일치하지 않습니다.', 'text-danger');
                 return;
             }
 
+            [loginIdField, nameField, emailField].forEach(function (field) {
+                setFieldInvalid(field, false);
+            });
             verified = false;
             codeField.value = '';
             verificationSection.hidden = false;
@@ -291,10 +309,12 @@
             return;
         }
         if (!/^[0-9]{6}$/.test(code)) {
+            setFieldInvalid(codeField, true);
             codeField.focus();
             setStatus(verifyStatus, '인증번호 6자리를 입력해 주세요.', 'text-danger');
             return;
         }
+        setFieldInvalid(codeField, false);
 
         confirmButton.disabled = true;
         setStatus(verifyStatus, '인증번호를 확인하고 있습니다.', null);
@@ -304,10 +324,12 @@
                 code: code
             });
             if (!data.verified) {
+                setFieldInvalid(codeField, true);
                 setStatus(verifyStatus, '인증번호가 틀렸거나 만료되었습니다.', 'text-danger');
                 return;
             }
 
+            setFieldInvalid(codeField, false);
             clearExpiryTimer();
             verified = true;
             loginIdField.disabled = true;

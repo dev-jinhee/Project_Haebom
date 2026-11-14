@@ -62,7 +62,8 @@ body.large-text-mode .account-found-value span { font-size:1.08rem; }
 .login-form { display:grid; gap:16px; }
 .login-field label { display:block; margin-bottom:7px; color:#405268; font-size:.88rem; font-weight:700; }
 .login-input-wrap { position:relative; }
-.login-input-wrap .form-control { min-height:48px; padding:9px 44px 9px 42px; border-color:#dce4ec; border-radius:9px; font-size:.9rem; }
+.login-input-wrap .form-control { min-height:48px; padding:9px 44px 9px 42px; border-radius:9px; font-size:.9rem; }
+.login-input-wrap .form-control:not(:focus) { border-color:#dce4ec; }
 .login-input-wrap .form-control::placeholder { color:#a0aab5; }
 .account-find-input-group .login-input-wrap .form-control { border-radius:9px 0 0 9px; }
 .login-page :is(.login-form, .account-find-card, .account-reset-card) .form-control:not(:disabled):-webkit-autofill,
@@ -75,6 +76,10 @@ body.large-text-mode .account-found-value span { font-size:1.08rem; }
 }
 .login-page :is(.login-form, .account-find-card, .account-reset-card) .form-control:not(:disabled):-webkit-autofill:focus {
   -webkit-box-shadow:0 0 0 1000px #fff inset,var(--focus-shadow);
+}
+.login-page :is(.login-form, .account-find-card, .account-reset-card) .form-control[aria-invalid="true"],
+.login-page :is(.login-form, .account-find-card, .account-reset-card) .form-control.is-invalid {
+  border:2px solid #f04438;
 }
 .login-input-icon { position:absolute; z-index:2; top:50%; left:12px; color:#8493a3; font-size:19px; transform:translateY(-50%); pointer-events:none; }
 .login-password-toggle { position:absolute; z-index:3; top:50%; right:8px; display:grid; width:32px; height:32px; place-items:center; padding:0; border:0; border-radius:5px; color:#77879a; background:transparent; transform:translateY(-50%); }
