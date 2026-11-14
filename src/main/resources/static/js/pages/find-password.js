@@ -161,7 +161,7 @@
 
         const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
         const seconds = String(remainingSeconds % 60).padStart(2, '0');
-        setStatus(expiryStatus, '인증번호 유효시간 ' + minutes + ':' + seconds, 'text-muted');
+        setStatus(expiryStatus, '인증번호 유효시간 ' + minutes + ':' + seconds, 'text-success');
     }
 
     function startExpiryTimer() {

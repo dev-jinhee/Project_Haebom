@@ -31,10 +31,15 @@
 .account-find-input-group .btn { min-width:104px; min-height:48px; border-radius:0 9px 9px 0; font-size:.9rem; }
 .account-find-help,.account-find-status { margin:7px 0 0; color:#718096; font-size:.8rem; line-height:1.5; }
 .account-find-help:not(:empty)::before { display:inline-block; margin-right:6px; font-family:'Material Symbols Outlined'; font-size:1rem; line-height:1; vertical-align:-2px; content:'info'; }
+.account-find-status:not(:empty)::before { display:inline-block; margin-right:6px; font-family:'Material Symbols Outlined'; font-size:1rem; line-height:1; vertical-align:-2px; content:'info'; }
+.account-find-status.text-success:not(:empty)::before { content:'check_circle'; }
+.account-find-status.text-danger:not(:empty)::before { content:'cancel'; }
+.account-find-status { margin-top:8px; color:#6f7e91; font-size:.84rem; }
+.account-find-status.text-success { color:#198754; }
+.account-find-status.text-danger { color:#dc3545; }
+.account-find-status.text-muted { color:#6f7e91; }
 .account-find-help:empty { display:none; }
 .account-find-status:empty { display:none; }
-.account-find-status.text-success { color:#16835d; }
-.account-find-status.text-danger { color:#c0392b; }
 .account-find-password-status:not(:empty)::before { display:inline-block; margin-right:6px; font-family:'Material Symbols Outlined'; font-size:1rem; line-height:1; vertical-align:-2px; content:'info'; }
 .account-find-password-status.text-success:not(:empty)::before { content:'check_circle'; }
 .account-find-password-status.text-danger:not(:empty)::before { content:'cancel'; }
