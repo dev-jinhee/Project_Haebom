@@ -36,7 +36,7 @@
     let loginIdFormatErrorShown = false;
     let emailFormatErrorShown = false;
     let resendHelpMessage = '';
-    const defaultEmailHelp = '가입 시 등록한 이메일 주소를 입력해 주세요.';
+    const defaultEmailHelp = '';
 
     function setFieldInvalid(field, invalid) {
         if (field) field.setAttribute('aria-invalid', String(invalid));

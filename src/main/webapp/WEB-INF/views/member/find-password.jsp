@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common/common-loading.css?v=common-loading-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=account-invalid-focus-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=account-find-intro-placeholder-1" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -27,6 +27,7 @@
                  data-context-path="${pageContext.request.contextPath}">
             <header class="login-heading">
                 <h1 id="findPasswordTitle">비밀번호 찾기</h1>
+                <p class="account-find-intro">가입 시 등록한 정보로 본인 확인을 진행합니다.</p>
             </header>
 
             <div class="account-find-form" id="passwordRecoveryForm">
@@ -35,7 +36,8 @@
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
                         <input class="form-control" id="loginId" name="loginId" type="text"
-                               autocomplete="username" minlength="4" maxlength="16" required>
+                               autocomplete="username" minlength="4" maxlength="16"
+                               placeholder="아이디를 입력해 주세요" required>
                     </div>
                 </div>
                 <div class="login-field mb-3">
@@ -43,7 +45,8 @@
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
                         <input class="form-control" id="memberName" name="memberName" type="text"
-                               autocomplete="name" maxlength="20" required>
+                               autocomplete="name" maxlength="20"
+                               placeholder="이름을 입력해 주세요" required>
                     </div>
                 </div>
                 <div class="login-field mb-3">
@@ -52,13 +55,14 @@
                         <div class="login-input-wrap">
                             <span class="material-symbols-outlined login-input-icon" aria-hidden="true">mail</span>
                             <input class="form-control" id="email" name="email" type="email"
-                                   autocomplete="email" maxlength="50" required>
+                                   autocomplete="email" maxlength="50"
+                                   placeholder="이메일을 입력해 주세요" required>
                         </div>
                         <button class="btn btn-outline-primary" id="sendCodeButton" type="button">
                             인증번호 받기
                         </button>
                     </div>
-                    <p class="account-find-help" id="emailResendHelp">가입 시 등록한 이메일 주소를 입력해 주세요.</p>
+                    <p class="account-find-help" id="emailResendHelp"></p>
                     <p class="account-find-status" id="sendCodeStatus" aria-live="polite"></p>
                 </div>
 
@@ -146,6 +150,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/common.js"></script>
     <script src="${pageContext.request.contextPath}/js/common/common-loading.js?v=common-loading-1"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=reset-password-validation-11"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/find-password.js?v=account-find-intro-placeholder-1"></script>
 </body>
 </html>
