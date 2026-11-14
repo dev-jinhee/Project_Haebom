@@ -451,11 +451,15 @@
         const content = document.createElement('div');
         content.className = 'center-place-popup';
         const address = document.createElement('p');
+        address.className = 'center-place-popup-address';
         address.textContent = center.address || '주소 정보 없음';
-        if (center.address && center.postalCode) {
-          address.textContent += ` (우편번호 ${center.postalCode})`;
-        }
+        address.title = address.textContent;
         content.append(address);
+        if (center.postalCode) {
+          const postalCode = document.createElement('p');
+          postalCode.textContent = `우편번호: ${center.postalCode}`;
+          content.append(postalCode);
+        }
 
         const placeStatus = document.createElement('p');
         placeStatus.textContent = '추가 장소 정보를 불러오는 중입니다.';
@@ -600,7 +604,7 @@
             if (!place.phoneNumber && !place.websiteUri
                 && (!Array.isArray(place.weekdayDescriptions)
                     || place.weekdayDescriptions.length === 0)) {
-              placeStatus.textContent = '추가 연락처·운영시간 정보가 등록되어 있지 않습니다.';
+              placeStatus.textContent = '추가 정보가 없습니다.';
             }
           })
           .catch(() => {

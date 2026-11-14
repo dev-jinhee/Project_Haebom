@@ -186,6 +186,6 @@
     </nav>
 </main>
 
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v18-responsive-scroll"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v22-popup-info-message"></script>
 </body>
 </html>

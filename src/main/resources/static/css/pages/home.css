@@ -155,10 +155,11 @@
 .center-list-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5625rem; }
 .center-list-actions .btn { font-size: .76rem; }
 .center-list-pagination-wrap { margin-top: 0.75rem; }
-.center-place-popup { width: 18.75rem; max-width: 70vw; overflow-wrap: anywhere; color: #334155; font-size: 0.8125rem; }
+.center-place-popup { box-sizing: border-box; width: fit-content; max-width: min(15rem, calc(100vw - 3rem)); overflow-wrap: anywhere; color: #334155; font-size: 0.8125rem; }
 .center-place-popup-header { color: #173b70; font-size: 0.8125rem; font-weight: 700; }
 .center-place-popup > strong { display: block; margin-bottom: 0.3125rem; color: #173b70; }
 .center-place-popup > p { margin: 0.3125rem 0; }
+.center-place-popup > .center-place-popup-address { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .center-place-link { display: block; margin-top: 0.375rem; }
 .center-place-hours { margin-top: 0.5rem; padding-top: 0.4375rem; border-top: 0.0625rem solid #e7edf3; }
 .center-place-hours-title { display: block; margin-bottom: 0.1875rem; color: #173b70; }
