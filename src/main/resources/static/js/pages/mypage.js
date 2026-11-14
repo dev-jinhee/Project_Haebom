@@ -465,37 +465,20 @@
             }
 
             if (filteredItems.length === 0) {
-                const emptyState = document.createElement('div');
-                emptyState.className = 'mypage-inquiry-empty';
+                const emptyMessage = document.createElement('p');
+                emptyMessage.className = 'mypage-history-message';
+                emptyMessage.setAttribute('role', 'status');
+                emptyMessage.textContent = inquiryItems.length === 0
+                    ? '작성하신 문의 내역이 없습니다.'
+                    : '검색 결과가 없습니다.';
 
-                const icon = document.createElement('span');
-                icon.className = 'material-symbols-outlined mypage-inquiry-empty-icon';
-                icon.setAttribute('aria-hidden', 'true');
-                icon.textContent = 'chat';
-
-                const title = document.createElement('strong');
-                title.textContent = inquiryItems.length === 0
-                    ? '작성하신 문의 내역이 없습니다'
-                    : '검색 결과가 없습니다';
-
-                emptyState.append(icon, title);
-
-                if (inquiryItems.length === 0) {
-                    const description = document.createElement('p');
-                    description.textContent = '궁금한 점이 있으시다면 언제든 편하게 문의를 남겨주세요.';
-
-                    const link = document.createElement('a');
-                    link.className = 'btn btn-outline-primary btn-sm rounded-pill px-4';
-                    link.href = page.dataset.inquiryBoardUrl;
-                    link.textContent = '문의 작성하기';
-                    emptyState.append(description, link);
-                }
-
-                rows.replaceChildren(emptyState);
+                rows.classList.add('is-empty');
+                rows.replaceChildren(emptyMessage);
                 renderPagination(totalPages, 0);
                 return;
             }
 
+            rows.classList.remove('is-empty');
             const startIndex = (currentPage - 1) * pageSize;
             const visibleItems = filteredItems.slice(startIndex, startIndex + pageSize);
             const renderedItems = visibleItems.map(function (item) {

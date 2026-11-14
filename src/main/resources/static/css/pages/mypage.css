@@ -79,12 +79,10 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-inquiry-status.answering { color:#1769aa; background:#eaf4fa; }
 .mypage-inquiry-status.answered { color:#287253; background:#e8f5ee; }
 .mypage-inquiry-status.unknown { color:#53677b; background:#edf0f3; }
+.mypage-inquiry-list.is-empty { display:grid; min-height:180px; place-items:center; }
 .mypage-inquiry-message { margin:0; padding:36px 16px; color:#758395; text-align:center; font-size:.86rem; }
 .mypage-inquiry-message.is-error { color:#a33d3d; }
-.mypage-inquiry-empty { display:grid; justify-items:center; gap:9px; padding:42px 16px; border:1px dashed #d9e2e9; border-radius:14px; background:#fbfcfd; color:#758395; text-align:center; }
-.mypage-inquiry-empty-icon { color:#7f94a8; font-size:36px; }
-.mypage-inquiry-empty strong { color:var(--ink); font-size:.9rem; }
-.mypage-inquiry-empty p { margin:0 0 3px; font-size:.78rem; }
+.mypage-inquiry-list.is-empty .mypage-history-message { padding:24px 16px; }
 .mypage-inquiry-detail-content { min-height:64px; white-space:pre-line; line-height:1.6; }
 .mypage-inquiry-answer { padding:14px; border:1px solid #cfe6d8; border-radius:12px; background:#f0fdf4; }
 .mypage-inquiry-answer-heading { display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; padding-bottom:9px; border-bottom:1px solid #d8eee0; color:#276749; font-size:.78rem; }
