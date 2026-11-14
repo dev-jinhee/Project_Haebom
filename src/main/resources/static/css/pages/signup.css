@@ -434,7 +434,7 @@
   cursor: pointer;
 }
 
-.member-signup-field .form-control[aria-invalid="true"] {
+.member-signup-field .form-control[aria-invalid="true"]:not(:focus) {
   border: 2px solid #f04438;
 }
 
