@@ -75,7 +75,7 @@ public class EmailCodeService {
             message.setFrom(senderAddress);
             message.setTo(normalizedEmail);
             message.setSubject(purpose.getSubject());
-            message.setText("인증번호는 [" + code + "] 입니다. 인증번호는 발송 후 5분 동안 유효합니다.");
+            message.setText("인증번호는 [" + code + "] 입니다.");
             mailSender.send(message);
 
             // 메일 발송에 성공한 경우에만 쿨다운과 시간당 횟수를 기록합니다.

@@ -372,7 +372,7 @@
         }
 
         resetButton.disabled = true;
-        setStatus(resetStatus, '비밀번호를 변경하고 있습니다.', null);
+        setStatus(resetStatus, '', null);
         try {
             const data = await postForm('/api/members/recovery/find-password/reset', {
                 loginId: loginIdField.value.trim(),
