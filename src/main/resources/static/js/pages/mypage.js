@@ -1,6 +1,6 @@
 (function () {
     const MY_PAGE_SIZE = 5;
-    const MY_PAGE_PAGE_GROUP_SIZE = 10;
+    const MY_PAGE_PAGE_GROUP_SIZE = 5;
     const toast = window.Haebom.toast;
     const page = document.getElementById('mypage-content');
     const withdrawConfirmText = document.getElementById('withdrawConfirmText');
@@ -152,16 +152,6 @@
     let appliedScenarioHistoryStatus = 'ALL';
     let scenarioHistoryRequestId = 0;
 
-    function scrollToListStart(element) {
-        if (!element) return;
-
-        const top = window.scrollY + element.getBoundingClientRect().top - 112;
-        const reduceMotion = window.matchMedia
-            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const behavior = reduceMotion ? 'auto' : 'smooth';
-        window.scrollTo({ top: Math.max(0, top), behavior: behavior });
-    }
-
     function setScenarioHistoryLoading(list, pagination, isLoading) {
         list.classList.toggle('is-loading', isLoading && scenarioHistoryItems !== null);
         list.setAttribute('aria-busy', String(isLoading));
@@ -197,7 +187,7 @@
             bootstrap: false,
             hideWhenSinglePage: true,
             onPageChange: function (targetPage) {
-                loadScenarioHistory(targetPage, true);
+                loadScenarioHistory(targetPage);
             }
         });
     }
@@ -282,7 +272,7 @@
         renderScenarioHistoryPagination();
     }
 
-    async function loadScenarioHistory(requestedPage, scrollAfterLoad) {
+    async function loadScenarioHistory(requestedPage) {
         const list = document.querySelector('[data-scenario-history-list]');
         if (!page || !page.dataset.scenarioHistoryApiUrl || !list) return;
 
@@ -319,13 +309,12 @@
             scenarioHistoryTotalCount = Number(result.totalCount) || 0;
             scenarioHistoryTotalPages = Number(result.totalPages) || 0;
             if (scenarioHistoryTotalPages > 0 && requested > scenarioHistoryTotalPages) {
-                return loadScenarioHistory(scenarioHistoryTotalPages, scrollAfterLoad);
+                return loadScenarioHistory(scenarioHistoryTotalPages);
             }
             scenarioHistoryPage = scenarioHistoryTotalPages === 0 ? 1 : requested;
             scenarioHistoryItems = result.items;
             setScenarioHistoryLoading(list, pagination, false);
             renderScenarioHistory(result.items);
-            if (scrollAfterLoad) scrollToListStart(list);
         } catch (error) {
             if (requestId !== scenarioHistoryRequestId) return;
             setScenarioHistoryLoading(list, pagination, false);
@@ -450,7 +439,6 @@
                 onPageChange: function (targetPage) {
                     currentPage = targetPage;
                     render();
-                    scrollToListStart(rows);
                 }
             });
         }
