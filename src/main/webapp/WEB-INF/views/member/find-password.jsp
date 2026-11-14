@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common/common-loading.css?v=common-loading-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-focus-4" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-footer-divider-1" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -35,8 +35,7 @@
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
                         <input class="form-control" id="loginId" name="loginId" type="text"
-                               autocomplete="username" minlength="4" maxlength="16"
-                               placeholder="아이디를 입력해 주세요" required>
+                               autocomplete="username" minlength="4" maxlength="16" required>
                     </div>
                 </div>
                 <div class="login-field mb-3">
@@ -44,8 +43,7 @@
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
                         <input class="form-control" id="memberName" name="memberName" type="text"
-                               autocomplete="name" maxlength="20"
-                               placeholder="이름을 입력해 주세요" required>
+                               autocomplete="name" maxlength="20" required>
                     </div>
                 </div>
                 <div class="login-field mb-3">
@@ -54,8 +52,7 @@
                         <div class="login-input-wrap">
                             <span class="material-symbols-outlined login-input-icon" aria-hidden="true">mail</span>
                             <input class="form-control" id="email" name="email" type="email"
-                                   autocomplete="email" maxlength="50"
-                                   placeholder="회원가입 시 등록한 이메일을 입력해 주세요" required>
+                                   autocomplete="email" maxlength="50" required>
                         </div>
                         <button class="btn btn-outline-primary" id="sendCodeButton" type="button">
                             인증번호 받기
@@ -73,7 +70,7 @@
                                 <span class="material-symbols-outlined login-input-icon" aria-hidden="true">pin</span>
                                 <input class="form-control" id="verificationCode" name="code" type="text"
                                        inputmode="numeric" autocomplete="one-time-code" maxlength="6"
-                                       pattern="[0-9]{6}" placeholder="인증번호 6자리를 입력해 주세요"
+                                       pattern="[0-9]{6}"
                                        aria-label="이메일 인증번호">
                             </div>
                             <button class="btn btn-outline-primary" id="confirmCodeButton" type="button">
@@ -87,6 +84,8 @@
 
                 <input type="hidden" id="csrfToken" name="${_csrf.parameterName}"
                        value="${_csrf.token}" data-header="${_csrf.headerName}">
+                <div class="account-find-footer-divider" aria-hidden="true"></div>
+                <a class="account-login-link" href="${pageContext.request.contextPath}/login">로그인으로 돌아가기</a>
             </div>
         </section>
 
@@ -129,6 +128,8 @@
                 <button class="btn btn-primary login-submit w-100" id="resetPasswordButton" type="button">
                     비밀번호 변경
                 </button>
+                <div class="account-find-footer-divider" aria-hidden="true"></div>
+                <a class="account-login-link" href="${pageContext.request.contextPath}/login">로그인으로 돌아가기</a>
             </section>
 
             <section class="account-find-result" id="passwordRecoveryComplete" aria-live="polite" hidden>

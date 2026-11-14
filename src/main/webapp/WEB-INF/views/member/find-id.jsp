@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common/common-loading.css?v=common-loading-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-focus-4" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-footer-divider-1" rel="stylesheet">
 </head>
 <body class="login-page">
     <main class="login-shell">
@@ -35,7 +35,7 @@
                     <div class="login-input-wrap">
                         <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
                         <input class="form-control" id="memberName" name="memberName" type="text"
-                               autocomplete="name" placeholder="이름을 입력해 주세요" required>
+                               autocomplete="name" required>
                     </div>
                 </div>
                 <div class="login-field mb-4">
@@ -44,7 +44,7 @@
                         <div class="login-input-wrap">
                             <span class="material-symbols-outlined login-input-icon" aria-hidden="true">mail</span>
                             <input class="form-control" id="email" name="email" type="email"
-                                   autocomplete="email" placeholder="가입한 이메일을 입력해 주세요" required>
+                                   autocomplete="email" required>
                         </div>
                         <button class="btn btn-outline-primary" id="sendCodeButton" type="button"
                                 data-find-id-send-code>인증번호 받기</button>
@@ -60,8 +60,7 @@
                             <span class="material-symbols-outlined login-input-icon" aria-hidden="true">pin</span>
                             <input class="form-control" id="verificationCode" name="code" type="text"
                                    inputmode="numeric" autocomplete="one-time-code" maxlength="6"
-                                   pattern="[0-9]{6}" required
-                                   placeholder="인증번호 6자리를 입력해 주세요" aria-label="이메일 인증번호">
+                                   pattern="[0-9]{6}" required aria-label="이메일 인증번호">
                         </div>
                         <button class="btn btn-outline-primary" id="confirmCodeButton" type="button"
                                 data-find-id-confirm-code>인증 확인</button>
@@ -71,6 +70,8 @@
                 </div>
                 <input type="hidden" id="csrfToken" name="${_csrf.parameterName}"
                        value="${_csrf.token}" data-header="${_csrf.headerName}">
+                <div class="account-find-footer-divider" aria-hidden="true"></div>
+                <a class="account-login-link" href="${pageContext.request.contextPath}/login">로그인으로 돌아가기</a>
             </div>
 
             <section class="account-find-result" id="findIdResult" aria-live="polite" hidden>
