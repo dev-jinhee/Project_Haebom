@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-scenario-search-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-8" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-9" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
