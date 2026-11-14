@@ -17,7 +17,11 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-tabs { display:flex; gap:30px; margin:24px 0 16px; border-bottom:1px solid #e4eaf0; }
 .mypage-tabs button { padding-right:6px; padding-left:6px; }
 .mypage-history-toolbar { align-items:center; gap:16px; margin-bottom:10px; }
-.mypage-history-toolbar h2 { margin:0; }
+.mypage-panel-title { display:flex; align-items:baseline; gap:10px; min-width:0; }
+.mypage-panel-title h2 { margin:0; }
+.mypage-panel-shortcut { color:#1769aa; font-size:.74rem; font-weight:500; text-decoration:none; white-space:nowrap; }
+.mypage-panel-shortcut:hover,
+.mypage-panel-shortcut:focus-visible { color:#145b91; text-decoration:underline; text-underline-offset:3px; }
 .mypage-history-count { margin:4px 0 0; color:#758395; font-size:.76rem; }
 .mypage-history-retention-note { display:flex; align-items:flex-start; gap:5px; margin:0 0 12px; color:#758395; font-size:.74rem; line-height:1.5; }
 .mypage-history-retention-note .material-symbols-outlined { flex:0 0 auto; margin-top:2px; font-size:1rem; line-height:1; }
@@ -72,7 +76,6 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 /* 마이페이지 내 문의 목록 */
 .mypage-inquiries-panel { overflow:hidden; }
 .mypage-inquiries-toolbar { align-items:center; gap:16px; }
-.mypage-inquiries-toolbar h2 { margin:0; }
 .mypage-inquiry-controls { margin:0; }
 .mypage-inquiry-list { margin-top:4px; border-top:1px solid #e4eaf0; }
 .mypage-history-list,
@@ -117,6 +120,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
     .mypage-inquiry-controls .input-group { flex:1 1 100%; width:100%; min-width:0; }
 }
 @media(max-width:575.98px) {
+    .mypage-panel-title { flex-wrap:wrap; gap:4px 9px; }
     .mypage-history-toolbar { align-items:stretch; flex-direction:column; }
     .mypage-history-search { flex-basis:auto; width:100%; }
     .mypage-history-search { flex-wrap:wrap; }

@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-scenario-search-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-list-account-dividers-16" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-list-account-dividers-17" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -48,7 +48,10 @@
         <section data-my-panel="history" aria-labelledby="historyTitle">
             <div class="content-panel mypage-history-panel">
                 <div class="panel-heading mypage-history-toolbar">
-                    <h2 id="historyTitle">진행 내역</h2>
+                    <div class="mypage-panel-title">
+                        <h2 id="historyTitle">진행 내역</h2>
+                        <a class="mypage-panel-shortcut" href="${pageContext.request.contextPath}/scenario">시나리오 선택</a>
+                    </div>
                     <form class="mypage-history-search mypage-search-form" data-scenario-history-search-form role="search">
                         <label class="visually-hidden" for="mypageHistoryStatus">진행 내역 상태</label>
                         <select class="form-select form-select-sm hb-select" id="mypageHistoryStatus">
@@ -93,7 +96,10 @@
         <section class="d-none" data-my-panel="inquiries" aria-labelledby="inquiriesTitle">
             <div class="content-panel mypage-inquiries-panel">
                 <div class="panel-heading mypage-inquiries-toolbar">
-                    <h2 id="inquiriesTitle">내 문의 내역</h2>
+                    <div class="mypage-panel-title">
+                        <h2 id="inquiriesTitle">내 문의 내역</h2>
+                        <a class="mypage-panel-shortcut" href="${pageContext.request.contextPath}/inquiries">문의 작성</a>
+                    </div>
                     <form class="mypage-inquiry-controls mypage-search-form" data-mypage-inquiry-search-form role="search">
                         <label class="visually-hidden" for="mypageInquiryStatus">문의 상태</label>
                         <select class="form-select form-select-sm hb-select" id="mypageInquiryStatus">
