@@ -1,5 +1,7 @@
 package kr.co.oti.haebom.business.inquiry.service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
-	private static final int SCENARIO_HISTORY_PAGE_SIZE = 10;
+	private static final int SCENARIO_HISTORY_PAGE_SIZE = 5;
 	
 	private final MyPageMapper myPageMapper;
 	private final SimulationAnswerMapper simulationAnswerMapper;
@@ -64,21 +66,26 @@ public class MyPageService {
 	        String newPassword,
 	        String passwordConfirm) {
 
-	    if (currentPassword == null || currentPassword.isBlank()) {
+	    String decodedCurrentPassword = decodePasswordComponent(currentPassword);
+	    String decodedNewPassword = decodePasswordComponent(newPassword);
+	    String decodedPasswordConfirm = decodePasswordComponent(passwordConfirm);
+
+	    if (decodedCurrentPassword == null || decodedCurrentPassword.isBlank()) {
 	        throw new ResponseStatusException(
 	                HttpStatus.BAD_REQUEST, "현재 비밀번호를 입력해 주세요.");
 	    }
 
-	    if (newPassword == null
-	            || newPassword.length() < 8
-	            || newPassword.length() > 20
-	            || !newPassword.matches("^[^><_\"'-]+$")) {
+	    if (decodedNewPassword == null
+	            || decodedNewPassword.length() < 8
+	            || decodedNewPassword.length() > 20
+	            || !decodedNewPassword.matches("^[^><_\"'-]+$")) {
 	        throw new ResponseStatusException(
 	                HttpStatus.BAD_REQUEST,
 	                "새 비밀번호는 8~20자이며 사용할 수 없는 특수문자가 포함되어 있습니다.");
 	    }
 
-	    if (passwordConfirm == null || !newPassword.equals(passwordConfirm)) {
+	    if (decodedPasswordConfirm == null
+	            || !decodedNewPassword.equals(decodedPasswordConfirm)) {
 	        throw new ResponseStatusException(
 	                HttpStatus.BAD_REQUEST, "새 비밀번호 확인이 일치하지 않습니다.");
 	    }
@@ -105,13 +112,24 @@ public class MyPageService {
 	                HttpStatus.CONFLICT, "비밀번호를 변경하지 못했습니다. 다시 시도해 주세요.");
 	    }
 	}
+
+	private String decodePasswordComponent(String value) {
+	    if (value == null) {
+	        return null;
+	    }
+	    try {
+	        return URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+	    } catch (Exception e) {
+	        return value;
+	    }
+	}
 	
 	public List<MyPageInquiryItemDTO> getMyInquiries(Integer memberId) {
 	    return myPageMapper.selectInquiriesByMemberId(memberId);
 	}
 	
 	public MyPageScenarioHistoryPageDTO getScenarioHistory(
-	        Integer memberId, Integer scenarioId, String keyword, String status, int requestedPage) {
+	        Integer memberId, Integer scenarioId, String keyword, String status, String sort, int requestedPage) {
 	    
 		int page = Math.max(requestedPage, 1);
 	    int size = SCENARIO_HISTORY_PAGE_SIZE;
@@ -122,9 +140,13 @@ public class MyPageService {
 	        normalizedStatus = "ALL";
 	    }
 	    String statusFilter = "ALL".equals(normalizedStatus) ? null : normalizedStatus;
+	    String normalizedSort = sort == null ? "NEWEST" : sort.trim().toUpperCase(Locale.ROOT);
+	    if (!"OLDEST".equals(normalizedSort)) {
+	        normalizedSort = "NEWEST";
+	    }
 
 	    List<MyPageScenarioHistoryDTO> items = myPageMapper.selectScenarioHistory(
-	            memberId, scenarioId, normalizedKeyword, statusFilter, size, offset);
+	            memberId, scenarioId, normalizedKeyword, statusFilter, normalizedSort, size, offset);
 	    
 	    long totalCount = myPageMapper.countScenarioHistory(
 	            memberId, scenarioId, normalizedKeyword, statusFilter);

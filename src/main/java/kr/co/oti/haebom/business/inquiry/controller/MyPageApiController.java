@@ -102,20 +102,21 @@ public class MyPageApiController {
 		return myPageService.getMyInquiries(memberPrincipal.getMemberId());
 	}
 	
-	@Operation(summary = "내 시나리오 이력 조회", description = "로그인 회원의 진행 중·완료 이력을 최신순으로 조회합니다.")
+	@Operation(summary = "내 시나리오 이력 조회", description = "로그인 회원의 진행 중·완료 이력을 최신순 또는 오래된순으로 조회합니다.")
 	@GetMapping("/scenario-history")
 	public MyPageScenarioHistoryPageDTO getScenarioHistory(
 			@AuthenticationPrincipal MemberPrincipal principal,
 			@RequestParam(required = false) Integer scenarioId,
 			@RequestParam(defaultValue = "") String keyword,
 			@RequestParam(defaultValue = "ALL") String status,
+			@RequestParam(defaultValue = "NEWEST") String sort,
 			@RequestParam(defaultValue = "1") int page) {
 		    
 		if (principal == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
 		}
 		
-		return myPageService.getScenarioHistory(principal.getMemberId(), scenarioId, keyword, status, page);
+		return myPageService.getScenarioHistory(principal.getMemberId(), scenarioId, keyword, status, sort, page);
 		
 		}
 }

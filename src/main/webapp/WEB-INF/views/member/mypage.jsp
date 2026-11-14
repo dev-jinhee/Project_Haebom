@@ -10,8 +10,8 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-progress-history-4" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-scenario-search-1" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-list-account-dividers-17" rel="stylesheet">
 </head>
 <body class="mypage-page">
     <jsp:include page="/WEB-INF/views/common/header.jsp" />
@@ -48,31 +48,38 @@
         <section data-my-panel="history" aria-labelledby="historyTitle">
             <div class="content-panel mypage-history-panel">
                 <div class="panel-heading mypage-history-toolbar">
-                    <div>
+                    <div class="mypage-panel-title">
                         <h2 id="historyTitle">진행 내역</h2>
-                        <p class="mypage-history-retention-note">
-                            <span class="material-symbols-outlined" aria-hidden="true">info</span>
-                            진행 중인 내역은 마지막 저장일로부터 30일이 지나면 자동 삭제됩니다.
-                        </p>
+                        <a class="mypage-panel-shortcut" href="${pageContext.request.contextPath}/scenario">시나리오 선택</a>
                     </div>
                     <form class="mypage-history-search mypage-search-form" data-scenario-history-search-form role="search">
                         <label class="visually-hidden" for="mypageHistoryStatus">진행 내역 상태</label>
-                        <select class="form-select form-select-sm" id="mypageHistoryStatus">
+                        <select class="form-select form-select-sm hb-select" id="mypageHistoryStatus">
                             <option value="ALL">전체 상태</option>
                             <option value="IN_PROGRESS">진행 중</option>
                             <option value="COMPLETED">완료</option>
                         </select>
+                        <label class="visually-hidden" for="mypageHistorySort">진행 내역 정렬</label>
+                        <select class="form-select form-select-sm hb-select mypage-sort-select" id="mypageHistorySort">
+                            <option value="NEWEST" selected>최신순</option>
+                            <option value="OLDEST">오래된순</option>
+                        </select>
                         <label class="visually-hidden" for="mypageHistoryKeyword">시나리오 제목 검색</label>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text" aria-hidden="true">
-                                <span class="material-symbols-outlined">search</span>
-                            </span>
-                            <input class="form-control" id="mypageHistoryKeyword"
+                            <div class="scenario-search mypage-search-input">
+                                <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                                <input class="form-control form-control-sm" id="mypageHistoryKeyword"
                                    type="search" maxlength="100" placeholder="시나리오 제목 검색">
+                            </div>
                             <button class="btn btn-primary" type="submit">검색</button>
                         </div>
                     </form>
                 </div>
+
+                <p class="mypage-history-retention-note">
+                    <span class="material-symbols-outlined" aria-hidden="true">info</span>
+                    진행 중인 내역은 마지막 저장일로부터 30일이 지나면 자동 삭제됩니다.
+                </p>
 
                 <div class="mypage-history-list" data-scenario-history-list aria-live="polite">
                     <p class="mypage-history-message" role="status">진행 내역을 불러오는 중입니다.</p>
@@ -80,7 +87,7 @@
 
                 <div class="table-footer mypage-history-footer">
                     <nav aria-label="진행 내역 페이지">
-                        <ul class="pagination pagination-sm mb-0" data-scenario-history-pagination></ul>
+                        <ul class="hb-pagination" data-scenario-history-pagination></ul>
                     </nav>
                 </div>
             </div>
@@ -89,22 +96,30 @@
         <section class="d-none" data-my-panel="inquiries" aria-labelledby="inquiriesTitle">
             <div class="content-panel mypage-inquiries-panel">
                 <div class="panel-heading mypage-inquiries-toolbar">
-                    <h2 id="inquiriesTitle">내 문의 내역</h2>
+                    <div class="mypage-panel-title">
+                        <h2 id="inquiriesTitle">내 문의 내역</h2>
+                        <a class="mypage-panel-shortcut" href="${pageContext.request.contextPath}/inquiries">문의 작성</a>
+                    </div>
                     <form class="mypage-inquiry-controls mypage-search-form" data-mypage-inquiry-search-form role="search">
                         <label class="visually-hidden" for="mypageInquiryStatus">문의 상태</label>
-                        <select class="form-select form-select-sm" id="mypageInquiryStatus">
+                        <select class="form-select form-select-sm hb-select" id="mypageInquiryStatus">
                             <option value="">전체 상태</option>
                             <option value="WAITING">답변 대기</option>
                             <option value="ANSWERING">답변 중</option>
                             <option value="ANSWERED">답변 완료</option>
                         </select>
+                        <label class="visually-hidden" for="mypageInquirySort">문의 내역 정렬</label>
+                        <select class="form-select form-select-sm hb-select mypage-sort-select" id="mypageInquirySort">
+                            <option value="NEWEST" selected>최신순</option>
+                            <option value="OLDEST">오래된순</option>
+                        </select>
                         <label class="visually-hidden" for="mypageInquirySearch">문의 검색</label>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text" aria-hidden="true">
-                                <span class="material-symbols-outlined">search</span>
-                            </span>
-                            <input class="form-control" id="mypageInquirySearch"
+                            <div class="scenario-search mypage-search-input">
+                                <span class="material-symbols-outlined" aria-hidden="true">search</span>
+                                <input class="form-control form-control-sm" id="mypageInquirySearch"
                                    type="search" placeholder="문의 검색">
+                            </div>
                             <button class="btn btn-primary" type="submit">검색</button>
                         </div>
                     </form>
@@ -116,7 +131,7 @@
 
                 <div class="table-footer mypage-inquiry-footer">
                     <nav aria-label="내 문의 페이지">
-                        <ul class="pagination pagination-sm mb-0" data-mypage-inquiry-pagination></ul>
+                        <ul class="hb-pagination" data-mypage-inquiry-pagination></ul>
                     </nav>
                 </div>
             </div>
@@ -186,7 +201,7 @@
     <div class="modal" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form id="passwordChangeForm">
+                <form id="passwordChangeForm" novalidate>
                     <div class="modal-header">
                         <h2 class="modal-title fs-5" id="passwordChangeTitle">비밀번호 변경</h2>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
@@ -195,11 +210,12 @@
                         <div class="mypage-password-field">
                             <label class="form-label" for="currentPassword">현재 비밀번호</label>
                             <div class="mypage-password-wrap">
-                                <input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" required>
+                                <input class="form-control" id="currentPassword" name="currentPassword" type="password" autocomplete="current-password" aria-describedby="currentPasswordStatus" required>
                                 <button class="mypage-password-toggle" type="button" data-mypage-toggle-password="currentPassword" aria-label="비밀번호 표시">
                                     <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
                                 </button>
                             </div>
+                            <p class="form-text mypage-password-status" id="currentPasswordStatus" aria-live="polite"></p>
                         </div>
                         <div class="mypage-password-field">
                             <label class="form-label" for="newPassword">새 비밀번호</label>
@@ -221,6 +237,7 @@
                             </div>
                             <p class="form-text mypage-password-status" id="confirmNewPasswordStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
                         </div>
+                        <p class="form-text text-danger mypage-password-form-error" id="passwordChangeError" role="alert" hidden></p>
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-outline-secondary rounded-pill" type="button" data-bs-dismiss="modal">취소</button>
@@ -292,7 +309,7 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-5"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-20"></script>
 </body>
 </html>
 

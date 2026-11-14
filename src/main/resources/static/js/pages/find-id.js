@@ -8,7 +8,6 @@
     const verificationSection = document.getElementById('verificationSection');
     const codeField = document.getElementById('verificationCode');
     const sendButton = document.getElementById('sendCodeButton');
-    const emailHelp = document.getElementById('emailResendHelp');
     const confirmButton = document.getElementById('confirmCodeButton');
     const sendStatus = document.getElementById('sendCodeStatus');
     const resendHelp = document.getElementById('resendHelp');
@@ -28,9 +27,6 @@
     let resendHelpMessage = '';
     let sendInProgress = false;
     let emailFormatErrorShown = false;
-    let resendHelpMessage = '';
-    const defaultEmailHelp = '';
-
     function setFieldInvalid(field, invalid) {
         if (field) field.setAttribute('aria-invalid', String(invalid));
     }
