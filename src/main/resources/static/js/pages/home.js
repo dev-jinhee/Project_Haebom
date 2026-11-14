@@ -178,7 +178,6 @@
     let highlightedCenterId = '';
     let centerLoadPromise = null;
     let sidoOptionsPromise = null;
-    let regionSearchRequested = false;
     let centerMarkerIcon = null;
     const CENTER_LIST_PAGE_SIZE = 5;
 
@@ -232,7 +231,7 @@
           regionsLoaded = true;
           regionsLoadFailed = false;
           updateRegionControls();
-          if (mapReady && !centersLoaded && !regionSearchRequested) message.textContent = '';
+          if (mapReady && !centersLoaded) message.textContent = '';
           return true;
         })
         .catch(error => {
@@ -274,6 +273,15 @@
 
     function clearMarkersForMapGesture() {
       clearCenterMarkerLayer(centerPopupOpen ? activeCenterMarker : null);
+    }
+
+    function panMapToCenter(center) {
+      if (!administrativeCenterMap || !center) return;
+
+      administrativeCenterMap.panTo({
+        lat: center.latitude,
+        lng: center.longitude
+      });
     }
 
     function focusMapOnSelectedRegion(selectedCenters) {
@@ -662,9 +670,9 @@
       const sigungu = String(center.sigungu || '').trim();
       if (!sido) return;
 
+      panMapToCenter(center);
       clearSelectedCenterHighlight();
       const requestId = ++regionRequestId;
-      regionSearchRequested = true;
       const hasSameRegion = regionsLoaded
         && sidoSelect.value === sido
         && sigunguSelect.value === sigungu
@@ -703,8 +711,6 @@
         if (requestId !== regionRequestId || !section.isConnected
             || sidoSelect.value !== sido || sigunguSelect.value !== sigungu) return;
 
-        mapCenterData = selectedCenters;
-        clearCenterMarkerLayer(centerPopupOpen ? activeCenterMarker : null);
         renderVisibleCenters();
         renderCenterListForSelectedRegion(selectedCenters, center.centerId);
         message.textContent = dataFreshnessMessage;
@@ -810,21 +816,19 @@
                 lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
             return { ...center, latitude: lat, longitude: lng };
           }).filter(Boolean);
-          if (!regionSearchRequested) mapCenterData = centerData;
+          mapCenterData = centerData;
           centersLoaded = true;
           if (centerData.length === 0) {
             message.textContent = '지도에 표시할 좌표가 등록된 행정복지센터가 없습니다.';
             return;
           }
 
-          if (!regionSearchRequested) {
-            const bounds = new google.maps.LatLngBounds();
-            centerData.forEach(center => bounds.extend({
-              lat: center.latitude,
-              lng: center.longitude
-            }));
-            administrativeCenterMap.fitBounds(bounds);
-          }
+          const bounds = new google.maps.LatLngBounds();
+          centerData.forEach(center => bounds.extend({
+            lat: center.latitude,
+            lng: center.longitude
+          }));
+          administrativeCenterMap.fitBounds(bounds);
           renderVisibleCenters();
         } catch (error) {
           console.error('행정복지센터 조회 오류:', error);
@@ -872,7 +876,6 @@
         return;
       }
 
-      regionSearchRequested = true;
       const requestId = ++regionRequestId;
       const sido = sidoSelect.value;
       const sigungu = sigunguSelect.value;
@@ -884,8 +887,6 @@
         const selectedCenters = await fetchCentersByRegion(sido, sigungu);
         if (requestId !== regionRequestId || !section.isConnected
             || sidoSelect.value !== sido || sigunguSelect.value !== sigungu) return;
-        mapCenterData = selectedCenters;
-        clearCenterMarkers();
         if (selectedCenters.length === 0) {
           regionCenterData = [];
           regionCenterLabel = regionLabel;
