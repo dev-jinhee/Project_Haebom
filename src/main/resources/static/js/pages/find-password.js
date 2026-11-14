@@ -358,9 +358,7 @@
             nameField.disabled = true;
             emailField.disabled = true;
             codeField.disabled = true;
-            confirmButton.textContent = '인증 완료 ✓';
             resetSection.hidden = false;
-            setStatus(verifyStatus, '이메일 인증이 완료되었습니다.', 'text-success');
             card.hidden = true;
             resetCard.hidden = false;
             newPasswordField.focus();
