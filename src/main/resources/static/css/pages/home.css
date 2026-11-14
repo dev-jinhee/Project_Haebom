@@ -344,7 +344,7 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
 @media (max-width: 48em) {
   .home-panel { min-height: 0; }
 }
-@media (max-width: 68em), (max-height: 50rem), (hover: none) and (pointer: coarse) {
+@media (max-width: 68em), (max-height: 56.25rem), (hover: none) and (pointer: coarse) {
   html.home-snap-enabled { scroll-snap-type: none; scroll-behavior: auto; }
 
   .home-main { height: auto; min-height: 0; overflow: visible; }

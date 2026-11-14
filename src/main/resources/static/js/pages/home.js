@@ -81,7 +81,7 @@
     // Snap only on roomy, non-touch desktop viewports. Tablets and short windows
     // use normal document scrolling so content cannot trap the scroll position.
     const desktopSnap = window.matchMedia(
-      '(min-width: 68.01em) and (min-height: 50.01rem) and (hover: hover) and (pointer: fine)'
+      '(min-width: 68.01em) and (min-height: 56.26rem) and (hover: hover) and (pointer: fine)'
     );
     function updateSnapMode() {
       document.documentElement.classList.toggle('home-snap-enabled', desktopSnap.matches);
