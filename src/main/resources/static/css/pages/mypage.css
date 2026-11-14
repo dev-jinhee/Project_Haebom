@@ -31,6 +31,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-search-form .input-group:focus-within { border-color:var(--focus-border); outline:2px solid transparent; outline-offset:2px; box-shadow:var(--focus-shadow); }
 .mypage-search-form .btn { flex:0 0 auto; border-radius:0; padding-inline:1rem; }
 .mypage-history-list { margin-top:4px; border-top:1px solid #e4eaf0; }
+.mypage-history-list.is-empty { display:grid; min-height:180px; place-items:center; }
 .mypage-history-list.is-loading { pointer-events:none; }
 .mypage-history-item { display:flex; align-items:center; justify-content:space-between; gap:18px; min-height:84px; padding:15px 10px; border-bottom:1px solid #e8edf2; }
 .mypage-history-content { display:grid; min-width:0; gap:8px; }
@@ -43,6 +44,7 @@ mypage-tabs { display:flex; gap:22px; margin:24px 0 16px; border-bottom:1px soli
 .mypage-history-metadata > * + * { padding-left:10px; border-left:1px solid #dce3ea; }
 .mypage-history-actions { display:flex; flex:0 0 auto; align-items:center; gap:7px; }
 .mypage-history-message { margin:0; padding:40px 16px; color:#758395; text-align:center; font-size:.86rem; }
+.mypage-history-list.is-empty .mypage-history-message { padding:24px 16px; }
 .mypage-history-message.is-error { color:#a33d3d; }
 .mypage-history-footer { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; margin-top:18px; padding-top:16px; border-top:1px solid #e4eaf0; }
 .mypage-history-footer > nav { grid-column:2; justify-self:center; }

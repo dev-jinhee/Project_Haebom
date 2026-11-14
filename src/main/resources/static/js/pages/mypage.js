@@ -161,10 +161,11 @@
         }
     }
 
-    function showScenarioHistoryMessage(message, isError) {
+    function showScenarioHistoryMessage(message, isError, isEmpty) {
         const list = document.querySelector('[data-scenario-history-list]');
         if (!list) return;
 
+        list.classList.toggle('is-empty', Boolean(isEmpty));
         const paragraph = document.createElement('p');
         paragraph.className = 'mypage-history-message' + (isError ? ' is-error' : '');
         paragraph.setAttribute('role', isError ? 'alert' : 'status');
@@ -200,7 +201,7 @@
         if (total) total.textContent = '총 ' + scenarioHistoryTotalCount + '건';
         if (!Array.isArray(items) || items.length === 0) {
             showScenarioHistoryMessage(
-                scenarioHistoryTotalCount === 0 ? '아직 진행 내역이 없습니다.' : '검색 결과가 없습니다.', false);
+                scenarioHistoryTotalCount === 0 ? '아직 진행 내역이 없습니다.' : '검색 결과가 없습니다.', false, true);
             renderScenarioHistoryPagination();
             return;
         }
@@ -268,6 +269,7 @@
             return row;
         });
 
+        list.classList.remove('is-empty');
         list.replaceChildren.apply(list, rows);
         renderScenarioHistoryPagination();
     }
@@ -375,6 +377,14 @@
                 event.preventDefault();
                 appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
                 appliedScenarioHistoryStatus = statusFilter ? statusFilter.value : 'ALL';
+                loadScenarioHistory(1);
+            });
+        }
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function () {
+                appliedScenarioHistoryKeyword = keywordInput ? keywordInput.value.trim() : '';
+                appliedScenarioHistoryStatus = statusFilter.value;
                 loadScenarioHistory(1);
             });
         }
@@ -697,6 +707,15 @@
             searchForm.addEventListener('submit', function (event) {
                 event.preventDefault();
                 appliedInquiryStatus = statusFilter ? statusFilter.value : '';
+                appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
+                currentPage = 1;
+                render();
+            });
+        }
+
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function () {
+                appliedInquiryStatus = statusFilter.value;
                 appliedInquiryKeyword = searchInput ? searchInput.value.trim() : '';
                 currentPage = 1;
                 render();

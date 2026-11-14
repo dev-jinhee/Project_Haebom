@@ -293,7 +293,7 @@
         </div>
     </div>
 
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-9"></script>
+    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-10"></script>
 </body>
 </html>
 
