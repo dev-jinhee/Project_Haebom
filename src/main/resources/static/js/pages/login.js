@@ -1,6 +1,17 @@
 (() => {
   const loginForm = document.getElementById('loginForm');
 
+  // 로그인 실패 안내는 현재 화면에 남기고, 새로고침 때 반복 표시되지 않도록 URL만 정리합니다.
+  const currentUrl = new URL(window.location.href);
+  if (currentUrl.searchParams.has('error')) {
+    currentUrl.searchParams.delete('error');
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`
+    );
+  }
+
   function showLoginRequestError(message) {
     let errorElement = document.getElementById('loginFetchError');
 
