@@ -205,7 +205,7 @@
 .home-primary-nav a:hover, .home-primary-nav a.active { color: #1769aa; background: #e9f3f9; }
 .home-panel { display: flex; height: calc(100svh - var(--home-header-height, 4.75rem)); min-height: 38.75rem; padding: 1.125rem 0; scroll-margin-top: var(--home-header-height, 4.75rem); scroll-snap-align: start; }
 .home-panel-inner { display: flex; min-height: 0; flex: 1; flex-direction: column; gap: 0.75rem; }
-.practice-panel { background: #fbfdff; }
+.practice-panel { background: #fff; }
 .practice-panel .home-panel-inner { justify-content: center; gap: 0.625rem; }
 .practice-panel .home-hero { flex: 0 0 clamp(15.625rem, 36svh, 21.875rem); min-height: 15.625rem; margin: 0; padding: 1.5rem 2rem; border-radius: 1.5rem; color: #fff; background: linear-gradient(112deg,#10375c 0%,#174d78 54%,#1d6d91 100%); overflow: hidden; }
 .practice-panel .home-hero::before { position: absolute; top: -26.5625rem; right: 14%; width: 37.5rem; height: 37.5rem; border: 0.0625rem solid #ffffff14; border-radius: 50%; box-shadow: 0 0 0 2.125rem #ffffff08, 0 0 0 4.375rem #ffffff05, 0 0 0 6.75rem #ffffff04; content: ''; pointer-events: none; }
@@ -246,7 +246,6 @@
 .home-service-card h2 { font-size: .9rem; }
 .home-service-card p { margin-bottom: 0; font-size: .68rem; }
 .home-service-card .service-action { padding-top: 0.3125rem; font-size: .68rem; }
-.center-map-section { background: #fff; }
 .center-map-panel { border: 0; border-radius: 0; box-shadow: none; }
 .center-map-panel .home-panel-inner { gap: 0.5rem; }
 .center-map-panel .center-map-heading { margin-bottom: 0; }
@@ -274,7 +273,7 @@
   height: auto;
   min-height: calc(100svh - var(--home-header-height, 4.75rem));
   flex-direction: column;
-  background: linear-gradient(to bottom, #f7f9fc calc(100% - 3.875rem), #173755 calc(100% - 3.875rem));
+  background: #fff;
 }
 .policy-home-panel .site-footer {
   width: 100%;
