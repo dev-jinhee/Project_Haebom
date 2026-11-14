@@ -170,6 +170,10 @@ export function initEmailVerification(page) {
 
             sendInProgress = true;
             updateResendButton();
+            const loading = window.HaebomLoading;
+            if (loading !== undefined) {
+                loading.show('인증번호 발송 요청을 처리하고 있어요', '잠시만 기다려 주세요.');
+            }
             try {
                 const params = new URLSearchParams();
                 params.append('email', email);
@@ -230,6 +234,7 @@ export function initEmailVerification(page) {
                         error.message || '인증번호 발송에 실패했습니다.', false);
                 }
             } finally {
+                if (loading !== undefined) loading.hide();
                 sendInProgress = false;
                 updateResendButton();
             }

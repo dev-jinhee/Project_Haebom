@@ -1,6 +1,6 @@
 import { initSignupValidation } from './signup-validation.js?v=signup-modules-2';
 import { initIdAvailability } from './signup-id-availability.js?v=signup-modules-8';
-import { initEmailVerification } from './signup-email-verification.js?v=signup-modules-3';
+import { initEmailVerification } from './signup-email-verification.js?v=signup-modules-4';
 import { initSignupSubmit } from './signup-submit.js?v=signup-modules-1';
 
 const page = document.querySelector('.member-signup-page');
