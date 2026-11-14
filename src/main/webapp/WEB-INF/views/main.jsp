@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v32-natural-policy-scroll" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v33-common-pagination" rel="stylesheet">
 
 </head>
 <body>
@@ -135,7 +135,7 @@
                     </div>
                     <div id="center-list-results" class="center-list-results"></div>
                     <nav class="center-list-pagination-wrap" aria-label="행정복지센터 목록 페이지">
-                        <ul id="center-list-pagination" class="pagination justify-content-center"></ul>
+                        <ul id="center-list-pagination" class="hb-pagination"></ul>
                     </nav>
                 </div>
             </div>
@@ -172,7 +172,7 @@
                 <div id="policySearchResults" class="policy-search-results d-none"
                      aria-live="polite"></div>
                 <nav class="policy-search-pagination-wrap" aria-label="정책 검색 결과 페이지">
-                    <ul id="policySearchPagination" class="pagination justify-content-center"></ul>
+                    <ul id="policySearchPagination" class="hb-pagination"></ul>
                 </nav>
             </section>
         </div>
@@ -186,6 +186,6 @@
     </nav>
 </main>
 
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v16-header-offset"></script>
+<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v17-common-pagination"></script>
 </body>
 </html>

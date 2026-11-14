@@ -7,7 +7,6 @@
 .policy-category-button:hover, .policy-category-button.active { border-color: #1769b0; background: #1769b0; color: #fff; }
 .policy-category-button:focus-visible { outline: 0.1875rem solid rgba(23, 105, 176, .25); outline-offset: 0.125rem; }
 .policy-search-pagination-wrap { margin-top: 1rem; }
-.policy-search-pagination-wrap .pagination { margin-bottom: 0; }
 
 @media (max-width: 36em) {
   .policy-search-categories { gap: 0.375rem; }
@@ -157,7 +156,6 @@
 .center-list-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5625rem; }
 .center-list-actions .btn { font-size: .76rem; }
 .center-list-pagination-wrap { margin-top: 0.75rem; }
-.center-list-pagination-wrap .pagination { margin-bottom: 0; }
 .center-place-popup { width: 18.75rem; max-width: 70vw; overflow-wrap: anywhere; color: #334155; font-size: 0.8125rem; }
 .center-place-popup-header { color: #173b70; font-size: 0.8125rem; font-weight: 700; }
 .center-place-popup > strong { display: block; margin-bottom: 0.3125rem; color: #173b70; }
@@ -270,7 +268,6 @@
 .center-list-card p { font-size: .78rem; }
 .center-list-actions { margin-top: 0.375rem; }
 .center-list-pagination-wrap { display: flex; min-height: 2.75rem; flex: none; align-items: flex-end; justify-content: center; margin-top: auto; padding-top: 0.5rem; }
-.center-list-pagination-wrap .pagination { flex-wrap: wrap; }
 .policy-search-form .input-group:focus-within { border-color: #1769aa; box-shadow: 0 0 0 0.1875rem rgba(23, 105, 176, .16); }
 .policy-search-form .form-control:focus { outline: 0; box-shadow: none; }
 .policy-home-panel {
@@ -531,7 +528,6 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
   .center-list-results { flex: initial; overflow: visible; }
   .center-list-card { padding: 0.75rem 0.125rem; }
   .center-list-pagination-wrap { min-height: 0; padding-top: 0.75rem; }
-  .center-list-pagination-wrap .pagination { flex-wrap: nowrap; }
 
   .policy-panel { display: block; padding: 1rem 0.75rem; }
   .policy-search-categories { gap: 0.375rem; }
@@ -539,15 +535,14 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
   .policy-search-results:not(.d-none) { display: grid; grid-template-columns: minmax(0, 1fr); overflow: visible; }
   .policy-search-result { min-height: 0; padding: 0.75rem; }
   .policy-search-pagination-wrap { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
-  .policy-search-pagination-wrap .pagination { width: max-content; flex-wrap: nowrap; margin-inline: auto; }
-  .policy-search-pagination-wrap .page-link { padding: 0.3rem 0.42rem; white-space: nowrap; }
+  .policy-search-pagination-wrap .hb-pagination { width: max-content; flex-wrap: nowrap; margin-inline: auto; }
 }
 
 @media (max-width: 22.5em) {
   .practice-panel .home-hero .hero-copy h1 { font-size: 1.35rem; }
   .home-recent-progress { padding: 0.75rem; }
   .home-sim-step-label { font-size: 0.55rem; }
-  .policy-search-pagination-wrap .page-link { padding-inline: 0.32rem; }
+  .policy-search-pagination-wrap .hb-pagination button { padding-inline: 0.32rem; }
 }
 
 /* Mobile: let the sections size to their contents instead of inheriting the desktop viewport layout. */
