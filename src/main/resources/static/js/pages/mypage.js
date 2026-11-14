@@ -137,6 +137,24 @@
         }).format(date);
     }
 
+    function formatDateTime(value) {
+        if (!value) {
+            return '정보 없음';
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return '정보 없음';
+        }
+
+        const pad = function (part) {
+            return String(part).padStart(2, '0');
+        };
+        const dateText = date.getFullYear() + '. ' + pad(date.getMonth() + 1) + '. ' + pad(date.getDate()) + '.';
+        const timeText = pad(date.getHours()) + ':' + pad(date.getMinutes());
+        return dateText + ' ' + timeText;
+    }
+
     function openMyPageSimulation(progressId) {
         sessionStorage.setItem('progressId', progressId);
         const simulationUrl = new URL(page.dataset.simulationUrl, window.location.href);
@@ -234,7 +252,7 @@
             if (record.progressStatus === 'IN_PROGRESS') {
                 const saved = document.createElement('time');
                 saved.dateTime = record.lastSavedAt || '';
-                saved.textContent = '최근 저장 ' + formatDate(record.lastSavedAt).replace(/\.$/, '');
+                saved.textContent = '최근 저장 ' + formatDateTime(record.lastSavedAt);
                 metadata.appendChild(saved);
             } else if (record.completedAt) {
                 const completed = document.createElement('time');
@@ -501,9 +519,8 @@
                 category.textContent = item.qnaCategoryName || '-';
 
                 const date = document.createElement('time');
-                const createdAt = item.qnaCreatedAt ? String(item.qnaCreatedAt).substring(0, 10) : '';
-                date.dateTime = createdAt;
-                date.textContent = createdAt ? createdAt.replace(/-/g, '.') : '-';
+                date.dateTime = item.qnaCreatedAt || '';
+                date.textContent = item.qnaCreatedAt ? '작성 시각 ' + formatDateTime(item.qnaCreatedAt) : '-';
                 metadata.append(category, date);
                 content.append(title, metadata);
 
