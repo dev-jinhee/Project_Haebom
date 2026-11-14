@@ -338,16 +338,6 @@
         }
       }
       renderCenterListPage(regionCenterPage);
-
-      if (highlightedCenterId) {
-        requestAnimationFrame(() => {
-          const selectedCard = Array.from(
-            centerListResults.querySelectorAll('.center-list-card')
-          ).find(card => card.dataset.centerId === highlightedCenterId);
-          if (!selectedCard) return;
-          selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-      }
     }
 
     async function fetchCentersByRegion(sido, sigungu) {
@@ -775,7 +765,7 @@
         };
         if (window.markerClusterer.SuperClusterAlgorithm) {
           clusterOptions.algorithm = new window.markerClusterer.SuperClusterAlgorithm({
-            radius: 150,
+            radius: 220,
             maxZoom: 14
           });
         }
@@ -932,7 +922,6 @@
         fullscreenControl: true
       });
       administrativeCenterMap.addListener('idle', renderVisibleCenters);
-      administrativeCenterMap.addListener('zoom_changed', clearMarkersForMapGesture);
       administrativeCenterMap.addListener('dragstart', clearMarkersForMapGesture);
       centerInfoWindow = new google.maps.InfoWindow({ maxWidth: 360 });
       centerInfoWindow.addListener('closeclick', () => {
