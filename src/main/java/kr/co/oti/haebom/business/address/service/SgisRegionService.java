@@ -1,4 +1,3 @@
-
 package kr.co.oti.haebom.business.address.service;
 
 import java.net.URI;
@@ -66,8 +65,12 @@ public class SgisRegionService {
 						Mono.error(new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 응답이 비어 있습니다.")))
 				.map(response -> {
 
-					if (!"0".equals(String.valueOf(response.get("errCd")))) {
-						throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "SGIS 행정구역 조회에 실패했습니다. cd=" + cd);
+					String errCd = String.valueOf(response.get("errCd"));
+					if (!"0".equals(errCd)) {
+						String errMsg = String.valueOf(response.get("errMsg"));
+						throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+								"SGIS 행정구역 조회에 실패했습니다. cd=" + cd
+								+ ", errCd=" + errCd + ", errMsg=" + errMsg);
 					}
 
 					Object result = response.get("result");
@@ -205,7 +208,7 @@ public class SgisRegionService {
 			throw new IllegalStateException("기존 데이터보다 수집 건수가 크게 감소했습니다.");
 		}
 
-		regionWriter.replaceRegions(collected);
+		regionWriter.syncRegions(collected);
 	}
 
 	// ==============================

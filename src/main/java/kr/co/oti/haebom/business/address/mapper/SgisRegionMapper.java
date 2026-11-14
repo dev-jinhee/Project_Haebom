@@ -24,8 +24,11 @@ public interface SgisRegionMapper {
 	// 수집 데이터 일괄 저장
 	int insertRegions(@Param("regions") List<SgisRegionDto> regions);
 
-	// 전체 데이터 삭제 (갱신 시 사용)
-	int deleteAll();
+	// 갱신 비교를 위한 기존 행정구역 전체 조회
+	List<SgisRegionDto> selectAll();
+
+	// 값이 변경된 행정구역만 수정
+	int updateRegion(SgisRegionDto region);
 
 	// fullAddr 조회
 	SgisRegionDto selectByRegionCode(String regionCode);

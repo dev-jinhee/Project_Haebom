@@ -2,68 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper
 	namespace="kr.co.oti.haebom.business.address.mapper.SgisRegionMapper">
-
 	<!-- 전체 데이터 건수 -->
-	<select id="countRegions" resultType="int">
-		SELECT COUNT(*)
-		FROM sgis_region
-	</select>
-	
+	<select id="countRegions" resultType="int"> SELECT COUNT(*) FROM
+		sgis_region </select>
 	<!-- 시도 목록 -->
-	<select id="selectSido" resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto">
-		SELECT *
-		FROM sgis_region
-		WHERE region_level = 1
-		ORDER BY region_name
-	</select>
-
+	<select id="selectSido"
+		resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto"> SELECT * FROM sgis_region WHERE region_level = 1 ORDER BY
+		region_name </select>
 	<!-- 시군구 / 읍면동 목록 -->
-	<select id="selectByParentCode" resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto">
-		SELECT *
-		FROM sgis_region
-		WHERE parent_code = #{parentCode}
-		ORDER BY region_name
-	</select>
-
+	<select id="selectByParentCode"
+		resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto"> SELECT * FROM sgis_region WHERE parent_code =
+		#{parentCode} ORDER BY region_name </select>
 	<!-- 읍면동 검색 -->
-	<select id="searchRegions" resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto">
-		SELECT *
-		FROM sgis_region
-		WHERE region_level = 3
-		AND full_addr LIKE CONCAT('%', #{keyword}, '%')
-		ORDER BY full_addr
+	<select id="searchRegions"
+		resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto"> SELECT * FROM sgis_region WHERE region_level = 3 AND
+		full_addr LIKE CONCAT('%', #{keyword}, '%') ORDER BY full_addr
 	</select>
-
+	<!-- 전체 행정구역 조회: SGIS 최신 데이터와 비교하기 위해 사용 -->
+	<select id="selectAll"
+		resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto"> SELECT region_code, parent_code, region_name, full_addr,
+		region_level FROM sgis_region </select>
+	<!-- 변경된 행정구역만 갱신 -->
+	<update id="updateRegion"> UPDATE sgis_region SET parent_code = #{parentCode},
+		region_name = #{regionName}, full_addr = #{fullAddr}, region_level =
+		#{regionLevel} WHERE region_code = #{regionCode} </update>
 	<!-- 행정구역 일괄 저장 -->
 	<insert id="insertRegions">
-		INSERT INTO sgis_region (
-		region_code,
-		parent_code,
-		region_name,
-		full_addr,
-		region_level
-		)
-		VALUES
-		<foreach collection="regions" item="region" separator=",">
-			(
-			#{region.regionCode},
-			#{region.parentCode},
-			#{region.regionName},
-			#{region.fullAddr},
-			#{region.regionLevel}
-			)
-		</foreach>
+		INSERT INTO sgis_region ( region_code, parent_code, region_name,
+		full_addr, region_level ) VALUES
+		<foreach collection="regions" item="region" separator=","> (
+			#{region.regionCode}, #{region.parentCode}, #{region.regionName},
+			#{region.fullAddr}, #{region.regionLevel} ) </foreach>
 	</insert>
-	
-	<select id="selectByRegionCode" resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto">
-		select *
-		from sgis_region
-		where region_code = #{regionCode}
-	</select>
-
-	<!-- 전체 삭제 -->
-	<delete id="deleteAll">
-		DELETE FROM sgis_region
-	</delete>
-
+	<select id="selectByRegionCode"
+		resultType="kr.co.oti.haebom.business.address.dto.SgisRegionDto"> select * from sgis_region where region_code =
+		#{regionCode} </select>
 </mapper>
