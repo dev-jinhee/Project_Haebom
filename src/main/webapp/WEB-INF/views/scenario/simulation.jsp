@@ -16,9 +16,14 @@
 <link href="/css/common.css" rel="stylesheet">
 <link href="/css/pages/scenario/simulation/simulation.css"
 	rel="stylesheet">
-
 <link href="/css/pages/scenario/simulation/simulation-common.css"
 	rel="stylesheet">
+
+<!-- 공통 로딩 CSS -->
+<link rel="stylesheet" href="/css/common/common-loading.css">
+
+<!-- 공통 로딩 JS -->
+<script src="/js/common/common-loading.js"></script>
 <!-- 시나리오 공통 학습 안내 -->
 <link href="/css/pages/scenario/simulation/simulation-learning.css"
 	rel="stylesheet">
@@ -78,7 +83,7 @@
 		<!-- ============================== -->
 		<!-- 시뮬레이션 공통 이용 안내 -->
 		<!-- ============================== -->
-		<aside class="sim-notice-panel"
+		<aside class="sim-notice-panel" id="simulationNotice"
 			aria-labelledby="simulationNoticeTitle">
 
 			<h3 id="simulationNoticeTitle">

@@ -242,92 +242,6 @@
 	font-size: .76rem;
 }
 
-/* 원본 simulation.css L398–L482 */
-.option-card {
-	display: flex;
-	align-items: center;
-	gap: 13px;
-	width: 100%;
-	margin-bottom: 12px;
-	padding: 16px;
-	border: 1px solid #dfe6ec;
-	border-radius: 14px;
-	cursor: pointer;
-	transition: border .15s, background .15s;
-}
-
-.option-card:hover, .option-card:focus-within {
-	border-color: #82b2d1;
-	background: #f7fbfd;
-}
-
-.option-card:has(input:checked) {
-	border-color: #2d7fb2;
-	background: #f1f8fc;
-	box-shadow: inset 0 0 0 1px #2d7fb2;
-}
-
-.option-card .form-check-input {
-	flex: 0 0 19px;
-	margin: 0;
-}
-
-.option-card-icon {
-	display: grid;
-	flex: 0 0 42px;
-	place-items: center;
-	width: 42px;
-	height: 42px;
-	border-radius: 13px;
-	color: #1d6b9d;
-	background: #e7f1f7;
-	font-size: 1.15rem;
-}
-
-.option-card strong, .option-card small {
-	display: block;
-}
-
-.option-card strong {
-	font-size: .88rem;
-}
-
-.option-card small {
-	margin-top: 3px;
-	color: var(--muted);
-	font-size: .75rem;
-}
-
-.option-end {
-	margin-left: auto;
-	color: #96a3b0;
-}
-
-.review-list {
-	margin: 0;
-	border-top: 1px solid var(--line);
-}
-
-.review-list>div {
-	display: grid;
-	grid-template-columns: 140px 1fr;
-	gap: 12px;
-	padding: 13px 4px;
-	border-bottom: 1px solid var(--line);
-}
-
-.review-list dt {
-	color: #647387;
-	font-size: .82rem;
-	font-weight: 500;
-}
-
-.review-list dd {
-	margin: 0;
-	font-size: .86rem;
-	font-weight: 600;
-}
-
 /* 원본 simulation.css L520–L613 */
 .guide-card {
 	padding: 21px;
@@ -445,7 +359,7 @@
 	border-left: 4px solid #164166;
 	border-radius: 10px;
 	padding: 24px 28px;
-	margin: 20px 2px;
+	margin: 0 2px 20px;
 }
 
 .sim-notice-panel h3 {
@@ -576,19 +490,6 @@ input:is([type="checkbox"], [type="radio"]):disabled:not(:checked) {
 }
 
 /* ==============================
-   4. 포커스
-============================== */
-input:is([type="checkbox"], [type="radio"]):focus {
-	border-color: #164166;
-	box-shadow: none;
-}
-
-input:is([type="checkbox"], [type="radio"]):focus-visible {
-	outline: 2px solid #164166;
-	outline-offset: 3px;
-}
-
-/* ==============================
    5. 일반 label 정렬
    - input을 직접 감싸는 경우
 ============================== */
@@ -630,6 +531,13 @@ label:has(>input[type="radio"]), label:has(>input[type="checkbox"]) {
 	margin: 0;
 	line-height: 1.5;
 	cursor: pointer;
+}
+
+/* 완료 후 다시보기: 선택 상태를 명확하게 표시 */
+.simulation-page.is-completed .sim-step-content
+input:is([type="checkbox"], [type="radio"]):disabled:checked {
+	border-color: #164166;
+	background-color: #164166;
 }
 
 @media ( max-width : 768px) {

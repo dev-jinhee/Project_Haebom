@@ -46,17 +46,17 @@
 	<%-- 기존의 라디오 4개를 세로로 한 줄씩 배치합니다. value/name 유지. --%>
 	<section class="certificate-panel certificate-types"
 		aria-label="발급 서비스 선택">
-		<label class="certificate-type-option"> <input type="radio"
+		<label class="certificate-type-option"> <input type="radio" class="form-check-input"
 			name="certificateType" value="DEUNGBON" checked> <span>주민등록표
 				등본 발급</span>
-		</label> <label class="certificate-type-option"> <input type="radio"
+		</label> <label class="certificate-type-option"> <input type="radio" class="form-check-input"
 			name="certificateType" value="CHOBON"> <span>주민등록표 초본
 				발급</span>
 		</label> <label class="certificate-type-option is-disabled"> <input
-			type="radio" name="certificateType" value="DEUNGBON_EN" disabled>
+			type="radio" class="form-check-input" name="certificateType" value="DEUNGBON_EN" disabled>
 			<span>주민등록표 등본(영문) 발급 <small>체험 미지원</small></span>
 		</label> <label class="certificate-type-option is-disabled"> <input
-			type="radio" name="certificateType" value="CHOBON_EN" disabled>
+			type="radio" class="form-check-input" name="certificateType" value="CHOBON_EN" disabled>
 			<span>주민등록표 초본(영문) 발급 <small>체험 미지원</small></span>
 		</label>
 	</section>
@@ -120,8 +120,8 @@
 				발급형태 선택 <em>(필수)</em>
 			</div>
 			<div class="certificate-inline-options certificate-issue-radios">
-				<label><input type="radio" name="issueMode" value="ALL"
-					checked> 전체 발급</label> <label><input type="radio"
+				<label><input type="radio" class="form-check-input" name="issueMode" value="ALL"
+					checked> 전체 발급</label> <label><input type="radio" class="form-check-input"
 					name="issueMode" value="SELECT"> 선택 발급</label>
 			</div>
 			<div class="sim-learning-tip">
@@ -180,16 +180,16 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"><input
-							type="checkbox" name="deungbonPastAddressIncluded"
+							type="checkbox" class="form-check-input" name="deungbonPastAddressIncluded"
 							aria-describedby="certHelpDeungbonPast"> 과거의 주소 변동사항</label>
 						<p class="visually-hidden" id="certHelpDeungbonPast">예전에
 							주민등록했던 주소의 변동 이력이에요. 전체 이력 또는 최근 몇 년의 이력만 표시하도록 선택할 수 있어요.</p>
 					</div>
 					<div class="certificate-option-content certificate-past-address"
 						hidden>
-						<label><input type="radio" name="deungbonPastAddressScope"
+						<label><input type="radio" class="form-check-input" name="deungbonPastAddressScope"
 							value="ALL" checked> 과거 주소 전체</label> <label><input
-							type="radio" name="deungbonPastAddressScope" value="RECENT">
+							type="radio" class="form-check-input" name="deungbonPastAddressScope" value="RECENT">
 							직접입력: 최근</label> <span class="certificate-years-wrap"><input
 							type="number" name="deungbonPastAddressYears" min="1" max="99"
 							step="1" value="1" class="certificate-year-input"
@@ -199,55 +199,55 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"><input
-							type="checkbox" name="deungbonHouseholdCompositionIncluded"
+							type="checkbox" class="form-check-input" name="deungbonHouseholdCompositionIncluded"
 							aria-describedby="certHelpDeungbonComposition"> 세대 구성 정보</label>
 						<p class="visually-hidden" id="certHelpDeungbonComposition">세대가
 							만들어진 사유와 날짜 등 세대 구성 자체에 관한 정보예요.</p>
 					</div>
 					<div class="certificate-option-content certificate-check-grid"
 						hidden>
-						<label><input type="checkbox"
+						<label><input type="checkbox" class="form-check-input"
 							name="deungbonHouseholdCompositionReasonIncluded" checked>
-							세대 구성 사유</label> <label><input type="checkbox"
+							세대 구성 사유</label> <label><input type="checkbox" class="form-check-input"
 							name="deungbonHouseholdCompositionDateIncluded" checked>
-							세대 구성 일자</label> <label><input type="checkbox"
+							세대 구성 일자</label> <label><input type="checkbox" class="form-check-input"
 							name="deungbonChangeReasonIncluded" checked> 변동 사유</label>
 					</div>
 				</div>
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"><input
-							type="checkbox" name="deungbonHouseholdMemberIncluded"
+							type="checkbox" class="form-check-input" name="deungbonHouseholdMemberIncluded"
 							aria-describedby="certHelpDeungbonMembers"> 세대 구성원 정보</label>
 						<p class="visually-hidden" id="certHelpDeungbonMembers">세대
 							구성원의 변동사유·발생일/신고일이나 표시할 이름 범위 등을 정하는 항목이에요.</p>
 					</div>
 					<div class="certificate-option-content certificate-check-grid"
 						hidden>
-						<label><input type="checkbox"
+						<label><input type="checkbox" class="form-check-input"
 							name="deungbonHouseholdMemberNameIncluded" checked> 동거인</label> <label><input
-							type="checkbox"
+							type="checkbox" class="form-check-input"
 							name="deungbonHouseholdMemberChangeReasonIncluded" checked>
-							변동 사유</label> <label><input type="checkbox"
+							변동 사유</label> <label><input type="checkbox" class="form-check-input"
 							name="deungbonHouseholdMemberReportDateIncluded" checked>
 							발생일/신고일</label> <label class="certificate-long-checkbox"><input
-							type="checkbox" name="deungbonHouseholdMemberOtherNamesIncluded"
+							type="checkbox" class="form-check-input" name="deungbonHouseholdMemberOtherNamesIncluded"
 							checked> 교부대상자 외 세대주·세대원·외국인 등의 이름</label>
 					</div>
 				</div>
 				<div class="certificate-option-row certificate-member-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"><input
-							type="checkbox" name="deungbonRrnBackIncluded"
+							type="checkbox" class="form-check-input" name="deungbonRrnBackIncluded"
 							aria-describedby="certHelpDeungbonRrn"> 주민등록번호 뒷자리</label>
 						<p class="visually-hidden" id="certHelpDeungbonRrn">주민등록번호 뒷자리
 							표시 범위를 결정해요. 세대전부 또는 필요한 세대원 일부만 선택할 수 있어요.</p>
 					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
-						<label><input type="radio" name="deungbonRrnBackScope"
+						<label><input type="radio" class="form-check-input" name="deungbonRrnBackScope"
 							value="HOUSEHOLD_ALL" checked> 세대전부</label> <label><input
-							type="radio" name="deungbonRrnBackScope" value="HOUSEHOLD_PART">
+							type="radio" class="form-check-input" name="deungbonRrnBackScope" value="HOUSEHOLD_PART">
 							세대일부</label>
 						<button type="button" id="certificateLookupMembers"
 							class="certificate-lookup-button" hidden>세대원 조회</button>
@@ -266,21 +266,21 @@
 							</thead>
 							<tbody>
 								<tr>
-									<td><input type="checkbox"
+									<td><input type="checkbox" class="form-check-input"
 										name="certificateSelectedMember" value="SELF"
 										aria-label="신청인 선택"></td>
 									<td><span id="certificateApplicantName">신청인</span> (본인)</td>
 									<td id="certificateApplicantBirth">-</td>
 								</tr>
 								<tr>
-									<td><input type="checkbox"
+									<td><input type="checkbox" class="form-check-input"
 										name="certificateSelectedMember" value="SPOUSE"
 										aria-label="가상 배우자 선택"></td>
 									<td>이오티 (배우자)</td>
 									<td>1989년 04월 12일</td>
 								</tr>
 								<tr>
-									<td><input type="checkbox"
+									<td><input type="checkbox" class="form-check-input"
 										name="certificateSelectedMember" value="CHILD"
 										aria-label="가상 자녀 선택"></td>
 									<td>이엑사 (자녀)</td>
@@ -293,7 +293,7 @@
 				<div class="certificate-option-row certificate-relation-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"><input
-							type="checkbox" name="deungbonRelationshipIncluded"
+							type="checkbox" class="form-check-input" name="deungbonRelationshipIncluded"
 							aria-describedby="certHelpDeungbonRelation"> 세대원의 세대주와의
 							관계</label>
 						<p class="visually-hidden" id="certHelpDeungbonRelation">세대주와의
@@ -301,9 +301,9 @@
 					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
-						<label><input type="radio" name="deungbonRelationshipType"
+						<label><input type="radio" class="form-check-input" name="deungbonRelationshipType"
 							value="GENERAL" checked> 일반</label> <label><input
-							type="radio" name="deungbonRelationshipType" value="DETAIL">
+							type="radio" class="form-check-input" name="deungbonRelationshipType" value="DETAIL">
 							상세</label>
 					</div>
 					<div class="certificate-option-note" hidden>
@@ -382,7 +382,7 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"> <input
-							type="checkbox" name="chobonPastAddressIncluded"
+							type="checkbox" class="form-check-input" name="chobonPastAddressIncluded"
 							aria-describedby="certHelpChobonPast"> 과거의 주소 변동사항
 						</label>
 						<p class="visually-hidden" id="certHelpChobonPast">본인이 이전에
@@ -390,10 +390,10 @@
 					</div>
 					<div class="certificate-option-content certificate-past-address"
 						hidden>
-						<label><input type="radio" name="chobonPastAddressScope"
+						<label><input type="radio" class="form-check-input" name="chobonPastAddressScope"
 							value="ALL" checked> 전체 포함</label>
 						<div class="certificate-recent-group">
-							<label><input type="radio" name="chobonPastAddressScope"
+							<label><input type="radio" class="form-check-input" name="chobonPastAddressScope"
 								value="RECENT"> 직접입력: 최근</label> <span
 								class="certificate-years-wrap"> <input type="number"
 								name="chobonPastAddressYears" min="1" max="99" step="1"
@@ -404,9 +404,9 @@
 					</div>
 					<div class="certificate-option-note certificate-chobon-past-extras"
 						hidden>
-						<label><input type="checkbox"
+						<label><input type="checkbox" class="form-check-input"
 							name="chobonPastAddressReportDateIncluded" checked>
-							발생일/신고일</label> <label><input type="checkbox"
+							발생일/신고일</label> <label><input type="checkbox" class="form-check-input"
 							name="chobonPastAddressChangeReasonIncluded" checked>
 							변동사유</label>
 					</div>
@@ -416,7 +416,7 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"> <input
-							type="checkbox" name="chobonPastHouseholdRelationIncluded"
+							type="checkbox" class="form-check-input" name="chobonPastHouseholdRelationIncluded"
 							aria-describedby="certHelpChobonPastRelation"> 과거의 주소
 							변동사항 중 세대주 성명과 세대주의 관계
 						</label>
@@ -425,9 +425,9 @@
 					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
-						<label><input type="radio"
+						<label><input type="radio" class="form-check-input"
 							name="chobonPastHouseholdRelationType" value="GENERAL" checked>
-							일반</label> <label><input type="radio"
+							일반</label> <label><input type="radio" class="form-check-input"
 							name="chobonPastHouseholdRelationType" value="DETAIL"> 상세</label>
 					</div>
 					<div class="certificate-option-note" hidden>
@@ -440,7 +440,7 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"> <input
-							type="checkbox" name="chobonPersonalChangeIncluded"
+							type="checkbox" class="form-check-input" name="chobonPersonalChangeIncluded"
 							aria-describedby="certHelpChobonPersonal"> 개인 인적사항 변경 내용
 						</label>
 						<p class="visually-hidden" id="certHelpChobonPersonal">본인의
@@ -448,11 +448,11 @@
 					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
-						<label><input type="radio"
+						<label><input type="radio" class="form-check-input"
 							name="chobonPersonalChangeScope" value="ALL" checked> 전체</label>
-						<label><input type="radio"
+						<label><input type="radio" class="form-check-input"
 							name="chobonPersonalChangeScope" value="NAME"> 성명</label> <label><input
-							type="radio" name="chobonPersonalChangeScope" value="NUMBER">
+							type="radio" class="form-check-input" name="chobonPersonalChangeScope" value="NUMBER">
 							주민등록번호</label>
 					</div>
 				</div>
@@ -461,7 +461,7 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"> <input
-							type="checkbox" name="chobonIdNumbersIncluded"
+							type="checkbox" class="form-check-input" name="chobonIdNumbersIncluded"
 							aria-describedby="certHelpChobonIds"> 주민등록번호 뒷자리,
 							국내거소신고번호, 외국인등록번호
 						</label>
@@ -470,8 +470,8 @@
 					</div>
 					<div class="certificate-option-content certificate-check-grid"
 						hidden>
-						<label><input type="checkbox" name="chobonRrnBackIncluded"
-							checked> 주민등록번호 뒷자리</label> <label><input type="checkbox"
+						<label><input type="checkbox" class="form-check-input" name="chobonRrnBackIncluded"
+							checked> 주민등록번호 뒷자리</label> <label><input type="checkbox" class="form-check-input"
 							name="chobonForeignNumberIncluded" checked>
 							국내거소신고번호/외국인등록번호</label>
 					</div>
@@ -481,7 +481,7 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"> <input
-							type="checkbox" name="chobonMilitaryServiceIncluded"
+							type="checkbox" class="form-check-input" name="chobonMilitaryServiceIncluded"
 							aria-describedby="certHelpChobonMilitary"> 병역사항
 						</label>
 						<p class="visually-hidden" id="certHelpChobonMilitary">병역 기록을
@@ -489,9 +489,9 @@
 					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
-						<label><input type="radio"
+						<label><input type="radio" class="form-check-input"
 							name="chobonMilitaryServiceScope" value="DATES" checked>
-							입영/전역일자</label> <label><input type="radio"
+							입영/전역일자</label> <label><input type="radio" class="form-check-input"
 							name="chobonMilitaryServiceScope" value="ALL"> 전체</label>
 					</div>
 				</div>
@@ -500,7 +500,7 @@
 				<div class="certificate-option-row">
 					<div class="certificate-learning-field-heading">
 						<label class="certificate-option-title"> <input
-							type="checkbox" name="chobonHouseholdRelationIncluded"
+							type="checkbox" class="form-check-input" name="chobonHouseholdRelationIncluded"
 							aria-describedby="certHelpChobonRelation"> 세대주 성명과 세대주와의
 							관계
 						</label>
@@ -509,9 +509,9 @@
 					</div>
 					<div class="certificate-option-content certificate-inline-options"
 						hidden>
-						<label><input type="radio"
+						<label><input type="radio" class="form-check-input"
 							name="chobonHouseholdRelationType" value="GENERAL" checked>
-							일반</label> <label><input type="radio"
+							일반</label> <label><input type="radio" class="form-check-input"
 							name="chobonHouseholdRelationType" value="DETAIL"> 상세</label>
 					</div>
 					<div class="certificate-option-note" hidden>
@@ -563,14 +563,14 @@
 			</div>
 		</div>
 		<div class="certificate-receipt-grid">
-			<label><input type="radio" name="receiveMethod"
-				value="ONLINE_PRINT"> 온라인발급(본인출력)</label> <label><input
-				type="radio" name="receiveMethod" value="ONLINE_E_DOC">
-				온라인발급(전자문서지갑)</label> <label><input type="radio"
-				name="receiveMethod" value="ONLINE_THIRD_PARTY" checked>
-				온라인발급(제3자제출) 수신인 등록</label> <label><input type="radio"
+			<label><input type="radio" class="form-check-input" name="receiveMethod"
+				value="ONLINE_PRINT" checked> 온라인발급(본인출력)</label> <label><input
+				type="radio" class="form-check-input" name="receiveMethod" value="ONLINE_E_DOC">
+				온라인발급(전자문서지갑)</label> <label><input type="radio" class="form-check-input"
+				name="receiveMethod" value="ONLINE_THIRD_PARTY">
+				온라인발급(제3자제출) 수신인 등록</label> <label><input type="radio" class="form-check-input"
 				name="receiveMethod" value="REGISTERED_MAIL"> 등기보통우편</label> <label><input
-				type="radio" name="receiveMethod" value="NORMAL_MAIL">
+				type="radio" class="form-check-input" name="receiveMethod" value="NORMAL_MAIL">
 				일반보통우편</label>
 		</div>
 		<details class="sim-learning-details">

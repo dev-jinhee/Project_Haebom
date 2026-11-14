@@ -13,6 +13,11 @@
 	rel="stylesheet">
 <link href="/css/common.css" rel="stylesheet">
 <link href="/css/pages/scenario/scenario-list.css" rel="stylesheet">
+<!-- 공통 로딩 CSS -->
+<link rel="stylesheet" href="/css/common/common-loading.css">
+
+<!-- 공통 로딩 JS -->
+<script src="/js/common/common-loading.js"></script>
 </head>
 <body>
 	<jsp:include page="/WEB-INF/views/common/header.jsp" />

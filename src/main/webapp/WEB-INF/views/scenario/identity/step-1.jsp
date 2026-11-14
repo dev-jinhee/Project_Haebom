@@ -112,13 +112,13 @@
 			<p class="sim-learning-field-note">신청 과정의 연락이나 수령 안내를 받을 수 있는 번호를
 				입력하는 항목이에요. 해봄에서는 실제 문자를 발송하지 않아요.</p>
 			<div class="identity-phone-row">
-				<input type="tel" id="identityPhoneFirst" name="phoneFirst"
+				<input type="tel" id="identityPhoneFirst" name="phoneFirst" data-digits-only
 					class="form-control" maxlength="3" value="010" inputmode="numeric"
 					aria-label="휴대전화번호 앞자리" /> <span aria-hidden="true">-</span> <input
-					type="tel" id="identityPhoneMiddle" name="phoneMiddle"
+					type="tel" id="identityPhoneMiddle" name="phoneMiddle" data-digits-only
 					class="form-control" placeholder="0000" maxlength="4"
 					inputmode="numeric" aria-label="휴대전화번호 가운데 자리" /> <span
-					aria-hidden="true">-</span> <input type="tel"
+					aria-hidden="true">-</span> <input type="tel" data-digits-only
 					id="identityPhoneLast" name="phoneLast" class="form-control"
 					placeholder="0000" maxlength="4" inputmode="numeric"
 					aria-label="휴대전화번호 뒷자리" />
@@ -152,8 +152,8 @@
 				발급 형태 <span class="identity-required">(필수)</span>
 			</legend>
 			<div class="identity-radio-grid identity-radio-grid-two">
-				<label><input type="radio" name="icChipIncluded" value="Y" />
-					집적회로(IC) 칩 포함</label> <label><input type="radio"
+				<label><input type="radio" class="form-check-input" name="icChipIncluded" value="Y" />
+					집적회로(IC) 칩 포함</label> <label><input type="radio" class="form-check-input"
 					name="icChipIncluded" value="N" /> 집적회로(IC) 칩 미포함</label>
 			</div>
 			<div class="sim-learning-tip">
@@ -183,21 +183,21 @@
 				재발급 사유 <span class="identity-required">(필수)</span>
 			</legend>
 			<div class="identity-radio-grid identity-radio-grid-reasons">
-				<label><input type="radio" name="reissueReason" value="LOST" />
-					분실</label> <label><input type="radio" name="reissueReason"
-					value="DAMAGE" /> 훼손</label> <label><input type="radio"
+				<label><input type="radio" class="form-check-input" name="reissueReason" value="LOST" />
+					분실</label> <label><input type="radio" class="form-check-input" name="reissueReason"
+					value="DAMAGE" /> 훼손</label> <label><input type="radio" class="form-check-input"
 					name="reissueReason" value="NAME_CHANGE" /> 성명 변경</label> <label><input
-					type="radio" name="reissueReason" value="RRN_CHANGE" /> 주민등록번호 변경</label>
-				<label><input type="radio" name="reissueReason"
+					type="radio" class="form-check-input" name="reissueReason" value="RRN_CHANGE" /> 주민등록번호 변경</label>
+				<label><input type="radio" class="form-check-input" name="reissueReason"
 					value="ADDRESS_INSUFFICIENT" /> 주소 변경 칸 부족</label> <label><input
-					type="radio" name="reissueReason" value="PHOTO_CHANGE" /> 용모(사진)변경</label>
-				<label><input type="radio" name="reissueReason"
-					value="FINGERPRINT" /> 지문 재등록</label> <label><input type="radio"
+					type="radio" class="form-check-input" name="reissueReason" value="PHOTO_CHANGE" /> 용모(사진)변경</label>
+				<label><input type="radio" class="form-check-input" name="reissueReason"
+					value="FINGERPRINT" /> 지문 재등록</label> <label><input type="radio" class="form-check-input"
 					name="reissueReason" value="NOT_COLLECTED" /> 미수령으로 회수·파기</label> <label><input
-					type="radio" name="reissueReason" value="LOST_NATIONALITY" /> 주민등록
-					말소자의 귀국</label> <label><input type="radio" name="reissueReason"
+					type="radio" class="form-check-input" name="reissueReason" value="LOST_NATIONALITY" /> 주민등록
+					말소자의 귀국</label> <label><input type="radio" class="form-check-input" name="reissueReason"
 					value="REACQUIRED_NATIONALITY" /> 재외국민 주민등록</label> <label
-					id="identityOtherReasonOption" hidden><input type="radio"
+					id="identityOtherReasonOption" hidden><input type="radio" class="form-check-input"
 					name="reissueReason" value="OTHER" disabled /> 그 밖의 사유</label>
 			</div>
 			<details class="sim-learning-details">
@@ -233,8 +233,8 @@
 				수수료 면제 신청 <span class="identity-required">(필수)</span>
 			</legend>
 			<div class="identity-radio-grid identity-radio-grid-two">
-				<label><input type="radio" name="feeExemption" value="Y" />
-					신청</label> <label><input type="radio" name="feeExemption" value="N" />
+				<label><input type="radio" class="form-check-input" name="feeExemption" value="Y" />
+					신청</label> <label><input type="radio" class="form-check-input" name="feeExemption" value="N" />
 					미신청</label>
 			</div>
 			<div class="sim-learning-tip">
@@ -262,8 +262,8 @@
 				주민등록증 수령 안내 서비스 <span class="identity-required">(필수)</span>
 			</legend>
 			<div class="identity-radio-grid identity-radio-grid-two">
-				<label><input type="radio" name="pickupNotice" value="Y" />
-					신청</label> <label><input type="radio" name="pickupNotice" value="N" />
+				<label><input type="radio" class="form-check-input" name="pickupNotice" value="Y" />
+					신청</label> <label><input type="radio" class="form-check-input" name="pickupNotice" value="N" />
 					미신청</label>
 			</div>
 			<p class="sim-learning-field-note">신청 접수나 주민등록증 도착 여부 등을 문자로
@@ -275,8 +275,8 @@
 				점자 스티커 제공 서비스 <span class="identity-required">(필수)</span>
 			</legend>
 			<div class="identity-radio-grid identity-radio-grid-two">
-				<label><input type="radio" name="brailleSticker" value="Y" />
-					신청</label> <label><input type="radio" name="brailleSticker"
+				<label><input type="radio" class="form-check-input" name="brailleSticker" value="Y" />
+					신청</label> <label><input type="radio" class="form-check-input" name="brailleSticker"
 					value="N" /> 미신청</label>
 			</div>
 			<p class="identity-note">시각장애인 등 해당 대상자가 주민등록증을 구분할 수 있도록 도와주는
@@ -294,7 +294,7 @@
 		</div>
 		<div class="identity-field">
 			<label class="identity-checkbox-label" for="identityNoticeConfirmed">
-				<input type="checkbox" id="identityNoticeConfirmed"
+				<input type="checkbox" id="identityNoticeConfirmed"  class="form-check-input"
 				name="noticeConfirmed" value="Y" /> 유의사항을 모두 확인했습니다. <span
 				class="identity-required">(필수)</span>
 			</label>
@@ -306,7 +306,7 @@
 		<h3 id="identityPickupTitle">수령 방법</h3>
 		<div class="identity-field">
 			<span class="identity-field-label">구분</span> <label><input
-				type="radio" name="pickupMethod" value="VISIT" checked /> 방문수령</label>
+				type="radio" class="form-check-input" name="pickupMethod" value="VISIT" checked /> 방문수령</label>
 			<p class="sim-learning-field-note">해봄에서는 방문수령만 연습해요. 실제 신청에서는 신청
 				조건에 따라 등기우편 수령을 선택할 수도 있어요.</p>
 		</div>
@@ -349,10 +349,10 @@
 				있습니다. 실제 업로드는 신청 단계의 공통 로직에서 처리합니다.</p>
 			<div class="identity-photo-confirmations" aria-label="증명사진 촬영 조건 확인">
 				<label for="identityPhotoRecentConfirmed"> <input
-					type="checkbox" id="identityPhotoRecentConfirmed" /> 최근 6개월 이내 촬영한
+					type="checkbox" class="form-check-input" id="identityPhotoRecentConfirmed" /> 최근 6개월 이내 촬영한
 					사진임을 확인했습니다.
 				</label> <label for="identityPhotoAppearanceConfirmed"> <input
-					type="checkbox" class="form-check" id="identityPhotoAppearanceConfirmed" /> 모자 등을 쓰지
+					type="checkbox" class="form-check-input" id="identityPhotoAppearanceConfirmed" /> 모자 등을 쓰지
 					않은 정면 상반신 사진임을 확인했습니다.
 				</label>
 			</div>
@@ -377,14 +377,14 @@
 				</div>
 			</div>
 			<label class="identity-checkbox-label" for="identityConsentAll">
-				<input type="checkbox" id="identityConsentAll" name="consentAll" />
+				<input type="checkbox" id="identityConsentAll"  class="form-check-input" name="consentAll" />
 				전체선택
 			</label>
 			<div class="identity-consent-items">
-				<label><input type="checkbox" name="documentConsent"
+				<label><input type="checkbox" name="documentConsent" class="form-check-input"
 					value="BASIC_LIVELIHOOD" /> 국민기초생활수급자증명서</label> <label><input
-					type="checkbox" name="documentConsent" value="PATRIOT_FAMILY" />
-					국가유공자(유족)·5·18민주유공자(유족)확인서</label> <label><input type="checkbox"
+					type="checkbox" name="documentConsent" class="form-check-input" value="PATRIOT_FAMILY" />
+					국가유공자(유족)·5·18민주유공자(유족)확인서</label> <label><input type="checkbox" class="form-check-input"
 					name="documentConsent" value="SINGLE_PARENT" /> 한부모가족증명서</label>
 			</div>
 			<p class="identity-consent-text">본인은 이 신청에 따른 업무처리와 관련하여 담당 공무원이

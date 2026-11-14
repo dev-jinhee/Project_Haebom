@@ -66,6 +66,7 @@
 	border-radius: 18px;
 	background: #fff;
 	box-shadow: 0 4px 14px rgba(34, 55, 76, .035);
+	margin-bottom: 20px;
 }
 
 .sim-progress-card .progress {
@@ -402,9 +403,25 @@
 }
 
 /* 완료 화면 - 신청 전 준비사항 */
+#completeChecklistList {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: 24px;
+	row-gap: 5px;
+}
+
 #completeChecklistList li {
-    font-size: 0.875em;
-    line-height: 1.8;
+	font-size: 1rem;
+	line-height: 1.6;
+	min-width: 0;
+}
+
+/* 모바일: 1열 */
+@media ( max-width : 575.98px) {
+	#completeChecklistList {
+		grid-template-columns: 1fr;
+		row-gap: 10px;
+	}
 }
 
 /* ===== Dynamic step state ===== */
@@ -539,4 +556,3 @@
 		padding: 0;
 	}
 }
-
