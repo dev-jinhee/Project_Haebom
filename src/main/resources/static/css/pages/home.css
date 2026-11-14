@@ -150,6 +150,7 @@
 .center-list-message { margin: 0 0 0.5rem; color: #718198; font-size: .82rem; }
 .center-list-results { display: grid; }
 .center-list-card { padding: 0.875rem 0.25rem; border-top: 0.0625rem solid #e2eaf1; }
+.center-list-card.is-map-selected { background: #f1f8fd; transition: background-color .2s ease; }
 .center-list-card h4 { margin: 0 0 0.3125rem; color: #173b70; font-size: .92rem; font-weight: 700; }
 .center-list-card p { margin: 0; color: #61758a; font-size: .82rem; line-height: 1.55; }
 .center-list-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5625rem; }

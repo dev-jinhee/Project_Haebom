@@ -175,7 +175,9 @@
     let regionCenterLabel = '';
     let regionCenterPage = 1;
     let regionRequestId = 0;
+    let highlightedCenterId = '';
     let centerLoadPromise = null;
+    let sidoOptionsPromise = null;
     let regionSearchRequested = false;
     let centerMarkerIcon = null;
     const CENTER_LIST_PAGE_SIZE = 5;
@@ -218,25 +220,29 @@
       return names.filter(name => typeof name === 'string' && name.trim());
     }
 
-    async function loadSidoOptions() {
-      const requestId = ++regionRequestId;
+    function loadSidoOptions() {
+      if (sidoOptionsPromise !== null) return sidoOptionsPromise;
+
       message.textContent = '시·도 목록을 불러오는 중입니다.';
-      try {
-        const sidos = await fetchRegionNames(sidoApiUrl);
-        if (requestId !== regionRequestId || !section.isConnected) return;
-        resetSelect(sidoSelect, '시·도를 선택하세요');
-        sidos.forEach(sido => sidoSelect.add(new Option(sido, sido)));
-        regionsLoaded = true;
-        regionsLoadFailed = false;
-        updateRegionControls();
-        if (mapReady && !centersLoaded) message.textContent = '';
-      } catch (error) {
-        console.error('시·도 조회 오류:', error);
-        if (requestId === regionRequestId) {
+      sidoOptionsPromise = fetchRegionNames(sidoApiUrl)
+        .then(sidos => {
+          if (!section.isConnected) return false;
+          resetSelect(sidoSelect, '시·도를 선택하세요');
+          sidos.forEach(sido => sidoSelect.add(new Option(sido, sido)));
+          regionsLoaded = true;
+          regionsLoadFailed = false;
+          updateRegionControls();
+          if (mapReady && !centersLoaded && !regionSearchRequested) message.textContent = '';
+          return true;
+        })
+        .catch(error => {
+          console.error('시·도 조회 오류:', error);
           regionsLoadFailed = true;
           message.textContent = '시·도 목록을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
-        }
-      }
+          sidoOptionsPromise = null;
+          return false;
+        });
+      return sidoOptionsPromise;
     }
 
     function clearCenterMarkerLayer(markerToKeep = null) {
@@ -255,8 +261,15 @@
     function clearCenterMarkers() {
       centerPopupOpen = false;
       activeCenterMarker = null;
+      clearSelectedCenterHighlight();
       clearCenterMarkerLayer();
       if (centerInfoWindow) centerInfoWindow.close();
+    }
+
+    function clearSelectedCenterHighlight() {
+      highlightedCenterId = '';
+      centerListResults.querySelectorAll('.center-list-card.is-map-selected')
+        .forEach(card => card.classList.remove('is-map-selected'));
     }
 
     function clearMarkersForMapGesture() {
@@ -283,7 +296,9 @@
       administrativeCenterMap.fitBounds(bounds, 40);
     }
 
-    function renderCenterListForSelectedRegion(selectedCenters) {
+    function renderCenterListForSelectedRegion(selectedCenters, focusCenterId = '') {
+      highlightedCenterId = '';
+
       const sidoName = sidoSelect.value
         ? sidoSelect.selectedOptions[0]?.textContent?.trim()
         : '';
@@ -304,7 +319,27 @@
       regionCenterLabel = sidoName + (sigunguName ? ' ' + sigunguName : '');
       regionCenterData = selectedCenters;
       regionCenterPage = 1;
+      highlightedCenterId = focusCenterId ? String(focusCenterId) : '';
+      if (highlightedCenterId) {
+        const focusIndex = regionCenterData.findIndex(center =>
+          String(center.centerId) === highlightedCenterId);
+        if (focusIndex >= 0) {
+          regionCenterPage = Math.floor(focusIndex / CENTER_LIST_PAGE_SIZE) + 1;
+        } else {
+          highlightedCenterId = '';
+        }
+      }
       renderCenterListPage(regionCenterPage);
+
+      if (highlightedCenterId) {
+        requestAnimationFrame(() => {
+          const selectedCard = Array.from(
+            centerListResults.querySelectorAll('.center-list-card')
+          ).find(card => card.dataset.centerId === highlightedCenterId);
+          if (!selectedCard) return;
+          selectedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
     }
 
     async function fetchCentersByRegion(sido, sigungu) {
@@ -329,6 +364,7 @@
 
       centerPopupOpen = false;
       activeCenterMarker = null;
+      clearSelectedCenterHighlight();
       if (centerInfoWindow) centerInfoWindow.close();
 
       const position = {
@@ -384,6 +420,10 @@
       pageItems.forEach(center => {
         const card = document.createElement('article');
         card.className = 'center-list-card';
+        card.dataset.centerId = String(center.centerId);
+        if (String(center.centerId) === highlightedCenterId) {
+          card.classList.add('is-map-selected');
+        }
 
         const title = document.createElement('h4');
         title.textContent = center.centerName || '행정복지센터';
@@ -444,6 +484,8 @@
       });
       marker.centerId = String(center.centerId);
       marker.addListener('click', () => {
+        selectCenterRegionAndListItem(center);
+
         const header = document.createElement('div');
         header.className = 'center-place-popup-header';
         header.textContent = center.centerName || '행정복지센터';
@@ -615,6 +657,67 @@
       return marker;
     }
 
+    async function selectCenterRegionAndListItem(center) {
+      const sido = String(center.sido || '').trim();
+      const sigungu = String(center.sigungu || '').trim();
+      if (!sido) return;
+
+      clearSelectedCenterHighlight();
+      const requestId = ++regionRequestId;
+      regionSearchRequested = true;
+      const hasSameRegion = regionsLoaded
+        && sidoSelect.value === sido
+        && sigunguSelect.value === sigungu
+        && regionCenterData.length > 0;
+      if (hasSameRegion) {
+        renderCenterListForSelectedRegion(regionCenterData, center.centerId);
+        return;
+      }
+
+      const optionsLoaded = await loadSidoOptions();
+      if (requestId !== regionRequestId || !optionsLoaded || !section.isConnected) return;
+      const sidoOption = Array.from(sidoSelect.options).find(option => option.value === sido);
+      if (!sidoOption) {
+        message.textContent = '선택한 센터의 지역 정보를 찾을 수 없습니다.';
+        return;
+      }
+
+      sidoSelect.value = sido;
+      resetSelect(sigunguSelect, '시·군·구를 선택하세요');
+      sigunguSelect.disabled = true;
+      regionSearchButton.disabled = true;
+      message.textContent = `${sido}${sigungu ? ' ' + sigungu : ''} 지역 센터를 불러오는 중입니다.`;
+
+      try {
+        const sigungus = await fetchRegionNames(sigunguApiUrl, sido);
+        if (requestId !== regionRequestId || !section.isConnected) return;
+        sigungus.forEach(name => sigunguSelect.add(new Option(name, name)));
+        if (sigungu && !sigungus.includes(sigungu)) {
+          message.textContent = '선택한 센터의 시·군·구 정보를 찾을 수 없습니다.';
+          return;
+        }
+        sigunguSelect.value = sigungu;
+        sigunguSelect.disabled = sigungus.length === 0;
+
+        const selectedCenters = await fetchCentersByRegion(sido, sigungu);
+        if (requestId !== regionRequestId || !section.isConnected
+            || sidoSelect.value !== sido || sigunguSelect.value !== sigungu) return;
+
+        mapCenterData = selectedCenters;
+        clearCenterMarkerLayer(centerPopupOpen ? activeCenterMarker : null);
+        renderVisibleCenters();
+        renderCenterListForSelectedRegion(selectedCenters, center.centerId);
+        message.textContent = dataFreshnessMessage;
+      } catch (error) {
+        console.error('지도에서 선택한 센터 지역 조회 오류:', error);
+        if (requestId === regionRequestId) {
+          message.textContent = '선택한 센터의 지역 목록을 불러오지 못했습니다. 다시 시도해 주세요.';
+        }
+      } finally {
+        if (requestId === regionRequestId) updateRegionControls();
+      }
+    }
+
     function renderVisibleCenters() {
       if (!mapReady || !centersLoaded || !administrativeCenterMap) return;
       const bounds = administrativeCenterMap.getBounds();
@@ -733,6 +836,7 @@
     }
 
     sidoSelect.addEventListener('change', async () => {
+      const requestId = ++regionRequestId;
       resetSelect(sigunguSelect, '먼저 시·도를 선택하세요');
       sigunguSelect.disabled = true;
       if (!sidoSelect.value) {
@@ -740,7 +844,6 @@
         return;
       }
 
-      const requestId = ++regionRequestId;
       const selectedSido = sidoSelect.value;
       message.textContent = '시·군·구 목록을 불러오는 중입니다.';
       try {
@@ -758,6 +861,7 @@
     });
 
     sigunguSelect.addEventListener('change', () => {
+      regionRequestId += 1;
       message.textContent = '';
     });
 
@@ -769,6 +873,7 @@
       }
 
       regionSearchRequested = true;
+      const requestId = ++regionRequestId;
       const sido = sidoSelect.value;
       const sigungu = sigunguSelect.value;
       const regionLabel = sidoSelect.selectedOptions[0]?.textContent?.trim()
@@ -777,7 +882,8 @@
       message.textContent = `${regionLabel} 행정복지센터를 조회하는 중입니다.`;
       try {
         const selectedCenters = await fetchCentersByRegion(sido, sigungu);
-        if (!section.isConnected || sidoSelect.value !== sido || sigunguSelect.value !== sigungu) return;
+        if (requestId !== regionRequestId || !section.isConnected
+            || sidoSelect.value !== sido || sigunguSelect.value !== sigungu) return;
         mapCenterData = selectedCenters;
         clearCenterMarkers();
         if (selectedCenters.length === 0) {
@@ -796,7 +902,7 @@
         console.error('지역별 행정복지센터 조회 오류:', error);
         message.textContent = '선택한 지역의 행정복지센터를 조회하지 못했습니다. 다시 시도해 주세요.';
       } finally {
-        updateRegionControls();
+        if (requestId === regionRequestId) updateRegionControls();
       }
     });
 
@@ -831,6 +937,7 @@
       centerInfoWindow.addListener('closeclick', () => {
         centerPopupOpen = false;
         activeCenterMarker = null;
+        clearSelectedCenterHighlight();
         renderVisibleCenters();
       });
 
