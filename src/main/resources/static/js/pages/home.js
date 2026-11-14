@@ -15,7 +15,7 @@
       const submitButton = logoutForm.querySelector('[type="submit"]');
 
       if (!token) {
-        window.alert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.');
+        haebomAlert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.', '로그아웃 오류');
         return;
       }
 
@@ -43,7 +43,7 @@
           throw new Error('로그아웃 요청을 처리하지 못했습니다. 다시 시도해 주세요.');
         }
       } catch (error) {
-        window.alert(error.message || '로그아웃 중 통신 오류가 발생했습니다.');
+        haebomAlert(error.message || '로그아웃 중 통신 오류가 발생했습니다.', '로그아웃 오류');
         if (submitButton) submitButton.disabled = false;
       }
     });
