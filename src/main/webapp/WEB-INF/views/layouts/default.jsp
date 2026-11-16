@@ -10,7 +10,7 @@
     <title><tiles:insertAttribute name="title" ignore="true" /></title>
     <tiles:insertAttribute name="head" ignore="true" />
 </head>
-<tiles:useAttribute name="bodyClass" id="bodyClass" classname="java.lang.String" ignore="true" />
+<tiles:importAttribute name="bodyClass" scope="page" ignore="true" />
 <body class="${bodyClass}">
     <tiles:insertAttribute name="header" ignore="true" />
     <tiles:insertAttribute name="content" />
