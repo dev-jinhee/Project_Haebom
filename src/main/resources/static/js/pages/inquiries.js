@@ -187,7 +187,7 @@
 
   // 3. 서버 DB 데이터 불러오기 (GET /api/inquiries)
   const loadInquiries = async () => {
-    try {
+    const fetchAction = async () => {
       const response = await fetch('/api/inquiries');
       if (!response.ok) throw new Error('목록 조회 실패');
       
@@ -196,7 +196,18 @@
 
       updateSummaryCounters();
       renderTableForCurrentPage();
+    };
 
+    try {
+      if (window.HaebomLoading && typeof window.HaebomLoading.run === 'function') {
+        await window.HaebomLoading.run(
+          fetchAction,
+          '문의 내역을 불러오고 있어요',
+          '등록된 문의 게시글을 확인하고 있습니다.'
+        );
+      } else {
+        await fetchAction();
+      }
     } catch (error) {
       console.error('문의 목록을 불러오지 못했습니다:', error);
     }
@@ -570,7 +581,7 @@
       const url = isEdit ? `/api/inquiries/${editingQnaId}` : '/api/inquiries';
       const method = isEdit ? 'PUT' : 'POST';
       
-      try {
+      const submitAction = async () => {
         const params = new URLSearchParams(formData);
         const response = await fetch(url, {
           method: method,
@@ -589,7 +600,19 @@
         
         closeModal('#inquiryModal');
         // 목록 다시 불러와서 즉시 갱신! 🚀
-        loadInquiries();
+        await loadInquiries();
+      };
+
+      try {
+        if (window.HaebomLoading && typeof window.HaebomLoading.run === 'function') {
+          await window.HaebomLoading.run(
+            submitAction,
+            isEdit ? '문의를 수정하고 있어요' : '문의를 등록하고 있어요',
+            isEdit ? '수정된 문의 내용을 안전하게 저장하고 있습니다.' : '작성하신 문의 내용을 안전하게 저장하고 있습니다.'
+          );
+        } else {
+          await submitAction();
+        }
       } catch (error) {
         console.error('요청 실패:', error);
         notify(error.message || (isEdit ? '수정 중 오류가 발생했습니다.' : '등록 중 오류가 발생했습니다.'));
@@ -638,7 +661,7 @@
     const targetQnaId = data.qnaId;
 
     const doDelete = async () => {
-      try {
+      const deleteAction = async () => {
         const response = await fetch(`/api/inquiries/${targetQnaId}`, {
           method: 'DELETE'
         });
@@ -649,8 +672,19 @@
 
         notify('문의글이 삭제되었습니다.');
         closeModal('#inquiryViewModal');
-        loadInquiries();
+        await loadInquiries();
+      };
 
+      try {
+        if (window.HaebomLoading && typeof window.HaebomLoading.run === 'function') {
+          await window.HaebomLoading.run(
+            deleteAction,
+            '문의를 삭제하고 있어요',
+            '선택하신 문의글을 삭제 처리하고 있습니다.'
+          );
+        } else {
+          await deleteAction();
+        }
       } catch (error) {
         console.error('삭제 오류:', error);
         notify(error.message || '삭제 중 오류가 발생했습니다.');
