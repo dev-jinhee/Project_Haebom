@@ -1,6 +1,10 @@
 package kr.co.oti.haebom.business.admin.service;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -92,43 +96,58 @@ public class AdminMemberService {
 		return adminMemberMapper.selectMemberProgressList(memberId);
 	}
 	
-	// 4. 회원 목록 엑셀 다운로드 (DB 연동 + POI)
-	public void downloadMemberListExcel(HttpServletResponse response) throws IOException {
-		
+	// 4. 회원 목록 대용량 CSV 스트리밍 다운로드 (OOM 방지 및 대규모 데이터 최적화)
+	public void downloadMemberListCsv(HttpServletResponse response) throws IOException {
 		// 1) DB에서 전체 회원 조회 (관리자 제외)
-		List<AdminMemberDTO>memberList = adminMemberMapper.selectMemberList().stream()
+		List<AdminMemberDTO> memberList = adminMemberMapper.selectMemberList().stream()
 			.filter(m -> !"ADMIN".equals(m.getRole())).collect(Collectors.toList());
-		
-		// 2) 엑셀 헤더 컬럼 정의
-		List<String> headers = Arrays.asList("순번", "회원 번호", "이름", "아이디", "이메일", "계정 상태", "가입일시");
-		
-		// 3) 행 데이터 구성
-		List<List<Object>> rows = new ArrayList<>();
-		int seq = 1;
-		for (AdminMemberDTO m : memberList) {
-			String statusText = "알 수 없음";
-			if ("ACTIVE".equalsIgnoreCase(m.getMemberStatus())) statusText = "정상";
-			else if ("SUSPENDED".equalsIgnoreCase(m.getMemberStatus())) statusText = "이용 정지";
-			else if ("WITHDRAWN".equalsIgnoreCase(m.getMemberStatus())) statusText = "탈퇴";
-			
-			List<Object> row = Arrays.asList(
-				seq++, 
-				m.getMemberId(), 
-				m.getMemberName() != null ? m.getMemberName() : "-", 
-				m.getLoginId() != null ? m.getLoginId() : "-", 
-				m.getEmail() != null ? m.getEmail() : "-", 
-				statusText, 
-				m.getCreatedAt()
-			);
-			rows.add(row);
+
+		// 2) 파일명 생성 (예: 해봄_회원목록_20261116.csv)
+		String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+		String fileName = "해봄_회원목록_" + dateStr + ".csv";
+		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+
+		response.setContentType("text/csv; charset=UTF-8");
+		response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"; filename*=UTF-8''" + encodedFileName);
+
+		// 3) UTF-8 BOM (\uFEFF) 및 스트리밍 출력 (Excel 한글 깨짐 방지)
+		try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(response.getOutputStream(), StandardCharsets.UTF_8))) {
+			writer.write('\uFEFF');
+
+			// CSV 헤더
+			writer.println("순번,회원 번호,이름,아이디,이메일,계정 상태,가입일시");
+
+			int seq = 1;
+			for (AdminMemberDTO m : memberList) {
+				String statusText = "알 수 없음";
+				if ("ACTIVE".equalsIgnoreCase(m.getMemberStatus())) statusText = "정상";
+				else if ("SUSPENDED".equalsIgnoreCase(m.getMemberStatus())) statusText = "이용 정지";
+				else if ("WITHDRAWN".equalsIgnoreCase(m.getMemberStatus())) statusText = "탈퇴";
+
+				writer.printf("%d,%d,%s,%s,%s,%s,%s%n",
+					seq++,
+					m.getMemberId(),
+					escapeCsv(m.getMemberName()),
+					escapeCsv(m.getLoginId()),
+					escapeCsv(m.getEmail()),
+					statusText,
+					escapeCsv(m.getCreatedAt() != null ? m.getCreatedAt().toString() : "-")
+				);
+			}
+			writer.flush();
 		}
-		
-		// 4) 파일명 생성 (예: 해봄_회원목록_20261104)
-		String dateStr = 
-				LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		String fileName = "해봄_회원목록_" + dateStr;
-		
-		// 5) POI 컴포넌트 호출하여 엑셀 생성 및 다운로드 스트림 전송
-		poi.exportExcel(response, fileName, "회원목록", headers, rows);
+	}
+
+	// 기존 엑셀 다운로드 호환 메서드 (CSV 스트리밍으로 연결)
+	public void downloadMemberListExcel(HttpServletResponse response) throws IOException {
+		downloadMemberListCsv(response);
+	}
+
+	private String escapeCsv(String value) {
+		if (value == null || value.isBlank()) return "-";
+		if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
+			return "\"" + value.replace("\"", "\"\"") + "\"";
+		}
+		return value;
 	}
 }
