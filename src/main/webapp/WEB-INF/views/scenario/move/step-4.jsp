@@ -138,7 +138,7 @@
 				<span id="newAddressPart2" class="move-step4-detail-prefix d-none"></span>
 
 				<input id="newDetailAddress" class="form-control" type="text"
-					maxlength="150" autocomplete="off" placeholder="예) 101동 101호">
+					maxlength="150" autocomplete="off" data-address-detail placeholder="예) 101동 101호">
 
 			</div>
 
