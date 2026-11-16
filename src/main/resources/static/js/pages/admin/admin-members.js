@@ -438,9 +438,9 @@
 		renderAdminMemberRows();
 	});
 
-	// 회원 목록 엑셀 다운로드 이벤트
+	// 회원 목록 대용량 CSV 다운로드 이벤트
 	document.getElementById('btnExportMembersExcel')?.addEventListener('click', () => {
-		window.location.href = '/api/admin/members/excel';
+		window.location.href = '/api/admin/members/csv';
 	});
 
 	// 외부 노출
