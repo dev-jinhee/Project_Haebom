@@ -39,6 +39,19 @@
                 </a>
             </c:if>
 
+            <!-- 글씨 크기 조절 드롭다운 -->
+            <div class="dropdown d-none d-md-block">
+                <button class="btn btn-access dropdown-toggle d-inline-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정" title="글씨 크기 설정">
+                    <span class="material-symbols-outlined me-1" aria-hidden="true">text_fields</span><span data-mode-label>보통</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
+                    <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
+                    <li><button class="dropdown-item" type="button" data-text-size="large" aria-pressed="false">크게</button></li>
+                    <li><button class="dropdown-item" type="button" data-text-size="larger" aria-pressed="false">더 크게</button></li>
+                    <li><button class="dropdown-item" type="button" data-text-size="largest" aria-pressed="false">가장 크게</button></li>
+                </ul>
+            </div>
+
             <!-- 로그인 여부에 따른 버튼 분기 -->
             <c:choose>
                 <c:when test="${not empty pageContext.request.userPrincipal}">
