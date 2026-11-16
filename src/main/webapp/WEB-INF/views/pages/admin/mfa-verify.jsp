@@ -3,11 +3,9 @@
 
 <main class="login-shell">
         <a class="login-brand" href="${pageContext.request.contextPath}/" aria-label="해봄 홈">
-            <span class="login-brand-mark" aria-hidden="true">
-                <span class="material-symbols-outlined">domain</span>
-            </span>
+            <img class="login-brand-logo-icon" src="${pageContext.request.contextPath}/images/logo-icon.png" alt="">
             <span class="login-brand-copy">
-                <strong>해봄</strong>
+                <img class="login-brand-wordmark" src="${pageContext.request.contextPath}/images/logo-text.png" alt="해봄">
                 <small>생활 행정절차 미리연습</small>
             </span>
         </a>
