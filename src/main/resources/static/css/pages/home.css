@@ -728,10 +728,20 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
 }
 
 @media (max-width: 48em) {
+  .practice-panel .home-hero .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .practice-panel .home-hero .hero-copy {
+    width: 100%;
+    min-width: 0;
+  }
+
   .practice-panel .home-hero .hero-copy h1 {
-    font-size: 1.7rem;
-    line-height: 1.25;
-    overflow-wrap: normal;
-    word-break: keep-all;
+    font-size: clamp(1.15rem, 5vw, 1.5rem);
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
 }
