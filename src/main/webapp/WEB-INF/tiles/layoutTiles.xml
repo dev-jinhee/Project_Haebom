@@ -82,4 +82,45 @@
         <put-attribute name="content" value="/WEB-INF/views/pages/member/find-password.jsp" />
         <put-attribute name="scripts" value="/WEB-INF/views/page-assets/find-password-scripts.jsp" />
     </definition>
+
+    <!-- 관리자 전용 AdminLTE 화면 -->
+    <definition name="tiles/admin" extends="tiles/base">
+        <put-attribute name="title" value="관리자 | 해봄" />
+        <put-attribute name="bodyClass" value="layout-fixed sidebar-expand-lg bg-body-tertiary admin-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/admin-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/admin/admin.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/admin-scripts.jsp" />
+    </definition>
+
+    <!-- 관리자 OTP 등록·검증 화면은 사이트 공통 헤더·푸터 없이 표시합니다. -->
+    <definition name="tiles/admin-mfa-setup" extends="tiles/base">
+        <put-attribute name="title" value="관리자 OTP 등록 | 해봄" />
+        <put-attribute name="bodyClass" value="login-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/admin-mfa-setup-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/admin/mfa-setup.jsp" />
+    </definition>
+
+    <definition name="tiles/admin-mfa-verify" extends="tiles/base">
+        <put-attribute name="title" value="관리자 2단계 인증 | 해봄" />
+        <put-attribute name="bodyClass" value="login-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/admin-mfa-verify-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/admin/mfa-verify.jsp" />
+    </definition>
+
+    <!-- 시뮬레이션 본 화면과 인쇄 창은 각각 화면 전용 자산을 사용합니다. -->
+    <definition name="tiles/simulation" extends="tiles/base">
+        <put-attribute name="title" value="시뮬레이션 | 해봄" />
+        <put-attribute name="bodyClass" value="simulation-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/simulation-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/scenario/simulation.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/simulation-scripts.jsp" />
+    </definition>
+
+    <definition name="tiles/simulation-print" extends="tiles/base">
+        <put-attribute name="title" value="해봄 | 시뮬레이션 화면 인쇄" />
+        <put-attribute name="bodyClass" value="simulation-page simulation-print-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/simulation-print-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/scenario/simulation-print.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/simulation-print-scripts.jsp" />
+    </definition>
 </tiles-definitions>
