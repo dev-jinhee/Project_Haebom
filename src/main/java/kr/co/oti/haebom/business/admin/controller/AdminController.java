@@ -14,6 +14,6 @@ public class AdminController {
      */
     @GetMapping({"", "/", "/{subPage}"})
     public String adminMain() {
-        return "admin/admin";
+        return "tiles/admin";
     }
 }

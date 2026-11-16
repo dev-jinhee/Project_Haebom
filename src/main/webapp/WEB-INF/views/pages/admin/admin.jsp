@@ -1,36 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<!doctype html>
-<html lang="ko" data-bs-theme="light">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="_csrf" content="${_csrf.token}">
-<meta name="_csrf_header" content="${_csrf.headerName}">
-<title>관리자 | 해봄</title>
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-	rel="stylesheet">
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
-	rel="stylesheet">
-<link
-	href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0"
-	rel="stylesheet">
-<link
-	href="https://cdn.jsdelivr.net/npm/admin-lte@4.10.0/dist/css/adminlte.min.css"
-	rel="stylesheet">
-<link href="${pageContext.request.contextPath}/css/common.css"
-	rel="stylesheet">
-<link href="${pageContext.request.contextPath}/css/pages/admin.css"
-	rel="stylesheet">
-<!-- 공통 로딩 CSS -->
-<link href="${pageContext.request.contextPath}/css/common/common-loading.css"
-	rel="stylesheet">
-</head>
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary admin-page">
-	<div class="app-wrapper">
+
+<div class="app-wrapper">
 		<!-- 상단 네비게이션 헤더 -->
 		<nav class="app-header navbar navbar-expand bg-body">
 			<div class="container-fluid">
@@ -42,6 +14,24 @@
 					<span class="admin-demo-badge d-none" data-admin-demo-badge>데모 데이터</span>
 				</div>
 				<ul class="navbar-nav ms-auto align-items-center">
+					<li class="nav-item dropdown d-none d-md-block text-size-control">
+						<button class="nav-link dropdown-toggle" type="button"
+							data-bs-toggle="dropdown" aria-expanded="false"
+							aria-label="글씨 크기 설정">
+							<i class="bi bi-fonts me-1" aria-hidden="true"></i><span data-mode-label>보통</span>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-end text-size-menu"
+							aria-label="글씨 크기 선택">
+							<li><button class="dropdown-item active" type="button"
+								data-text-size="normal" aria-pressed="true">보통</button></li>
+							<li><button class="dropdown-item" type="button"
+								data-text-size="large" aria-pressed="false">크게</button></li>
+							<li><button class="dropdown-item" type="button"
+								data-text-size="larger" aria-pressed="false">더 크게</button></li>
+							<li><button class="dropdown-item" type="button"
+								data-text-size="largest" aria-pressed="false">가장 크게</button></li>
+						</ul>
+					</li>
 					<li class="nav-item"><span class="nav-link">관리자 계정</span></li>
 				</ul>
 			</div>
@@ -97,19 +87,19 @@
 			<div class="app-content pt-3 pb-4">
 				<div class="container-fluid">
 					<!-- 1. 이용 현황 (대시보드) -->
-					<jsp:include page="sections/section-dashboard.jsp" />
+					<jsp:include page="/WEB-INF/views/admin/sections/section-dashboard.jsp" />
 
 					<!-- 2. 회원 목록 -->
-					<jsp:include page="sections/section-members.jsp" />
+					<jsp:include page="/WEB-INF/views/admin/sections/section-members.jsp" />
 
 					<!-- 3. 관리자 목록 -->
-					<jsp:include page="sections/section-admins.jsp" />
+					<jsp:include page="/WEB-INF/views/admin/sections/section-admins.jsp" />
 
 					<!-- 4. 문의 게시판 -->
-					<jsp:include page="sections/section-inquiries.jsp" />
+					<jsp:include page="/WEB-INF/views/admin/sections/section-inquiries.jsp" />
 
 					<!-- 5. 시나리오 목록 -->
-					<jsp:include page="sections/section-scenarios.jsp" />
+					<jsp:include page="/WEB-INF/views/admin/sections/section-scenarios.jsp" />
 				</div>
 			</div>
 		</main>
@@ -123,10 +113,10 @@
 	<!-- ======================================================== -->
 	<!-- [모달 팝업] 기능별 상세 및 등록 모달 -->
 	<!-- ======================================================== -->
-	<jsp:include page="modals/modal-scenario-detail.jsp" />
-	<jsp:include page="modals/modal-member-detail.jsp" />
-	<jsp:include page="modals/modal-inquiry-detail.jsp" />
-	<jsp:include page="modals/modal-admin-register.jsp" />
+	<jsp:include page="/WEB-INF/views/admin/modals/modal-scenario-detail.jsp" />
+	<jsp:include page="/WEB-INF/views/admin/modals/modal-member-detail.jsp" />
+	<jsp:include page="/WEB-INF/views/admin/modals/modal-inquiry-detail.jsp" />
+	<jsp:include page="/WEB-INF/views/admin/modals/modal-admin-register.jsp" />
 
 	<div class="toast-container position-fixed bottom-0 end-0 p-3">
 		<div id="siteToast" class="toast" role="status">
@@ -137,24 +127,12 @@
 	</div>
 
 	<!-- 스크립트 라이브러리 -->
-	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-	<script
-		src="https://cdn.jsdelivr.net/npm/admin-lte@4.10.0/dist/js/adminlte.min.js"></script>
+	
+	
 	<!-- SheetJS (Excel 내보내기 전용 라이브러리) -->
-	<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-	<script src="${pageContext.request.contextPath}/js/app.js"></script>
-	<script src="${pageContext.request.contextPath}/js/common.js"></script>
+	
+	
+	
 	<!-- 공통 로딩 JS -->
-	<script src="${pageContext.request.contextPath}/js/common/common-loading.js"></script>
+	
 	<!-- 관리자 기능별 모듈 스크립트 -->
-	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-dashboard.js?v=<%= System.currentTimeMillis() %>"></script>
-	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-scenarios.js?v=<%= System.currentTimeMillis() %>"></script>
-	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-members.js?v=<%= System.currentTimeMillis() %>"></script>
-	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-inquiries.js?v=<%= System.currentTimeMillis() %>"></script>
-	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-admins.js?v=<%= System.currentTimeMillis() %>"></script>
-	<script src="${pageContext.request.contextPath}/js/pages/admin/admin.js?v=<%= System.currentTimeMillis() %>"></script>
-	<script
-		src="${pageContext.request.contextPath}/js/pages/demo-actions.js"></script>
-</body>
-</html>

@@ -52,7 +52,7 @@ public class AdminMfaController {
         model.addAttribute("loginId", admin.getUsername());
         model.addAttribute("qrDataUri",
                 mfaService.createEnrollmentQr(admin.getUsername(), session));
-        return "admin/mfa-setup";
+        return "tiles/admin-mfa-setup";
     }
 
     // 이미 등록한 관리자의 OTP 입력 화면입니다.
@@ -65,7 +65,7 @@ public class AdminMfaController {
         if (!mfaService.isEnabled(admin.getMemberId())) {
             return "redirect:/admin/mfa/setup";
         }
-        return "admin/mfa-verify";
+        return "tiles/admin-mfa-verify";
     }
 
     // 최초 등록: 세션 임시 비밀키의 OTP가 맞으면 암호화해 DB에 저장한 뒤 로그인합니다.
