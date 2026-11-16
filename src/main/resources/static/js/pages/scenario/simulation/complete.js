@@ -288,7 +288,16 @@ export async function init({
 		}
 	}
 
-	await loadPolicyRecommendations(currentRootRef, scenarioCode, progressId, currentRefreshCount);
+	const loadInitialPolicies = () => loadPolicyRecommendations(currentRootRef, scenarioCode, progressId, currentRefreshCount);
+	if (window.HaebomLoading && typeof window.HaebomLoading.run === "function") {
+		await window.HaebomLoading.run(
+			loadInitialPolicies,
+			"맞춤 정책을 불러오고 있어요",
+			"회원님을 위한 유용한 행정 혜택을 추천 중입니다."
+		);
+	} else {
+		await loadInitialPolicies();
+	}
 
 	// [진희] 새로고침 버튼 핸들러 연결
 	bindPolicyRefreshAction();
@@ -339,14 +348,23 @@ window.haebomRefreshPolicies = async function(buttonEl) {
 	btn.disabled = true;
 
 	const targetRoot = currentRootRef || document.querySelector("#stepContent") || document;
+	const fetchRefreshPolicies = () => loadPolicyRecommendations(
+		targetRoot,
+		currentScenarioCodeRef,
+		currentProgressIdRef,
+		currentRefreshCount
+	);
 
 	try {
-		await loadPolicyRecommendations(
-			targetRoot,
-			currentScenarioCodeRef,
-			currentProgressIdRef,
-			currentRefreshCount
-		);
+		if (window.HaebomLoading && typeof window.HaebomLoading.run === "function") {
+			await window.HaebomLoading.run(
+				fetchRefreshPolicies,
+				"새로운 맞춤 정책을 불러오고 있어요",
+				"회원님을 위한 다른 행정 혜택을 추천 중입니다."
+			);
+		} else {
+			await fetchRefreshPolicies();
+		}
 	} finally {
 		btn.disabled = false;
 	}

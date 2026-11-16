@@ -2,6 +2,7 @@ package kr.co.oti.haebom.business.member.controller;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -21,6 +22,7 @@ import kr.co.oti.haebom.business.member.dto.EmailVerificationConfirmRequestDTO;
 import kr.co.oti.haebom.business.member.dto.EmailVerificationSendRequestDTO;
 import kr.co.oti.haebom.business.member.dto.MemberJoinRequestDTO;
 import kr.co.oti.haebom.business.member.service.EmailVerificationService;
+import kr.co.oti.haebom.business.common.EmailCodeService.VerificationResult;
 import kr.co.oti.haebom.business.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 
@@ -79,8 +81,10 @@ public class MemberApiController {
 	@PostMapping(value = "/email-verification/send", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public Map<String, Boolean> sendEmailCode(
 	        @Valid @ModelAttribute EmailVerificationSendRequestDTO request,
+	        HttpServletRequest httpRequest,
 	        HttpSession session) {
-	    return Map.of("sent", emailVerificationService.sendCode(request.getEmail(), session));
+	    return Map.of("sent", emailVerificationService.sendCode(
+	            request.getEmail(), httpRequest.getRemoteAddr(), session));
 	}
 
 	@Operation(summary = "이메일 인증번호 확인", description = "이메일과 인증번호를 확인합니다. 발송 후 5분 이내에 인증에 성공하면 해당 이메일을 인증 완료 상태로 저장합니다.")
@@ -88,9 +92,11 @@ public class MemberApiController {
 	public Map<String, Boolean> confirmEmailCode(
 	        @Valid @ModelAttribute EmailVerificationConfirmRequestDTO request,
 	        HttpSession session) {
-	    boolean verified = emailVerificationService.verifyCode(
+	    VerificationResult result = emailVerificationService.verifyCode(
 	            request.getEmail(), request.getCode(), session);
-	    return Map.of("verified", verified);
+	    return Map.of(
+	            "verified", result == VerificationResult.VERIFIED,
+	            "attemptsExceeded", result == VerificationResult.ATTEMPTS_EXCEEDED);
 	}
 	
 }

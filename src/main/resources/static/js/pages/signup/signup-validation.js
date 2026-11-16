@@ -26,6 +26,13 @@ export function initSignupValidation() {
         return valid;
     }
 
+    function showNameGuidance() {
+        const input = document.getElementById('signupName');
+        if (input === null) return;
+
+        setFieldStatus(input, 'signupNameStatus', '이름을 입력해 주세요.', 'neutral');
+    }
+
     function filterName(input) {
         input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]/g, '');
     }
@@ -71,6 +78,7 @@ export function initSignupValidation() {
     const passwordConfirmInput = document.getElementById('signupPasswordConfirm');
 
     if (nameInput !== null) {
+        nameInput.addEventListener('focus', showNameGuidance);
         nameInput.addEventListener('input', function (event) {
             if (event.isComposing) return;
             filterName(nameInput);

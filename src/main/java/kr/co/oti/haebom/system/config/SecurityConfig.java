@@ -49,6 +49,10 @@ public class SecurityConfig {
 					        antMatcher("/member/signup"),
 					        antMatcher("/member/find-id"),
 					        antMatcher("/member/find-password"),
+					        antMatcher(HttpMethod.GET, "/inquiry"),
+					        antMatcher(HttpMethod.GET, "/inquiry/"),
+					        antMatcher(HttpMethod.GET, "/inquiries"),
+					        antMatcher(HttpMethod.GET, "/inquiries/"),
 					        antMatcher("/css/**"),
 					        antMatcher("/js/**"),
 					        antMatcher("/images/**"),
@@ -74,6 +78,7 @@ public class SecurityConfig {
 					        antMatcher(HttpMethod.GET, "/api/address/**"),
 					        antMatcher(HttpMethod.GET, "/api/scenario/**"),
 					        antMatcher(HttpMethod.GET, "/api/inquiries"),
+					        antMatcher(HttpMethod.GET, "/api/inquiries/*/answers"),
 					        antMatcher(HttpMethod.GET, "/api/policies/**") // [진희] 정부24(보조금24) 정책 추천 조회 API (비로그인 허용)
 					    ).permitAll()
 					    

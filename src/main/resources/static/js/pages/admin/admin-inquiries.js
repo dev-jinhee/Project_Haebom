@@ -305,8 +305,11 @@
 	// 새 답변 입력창에 글자를 치기 시작하면 답변 상태를 자동으로 '답변 중'으로 전환!
 	document.getElementById('inquiryReplyText')?.addEventListener('input', (e) => {
 		const statusSelect = document.getElementById('inquiryStatusSelect');
-		if (statusSelect && e.target.value.trim().length > 0 && statusSelect.value === 'ANSWERED') {
-			statusSelect.value = 'ANSWERING';
+		if (statusSelect && e.target.value.trim().length > 0) {
+			const currentVal = String(statusSelect.value || '').trim().toUpperCase();
+			if (currentVal === 'ANSWERED' || currentVal === '답변 완료') {
+				statusSelect.value = 'ANSWERING';
+			}
 		}
 	});
 
@@ -323,7 +326,7 @@
 			return;
 		}
 
-		try {
+		const saveAnswerAction = async () => {
 			const params = new URLSearchParams({
 				qnaAnswerContent: answerContent
 			});
@@ -349,7 +352,18 @@
 			await loadAdminInquiries();
 
 			if (typeof window.loadAdminActivityLog === 'function') window.loadAdminActivityLog();
+		};
 
+		try {
+			if (window.HaebomLoading && typeof window.HaebomLoading.run === 'function') {
+				await window.HaebomLoading.run(
+					saveAnswerAction,
+					'답변을 등록하고 있어요',
+					'회원님께 전달할 답변을 안전하게 등록하고 있습니다.'
+				);
+			} else {
+				await saveAnswerAction();
+			}
 		} catch (error) {
 			console.error('답변 등록 중 에러 발생:', error);
 			toast('답변 등록에 실패했습니다. 다시 시도해 주세요.');
@@ -362,7 +376,7 @@
 
 		const qnaStatus = document.getElementById('inquiryStatusSelect')?.value || 'WAITING';
 
-		try {
+		const saveStatusAction = async () => {
 			const params = new URLSearchParams({
 				qnaStatus: qnaStatus
 			});
@@ -381,7 +395,18 @@
 			await loadAdminInquiries();
 
 			if (typeof window.loadAdminActivityLog === 'function') window.loadAdminActivityLog();
+		};
 
+		try {
+			if (window.HaebomLoading && typeof window.HaebomLoading.run === 'function') {
+				await window.HaebomLoading.run(
+					saveStatusAction,
+					'답변 상태를 저장하고 있어요',
+					'문의 답변 처리 상태를 업데이트하고 있습니다.'
+				);
+			} else {
+				await saveStatusAction();
+			}
 		} catch (error) {
 			console.error('문의 상태 변경 실패:', error);
 			toast('변경사항 저장에 실패했습니다.');

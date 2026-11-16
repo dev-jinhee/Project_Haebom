@@ -13,6 +13,8 @@
     <!-- 해봄 공통 & 페이지 전용 스타일시트 (통합 common.css 단 1개 사용) -->
     <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/pages/inquiries.css" rel="stylesheet">
+    <!-- 공통 로딩 CSS -->
+    <link href="${pageContext.request.contextPath}/css/common/common-loading.css" rel="stylesheet">
 </head>
 <body>
 
@@ -278,6 +280,8 @@
     <!-- 3. 공통 푸터 include (푸터 + 공통 모달 + 공통 JS 포함) -->
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
 
+    <!-- 공통 로딩 JS -->
+    <script src="${pageContext.request.contextPath}/js/common/common-loading.js"></script>
     <!-- 4. 문의 게시판 전용 스크립트 -->
     <script src="${pageContext.request.contextPath}/js/pages/inquiries.js"></script>
 
