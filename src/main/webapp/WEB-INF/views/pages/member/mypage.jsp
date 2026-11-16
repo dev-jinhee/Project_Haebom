@@ -1,22 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!doctype html>
-<html lang="ko">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="해봄 마이페이지에서 진행 내역과 회원 정보를 확인하세요.">
-    <title>마이페이지 | 해봄</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/common.css?v=mypage-scenario-search-1" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/mypage.css?v=mypage-list-account-dividers-17" rel="stylesheet">
-</head>
-<body class="mypage-page">
-    <jsp:include page="/WEB-INF/views/common/header.jsp" />
-
-    <main id="mypage-content"
+<main id="mypage-content"
           class="container subpage-container"
           data-profile-api-url="${pageContext.request.contextPath}/api/mypage/profile"
           data-withdraw-api-url="${pageContext.request.contextPath}/api/mypage/withdraw"
@@ -274,9 +259,7 @@
         </div>
     </div>
     </c:if>
-
-    <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-    <div class="modal fade" id="mypageInquiryViewModal" tabindex="-1"
+<div class="modal fade" id="mypageInquiryViewModal" tabindex="-1"
          aria-labelledby="mypageInquiryViewTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -308,8 +291,3 @@
             </div>
         </div>
     </div>
-
-    <script src="${pageContext.request.contextPath}/js/pages/mypage.js?v=mypage-progress-history-20"></script>
-</body>
-</html>
-

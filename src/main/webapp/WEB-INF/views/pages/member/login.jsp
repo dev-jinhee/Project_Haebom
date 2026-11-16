@@ -1,32 +1,19 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!doctype html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="해봄 로그인">
-    <title>로그인 | 해봄</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-shadow-none-1" rel="stylesheet">
-</head>
-<body class="login-page">
-    <div class="account-screen-tools dropdown text-size-control">
-        <button class="login-size-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                aria-expanded="false" aria-label="글씨 크기 설정">
-            <span data-mode-label>보통</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
-            <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
-            <li><button class="dropdown-item" type="button" data-text-size="large" aria-pressed="false">크게</button></li>
-            <li><button class="dropdown-item" type="button" data-text-size="larger" aria-pressed="false">더 크게</button></li>
-            <li><button class="dropdown-item" type="button" data-text-size="largest" aria-pressed="false">가장 크게</button></li>
-        </ul>
-    </div>
-    <main class="login-shell">
+<div class="account-screen-tools dropdown text-size-control">
+    <button class="login-size-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false" aria-label="글씨 크기 설정">
+        <span data-mode-label>보통</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end text-size-menu" aria-label="글씨 크기 선택">
+        <li><button class="dropdown-item active" type="button" data-text-size="normal" aria-pressed="true">보통</button></li>
+        <li><button class="dropdown-item" type="button" data-text-size="large" aria-pressed="false">크게</button></li>
+        <li><button class="dropdown-item" type="button" data-text-size="larger" aria-pressed="false">더 크게</button></li>
+        <li><button class="dropdown-item" type="button" data-text-size="largest" aria-pressed="false">가장 크게</button></li>
+    </ul>
+</div>
+<main class="login-shell">
         <a class="login-brand" href="${pageContext.request.contextPath}/" aria-label="해봄 홈">
             <img class="login-brand-logo-icon" src="${pageContext.request.contextPath}/images/logo-icon.png" alt="">
             <span class="login-brand-copy">
@@ -98,9 +85,3 @@
             </div>
         </div>
     </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="${pageContext.request.contextPath}/js/common.js"></script>
-    <script src="${pageContext.request.contextPath}/js/pages/login.js?v=login-validation-4"></script>
-</body>
-</html>

@@ -19,7 +19,7 @@ public class SimulationController {
 
 	@GetMapping
 	public String simulationPage() {
-		return "scenario/simulation";
+		return "tiles/simulation";
 	}
 
 	// 단계별 JSP 반환
@@ -52,6 +52,6 @@ public class SimulationController {
 	@GetMapping("/print")
 	public String simulationPrint() {
 
-		return "scenario/common/simulation-print";
+		return "tiles/simulation-print";
 	}
 }

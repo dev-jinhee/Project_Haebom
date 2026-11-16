@@ -1,28 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
-<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>행정절차 연습 | 해봄</title>
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-	rel="stylesheet">
-<link href="/css/common.css" rel="stylesheet">
-<link href="/css/pages/scenario/scenario-list.css" rel="stylesheet">
-<!-- 공통 로딩 CSS -->
-<link rel="stylesheet" href="/css/common/common-loading.css">
-
-<!-- 공통 로딩 JS -->
-<script src="/js/common/common-loading.js"></script>
-</head>
-<body>
-	<jsp:include page="/WEB-INF/views/common/header.jsp" />
-
-	<main class="container subpage-container scenarios-page">
+<main class="container subpage-container scenarios-page">
 		<div class="subpage-heading">
 			<div class="breadcrumb-line">
 				<a href="/">홈</a><span class="material-symbols-outlined">
@@ -159,14 +139,4 @@
 
 		</template>
 	</main>
-
-	<jsp:include page="/WEB-INF/views/common/footer.jsp" />
-	<script src="/js/pages/demo-actions.js"></script>
-	<script src="/js/pages/scenario/scenario-progress.js"></script>
-
-	<!-- defer 추가 시 html 구성 완료 후 js 실행 -->
-	<script src="/js/pages/scenario/scenario-list.js" defer>
-		
-	</script>
-</body>
-</html>
+<!-- defer 추가 시 html 구성 완료 후 js 실행 -->

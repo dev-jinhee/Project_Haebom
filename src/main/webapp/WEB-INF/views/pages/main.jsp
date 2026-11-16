@@ -1,23 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <spring:eval expression="@environment.getProperty('app.google.maps.browser-key', '')" var="googleMapsBrowserKey" />
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="해봄에서 생활 행정절차를 안전하게 미리 연습해 보세요.">
-    <title>해봄 | 생활 행정절차 미리연습</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/common.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/pages/home.css?v=home-v39-mobile-grid" rel="stylesheet">
-
-</head>
-<body>
-<jsp:include page="/WEB-INF/views/common/header-main.jsp" />
-
 <main id="main-content" class="home-main" data-api-url="${pageContext.request.contextPath}/api/main">
     <section id="practice-section" class="home-panel practice-panel" aria-label="행정절차 연습">
         <div class="container home-panel-inner">
@@ -176,8 +159,7 @@
                 </nav>
             </section>
         </div>
-        <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-    </section>
+</section>
 
     <nav class="home-section-dots" aria-label="메인 영역 이동">
         <a class="active" href="#practice-section" data-home-dot="practice-section" aria-label="행정절차 연습으로 이동" aria-current="location"></a>
@@ -185,7 +167,3 @@
         <a href="#policy-search-section" data-home-dot="policy-search-section" aria-label="공공서비스 정책 검색으로 이동"></a>
     </nav>
 </main>
-
-<script src="${pageContext.request.contextPath}/js/pages/home.js?v=home-v22-popup-info-message"></script>
-</body>
-</html>
