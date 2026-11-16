@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import kr.co.oti.haebom.business.admin.service.AdminMfaService;
 import kr.co.oti.haebom.system.security.AdminMfaSuccessHandler;
@@ -27,7 +28,8 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(
 			HttpSecurity http,
 			SecurityContextRepository repository,
-			AdminMfaSuccessHandler successHandler) throws Exception {
+			AdminMfaSuccessHandler successHandler,
+			RequestMappingHandlerMapping requestMappingHandlerMapping) throws Exception {
 
 		http
 				// Spring Security 로그인 정보를 HTTP 세션에 저장하고 불러오도록 저장소를 지정합니다.
@@ -106,6 +108,14 @@ public class SecurityConfig {
 					        antMatcher("/api/inquiries/**")
 					    ).authenticated()
 
+					    // 컨트롤러에 매핑되지 않은 주소는 인증을 요구하지 않고 DispatcherServlet이 404 처리하도록 합니다.
+					    .requestMatchers(request -> {
+					        try {
+					            return requestMappingHandlerMapping.getHandler(request) == null;
+					        } catch (Exception mappingException) {
+					            return false;
+					        }
+					    }).permitAll()
 					    .anyRequest().authenticated()
 					)
 				
