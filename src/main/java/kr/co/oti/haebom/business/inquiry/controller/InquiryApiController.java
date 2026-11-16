@@ -92,7 +92,7 @@ public class InquiryApiController {
 	public List<QnaAnswerDTO> getInquiryAnswer(
 			@PathVariable("qnaId") Integer qnaId,
 			@AuthenticationPrincipal MemberPrincipal memberPrincipal) {
-		int currentMemberId = PrincipalUtils.requireMemberId(memberPrincipal);
+		Integer currentMemberId = memberPrincipal != null ? memberPrincipal.getMemberId() : null;
 		boolean isAdmin = PrincipalUtils.isAdmin(memberPrincipal);
 		return qnaService.getAnswersByQnaId(qnaId, currentMemberId, isAdmin);
 	}
