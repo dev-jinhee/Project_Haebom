@@ -1,0 +1,135 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+
+<main class="login-shell">
+        <a class="login-brand" href="${pageContext.request.contextPath}/" aria-label="해봄 홈">
+            <img class="login-brand-logo-icon" src="${pageContext.request.contextPath}/images/logo-icon.png" alt="">
+            <span class="login-brand-copy">
+                <img class="login-brand-wordmark" src="${pageContext.request.contextPath}/images/logo-text.png" alt="해봄">
+                <small>생활 행정절차 미리연습</small>
+            </span>
+        </a>
+
+        <section class="login-card account-find-card" aria-labelledby="findPasswordTitle"
+                 data-context-path="${pageContext.request.contextPath}">
+            <header class="login-heading">
+                <h1 id="findPasswordTitle">비밀번호 찾기</h1>
+                <p class="account-find-intro">가입 시 등록한 정보로 본인 확인을 진행합니다.</p>
+            </header>
+
+            <div class="account-find-form" id="passwordRecoveryForm">
+                <div class="login-field mb-3">
+                    <label for="loginId">아이디</label>
+                    <div class="login-input-wrap">
+                        <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
+                        <input class="form-control" id="loginId" name="loginId" type="text"
+                               autocomplete="username" minlength="4" maxlength="16"
+                               placeholder="아이디를 입력해 주세요" required>
+                    </div>
+                </div>
+                <div class="login-field mb-3">
+                    <label for="memberName">이름</label>
+                    <div class="login-input-wrap">
+                        <span class="material-symbols-outlined login-input-icon" aria-hidden="true">person</span>
+                        <input class="form-control" id="memberName" name="memberName" type="text"
+                               autocomplete="name" maxlength="20"
+                               placeholder="이름을 입력해 주세요" required>
+                    </div>
+                </div>
+                <div class="login-field mb-3">
+                    <label for="email">이메일</label>
+                    <div class="input-group account-find-input-group">
+                        <div class="login-input-wrap">
+                            <span class="material-symbols-outlined login-input-icon" aria-hidden="true">mail</span>
+                            <input class="form-control" id="email" name="email" type="email"
+                                   autocomplete="email" maxlength="50"
+                                   placeholder="이메일을 입력해 주세요" required>
+                        </div>
+                        <button class="btn btn-outline-primary" id="sendCodeButton" type="button">
+                            인증번호 받기
+                        </button>
+                    </div>
+                    <p class="account-find-help" id="emailResendHelp"></p>
+                    <p class="account-find-status" id="sendCodeStatus" aria-live="polite"></p>
+                    <p class="account-find-help" id="resendHelp" aria-live="polite"></p>
+                </div>
+
+                <div id="verificationSection" hidden>
+                    <div class="login-field mb-3">
+                        <label for="verificationCode">인증번호</label>
+                        <div class="input-group account-find-input-group">
+                            <div class="login-input-wrap">
+                                <span class="material-symbols-outlined login-input-icon" aria-hidden="true">pin</span>
+                                <input class="form-control" id="verificationCode" name="code" type="text"
+                                       inputmode="numeric" autocomplete="one-time-code" maxlength="6"
+                                       pattern="[0-9]{6}"
+                                       aria-label="이메일 인증번호">
+                            </div>
+                            <button class="btn btn-outline-primary" id="confirmCodeButton" type="button">
+                                인증 확인
+                            </button>
+                        </div>
+                        <p class="account-find-status text-muted" id="codeExpiryStatus" aria-live="polite"></p>
+                        <p class="account-find-status" id="verifyCodeStatus" aria-live="polite"></p>
+                    </div>
+                </div>
+
+                <input type="hidden" id="csrfToken" name="${_csrf.parameterName}"
+                       value="${_csrf.token}" data-header="${_csrf.headerName}">
+                <div class="account-find-footer-divider" aria-hidden="true"></div>
+                <a class="account-login-link" href="${pageContext.request.contextPath}/login">로그인으로 돌아가기</a>
+            </div>
+        </section>
+
+        <section class="login-card account-find-card account-reset-card" id="resetPasswordCard"
+                 aria-labelledby="resetPasswordTitle" hidden>
+            <header class="login-heading">
+                <h1 id="resetPasswordTitle">새 비밀번호 설정</h1>
+            </header>
+
+            <section id="resetPasswordSection">
+                <div class="login-field mb-3">
+                    <label for="newPassword">새 비밀번호</label>
+                    <div class="login-input-wrap">
+                        <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
+                        <input class="form-control" id="newPassword" name="newPassword" type="password"
+                               autocomplete="new-password" minlength="8" maxlength="20"
+                               aria-describedby="newPasswordStatus" required>
+                        <button class="login-password-toggle" type="button" data-toggle-password="newPassword"
+                                aria-label="비밀번호 표시">
+                            <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                        </button>
+                    </div>
+                    <p class="account-find-status account-find-password-status text-muted" id="newPasswordStatus" aria-live="polite">비밀번호는 8~20자로 입력해 주세요. 영문 대/소문자를 구분하며, &gt;, &lt;, _, -, &quot;, '는 사용할 수 없어요.</p>
+                </div>
+                <div class="login-field mb-3">
+                    <label for="passwordConfirm">새 비밀번호 확인</label>
+                    <div class="login-input-wrap">
+                        <span class="material-symbols-outlined login-input-icon" aria-hidden="true">lock</span>
+                        <input class="form-control" id="passwordConfirm" name="passwordConfirm" type="password"
+                               autocomplete="new-password" minlength="8" maxlength="20"
+                               aria-describedby="passwordConfirmStatus" required>
+                        <button class="login-password-toggle" type="button" data-toggle-password="passwordConfirm"
+                                aria-label="비밀번호 표시">
+                            <span class="material-symbols-outlined" aria-hidden="true">visibility_off</span>
+                        </button>
+                    </div>
+                    <p class="account-find-status account-find-password-status text-muted" id="passwordConfirmStatus" aria-live="polite">비밀번호를 다시 입력해 주세요.</p>
+                </div>
+                <p class="account-find-status" id="resetPasswordStatus" aria-live="polite"></p>
+                <button class="btn btn-primary login-submit w-100" id="resetPasswordButton" type="button">
+                    비밀번호 변경
+                </button>
+                <div class="account-find-footer-divider" aria-hidden="true"></div>
+                <a class="account-login-link" href="${pageContext.request.contextPath}/login">로그인으로 돌아가기</a>
+            </section>
+
+            <section class="account-find-result" id="passwordRecoveryComplete" aria-live="polite" hidden>
+                <span class="account-result-icon material-symbols-outlined" aria-hidden="true">check</span>
+                <h2>비밀번호가 변경되었습니다.</h2>
+                <p>새 비밀번호로 로그인해 주세요.</p>
+                <div class="account-find-result-actions">
+                    <a class="btn btn-primary login-submit" href="${pageContext.request.contextPath}/login">로그인하기</a>
+                </div>
+            </section>
+        </section>
+    </main>

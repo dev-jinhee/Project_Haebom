@@ -3,7 +3,7 @@ import { initIdAvailability } from './signup-id-availability.js?v=signup-modules
 import { initEmailVerification } from './signup-email-verification.js?v=signup-modules-4';
 import { initSignupSubmit } from './signup-submit.js?v=signup-modules-1';
 
-const page = document.querySelector('.member-signup-page');
+const page = document.querySelector('.member-signup-container');
 if (page !== null) {
     const steps = document.querySelectorAll('[id^="signupStep"]');
     const stepLabels = document.querySelectorAll('[data-signup-step-label]');

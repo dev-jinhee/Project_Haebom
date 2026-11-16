@@ -19,4 +19,67 @@
         <put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" />
         <put-attribute name="scripts" value="/WEB-INF/views/page-assets/main-scripts.jsp" />
     </definition>
+
+    <!-- 일반 사이트 화면 -->
+    <definition name="tiles/scenario-list" extends="tiles/base">
+        <put-attribute name="title" value="행정절차 연습 | 해봄" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/scenario-list-head.jsp" />
+        <put-attribute name="header" value="/WEB-INF/views/common/header.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/scenario/scenario-list.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/scenario-list-scripts.jsp" />
+    </definition>
+
+    <definition name="tiles/inquiries" extends="tiles/base">
+        <put-attribute name="title" value="문의 게시판 | 해봄" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/inquiries-head.jsp" />
+        <put-attribute name="header" value="/WEB-INF/views/common/header.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/inquiries/inquiries.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/inquiries-scripts.jsp" />
+    </definition>
+
+    <definition name="tiles/mypage" extends="tiles/base">
+        <put-attribute name="title" value="마이페이지 | 해봄" />
+        <put-attribute name="bodyClass" value="mypage-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/mypage-head.jsp" />
+        <put-attribute name="header" value="/WEB-INF/views/common/header.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/mypage.jsp" />
+        <put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/mypage-scripts.jsp" />
+    </definition>
+
+    <!-- 로그인, 가입, 계정 찾기는 공통 사이트 헤더·푸터 없이 표시합니다. -->
+    <definition name="tiles/login" extends="tiles/base">
+        <put-attribute name="title" value="로그인 | 해봄" />
+        <put-attribute name="bodyClass" value="login-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/login-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/login.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/login-scripts.jsp" />
+    </definition>
+
+    <definition name="tiles/signup" extends="tiles/base">
+        <put-attribute name="title" value="회원가입 | 해봄" />
+        <put-attribute name="bodyClass" value="member-signup-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/signup-head.jsp" />
+        <put-attribute name="header" value="/WEB-INF/views/header-signup.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/signup.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/signup-scripts.jsp" />
+    </definition>
+
+    <definition name="tiles/find-id" extends="tiles/base">
+        <put-attribute name="title" value="아이디 찾기 | 해봄" />
+        <put-attribute name="bodyClass" value="login-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/find-id-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/find-id.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/find-id-scripts.jsp" />
+    </definition>
+
+    <definition name="tiles/find-password" extends="tiles/base">
+        <put-attribute name="title" value="비밀번호 찾기 | 해봄" />
+        <put-attribute name="bodyClass" value="login-page" />
+        <put-attribute name="head" value="/WEB-INF/views/page-assets/find-password-head.jsp" />
+        <put-attribute name="content" value="/WEB-INF/views/pages/member/find-password.jsp" />
+        <put-attribute name="scripts" value="/WEB-INF/views/page-assets/find-password-scripts.jsp" />
+    </definition>
 </tiles-definitions>
