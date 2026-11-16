@@ -25,6 +25,9 @@
 	rel="stylesheet">
 <link href="${pageContext.request.contextPath}/css/pages/admin.css"
 	rel="stylesheet">
+<!-- 공통 로딩 CSS -->
+<link href="${pageContext.request.contextPath}/css/common/common-loading.css"
+	rel="stylesheet">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary admin-page">
 	<div class="app-wrapper">
@@ -142,6 +145,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 	<script src="${pageContext.request.contextPath}/js/app.js"></script>
 	<script src="${pageContext.request.contextPath}/js/common.js"></script>
+	<!-- 공통 로딩 JS -->
+	<script src="${pageContext.request.contextPath}/js/common/common-loading.js"></script>
 	<!-- 관리자 기능별 모듈 스크립트 -->
 	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-dashboard.js?v=<%= System.currentTimeMillis() %>"></script>
 	<script src="${pageContext.request.contextPath}/js/pages/admin/admin-scenarios.js?v=<%= System.currentTimeMillis() %>"></script>
