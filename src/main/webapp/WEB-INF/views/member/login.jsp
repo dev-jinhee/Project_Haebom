@@ -14,7 +14,7 @@
     <link href="${pageContext.request.contextPath}/css/pages/login.css?v=login-shadow-none-1" rel="stylesheet">
 </head>
 <body class="login-page">
-    <div class="account-screen-tools dropdown">
+    <div class="account-screen-tools dropdown text-size-control">
         <button class="login-size-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
                 aria-expanded="false" aria-label="글씨 크기 설정">
             <span data-mode-label>보통</span>

@@ -40,7 +40,7 @@
             </c:if>
 
             <!-- 글씨 크기 조절 드롭다운 -->
-            <div class="dropdown d-none d-md-block">
+            <div class="dropdown d-none d-md-block text-size-control">
                 <button class="btn btn-access dropdown-toggle d-inline-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="글씨 크기 설정" title="글씨 크기 설정">
                     <span class="material-symbols-outlined me-1" aria-hidden="true">text_fields</span><span data-mode-label>보통</span>
                 </button>

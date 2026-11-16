@@ -42,7 +42,7 @@
 					<span class="admin-demo-badge d-none" data-admin-demo-badge>데모 데이터</span>
 				</div>
 				<ul class="navbar-nav ms-auto align-items-center">
-					<li class="nav-item dropdown d-none d-md-block">
+					<li class="nav-item dropdown d-none d-md-block text-size-control">
 						<button class="nav-link dropdown-toggle" type="button"
 							data-bs-toggle="dropdown" aria-expanded="false"
 							aria-label="글씨 크기 설정">

@@ -2028,6 +2028,13 @@ body.large-text-mode .content-panel {
 	font-size: 1.20rem;
 }
 
+/* 가장 큰 태블릿 폭까지 숨기고, 데스크톱 너비(1400px 이상)에서 표시합니다. */
+@media (max-width: 1399.98px) {
+	.text-size-control {
+		display: none !important;
+	}
+}
+
 /* ========================================================
    [해봄 전용 확장 스타일 - common.css]
    ======================================================== */
