@@ -13,13 +13,4 @@
         <defender>safeXssDefender</defender>
     </default>
 
-    <!-- 전역 파라미터 예외: 주소 관련 데이터는 특수문자 원본 그대로 보존 -->
-    <global>
-        <params>
-            <param name="roadFullAddr" useDefender="false" />
-            <param name="roadAddrPart1" useDefender="false" />
-            <param name="addrDetail" useDefender="false" />
-            <param name="jibunAddr" useDefender="false" />
-        </params>
-    </global>
 </config>

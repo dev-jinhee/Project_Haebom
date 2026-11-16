@@ -1,5 +1,6 @@
 package kr.co.oti.haebom.business.scenario.service;
 
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -14,6 +15,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +30,7 @@ import kr.co.oti.haebom.business.scenario.mapper.ScenarioMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationAnswerMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationFamilyMapper;
 import kr.co.oti.haebom.business.scenario.mapper.SimulationProgressMapper;
+import kr.co.oti.haebom.business.scenario.validation.SimulationJsonInputValidator;
 import kr.co.oti.haebom.business.scenario.validation.StepValidationManager;
 import kr.co.oti.haebom.system.storage.S3Service;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +57,10 @@ public class SimulationService {
 	private static final Set<String> JSON_FIELDS = Set.of("previousAddress", "currentAddress", "additionalServices",
 			"additionalServiceDetails");
 
+	private static final int MAX_ENCODED_JSON_LENGTH = 1_048_576;
+	private static final int MAX_DECODED_JSON_LENGTH = 131_072;
+	private static final int MAX_ANSWERS_PER_STEP = 200;
+
 	private void processJsonAnswer(AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer) {
 
 		// 1. 필드 키 검증
@@ -65,12 +72,16 @@ public class SimulationService {
 			return;
 		}
 
-		// 2. JSON 입력값 검증
+		// 2. JSON 입력값 검증 및 길이 제한
 		if (answer.getAnswerValue() == null) {
 			throw new SimulationValidationException("JSON 입력값이 없습니다.");
 		}
 
-		// 3. URL 디코딩
+		if (answer.getAnswerValue().length() > MAX_ENCODED_JSON_LENGTH) {
+			throw new SimulationValidationException("JSON 입력값이 너무 깁니다.");
+		}
+
+		// 3. URL 디코딩 -> 기존 폼 전송 구조에서 추가 인코딩된 JSON을 정확히 1회 복원
 		String decodedValue;
 
 		try {
@@ -80,18 +91,31 @@ public class SimulationService {
 		}
 
 		// 4. JSON 형식 검증
-		try {
-			JsonNode jsonNode = objectMapper.readTree(decodedValue);
+		if (decodedValue.length() > MAX_DECODED_JSON_LENGTH) {
+			throw new SimulationValidationException("JSON 데이터가 너무 깁니다.");
+		}
 
+		// Jackson 파싱 전에 과도한 중첩을 제한하여 파서 리소스 소모를 줄인다.
+		SimulationJsonInputValidator.validateNestingBeforeParse(decodedValue);
+
+		// 4. JSON 문법·최상위 형태·중첩 입력값을 모두 검증
+		try (JsonParser parser = objectMapper.getFactory().createParser(decodedValue)) {
+			parser.enable(JsonParser.Feature.STRICT_DUPLICATE_DETECTION);
+			JsonNode jsonNode = objectMapper.readTree(parser);
 			boolean isArray = "additionalServices".equals(answer.getFieldKey());
 
 			if (jsonNode == null || (isArray ? !jsonNode.isArray() : !jsonNode.isObject())) {
 				throw new SimulationValidationException("JSON 데이터 형식이 올바르지 않습니다.");
 			}
+			if (parser.nextToken() != null) {
+				throw new SimulationValidationException("JSON 외의 추가 데이터가 포함되어 있습니다.");
+			}
 
+			SimulationJsonInputValidator.validate(jsonNode);
+			// HTML 엔티티로 변형하지 않고 원래 JSON 문자열을 보존한다.
 			answer.setAnswerValue(decodedValue);
 
-		} catch (JsonProcessingException e) {
+		}catch (IOException e) {
 			throw new SimulationValidationException("JSON 파싱에 실패했습니다.", e);
 		}
 	}
@@ -265,6 +289,9 @@ public class SimulationService {
 		if (request == null || request.getAnswers() == null) {
 			throw new SimulationValidationException("답변 정보가 없습니다.");
 		}
+		if (request.getAnswers().size() > MAX_ANSWERS_PER_STEP) {
+			throw new SimulationValidationException("단계별 답변 개수를 초과했습니다.");
+		}
 
 		// 요청 전체의 단계/JSON을 먼저 확인한다.
 		for (AnswerSaveRequestListDTO.AnswerSaveRequestDTO answer : request.getAnswers()) {
@@ -305,6 +332,9 @@ public class SimulationService {
 
 		if (request == null || request.getAnswers() == null) {
 			throw new SimulationValidationException("답변 정보가 없습니다.");
+		}
+		if (request.getAnswers().size() > MAX_ANSWERS_PER_STEP) {
+			throw new SimulationValidationException("단계별 답변 개수를 초과했습니다.");
 		}
 
 		// 요청 전체의 단계/JSON을 먼저 확인한다.
@@ -381,26 +411,21 @@ public class SimulationService {
 			});
 		}
 	}
-	
-	//마이페이지 이력 조회
+
+	// 마이페이지 이력 조회
 	public SimulationProgressDTO getProgressForHistory(Integer progressId, Integer memberId) {
-	    SimulationProgressDTO progress =
-	            simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
+		SimulationProgressDTO progress = simulationProgressMapper.selectProgressByIdAndMemberId(progressId, memberId);
 
-	    if (progress == null
-	            || "DELETED".equals(progress.getProgressStatus())
-	            || "ABANDONED".equals(progress.getProgressStatus())) {
-	        throw new ResponseStatusException(
-	                HttpStatus.NOT_FOUND, "진행 이력을 찾을 수 없습니다.");
-	    }
+		if (progress == null || "DELETED".equals(progress.getProgressStatus())
+				|| "ABANDONED".equals(progress.getProgressStatus())) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "진행 이력을 찾을 수 없습니다.");
+		}
 
-	    if ("IN_PROGRESS".equals(progress.getProgressStatus())
-	            && progress.getStepId() == null) {
-	        throw new ResponseStatusException(
-	                HttpStatus.CONFLICT, "진행 중인 단계가 존재하지 않습니다.");
-	    }
+		if ("IN_PROGRESS".equals(progress.getProgressStatus()) && progress.getStepId() == null) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "진행 중인 단계가 존재하지 않습니다.");
+		}
 
-	    return progress;
+		return progress;
 	}
 
 	// 임대차계약서 첨부파일 존재 여부 확인
