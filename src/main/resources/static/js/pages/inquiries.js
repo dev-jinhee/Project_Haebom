@@ -433,10 +433,6 @@
   const loadUserInquiryAnswers = async (qnaId, status) => {
     const listEl = document.getElementById('inquiryAnswerList');
     if (!listEl) return;
-    if (!isLoggedIn && status === 'ANSWERING') {
-      listEl.innerHTML = '<div class="p-3 text-secondary small bg-light rounded-3">담당자가 문의를 확인하고 답변을 작성 중입니다.</div>';
-      return;
-    }
     listEl.innerHTML = '<div class="p-3 text-secondary small bg-light rounded-3">답변을 불러오는 중입니다...</div>';
 
     try {
