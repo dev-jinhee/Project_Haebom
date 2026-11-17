@@ -12,8 +12,8 @@
 										<input class="form-control" placeholder="이름·아이디 검색"
 											aria-label="회원 검색" data-member-search>
 									</div>
-									<button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold text-nowrap" id="btnExportMembersExcel" title="회원 목록을 엑셀 파일로 다운로드합니다">
-										<i class="bi bi-file-earmark-excel me-1"></i>엑셀 다운로드
+									<button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 fw-semibold text-nowrap" id="btnExportMembersExcel" title="회원 목록을 대용량 CSV 파일로 다운로드합니다">
+										<i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV 다운로드
 									</button>
 								</div>
 							</div>

@@ -55,9 +55,9 @@ public class AdminMemberApiController {
 		return ResponseEntity.ok(progressList);
 	}
 	
-	// 4. 관리자용 회원 목록 엑셀 다운로드 API (GET /api/admin/members/excel)
-	@GetMapping("/excel")
-	public void downloadMemberListExcel(javax.servlet.http.HttpServletResponse response) throws java.io.IOException {
-		adminMemberService.downloadMemberListExcel(response);
+	// 4. 관리자용 회원 목록 대용량 CSV 다운로드 API (GET /api/admin/members/csv, 기존 /excel 호환)
+	@GetMapping(value = {"/csv", "/excel"})
+	public void downloadMemberListCsv(javax.servlet.http.HttpServletResponse response) throws java.io.IOException {
+		adminMemberService.downloadMemberListCsv(response);
 	}
 }
