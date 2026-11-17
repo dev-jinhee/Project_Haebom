@@ -528,6 +528,11 @@
   font-size: .84rem;
 }
 
+#signupEmailExpiryStatus:empty,
+#signupEmailVerifyStatus:empty {
+  display: none;
+}
+
 .member-signup-field-help:not(:empty)::before {
   display: inline-block;
   margin-right: 6px;
