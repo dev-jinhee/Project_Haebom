@@ -239,11 +239,6 @@ public class SimulationService {
 			throw new ResponseStatusException( // 409ERROR
 					HttpStatus.CONFLICT, "진행 중인 단계가 존재하지 않습니다.");
 		}
-		// 최근 진행 이력인지 확인
-		if (!progressDTO.getProgressId()
-				.equals(simulationProgressMapper.selectLatestProgressId(memberId, progressDTO.getScenarioId()))) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "최신 기록이 아닙니다.");
-		}
 		return progressDTO;
 	}
 

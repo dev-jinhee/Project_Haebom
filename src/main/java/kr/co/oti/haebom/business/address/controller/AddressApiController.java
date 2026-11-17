@@ -49,20 +49,18 @@ public class AddressApiController {
 
 		return Map.of("status", "READY", "results", sgisRegionService.search(keyword));
 	}
-	
+
 	// 행정구역 코드로 전체 주소 조회
 	@Operation(summary = "전체 주소 조회", description = "행정구역 코드로 전체 주소 조회합니다.")
 	@GetMapping("/sgis/regions/{regionCode}")
-	public ResponseEntity<Map<String, String>> getRegionFullAddr(
-	        @PathVariable String regionCode) {
+	public ResponseEntity<Map<String, String>> getRegionFullAddr(@PathVariable String regionCode) {
 
 		String fullAddr = sgisRegionService.getRegionFullAddr(regionCode);
 
-	    return ResponseEntity.ok(
-	        Map.of(
-	            "regionCode", regionCode,
-	            "fullAddr", fullAddr
-	        )
-	    );
+		if (fullAddr == null || fullAddr.isBlank()) {
+			return ResponseEntity.notFound().build();
+		}
+
+		return ResponseEntity.ok(Map.of("regionCode", regionCode, "fullAddr", fullAddr));
 	}
 }
