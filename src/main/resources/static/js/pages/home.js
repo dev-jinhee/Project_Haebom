@@ -293,14 +293,16 @@
       infoWindow.open(map, marker);
     }
 
-    function createMarkerImage(color) {
+    function createMarkerImage(color, scale = 1) {
       const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">'
         + '<path d="M18 1C8.6 1 1 8.5 1 17.8 1 30 18 43 18 43s17-13 17-25.2C35 8.5 27.4 1 18 1z" fill="'
         + color + '" stroke="#fff" stroke-width="2"/>'
         + '<circle cx="18" cy="18" r="5.2" fill="#fff"/></svg>';
       const src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
-      return new kakao.maps.MarkerImage(src, new kakao.maps.Size(36, 44), {
-        offset: new kakao.maps.Point(18, 43)
+      const width = Math.round(36 * scale);
+      const height = Math.round(44 * scale);
+      return new kakao.maps.MarkerImage(src, new kakao.maps.Size(width, height), {
+        offset: new kakao.maps.Point(Math.round(18 * scale), Math.round(43 * scale))
       });
     }
 
@@ -463,7 +465,7 @@
           disableClickZoom: false
         });
         categoryMatchedMarkerImage = createMarkerImage('#1676d2');
-        otherMarkerImage = createMarkerImage('#202833');
+        otherMarkerImage = createMarkerImage('#202833', 0.7);
         infoWindow = new kakao.maps.InfoWindow({ removable: true });
         loadSidoOptions();
         updateControls();
