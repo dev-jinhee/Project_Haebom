@@ -78,10 +78,4 @@
                href="${pageContext.request.contextPath}/member/signup">회원가입</a>
             <a class="login-home-link" href="${pageContext.request.contextPath}/">메인페이지로 돌아가기</a>
         </section>
-        <div class="login-support-help">
-            <div class="login-support-contact">
-                <span>계정 이용에 문제가 있으신가요?</span>
-                <a class="login-support-mail-link" href="mailto:haebom1592@gmail.com">이메일로 문의하기</a>
-            </div>
-        </div>
     </main>
