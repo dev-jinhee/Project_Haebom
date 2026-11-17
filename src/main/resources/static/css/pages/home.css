@@ -142,7 +142,8 @@
 .center-map-heading h2 { margin: 0; color: #173b70; font-size: 1.12rem; font-weight: 800; }
 .center-map-heading p { margin: 0.3125rem 0 0; color: #718198; font-size: .82rem; }
 .center-map-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 0.875rem; max-width: 56.25rem; }
-.center-map-filters .form-select { min-height: 2.625rem; border-color: #dce5ef; }
+.center-map-filters .form-select { min-height: 2.625rem; }
+.center-map-filters .form-select:not(:focus) { border-color: #dce5ef; }
 .center-map-search { min-width: 6.75rem; min-height: 2.625rem; }
 .center-map-search-group { display: flex; align-items: center; gap: 0.5rem; }
 .center-map-help { position: relative; display: inline-flex; flex: none; align-items: center; }

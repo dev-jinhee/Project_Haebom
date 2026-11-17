@@ -89,12 +89,12 @@
 
             <div class="center-map-filters">
                 <div>
-                    <select id="center-sido" class="form-select" aria-label="시·도 선택" aria-describedby="center-map-message">
+                    <select id="center-sido" class="form-select hb-select" aria-label="시·도 선택" aria-describedby="center-map-message">
                         <option value="">시·도를 선택하세요</option>
                     </select>
                 </div>
                 <div>
-                    <select id="center-sigungu" class="form-select" aria-label="시·군·구 선택" disabled aria-describedby="center-map-message">
+                    <select id="center-sigungu" class="form-select hb-select" aria-label="시·군·구 선택" disabled aria-describedby="center-map-message">
                         <option value="">먼저 시·도를 선택하세요</option>
                     </select>
                 </div>
