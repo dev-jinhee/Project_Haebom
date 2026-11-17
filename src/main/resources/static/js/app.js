@@ -26,12 +26,16 @@
   window.Haebom = window.Haebom || {};
   window.Haebom.toast = toast;
 
+  const mobileMediaQuery = window.matchMedia('(max-width: 767.98px)');
+
   const savedTextSize = localStorage.getItem('ongyeol-text-size');
-  let textSize = ['normal', 'large', 'larger', 'largest'].includes(savedTextSize)
-    ? savedTextSize
-    : (localStorage.getItem('ongyeol-access-mode') === 'on' || localStorage.getItem('ongyeol-mode') === 'easy' || savedTextSize === 'large')
-      ? 'large'
-      : 'normal';
+  let textSize = (mobileMediaQuery.matches)
+    ? 'normal'
+    : ['normal', 'large', 'larger', 'largest'].includes(savedTextSize)
+      ? savedTextSize
+      : (localStorage.getItem('ongyeol-access-mode') === 'on' || localStorage.getItem('ongyeol-mode') === 'easy' || savedTextSize === 'large')
+        ? 'large'
+        : 'normal';
   const isAdmin = localStorage.getItem('ongyeol-demo-role') === 'admin';
   document.querySelectorAll('[data-admin-entry]').forEach((entry) => entry.classList.toggle('d-none', !isAdmin));
   const savedSignupEmail = localStorage.getItem('ongyeol-demo-email');
@@ -58,6 +62,26 @@
     });
   };
   renderTextSize();
+
+  // 화면 너비를 모바일 폰 크기(768px 미만)로 줄였을 때 UI 깨짐 방지를 위해 자동으로 '보통(normal)'으로 복구
+  const handleMobileBreakpoint = (e) => {
+    if (e.matches) {
+      if (textSize !== 'normal') {
+        textSize = 'normal';
+        localStorage.setItem('ongyeol-text-size', 'normal');
+        localStorage.removeItem('ongyeol-access-mode');
+        localStorage.removeItem('ongyeol-mode');
+        renderTextSize();
+      }
+    }
+  };
+
+  if (mobileMediaQuery.addEventListener) {
+    mobileMediaQuery.addEventListener('change', handleMobileBreakpoint);
+  } else if (mobileMediaQuery.addListener) {
+    mobileMediaQuery.addListener(handleMobileBreakpoint);
+  }
+
   document.querySelectorAll('[data-text-size]').forEach((button) => {
     button.addEventListener('click', () => {
       textSize = button.dataset.textSize;
