@@ -2028,8 +2028,8 @@ body.large-text-mode .content-panel {
 	font-size: 1.20rem;
 }
 
-/* 가장 큰 태블릿 폭까지 숨기고, 데스크톱 너비(1400px 이상)에서 표시합니다. */
-@media (max-width: 1399.98px) {
+/* 모바일 폰 너비(768px 미만)에서는 UI 깨짐 방지를 위해 숨기고, 태블릿(아이패드, 갤탭 등 768px 이상) 및 데스크톱에서 표시합니다. */
+@media (max-width: 767.98px) {
 	.text-size-control {
 		display: none !important;
 	}

@@ -4,7 +4,6 @@
 <script
 		src="https://cdn.jsdelivr.net/npm/admin-lte@4.10.0/dist/js/adminlte.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/app.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/common-loading.js"></script>
 <script src="${pageContext.request.contextPath}/js/pages/admin/admin-dashboard.js?v=<%= System.currentTimeMillis() %>"></script>
