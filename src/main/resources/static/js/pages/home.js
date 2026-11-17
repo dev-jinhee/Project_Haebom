@@ -158,9 +158,13 @@
     const pageSize = 5;
     let map = null;
     let clusterer = null;
-    let infoWindow = null;
+    let placeOverlay = null;
+    let pendingPopupListener = null;
     let categoryMatchedMarkerImage = null;
     let otherMarkerImage = null;
+    let categoryMatchedSelectedMarkerImage = null;
+    let otherSelectedMarkerImage = null;
+    let selectedMarker = null;
     let places = [];
     let markers = [];
     let highlightedPlaceId = '';
@@ -192,7 +196,15 @@
       if (clusterer) clusterer.clear();
       markers.forEach(marker => marker.setMap(null));
       markers = [];
-      if (infoWindow) infoWindow.close();
+      selectedMarker = null;
+      if (pendingPopupListener) {
+        kakao.maps.event.removeListener(map, 'idle', pendingPopupListener);
+        pendingPopupListener = null;
+      }
+      if (placeOverlay) {
+        placeOverlay.setMap(null);
+        placeOverlay = null;
+      }
     }
 
     function invalidatePendingSearch() {
@@ -263,20 +275,63 @@
       updateControls();
     }
 
-    function createInfoContent(place) {
+    function getPopupPlacement(position) {
+      const point = map.getProjection().containerPointFromCoords(position);
+      const preferredWidth = Math.min(256, Math.max(128, mapElement.clientWidth - 48));
+      const markerGap = 28;
+      const rightSpace = mapElement.clientWidth - point.x - markerGap;
+      const leftSpace = point.x - markerGap;
+      const side = rightSpace >= preferredWidth || rightSpace >= leftSpace ? 'right' : 'left';
+      const availableSpace = side === 'right' ? rightSpace : leftSpace;
+      return {
+        side,
+        width: Math.max(128, Math.min(preferredWidth, availableSpace))
+      };
+    }
+
+    function createInfoContent(place, placement) {
       const content = document.createElement('div');
       content.className = 'center-place-popup';
+      content.classList.add('is-' + placement.side);
+      content.style.width = placement.width + 'px';
+
+      const card = document.createElement('div');
+      card.className = 'center-place-popup-card';
+
+      const header = document.createElement('div');
+      header.className = 'center-place-popup-header';
       const title = document.createElement('strong');
+      title.className = 'center-place-popup-title';
       title.textContent = place.placeName || '행정기관';
-      content.append(title);
+      header.append(title);
+
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'center-place-popup-close';
+      close.setAttribute('aria-label', '정보창 닫기');
+      close.textContent = '×';
+      close.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (placeOverlay) {
+          placeOverlay.setMap(null);
+          placeOverlay = null;
+        }
+      });
+      header.append(close);
+      card.append(header);
+
+      const details = document.createElement('div');
+      details.className = 'center-place-popup-details';
       const address = document.createElement('p');
       address.className = 'center-place-popup-address';
       address.textContent = place.roadAddressName || place.addressName || '주소 정보 없음';
-      content.append(address);
+      details.append(address);
       if (place.phone) {
         const phone = document.createElement('p');
+        phone.className = 'center-place-popup-phone';
         phone.textContent = '전화번호: ' + place.phone;
-        content.append(phone);
+        details.append(phone);
       }
       if (place.placeUrl) {
         const link = document.createElement('a');
@@ -285,15 +340,48 @@
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.textContent = '카카오맵에서 보기';
-        content.append(link);
+        details.append(link);
       }
+      card.append(details);
+      content.append(card);
       return content;
     }
 
-    function focusPlace(place, marker) {
-      map.panTo(marker.getPosition());
-      infoWindow.setContent(createInfoContent(place));
-      infoWindow.open(map, marker);
+    function focusPlace(place, marker, shouldPan = true) {
+      if (selectedMarker && selectedMarker !== marker) {
+        selectedMarker.setImage(selectedMarker.normalImage);
+      }
+      selectedMarker = marker;
+      selectedMarker.setImage(selectedMarker.selectedImage);
+
+      const position = marker.getPosition();
+      const showPopup = () => {
+        if (pendingPopupListener) {
+          kakao.maps.event.removeListener(map, 'idle', pendingPopupListener);
+          pendingPopupListener = null;
+        }
+        if (placeOverlay) placeOverlay.setMap(null);
+        const placement = getPopupPlacement(position);
+        placeOverlay = new kakao.maps.CustomOverlay({
+          map,
+          position,
+          content: createInfoContent(place, placement),
+          xAnchor: placement.side === 'right' ? 0 : 1,
+          yAnchor: 0.5,
+          zIndex: 10
+        });
+      };
+      const currentCenter = map.getCenter();
+      const needsPan = shouldPan && (Math.abs(currentCenter.getLat() - position.getLat())
+        + Math.abs(currentCenter.getLng() - position.getLng()) > 0.000001);
+      if (needsPan) {
+        if (pendingPopupListener) kakao.maps.event.removeListener(map, 'idle', pendingPopupListener);
+        pendingPopupListener = showPopup;
+        kakao.maps.event.addListener(map, 'idle', pendingPopupListener);
+        map.panTo(position);
+      } else {
+        showPopup();
+      }
 
       highlightedPlaceId = String(place.id);
       const placeIndex = places.findIndex(item => String(item.id) === highlightedPlaceId);
@@ -302,10 +390,11 @@
       }
     }
 
-    function createMarkerImage(color, scale = 1) {
+    function createMarkerImage(color, scale = 1, selected = false) {
+      const pinPath = 'M18 1C8.6 1 1 8.5 1 17.8 1 30 18 43 18 43s17-13 17-25.2C35 8.5 27.4 1 18 1z';
       const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">'
-        + '<path d="M18 1C8.6 1 1 8.5 1 17.8 1 30 18 43 18 43s17-13 17-25.2C35 8.5 27.4 1 18 1z" fill="'
-        + color + '" stroke="#fff" stroke-width="2"/>'
+        + '<path d="' + pinPath + '" fill="' + color + '" stroke="'
+        + (selected ? '#8DBBE8' : '#fff') + '" stroke-width="' + (selected ? '3' : '2') + '"/>'
         + '<circle cx="18" cy="18" r="5.2" fill="#fff"/></svg>';
       const src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
       const width = Math.round(36 * scale);
@@ -420,13 +509,19 @@
         if (searchId !== latestSearchId) return;
         places = Array.isArray(result.places) ? result.places : [];
         markers = places.map(place => {
+          const isCategoryMatched = Boolean(place.administrativeCategoryMatched);
+          const normalImage = isCategoryMatched ? categoryMatchedMarkerImage : otherMarkerImage;
+          const selectedImage = isCategoryMatched
+            ? categoryMatchedSelectedMarkerImage : otherSelectedMarkerImage;
           const marker = new kakao.maps.Marker({
             position: new kakao.maps.LatLng(Number(place.y), Number(place.x)),
             title: place.placeName || '행정기관',
-            image: place.administrativeCategoryMatched ? categoryMatchedMarkerImage : otherMarkerImage
+            image: normalImage
           });
           marker.placeId = String(place.id);
-          kakao.maps.event.addListener(marker, 'click', () => focusPlace(place, marker));
+          marker.normalImage = normalImage;
+          marker.selectedImage = selectedImage;
+          kakao.maps.event.addListener(marker, 'click', () => focusPlace(place, marker, false));
           return marker;
         });
         clusterer.clear();
@@ -502,7 +597,8 @@
         });
         categoryMatchedMarkerImage = createMarkerImage('#1676d2');
         otherMarkerImage = createMarkerImage('#202833', 0.7);
-        infoWindow = new kakao.maps.InfoWindow({ removable: true });
+        categoryMatchedSelectedMarkerImage = createMarkerImage('#1676d2', 1.15, true);
+        otherSelectedMarkerImage = createMarkerImage('#202833', 0.85, true);
         loadSidoOptions();
         updateControls();
       });
