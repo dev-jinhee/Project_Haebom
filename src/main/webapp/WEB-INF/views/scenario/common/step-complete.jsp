@@ -101,7 +101,7 @@
 					방금 진행하신 연습과 밀접한 실생활 복지·주거 정책들을 추천해 드려요.
 				</p>
 			</div>
-			<%-- [진희] 다른 정책 보기 (새로고침) 버튼 --%>
+			<%-- [진희] 다른 정책 보기 (새로고침) 버튼 (아이패드 탭 시 텍스트 소실 및 툴팁 고착 방지: bg-white 제거 및 aria-label 적용) --%>
 			<div>
 				<button id="completePolicyRefreshBtn" type="button"
 					class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-sm"

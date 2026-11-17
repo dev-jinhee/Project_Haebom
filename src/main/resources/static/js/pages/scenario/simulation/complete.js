@@ -346,6 +346,7 @@ window.haebomRefreshPolicies = async function(buttonEl) {
 		icon.style.transform = `rotate(${currentRefreshCount * 360}deg)`;
 	}
 	btn.disabled = true;
+	// [진희] 아이패드 등 터치 기기 포커스 고착 방지
 	btn.blur();
 
 	const targetRoot = currentRootRef || document.querySelector("#stepContent") || document;
@@ -368,6 +369,7 @@ window.haebomRefreshPolicies = async function(buttonEl) {
 		}
 	} finally {
 		btn.disabled = false;
+		// [진희] 요청 완료 후 포커스 해제
 		btn.blur();
 	}
 };

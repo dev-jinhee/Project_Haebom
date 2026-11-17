@@ -547,7 +547,7 @@ input:is([type="checkbox"], [type="radio"]):disabled:checked {
 }
 
 /* ==============================
-   맞춤 정책 새로고침 버튼 터치 및 호버 최적화
+   [진희] 맞춤 정책 새로고침 버튼 터치 및 호버 최적화 (아이패드 Sticky Hover 및 텍스트 소실 방지)
 ============================== */
 #completePolicyRefreshBtn {
 	background-color: #fff;
