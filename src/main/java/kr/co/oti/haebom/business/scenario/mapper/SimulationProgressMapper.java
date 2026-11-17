@@ -21,9 +21,6 @@ public interface SimulationProgressMapper {
 	// 진행 기록 삽입
 	int insertProgress(SimulationProgressCreateDTO simulationProgressCreateDTO);
 
-	// 최신 진행 이력 조회
-	Integer selectLatestProgressId(@Param("memberId") Integer memberId, @Param("scenarioId") Integer scenarioId);
-
 	// 진행 단계 변경
 	int updateProgressStep(@Param("progressId") Integer progressId, @Param("memberId") Integer memberId,
 			@Param("currentStepId") Integer currentStepId, @Param("nextStepId") Integer nextStepId);
