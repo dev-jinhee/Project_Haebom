@@ -85,7 +85,6 @@ public class KakaoLocalSearchService {
         }
 
         long startedAt = System.nanoTime();
-        AtomicInteger incompleteQueryCount = new AtomicInteger();
         AtomicInteger requestCount = new AtomicInteger();
         AtomicInteger failedQueryCount = new AtomicInteger();
         AtomicBoolean rateLimited = new AtomicBoolean();
@@ -93,7 +92,7 @@ public class KakaoLocalSearchService {
                 .concatMap(keyword -> {
                     if (rateLimited.get()) return Flux.empty();
                     String query = regionName + " " + keyword;
-                    return fetchAllPages(query, 1, incompleteQueryCount, requestCount)
+                    return fetchAllPages(query, 1, requestCount)
                             .onErrorResume(error -> {
                                 if (error instanceof ResponseStatusException statusError
                                         && statusError.getStatus() == HttpStatus.SERVICE_UNAVAILABLE) {
@@ -118,12 +117,12 @@ public class KakaoLocalSearchService {
                             .filter(place -> !containsAny(place.placeName(), EXCLUDED_KEYWORDS))
                             .filter(this::hasValidCoordinates)
                             .toList();
-                    log.info("Kakao Local search completed: region={}, expectedBaseRequests={}, actualRequests={}, unique={}, accepted={}, incompleteQueries={}, failedQueries={}, rateLimited={}, elapsedMs={}",
+                    log.info("Kakao Local search completed: region={}, expectedBaseRequests={}, actualRequests={}, unique={}, accepted={}, failedQueries={}, rateLimited={}, elapsedMs={}",
                             regionName, KEYWORDS.size(), requestCount.get(), byId.size(),
-                            filtered.size(), incompleteQueryCount.get(), failedQueryCount.get(), rateLimited.get(),
+                            filtered.size(), failedQueryCount.get(), rateLimited.get(),
                             Duration.ofNanos(System.nanoTime() - startedAt).toMillis());
                     return new KakaoLocalSearchResultDto(
-                            filtered, incompleteQueryCount.get(), failedQueryCount.get(), rateLimited.get());
+                            filtered, failedQueryCount.get(), rateLimited.get());
                 })
                 .doOnError(error -> log.warn(
                         "Kakao Local search stopped: region={}, requestedPages={}, elapsedMs={}",
@@ -132,7 +131,7 @@ public class KakaoLocalSearchService {
     }
 
     private Flux<KakaoLocalPlaceDto> fetchAllPages(
-            String query, int page, AtomicInteger incompleteQueryCount, AtomicInteger requestCount) {
+            String query, int page, AtomicInteger requestCount) {
         return requestPage(query, page, requestCount).flatMapMany(root -> {
             JsonNode documents = root.path("documents");
             Flux<KakaoLocalPlaceDto> currentPage = documents.isArray()
@@ -145,12 +144,10 @@ public class KakaoLocalSearchService {
                 return currentPage;
             }
             if (page >= MAX_PAGE) {
-                log.warn("Kakao Local page limit reached; partial results: query={}, page={}", query, page);
-                incompleteQueryCount.incrementAndGet();
                 return currentPage;
             }
             return currentPage.concatWith(fetchAllPages(
-                    query, page + 1, incompleteQueryCount, requestCount));
+                    query, page + 1, requestCount));
         });
     }
 

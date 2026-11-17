@@ -402,9 +402,6 @@
         const sidoName = sidoSelect.options[sidoSelect.selectedIndex].textContent;
         const sigunguName = isSejong ? '' : ' ' + sigunguSelect.options[sigunguSelect.selectedIndex].textContent;
         const notices = [];
-        if (Number(result.incompleteQueryCount) > 0) {
-          notices.push('결과 페이지 제한으로 끝까지 확인하지 못한 검색어 ' + result.incompleteQueryCount + '개');
-        }
         if (Number(result.failedQueryCount) > 0) {
           notices.push('일시 오류로 실패한 검색어 ' + result.failedQueryCount + '개');
         }

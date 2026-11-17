@@ -4,7 +4,6 @@ import java.util.List;
 
 public record KakaoLocalSearchResultDto(
         List<KakaoLocalPlaceDto> places,
-        int incompleteQueryCount,
         int failedQueryCount,
         boolean rateLimited) {
 }
