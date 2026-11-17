@@ -1367,7 +1367,6 @@
     const results = document.getElementById('policySearchResults');
     const message = document.getElementById('policySearchMessage');
     const pagination = document.getElementById('policySearchPagination');
-    const submitButton = policyForm.querySelector('[type="submit"]');
     if (!policyInput || !categories || !results || !message || !pagination) return;
 
     let selectedCategory = 'ALL';
@@ -1418,11 +1417,7 @@
       requestUrl.searchParams.set('category', selectedCategory);
       requestUrl.searchParams.set('page', String(Math.max(1, page)));
       message.textContent = '공공서비스를 검색하고 있습니다.';
-      results.replaceChildren();
-      results.classList.add('d-none');
-      pagination.replaceChildren();
-
-      if (submitButton) submitButton.disabled = true;
+      results.setAttribute('aria-busy', 'true');
 
       try {
         const response = await fetch(requestUrl.toString(), {
@@ -1438,22 +1433,32 @@
         if (requestId !== latestRequestId) return;
         const items = Array.isArray(pageData.items) ? pageData.items : [];
         if (items.length === 0) {
+          results.replaceChildren();
+          results.classList.add('d-none');
+          pagination.replaceChildren();
           message.textContent = '검색 결과가 없습니다. 다른 분야나 검색어를 선택해 주세요.';
           return;
         }
 
+        const resultCards = document.createDocumentFragment();
         items.forEach(function (policy) {
-          results.append(createPolicySearchCard(policy));
+          resultCards.append(createPolicySearchCard(policy));
         });
+        results.replaceChildren(resultCards);
         message.textContent = `검색 결과 ${pageData.totalCount}건`;
         results.classList.remove('d-none');
         renderPagination(pageData.page, pageData.totalPages);
       } catch (error) {
         if (requestId === latestRequestId) {
+          results.replaceChildren();
+          results.classList.add('d-none');
+          pagination.replaceChildren();
           message.textContent = error.message || '공공서비스 검색 중 오류가 발생했습니다.';
         }
       } finally {
-        if (requestId === latestRequestId && submitButton) submitButton.disabled = false;
+        if (requestId === latestRequestId) {
+          results.removeAttribute('aria-busy');
+        }
       }
     }
 
