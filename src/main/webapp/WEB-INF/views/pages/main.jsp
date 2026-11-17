@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<spring:eval expression="@environment.getProperty('app.google.maps.browser-key', '')" var="googleMapsBrowserKey" />
 <spring:eval expression="@environment.getProperty('app.kakao.maps.javascript-key', '')"
              var="kakaoMapsJavascriptKey" />
 <main id="main-content" class="home-main" data-api-url="${pageContext.request.contextPath}/api/main">
@@ -78,12 +77,9 @@
 
     <section id="center-map-section" class="home-panel center-map-section center-map-panel"
                  aria-labelledby="center-map-title"
-                 data-api-url="${pageContext.request.contextPath}/api/main/institutions"
-                 data-sido-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sido"
-                 data-sigungu-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sigungu"
-                 data-map-key="${googleMapsBrowserKey}"
 				 data-search-api-url="${pageContext.request.contextPath}/api/main/institutions/search"
-				 data-kakao-map-key="${kakaoMapsJavascriptKey}">
+				 data-kakao-map-key="${kakaoMapsJavascriptKey}"
+                 data-sgis-region-api-url="${pageContext.request.contextPath}/api/address/sgis/regions">
         <div class="container home-panel-inner">
             <div class="center-map-heading">
                 <div>
@@ -108,10 +104,16 @@
             </div>
 
             <p id="center-map-message" class="center-map-message" role="status" aria-live="polite">
-                주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.
+                  지역을 선택하고 조회하면 해당 지역의 행정기관 검색 결과를 지도와 목록으로 보여줍니다.
             </p>
             <div class="center-map-content-layout">
-                <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
+                <div class="center-map-visual">
+                    <div class="center-map-legend" role="note" aria-label="지도 핀 범례">
+                        <span><i class="center-map-legend-pin is-category-match" aria-hidden="true"></i> PO3 또는 행정기관 경로 일치</span>
+                        <span><i class="center-map-legend-pin is-category-other" aria-hidden="true"></i> 카테고리 불일치·정보 없음</span>
+                    </div>
+                    <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
+                </div>
                 <div id="center-list" class="center-map-list" role="region" aria-label="선택 지역 행정복지센터 목록">
                     <div id="center-list-empty-state" class="center-list-empty-state">
                         <span class="material-symbols-outlined" aria-hidden="true">location_searching</span>

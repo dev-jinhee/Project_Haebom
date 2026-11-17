@@ -3,7 +3,6 @@ package kr.co.oti.haebom.business.main.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import kr.co.oti.haebom.business.main.dto.AdministrativeCenterDTO;
-import kr.co.oti.haebom.business.main.dto.GooglePlaceInfoDTO;
+import kr.co.oti.haebom.business.main.dto.KakaoLocalSearchResultDto;
 import kr.co.oti.haebom.business.main.service.AdministrativeCenterService;
-import kr.co.oti.haebom.business.main.service.GooglePlacesService;
+import kr.co.oti.haebom.business.main.service.KakaoLocalSearchService;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +23,15 @@ import reactor.core.publisher.Mono;
 public class AdministrativeCenterApiController {
 
     private final AdministrativeCenterService administrativeCenterService;
-    private final GooglePlacesService googlePlacesService;
+    private final KakaoLocalSearchService kakaoLocalSearchService;
+
+    @Operation(summary = "선택 지역의 행정기관 검색", description = "11개 키워드의 Kakao Local 검색 결과 중 장소명에 키워드가 포함된 항목을 Kakao 장소 ID로 중복 제거합니다. 무인발급 장소는 제외하며, PO3 또는 지정 행정기관 카테고리 경로는 핀 색 구분에 사용합니다.")
+    @GetMapping("/search")
+    public Mono<KakaoLocalSearchResultDto> searchCenters(
+            @RequestParam("sidoCode") String sidoCode,
+            @RequestParam(value = "sigunguCode", required = false) String sigunguCode) {
+        return kakaoLocalSearchService.search(sidoCode, sigunguCode);
+    }
 
     @Operation(summary = "행정복지센터 기준 시·도 목록", description = "행정복지센터 위치정보에 등록된 시·도 값만 조회합니다.")
     @GetMapping("/regions/sido")
@@ -44,12 +51,5 @@ public class AdministrativeCenterApiController {
             @RequestParam(required = false) String sido,
             @RequestParam(required = false) String sigungu) {
         return administrativeCenterService.getCenters(sido, sigungu);
-    }
-    
-    @Operation(summary = "행정복지센터 Places 정보 조회", description = "선택한 기관의 Google Places 등록 정보를 조회합니다.")
-    @GetMapping("/{centerId}/place-info")
-    public Mono<GooglePlaceInfoDTO> getPlaceInfo(@PathVariable int centerId) {
-    	
-    	return googlePlacesService.getPlaceInfo(centerId);
     }
 }

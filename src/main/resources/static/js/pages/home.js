@@ -138,838 +138,333 @@
 
   function initializeAdministrativeCenterMap() {
     const section = document.getElementById('center-map-section');
-    if (section === null) return;
-
+    if (!section) return;
     const mapElement = document.getElementById('center-map');
     const message = document.getElementById('center-map-message');
     const sidoSelect = document.getElementById('center-sido');
     const sigunguSelect = document.getElementById('center-sigungu');
-    const regionSearchButton = document.getElementById('center-map-search');
-    const centerList = document.getElementById('center-list');
-    const centerListEmptyState = document.getElementById('center-list-empty-state');
-    const centerListMessage = document.getElementById('center-list-message');
-    const centerListResults = document.getElementById('center-list-results');
-    const centerListPagination = document.getElementById('center-list-pagination');
-    const apiKey = (section.dataset.mapKey || '').trim();
-    const centersApiUrl = section.dataset.apiUrl;
-    const sidoApiUrl = section.dataset.sidoApiUrl;
-    const sigunguApiUrl = section.dataset.sigunguApiUrl;
-    const dataFreshnessMessage = '주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.';
-    if (!mapElement || !message || !sidoSelect || !sigunguSelect || !regionSearchButton
-        || !centerList || !centerListEmptyState || !centerListMessage
-        || !centerListResults || !centerListPagination) return;
+    const searchButton = document.getElementById('center-map-search');
+    const listMessage = document.getElementById('center-list-message');
+    const listResults = document.getElementById('center-list-results');
+    const listPagination = document.getElementById('center-list-pagination');
+    const searchApiUrl = section.dataset.searchApiUrl;
+    const regionsApiUrl = section.dataset.sgisRegionApiUrl;
+    const kakaoKey = (section.dataset.kakaoMapKey || '').trim();
+    if (!mapElement || !message || !sidoSelect || !sigunguSelect || !searchButton
+        || !listMessage || !listResults || !listPagination) return;
 
-    let regionsLoaded = false;
-    let regionsLoadFailed = false;
-    let mapReady = false;
-    let clustererLoaded = false;
-    let centersLoaded = false;
-    let centerData = [];
-    let mapCenterData = [];
-    let centerMarkers = [];
-    let centerClusterer = null;
-    let centerInfoWindow = null;
-    let centerPopupOpen = false;
-    let activeCenterMarker = null;
-    let regionCenterData = [];
-    let regionCenterLabel = '';
-    let regionCenterPage = 1;
-    let regionRequestId = 0;
-    let highlightedCenterId = '';
-    let centerLoadPromise = null;
-    let sidoOptionsPromise = null;
-    let centerMarkerIcon = null;
-    const CENTER_LIST_PAGE_SIZE = 5;
-
-    function getCenterMarkerIcon() {
-      if (centerMarkerIcon) return centerMarkerIcon;
-      centerMarkerIcon = {
-        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
-          '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">' +
-          '<path d="M20 1C9.5 1 1 9.5 1 20c0 14.2 19 31 19 31s19-16.8 19-31C39 9.5 30.5 1 20 1Z" fill="#1769aa" stroke="#fff" stroke-width="2"/>' +
-          '<path d="M12 29h16M14.5 28V18.5L20 15l5.5 3.5V28M17.5 21v1m5-1v1m-5 3v3m5-3v3" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>' +
-          '</svg>'
-        )}`,
-        scaledSize: new google.maps.Size(28, 36),
-        anchor: new google.maps.Point(14, 35)
-      };
-      return centerMarkerIcon;
-    }
+    const pageSize = 5;
+    let map = null;
+    let clusterer = null;
+    let infoWindow = null;
+    let categoryMatchedMarkerImage = null;
+    let otherMarkerImage = null;
+    let places = [];
+    let markers = [];
+    let isSejong = false;
+    let latestSearchId = 0;
+    let searchController = null;
 
     sidoSelect.disabled = true;
     sigunguSelect.disabled = true;
+    searchButton.disabled = true;
 
-    function updateRegionControls() {
-      sidoSelect.disabled = !regionsLoaded || !mapReady;
-      sigunguSelect.disabled = !regionsLoaded || !mapReady || !sidoSelect.value;
-      regionSearchButton.disabled = !regionsLoaded || !mapReady;
+    function setListMessage(text) {
+      listMessage.textContent = text;
+      listMessage.hidden = !text;
     }
 
-    function resetSelect(select, placeholder) {
-      select.replaceChildren(new Option(placeholder, ''));
+    function resetList() {
+      places = [];
+      listResults.replaceChildren();
+      listPagination.replaceChildren();
+      setListMessage('시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.');
     }
 
-    async function fetchRegionNames(apiUrl, sido) {
-      const url = new URL(apiUrl, window.location.origin);
-      if (sido) url.searchParams.set('sido', sido);
-      const response = await fetch(url, { credentials: 'same-origin' });
-      if (!response.ok) throw new Error('행정복지센터 기준 지역 목록 조회에 실패했습니다.');
-      const names = await response.json();
-      if (!Array.isArray(names)) throw new Error('지역 목록 응답 형식이 올바르지 않습니다.');
-      return names.filter(name => typeof name === 'string' && name.trim());
+    function clearMarkers() {
+      if (clusterer) clusterer.clear();
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
+      if (infoWindow) infoWindow.close();
     }
 
-    function loadSidoOptions() {
-      if (sidoOptionsPromise !== null) return sidoOptionsPromise;
-
-      message.textContent = '시·도 목록을 불러오는 중입니다.';
-      sidoOptionsPromise = fetchRegionNames(sidoApiUrl)
-        .then(sidos => {
-          if (!section.isConnected) return false;
-          resetSelect(sidoSelect, '시·도를 선택하세요');
-          sidos.forEach(sido => sidoSelect.add(new Option(sido, sido)));
-          regionsLoaded = true;
-          regionsLoadFailed = false;
-          updateRegionControls();
-          if (mapReady && !centersLoaded) message.textContent = '';
-          return true;
-        })
-        .catch(error => {
-          console.error('시·도 조회 오류:', error);
-          regionsLoadFailed = true;
-          message.textContent = '시·도 목록을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
-          sidoOptionsPromise = null;
-          return false;
-        });
-      return sidoOptionsPromise;
-    }
-
-    function clearCenterMarkerLayer(markerToKeep = null) {
-      if (centerClusterer) {
-        centerClusterer.clearMarkers();
-        centerClusterer.setMap(null);
-        centerClusterer = null;
+    function invalidatePendingSearch() {
+      latestSearchId++;
+      if (searchController) {
+        searchController.abort();
+        searchController = null;
       }
-      centerMarkers.forEach(marker => {
-        if (marker !== markerToKeep) marker.setMap(null);
+    }
+
+    function resetOptions(select, label) {
+      select.replaceChildren(new Option(label, ''));
+    }
+
+    async function loadRegions(code) {
+      const url = new URL(regionsApiUrl, window.location.origin);
+      if (code) url.searchParams.set('cd', code);
+      const response = await fetch(url, { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error('행정구역 목록을 불러오지 못했습니다.');
+      const rows = await response.json();
+      if (!Array.isArray(rows)) throw new Error('행정구역 응답 형식이 올바르지 않습니다.');
+      return rows.filter(row => row && row.cd && row.addr_name);
+    }
+
+    function updateControls() {
+      sidoSelect.disabled = !map || sidoSelect.options.length <= 1;
+      sigunguSelect.disabled = !map || !sidoSelect.value || isSejong;
+      searchButton.disabled = !map || !sidoSelect.value || (!isSejong && !sigunguSelect.value);
+    }
+
+    async function loadSidoOptions() {
+      try {
+        const sidos = await loadRegions();
+        resetOptions(sidoSelect, '시·도를 선택하세요');
+        sidos.forEach(region => sidoSelect.add(new Option(region.addr_name, region.cd)));
+        sidoSelect.disabled = !map;
+        if (map) message.textContent = '시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.';
+      } catch (error) {
+        console.error('SGIS 시·도 조회 오류:', error);
+        message.textContent = error.message || '시·도 목록을 불러오지 못했습니다.';
+      }
+      updateControls();
+    }
+
+    async function loadSigunguOptions(sidoCode) {
+      resetOptions(sigunguSelect, '시·군·구를 선택하세요');
+      if (!sidoCode) {
+        isSejong = false;
+        updateControls();
+        return;
+      }
+      const sidoName = sidoSelect.options[sidoSelect.selectedIndex]?.textContent || '';
+      isSejong = sidoName.includes('세종');
+      sigunguSelect.disabled = true;
+      if (isSejong) {
+        sigunguSelect.add(new Option('세종 전체', sidoCode));
+        sigunguSelect.value = sidoCode;
+        updateControls();
+        return;
+      }
+      try {
+        const regions = await loadRegions(sidoCode);
+        regions.forEach(region => sigunguSelect.add(new Option(region.addr_name, region.cd)));
+      } catch (error) {
+        console.error('SGIS 시·군·구 조회 오류:', error);
+        message.textContent = error.message || '시·군·구 목록을 불러오지 못했습니다.';
+      }
+      updateControls();
+    }
+
+    function createInfoContent(place) {
+      const content = document.createElement('div');
+      content.className = 'center-place-popup';
+      const title = document.createElement('strong');
+      title.textContent = place.placeName || '행정기관';
+      content.append(title);
+      const address = document.createElement('p');
+      address.className = 'center-place-popup-address';
+      address.textContent = place.roadAddressName || place.addressName || '주소 정보 없음';
+      content.append(address);
+      if (place.phone) {
+        const phone = document.createElement('p');
+        phone.textContent = '전화번호: ' + place.phone;
+        content.append(phone);
+      }
+      if (place.placeUrl) {
+        const link = document.createElement('a');
+        link.className = 'center-place-link';
+        link.href = place.placeUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = '카카오맵에서 보기';
+        content.append(link);
+      }
+      return content;
+    }
+
+    function focusPlace(place, marker) {
+      map.panTo(marker.getPosition());
+      infoWindow.setContent(createInfoContent(place));
+      infoWindow.open(map, marker);
+    }
+
+    function createMarkerImage(color) {
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">'
+        + '<path d="M18 1C8.6 1 1 8.5 1 17.8 1 30 18 43 18 43s17-13 17-25.2C35 8.5 27.4 1 18 1z" fill="'
+        + color + '" stroke="#fff" stroke-width="2"/>'
+        + '<circle cx="18" cy="18" r="5.2" fill="#fff"/></svg>';
+      const src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+      return new kakao.maps.MarkerImage(src, new kakao.maps.Size(36, 44), {
+        offset: new kakao.maps.Point(18, 43)
       });
-      centerMarkers = markerToKeep ? [markerToKeep] : [];
-      if (markerToKeep) markerToKeep.setMap(administrativeCenterMap);
     }
 
-    function clearCenterMarkers() {
-      centerPopupOpen = false;
-      activeCenterMarker = null;
-      clearSelectedCenterHighlight();
-      clearCenterMarkerLayer();
-      if (centerInfoWindow) centerInfoWindow.close();
-    }
-
-    function clearSelectedCenterHighlight() {
-      highlightedCenterId = '';
-      centerListResults.querySelectorAll('.center-list-card.is-map-selected')
-        .forEach(card => card.classList.remove('is-map-selected'));
-    }
-
-    function clearMarkersForMapGesture() {
-      clearCenterMarkerLayer(centerPopupOpen ? activeCenterMarker : null);
-    }
-
-    function panMapToCenter(center) {
-      if (!administrativeCenterMap || !center) return;
-
-      administrativeCenterMap.panTo({
-        lat: center.latitude,
-        lng: center.longitude
-      });
-    }
-
-    function focusMapOnSelectedRegion(selectedCenters) {
-      if (!administrativeCenterMap || selectedCenters.length === 0) return;
-
-      if (selectedCenters.length === 1) {
-        administrativeCenterMap.setCenter({
-          lat: selectedCenters[0].latitude,
-          lng: selectedCenters[0].longitude
-        });
-        administrativeCenterMap.setZoom(sigunguSelect.value ? 13 : 9);
-        return;
-      }
-
-      const bounds = new google.maps.LatLngBounds();
-      selectedCenters.forEach(center => bounds.extend({
-        lat: center.latitude,
-        lng: center.longitude
-      }));
-      administrativeCenterMap.fitBounds(bounds, 40);
-    }
-
-    function renderCenterListForSelectedRegion(selectedCenters, focusCenterId = '') {
-      highlightedCenterId = '';
-
-      const sidoName = sidoSelect.value
-        ? sidoSelect.selectedOptions[0]?.textContent?.trim()
-        : '';
-      const sigunguName = sigunguSelect.value
-        ? sigunguSelect.selectedOptions[0]?.textContent?.trim()
-        : '';
-
-      if (!sidoName) {
-        regionCenterData = [];
-        regionCenterLabel = '';
-        centerListEmptyState.hidden = false;
-        centerListMessage.textContent = '시·도를 선택한 뒤 지역 조회를 눌러주세요.';
-        centerListResults.replaceChildren();
-        centerListPagination.replaceChildren();
-        return;
-      }
-
-      regionCenterLabel = sidoName + (sigunguName ? ' ' + sigunguName : '');
-      regionCenterData = selectedCenters;
-      regionCenterPage = 1;
-      highlightedCenterId = focusCenterId ? String(focusCenterId) : '';
-      if (highlightedCenterId) {
-        const focusIndex = regionCenterData.findIndex(center =>
-          String(center.centerId) === highlightedCenterId);
-        if (focusIndex >= 0) {
-          regionCenterPage = Math.floor(focusIndex / CENTER_LIST_PAGE_SIZE) + 1;
-        } else {
-          highlightedCenterId = '';
-        }
-      }
-      renderCenterListPage(regionCenterPage);
-    }
-
-    async function fetchCentersByRegion(sido, sigungu) {
-      const url = new URL(centersApiUrl, window.location.origin);
-      url.searchParams.set('sido', sido);
-      if (sigungu) url.searchParams.set('sigungu', sigungu);
-      const response = await fetch(url, { credentials: 'same-origin' });
-      if (!response.ok) throw new Error('선택한 지역의 행정복지센터 조회에 실패했습니다.');
-      const centers = await response.json();
-      if (!Array.isArray(centers)) throw new Error('행정복지센터 응답 형식이 올바르지 않습니다.');
-      return centers.map(center => {
-        const lat = Number(center.latitude);
-        const lng = Number(center.longitude);
-        if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
-            lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-        return { ...center, latitude: lat, longitude: lng };
-      }).filter(Boolean);
-    }
-
-    function focusMapOnCenter(center) {
-      if (!administrativeCenterMap || !center) return;
-
-      centerPopupOpen = false;
-      activeCenterMarker = null;
-      clearSelectedCenterHighlight();
-      if (centerInfoWindow) centerInfoWindow.close();
-
-      const position = {
-        lat: center.latitude,
-        lng: center.longitude
-      };
-
-      const openCenterInfoWindow = () => {
-        const marker = centerMarkers.find(item =>
-          String(item.centerId) === String(center.centerId));
-        if (!marker) return false;
-        google.maps.event.trigger(marker, 'click');
-        return true;
-      };
-
-      if (administrativeCenterMap.getZoom() >= 15 && openCenterInfoWindow()) {
-        return;
-      }
-
-      let idleListener;
-      idleListener = administrativeCenterMap.addListener('idle', () => {
-        google.maps.event.removeListener(idleListener);
-        if (!openCenterInfoWindow()) {
-          renderVisibleCenters();
-          openCenterInfoWindow();
-        }
-      });
-
-      administrativeCenterMap.setZoom(15);
-      administrativeCenterMap.setCenter(position);
-    }
-
-    function renderCenterListPage(requestedPage) {
-      const totalCount = regionCenterData.length;
-      const totalPages = Math.ceil(totalCount / CENTER_LIST_PAGE_SIZE);
-
-      centerListResults.replaceChildren();
-      centerListPagination.replaceChildren();
-
-      if (totalCount === 0) {
-        centerListEmptyState.hidden = false;
-        centerListMessage.textContent =
-          regionCenterLabel + ' 지역에 표시할 행정복지센터가 없습니다.';
-        return;
-      }
-
-      centerListEmptyState.hidden = true;
-
-      regionCenterPage = Math.min(Math.max(requestedPage, 1), totalPages);
-      const start = (regionCenterPage - 1) * CENTER_LIST_PAGE_SIZE;
-      const pageItems = regionCenterData.slice(start, start + CENTER_LIST_PAGE_SIZE);
-
-      pageItems.forEach(center => {
+    function renderListPage(page) {
+      const totalPages = Math.max(1, Math.ceil(places.length / pageSize));
+      const currentPage = Math.min(Math.max(1, page), totalPages);
+      const start = (currentPage - 1) * pageSize;
+      listResults.replaceChildren();
+      places.slice(start, start + pageSize).forEach(place => {
         const card = document.createElement('article');
         card.className = 'center-list-card';
-        card.dataset.centerId = String(center.centerId);
-        if (String(center.centerId) === highlightedCenterId) {
-          card.classList.add('is-map-selected');
-        }
-
         const title = document.createElement('h4');
-        title.textContent = center.centerName || '행정복지센터';
-
+        title.textContent = place.placeName || '행정기관';
         const address = document.createElement('p');
-        address.textContent = center.address || '주소 정보 없음';
-        if (center.address && center.postalCode) {
-          address.textContent += ' (우편번호 ' + center.postalCode + ')';
-        }
-
+        address.textContent = place.roadAddressName || place.addressName || '주소 정보 없음';
         const actions = document.createElement('div');
         actions.className = 'center-list-actions';
-
-        const mapButton = document.createElement('button');
-        mapButton.type = 'button';
-        mapButton.className = 'btn btn-sm btn-outline-primary';
-        mapButton.textContent = '지도에서 위치 보기';
-        mapButton.addEventListener('click', () => focusMapOnCenter(center));
-
-        const directionsLink = document.createElement('a');
-        directionsLink.className = 'btn btn-sm btn-primary';
-        const destination = [center.centerName, center.address]
-          .filter(Boolean)
-          .join(', ') || center.latitude + ',' + center.longitude;
-        directionsLink.href = 'https://www.google.com/maps/dir/?api=1&destination='
-          + encodeURIComponent(destination);
-        directionsLink.target = '_blank';
-        directionsLink.rel = 'noopener noreferrer';
-        directionsLink.textContent = '길찾기';
-
-        actions.append(mapButton, directionsLink);
+        const locate = document.createElement('button');
+        locate.type = 'button';
+        locate.className = 'btn btn-outline-primary btn-sm';
+        locate.textContent = '지도에서 위치 보기';
+        locate.addEventListener('click', () => {
+          const marker = markers.find(item => item.placeId === String(place.id));
+          if (marker) focusPlace(place, marker);
+        });
+        actions.append(locate);
+        if (place.placeUrl) {
+          const link = document.createElement('a');
+          link.className = 'btn btn-primary btn-sm';
+          link.href = place.placeUrl;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = '카카오맵에서 보기';
+          actions.append(link);
+        }
         card.append(title, address, actions);
-        centerListResults.append(card);
+        listResults.append(card);
       });
-
-      renderCenterListPagination(regionCenterPage, totalPages);
-    }
-
-    function renderCenterListPagination(page, totalPages) {
       window.renderHaebomPagination({
-        container: centerListPagination,
-        currentPage: page,
-        totalPages: totalPages,
+        container: listPagination,
+        currentPage,
+        totalPages,
         groupSize: 5,
         previousLabel: '이전',
         nextLabel: '다음',
         showBoundaryButtons: true,
         hideWhenSinglePage: true,
-        onPageChange: renderCenterListPage
+        onPageChange: renderListPage
       });
     }
 
-    function createCenterMarker(center) {
-      const marker = new google.maps.Marker({
-        position: { lat: center.latitude, lng: center.longitude },
-        title: center.centerName || '행정복지센터',
-        icon: getCenterMarkerIcon()
-      });
-      marker.centerId = String(center.centerId);
-      marker.addListener('click', () => {
-        selectCenterRegionAndListItem(center);
-
-        const header = document.createElement('div');
-        header.className = 'center-place-popup-header';
-        header.textContent = center.centerName || '행정복지센터';
-
-        const content = document.createElement('div');
-        content.className = 'center-place-popup';
-        const address = document.createElement('p');
-        address.className = 'center-place-popup-address';
-        address.textContent = center.address || '주소 정보 없음';
-        address.title = address.textContent;
-        content.append(address);
-        if (center.postalCode) {
-          const postalCode = document.createElement('p');
-          postalCode.textContent = `우편번호: ${center.postalCode}`;
-          content.append(postalCode);
-        }
-
-        const placeStatus = document.createElement('p');
-        placeStatus.textContent = '추가 장소 정보를 불러오는 중입니다.';
-        content.append(placeStatus);
-        centerInfoWindow.setHeaderContent(header);
-        centerInfoWindow.setHeaderDisabled(false);
-        centerInfoWindow.setContent(content);
-        activeCenterMarker = marker;
-        centerPopupOpen = true;
-        centerInfoWindow.open({ map: administrativeCenterMap, anchor: marker });
-
-        fetch(`${centersApiUrl}/${encodeURIComponent(center.centerId)}/place-info`, {
-          headers: { Accept: 'application/json' }
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`Places lookup failed: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then(place => {
-            placeStatus.textContent = '';
-
-            const appendText = (label, value) => {
-              if (!value) return;
-              const row = document.createElement('p');
-              row.textContent = `${label}: ${value}`;
-              content.append(row);
-            };
-
-            appendText('전화번호', place.phoneNumber);
-
-            if (Array.isArray(place.weekdayDescriptions)
-                && place.weekdayDescriptions.length > 0) {
-              const hours = document.createElement('div');
-              hours.className = 'center-place-hours';
-              const hoursTitle = document.createElement('strong');
-              hoursTitle.className = 'center-place-hours-title';
-              hoursTitle.textContent = '운영시간';
-              hours.append(hoursTitle);
-
-              const weekOrder = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일'];
-              const hoursByDay = new Map();
-              const ungroupedHours = [];
-              place.weekdayDescriptions.forEach(description => {
-                const separator = description.indexOf(':');
-                const day = separator >= 0
-                  ? description.slice(0, separator).trim()
-                  : '';
-                const time = separator >= 0
-                  ? description.slice(separator + 1).trim()
-                  : description;
-                if (weekOrder.includes(day)) {
-                  if (!hoursByDay.has(day)) hoursByDay.set(day, time);
-                } else {
-                  ungroupedHours.push({ day, time });
-                }
-              });
-
-              const appendHoursRow = (day, time) => {
-                const row = document.createElement('div');
-                row.className = 'center-place-hours-row';
-                if (day) {
-                  const dayLabel = document.createElement('span');
-                  dayLabel.className = 'center-place-hours-day';
-                  dayLabel.textContent = day;
-                  row.append(dayLabel);
-                }
-
-                const timeLabel = document.createElement('span');
-                timeLabel.className = 'center-place-hours-time';
-                timeLabel.textContent = time;
-                row.append(timeLabel);
-                hours.append(row);
-              };
-
-              const weekdays = weekOrder.slice(0, 5).map(day => hoursByDay.get(day));
-              const weekend = weekOrder.slice(5).map(day => hoursByDay.get(day));
-              const hasCompleteWeek = [...weekdays, ...weekend].every(time => time != null);
-              const weekdaysMatch = weekdays.every(time => time === weekdays[0]);
-              const weekendMatches = weekend.every(time => time === weekend[0]);
-
-              if (hasCompleteWeek && weekdaysMatch && weekendMatches
-                  && ungroupedHours.length === 0) {
-                appendHoursRow('평일', weekdays[0]);
-                appendHoursRow('주말', weekend[0]);
-              } else {
-                const dailyHours = document.createElement('details');
-                dailyHours.className = 'center-place-hours-details';
-                const summary = document.createElement('summary');
-                summary.textContent = '요일별 운영시간 보기';
-                dailyHours.append(summary);
-
-                weekOrder.forEach(day => {
-                  if (hoursByDay.has(day)) {
-                    const row = document.createElement('div');
-                    row.className = 'center-place-hours-row';
-                    const dayLabel = document.createElement('span');
-                    dayLabel.className = 'center-place-hours-day';
-                    dayLabel.textContent = day;
-                    const timeLabel = document.createElement('span');
-                    timeLabel.className = 'center-place-hours-time';
-                    timeLabel.textContent = hoursByDay.get(day);
-                    row.append(dayLabel, timeLabel);
-                    dailyHours.append(row);
-                  }
-                });
-                ungroupedHours.forEach(({ day, time }) => {
-                  const row = document.createElement('div');
-                  row.className = 'center-place-hours-row';
-                  if (day) {
-                    const dayLabel = document.createElement('span');
-                    dayLabel.className = 'center-place-hours-day';
-                    dayLabel.textContent = day;
-                    row.append(dayLabel);
-                  }
-                  const timeLabel = document.createElement('span');
-                  timeLabel.className = 'center-place-hours-time';
-                  timeLabel.textContent = time;
-                  row.append(timeLabel);
-                  dailyHours.append(row);
-                });
-                hours.append(dailyHours);
-              }
-              content.append(hours);
-            }
-
-            [
-              ['홈페이지 열기', place.websiteUri],
-              ['Google 지도에서 보기', place.googleMapsUri]
-            ].forEach(([label, url]) => {
-              if (!url) return;
-              const link = document.createElement('a');
-              link.className = 'center-place-link';
-              link.href = url;
-              link.target = '_blank';
-              link.rel = 'noopener noreferrer';
-              link.textContent = label;
-              content.append(link);
-            });
-
-            if (!place.phoneNumber && !place.websiteUri
-                && (!Array.isArray(place.weekdayDescriptions)
-                    || place.weekdayDescriptions.length === 0)) {
-              placeStatus.textContent = '추가 정보가 없습니다.';
-            }
-          })
-          .catch(() => {
-            placeStatus.textContent =
-              '추가 정보를 불러오지 못했습니다. 기본 기관 정보를 확인해 주세요.';
-          });
-      });
-      return marker;
-    }
-
-    async function selectCenterRegionAndListItem(center) {
-      const sido = String(center.sido || '').trim();
-      const sigungu = String(center.sigungu || '').trim();
-      if (!sido) return;
-
-      panMapToCenter(center);
-      clearSelectedCenterHighlight();
-      const requestId = ++regionRequestId;
-      const hasSameRegion = regionsLoaded
-        && sidoSelect.value === sido
-        && sigunguSelect.value === sigungu
-        && regionCenterData.length > 0;
-      if (hasSameRegion) {
-        renderCenterListForSelectedRegion(regionCenterData, center.centerId);
-        return;
-      }
-
-      const optionsLoaded = await loadSidoOptions();
-      if (requestId !== regionRequestId || !optionsLoaded || !section.isConnected) return;
-      const sidoOption = Array.from(sidoSelect.options).find(option => option.value === sido);
-      if (!sidoOption) {
-        message.textContent = '선택한 센터의 지역 정보를 찾을 수 없습니다.';
-        return;
-      }
-
-      sidoSelect.value = sido;
-      resetSelect(sigunguSelect, '시·군·구를 선택하세요');
-      sigunguSelect.disabled = true;
-      regionSearchButton.disabled = true;
-      message.textContent = `${sido}${sigungu ? ' ' + sigungu : ''} 지역 센터를 불러오는 중입니다.`;
-
+    async function searchSelectedRegion() {
+      if (!sidoSelect.value || (!isSejong && !sigunguSelect.value)) return;
+      const searchId = ++latestSearchId;
+      if (searchController) searchController.abort();
+      searchController = new AbortController();
+      clearMarkers();
+      resetList();
+      searchButton.disabled = true;
+      message.textContent = '선택한 지역의 행정기관을 검색하고 있습니다.';
+      setListMessage('카카오 장소 정보를 확인하고 있습니다.');
       try {
-        const sigungus = await fetchRegionNames(sigunguApiUrl, sido);
-        if (requestId !== regionRequestId || !section.isConnected) return;
-        sigungus.forEach(name => sigunguSelect.add(new Option(name, name)));
-        if (sigungu && !sigungus.includes(sigungu)) {
-          message.textContent = '선택한 센터의 시·군·구 정보를 찾을 수 없습니다.';
-          return;
+        const url = new URL(searchApiUrl, window.location.origin);
+        url.searchParams.set('sidoCode', sidoSelect.value);
+        if (!isSejong) url.searchParams.set('sigunguCode', sigunguSelect.value);
+        const response = await fetch(url, {
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' },
+          signal: searchController.signal
+        });
+        if (!response.ok) {
+          if (response.status === 429) throw new Error('검색 요청이 많아 잠시 중단됐습니다. 잠시 후 다시 시도해 주세요.');
+          if (response.status === 503) throw new Error('카카오 API 키 또는 권한 설정을 확인해 주세요.');
+          throw new Error('행정기관 검색에 실패했습니다. 잠시 후 다시 시도해 주세요.');
         }
-        sigunguSelect.value = sigungu;
-        sigunguSelect.disabled = sigungus.length === 0;
-
-        const selectedCenters = await fetchCentersByRegion(sido, sigungu);
-        if (requestId !== regionRequestId || !section.isConnected
-            || sidoSelect.value !== sido || sigunguSelect.value !== sigungu) return;
-
-        renderVisibleCenters();
-        renderCenterListForSelectedRegion(selectedCenters, center.centerId);
-        message.textContent = dataFreshnessMessage;
+        const result = await response.json();
+        if (searchId !== latestSearchId) return;
+        places = Array.isArray(result.places) ? result.places : [];
+        markers = places.map(place => {
+          const marker = new kakao.maps.Marker({
+            position: new kakao.maps.LatLng(Number(place.y), Number(place.x)),
+            title: place.placeName || '행정기관',
+            image: place.administrativeCategoryMatched ? categoryMatchedMarkerImage : otherMarkerImage
+          });
+          marker.placeId = String(place.id);
+          kakao.maps.event.addListener(marker, 'click', () => focusPlace(place, marker));
+          return marker;
+        });
+        clusterer.clear();
+        clusterer.addMarkers(markers);
+        if (places.length === 0) setListMessage('검색 결과가 없습니다.');
+        else {
+          setListMessage('');
+          renderListPage(1);
+        }
+        const sidoName = sidoSelect.options[sidoSelect.selectedIndex].textContent;
+        const sigunguName = isSejong ? '' : ' ' + sigunguSelect.options[sigunguSelect.selectedIndex].textContent;
+        const notices = [];
+        if (Number(result.incompleteQueryCount) > 0) {
+          notices.push('결과 페이지 제한으로 끝까지 확인하지 못한 검색어 ' + result.incompleteQueryCount + '개');
+        }
+        if (Number(result.failedQueryCount) > 0) {
+          notices.push('일시 오류로 실패한 검색어 ' + result.failedQueryCount + '개');
+        }
+        if (result.rateLimited) notices.push('요청 제한으로 남은 검색을 중단함');
+        const partial = notices.length > 0 ? ' 일부 결과입니다. ' + notices.join(', ') + '.' : '';
+        message.textContent = sidoName + sigunguName + ' 검색 결과 ' + places.length + '건입니다.' + partial;
       } catch (error) {
-        console.error('지도에서 선택한 센터 지역 조회 오류:', error);
-        if (requestId === regionRequestId) {
-          message.textContent = '선택한 센터의 지역 목록을 불러오지 못했습니다. 다시 시도해 주세요.';
-        }
+        if (error.name === 'AbortError' || searchId !== latestSearchId) return;
+        console.error('Kakao 행정기관 검색 오류:', error);
+        setListMessage(error.message || '검색 중 오류가 발생했습니다.');
+        message.textContent = error.message || '검색 중 오류가 발생했습니다.';
       } finally {
-        if (requestId === regionRequestId) updateRegionControls();
+        if (searchId === latestSearchId) updateControls();
       }
-    }
-
-    function renderVisibleCenters() {
-      if (!mapReady || !centersLoaded || !administrativeCenterMap) return;
-      const bounds = administrativeCenterMap.getBounds();
-      if (!bounds) return;
-
-      const markerToKeep = centerPopupOpen ? activeCenterMarker : null;
-      clearCenterMarkerLayer(markerToKeep);
-      const visibleCenters = mapCenterData.filter(center =>
-        bounds.contains({ lat: center.latitude, lng: center.longitude })
-        && (!markerToKeep || String(center.centerId) !== markerToKeep.centerId));
-      const visibleMarkers = visibleCenters.map(createCenterMarker);
-      centerMarkers = markerToKeep
-        ? [...visibleMarkers, markerToKeep]
-        : visibleMarkers;
-
-      if (visibleMarkers.length === 0) {
-        message.textContent = dataFreshnessMessage;
-        return;
-      }
-
-      if (clustererLoaded && window.markerClusterer?.MarkerClusterer) {
-        const clusterOptions = {
-          map: administrativeCenterMap,
-          markers: visibleMarkers,
-          renderer: {
-            render({ count, position }) {
-              const scale = count >= 100 ? 22 : count >= 10 ? 19 : 16;
-              return new google.maps.Marker({
-                position,
-                zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
-                title: `${count}개 행정복지센터`,
-                icon: {
-                  path: google.maps.SymbolPath.CIRCLE,
-                  fillColor: '#1769aa',
-                  fillOpacity: 0.97,
-                  strokeColor: '#ffffff',
-                  strokeWeight: 3,
-                  scale
-                },
-                label: {
-                  text: String(count),
-                  color: '#ffffff',
-                  fontSize: count >= 100 ? '11px' : '12px',
-                  fontWeight: '700'
-                }
-              });
-            }
-          }
-        };
-        if (window.markerClusterer.SuperClusterAlgorithm) {
-          clusterOptions.algorithm = new window.markerClusterer.SuperClusterAlgorithm({
-            radius: 220,
-            maxZoom: 14
-          });
-        }
-        centerClusterer = new window.markerClusterer.MarkerClusterer(clusterOptions);
-      } else {
-        visibleMarkers.forEach(marker => marker.setMap(administrativeCenterMap));
-      }
-      if (markerToKeep) markerToKeep.setMap(administrativeCenterMap);
-
-      message.textContent = dataFreshnessMessage;
-    }
-
-    async function loadCentersForSelection() {
-      if (!mapReady) return;
-      if (centersLoaded) return;
-      if (centerLoadPromise) {
-        await centerLoadPromise;
-        return;
-      }
-
-      clearCenterMarkers();
-      message.textContent = '좌표가 등록된 전체 행정복지센터를 불러오는 중입니다.';
-      centerLoadPromise = (async () => {
-        try {
-          const response = await fetch(centersApiUrl, {
-            credentials: 'same-origin'
-          });
-          if (!response.ok) throw new Error('행정복지센터 조회에 실패했습니다.');
-          const centers = await response.json();
-          if (!Array.isArray(centers)) throw new Error('행정복지센터 응답 형식이 올바르지 않습니다.');
-          if (!section.isConnected) return;
-
-          centerInfoWindow = centerInfoWindow || new google.maps.InfoWindow({ maxWidth: 360 });
-          centerData = centers.map(center => {
-            const lat = Number(center.latitude);
-            const lng = Number(center.longitude);
-            if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
-                lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
-            return { ...center, latitude: lat, longitude: lng };
-          }).filter(Boolean);
-          mapCenterData = centerData;
-          centersLoaded = true;
-          if (centerData.length === 0) {
-            message.textContent = '지도에 표시할 좌표가 등록된 행정복지센터가 없습니다.';
-            return;
-          }
-
-          const bounds = new google.maps.LatLngBounds();
-          centerData.forEach(center => bounds.extend({
-            lat: center.latitude,
-            lng: center.longitude
-          }));
-          administrativeCenterMap.fitBounds(bounds);
-          renderVisibleCenters();
-        } catch (error) {
-          console.error('행정복지센터 조회 오류:', error);
-          message.textContent = '행정복지센터를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.';
-          centerLoadPromise = null;
-        }
-      })();
-      await centerLoadPromise;
     }
 
     sidoSelect.addEventListener('change', async () => {
-      const requestId = ++regionRequestId;
-      resetSelect(sigunguSelect, '먼저 시·도를 선택하세요');
-      sigunguSelect.disabled = true;
-      if (!sidoSelect.value) {
-        message.textContent = '';
-        return;
-      }
-
-      const selectedSido = sidoSelect.value;
-      message.textContent = '시·군·구 목록을 불러오는 중입니다.';
-      try {
-        const sigungus = await fetchRegionNames(sigunguApiUrl, selectedSido);
-        if (requestId !== regionRequestId || sidoSelect.value !== selectedSido || !section.isConnected) return;
-        resetSelect(sigunguSelect, '시·군·구를 선택하세요');
-        sigungus.forEach(sigungu => sigunguSelect.add(new Option(sigungu, sigungu)));
-        sigunguSelect.disabled = sigungus.length === 0;
-        if (sigungus.length === 0) message.textContent = '선택한 시·도에 등록된 시·군·구가 없습니다.';
-        else message.textContent = '';
-      } catch (error) {
-        console.error('시·군·구 조회 오류:', error);
-        if (requestId === regionRequestId) message.textContent = '시·군·구 목록을 불러오지 못했습니다.';
-      }
-    });
-
-    sigunguSelect.addEventListener('change', () => {
-      regionRequestId += 1;
+      invalidatePendingSearch();
+      clearMarkers();
+      resetList();
       message.textContent = '';
+      await loadSigunguOptions(sidoSelect.value);
+      updateControls();
     });
-
-    regionSearchButton.addEventListener('click', async () => {
-      if (!sidoSelect.value) {
-        message.textContent = '먼저 시·도를 선택해 주세요.';
-        sidoSelect.focus();
-        return;
-      }
-
-      const requestId = ++regionRequestId;
-      const sido = sidoSelect.value;
-      const sigungu = sigunguSelect.value;
-      const regionLabel = sidoSelect.selectedOptions[0]?.textContent?.trim()
-        + (sigungu ? ' ' + sigunguSelect.selectedOptions[0]?.textContent?.trim() : '');
-      regionSearchButton.disabled = true;
-      message.textContent = `${regionLabel} 행정복지센터를 조회하는 중입니다.`;
-      try {
-        const selectedCenters = await fetchCentersByRegion(sido, sigungu);
-        if (requestId !== regionRequestId || !section.isConnected
-            || sidoSelect.value !== sido || sigunguSelect.value !== sigungu) return;
-        if (selectedCenters.length === 0) {
-          regionCenterData = [];
-          regionCenterLabel = regionLabel;
-          regionCenterPage = 1;
-          renderCenterListPage(regionCenterPage);
-          message.textContent = `${regionLabel} 지역에 좌표가 등록된 행정복지센터가 없습니다.`;
-          return;
-        }
-        focusMapOnSelectedRegion(selectedCenters);
-        renderVisibleCenters();
-        renderCenterListForSelectedRegion(selectedCenters);
-        message.textContent = dataFreshnessMessage;
-      } catch (error) {
-        console.error('지역별 행정복지센터 조회 오류:', error);
-        message.textContent = '선택한 지역의 행정복지센터를 조회하지 못했습니다. 다시 시도해 주세요.';
-      } finally {
-        if (requestId === regionRequestId) updateRegionControls();
-      }
+    sigunguSelect.addEventListener('change', () => {
+      invalidatePendingSearch();
+      clearMarkers();
+      resetList();
+      updateControls();
     });
+    searchButton.addEventListener('click', searchSelectedRegion);
 
-    loadSidoOptions();
-
-    if (!apiKey) {
-      message.textContent = 'Google Maps 브라우저 키가 설정되지 않아 지도를 표시할 수 없습니다.';
-      mapElement.hidden = true;
+    if (!kakaoKey) {
+      message.textContent = '카카오 지도 JavaScript 키가 설정되지 않았습니다.';
+      loadSidoOptions();
       return;
     }
 
-    message.textContent = '지도를 불러오는 중입니다.';
-
-    window.initHaebomCenterMap = function () {
-      if (!window.google || !window.google.maps) {
-        message.textContent = '지도를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.';
+    const script = document.createElement('script');
+    script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey='
+      + encodeURIComponent(kakaoKey) + '&libraries=clusterer&autoload=false';
+    script.async = true;
+    script.onload = () => {
+      if (!window.kakao || !window.kakao.maps) {
+        message.textContent = '카카오 지도 SDK를 불러오지 못했습니다. 키와 도메인 설정을 확인해 주세요.';
         return;
       }
-
-      administrativeCenterMap = new google.maps.Map(mapElement, {
-        center: { lat: 36.5, lng: 127.8 },
-        zoom: 7,
-        gestureHandling: 'cooperative',
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true
+      window.kakao.maps.load(() => {
+        map = new kakao.maps.Map(mapElement, {
+          center: new kakao.maps.LatLng(36.5, 127.8),
+          level: 13
+        });
+        clusterer = new kakao.maps.MarkerClusterer({
+          map,
+          averageCenter: true,
+          minLevel: 8,
+          disableClickZoom: false
+        });
+        categoryMatchedMarkerImage = createMarkerImage('#1676d2');
+        otherMarkerImage = createMarkerImage('#202833');
+        infoWindow = new kakao.maps.InfoWindow({ removable: true });
+        loadSidoOptions();
+        updateControls();
       });
-      administrativeCenterMap.addListener('idle', renderVisibleCenters);
-      administrativeCenterMap.addListener('dragstart', clearMarkersForMapGesture);
-      centerInfoWindow = new google.maps.InfoWindow({ maxWidth: 360 });
-      centerInfoWindow.addListener('closeclick', () => {
-        centerPopupOpen = false;
-        activeCenterMarker = null;
-        clearSelectedCenterHighlight();
-        renderVisibleCenters();
-      });
-
-      const clusterScript = document.createElement('script');
-      clusterScript.src = 'https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js';
-      clusterScript.async = true;
-      clusterScript.onload = function () {
-        clustererLoaded = !!window.markerClusterer?.MarkerClusterer;
-        mapReady = true;
-        updateRegionControls();
-        message.textContent = regionsLoadFailed
-          ? '시·도 목록을 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.'
-          : clustererLoaded
-            ? '전체 행정복지센터 위치를 불러오는 중입니다.'
-            : '클러스터를 불러오지 못했습니다. 지역을 선택하면 개별 마커로 표시합니다.';
-        loadCentersForSelection();
-      };
-      clusterScript.onerror = function () {
-        clustererLoaded = false;
-        mapReady = true;
-        updateRegionControls();
-        message.textContent = '클러스터 라이브러리를 불러오지 못했습니다. 마커는 개별 표시합니다.';
-        loadCentersForSelection();
-      };
-      document.head.append(clusterScript);
     };
-
-    window.gm_authFailure = function () {
-      message.textContent = 'Google Maps 인증에 실패했습니다. API 키와 허용 도메인 설정을 확인해 주세요.';
-    };
-
-    const script = document.createElement('script');
-    const query = new URLSearchParams({
-      key: apiKey,
-      callback: 'initHaebomCenterMap',
-      loading: 'async'
-    });
-    script.src = `https://maps.googleapis.com/maps/api/js?${query.toString()}`;
-    script.async = true;
-    script.defer = true;
-    script.onerror = function () {
-      message.textContent = 'Google Maps 스크립트를 불러오지 못했습니다. 네트워크와 API 키 설정을 확인해 주세요.';
+    script.onerror = () => {
+      message.textContent = '카카오 지도 SDK를 불러오지 못했습니다. 네트워크와 도메인 설정을 확인해 주세요.';
     };
     document.head.append(script);
   }
