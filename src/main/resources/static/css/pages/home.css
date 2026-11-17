@@ -399,7 +399,6 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
     height: auto;
     min-height: 0;
     flex: none;
-    grid-template-columns: minmax(0, 1fr);
   }
   .center-map-panel .center-map-canvas { height: min(56svh, 32rem); min-height: 19rem; }
   .center-map-list { max-height: none; overflow: visible; }
@@ -408,6 +407,18 @@ html.home-snap-enabled { scroll-snap-type: y mandatory; scroll-behavior: smooth;
   .policy-home-panel .home-panel-inner { height: auto; min-height: 0; flex: none; }
   .policy-home-panel .site-footer { margin-top: 1rem; }
   .home-section-dots { display: none; }
+}
+
+@media (max-width: 68em) {
+  .center-map-content-layout { grid-template-columns: minmax(0, 1fr); gap: 0.625rem; }
+}
+
+/* Keep the map and result panel the same size before and after a search on short desktop screens. */
+@media (min-width: 68.01em) and (max-height: 56.25rem) {
+  .center-map-content-layout { height: 42rem; min-height: 42rem; flex: none; }
+  .center-map-panel .center-map-canvas { height: 100%; min-height: 0; }
+  .center-map-list { height: 100%; max-height: 100%; overflow: hidden; }
+  .center-list-results { min-height: 0; flex: 1; overflow-y: auto; }
 }
 
 /* Compact popular-scenario strip, matching the approved v6 reference. */
