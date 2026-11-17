@@ -97,6 +97,7 @@ export function initEmailVerification(page) {
 
         if (remainingSeconds === 0) {
             clearExpiryTimer();
+            if (emailVerifyButton !== null) emailVerifyButton.disabled = true;
             showMessage(emailExpiryStatus, '인증번호가 만료되었습니다. 다시 발송해 주세요.', false);
             return;
         }
