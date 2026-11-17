@@ -104,10 +104,10 @@
 			<%-- [진희] 다른 정책 보기 (새로고침) 버튼 --%>
 			<div>
 				<button id="completePolicyRefreshBtn" type="button"
-					class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-sm bg-white"
+					class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1 shadow-sm"
 					style="font-size: .8rem; font-weight: 500;"
 					onclick="window.haebomRefreshPolicies &amp;&amp; window.haebomRefreshPolicies(this)"
-					title="다른 추천 정책을 확인합니다">
+					aria-label="다른 추천 정책을 확인합니다">
 					<span class="material-symbols-outlined policy-refresh-icon" style="font-size: 1rem;">refresh</span>
 					<span>다른 정책 보기</span>
 				</button>

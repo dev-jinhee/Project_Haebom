@@ -346,6 +346,7 @@ window.haebomRefreshPolicies = async function(buttonEl) {
 		icon.style.transform = `rotate(${currentRefreshCount * 360}deg)`;
 	}
 	btn.disabled = true;
+	btn.blur();
 
 	const targetRoot = currentRootRef || document.querySelector("#stepContent") || document;
 	const fetchRefreshPolicies = () => loadPolicyRecommendations(
@@ -367,6 +368,7 @@ window.haebomRefreshPolicies = async function(buttonEl) {
 		}
 	} finally {
 		btn.disabled = false;
+		btn.blur();
 	}
 };
 

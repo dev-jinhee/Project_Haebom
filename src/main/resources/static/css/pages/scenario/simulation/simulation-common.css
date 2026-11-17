@@ -545,3 +545,34 @@ input:is([type="checkbox"], [type="radio"]):disabled:checked {
 		padding: 18px 16px;
 	}
 }
+
+/* ==============================
+   맞춤 정책 새로고침 버튼 터치 및 호버 최적화
+============================== */
+#completePolicyRefreshBtn {
+	background-color: #fff;
+	color: var(--bs-primary, #0d6efd);
+	border-color: var(--bs-primary, #0d6efd);
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+/* PC 마우스 환경: 호버 시 파란 배경 + 흰색 텍스트로 가독성 확보 */
+@media (hover: hover) and (pointer: fine) {
+	#completePolicyRefreshBtn:hover {
+		background-color: var(--bs-primary, #0d6efd) !important;
+		color: #fff !important;
+	}
+}
+
+/* 모바일/아이패드 터치 환경: 탭 후 텍스트가 사라지거나 호버가 남아있지 않도록 기본 상태 유지 */
+@media (hover: none) {
+	#completePolicyRefreshBtn:hover,
+	#completePolicyRefreshBtn:focus {
+		background-color: #fff !important;
+		color: var(--bs-primary, #0d6efd) !important;
+	}
+	#completePolicyRefreshBtn:active {
+		background-color: #e7f1ff !important;
+		color: var(--bs-primary, #0d6efd) !important;
+	}
+}
