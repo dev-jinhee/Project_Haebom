@@ -306,6 +306,20 @@
       });
     }
 
+    function focusMapOnResults() {
+      if (markers.length === 0) return;
+
+      if (markers.length === 1) {
+        map.setLevel(6);
+        map.setCenter(markers[0].getPosition());
+        return;
+      }
+
+      const bounds = new kakao.maps.LatLngBounds();
+      markers.forEach(marker => bounds.extend(marker.getPosition()));
+      map.setBounds(bounds, 48, 48, 48, 48);
+    }
+
     function renderListPage(page) {
       const totalPages = Math.max(1, Math.ceil(places.length / pageSize));
       const currentPage = Math.min(Math.max(1, page), totalPages);
@@ -396,6 +410,7 @@
         });
         clusterer.clear();
         clusterer.addMarkers(markers);
+        focusMapOnResults();
         if (places.length === 0) setListMessage('다른 지역을 선택해 다시 조회해 주세요.', '검색 결과가 없습니다');
         else {
           setListMessage('');
