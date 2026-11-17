@@ -108,10 +108,6 @@
             </p>
             <div class="center-map-content-layout">
                 <div class="center-map-visual">
-                    <div class="center-map-legend" role="note" aria-label="지도 핀 범례">
-                        <span><i class="center-map-legend-pin is-category-match" aria-hidden="true"></i> PO3 또는 행정기관 경로 일치</span>
-                        <span><i class="center-map-legend-pin is-category-other" aria-hidden="true"></i> 카테고리 불일치·정보 없음</span>
-                    </div>
                     <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
                 </div>
                 <div id="center-list" class="center-map-list" role="region" aria-label="선택 지역 행정복지센터 목록">

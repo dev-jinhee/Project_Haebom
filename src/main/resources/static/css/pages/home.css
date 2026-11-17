@@ -144,13 +144,15 @@
 .center-map-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 0.875rem; max-width: 56.25rem; }
 .center-map-filters .form-select { min-height: 2.625rem; border-color: #dce5ef; }
 .center-map-search { min-width: 6.75rem; min-height: 2.625rem; }
+.center-map-search:disabled {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 1;
+}
 .center-map-message { min-height: 1.4em; margin: 0.75rem 0 0.625rem; color: #718198; font-size: .82rem; }
 .center-map-visual { display: flex; min-width: 0; min-height: 0; flex-direction: column; }
-.center-map-legend { display: flex; flex-wrap: wrap; gap: .875rem; margin: 0 0 .5rem; color: #61758a; font-size: .75rem; }
-.center-map-legend > span { display: inline-flex; align-items: center; gap: .375rem; }
-.center-map-legend-pin { width: .6875rem; height: .6875rem; border: 0.0625rem solid rgba(0,0,0,.16); border-radius: 50%; }
-.center-map-legend-pin.is-category-match { background: #1676d2; }
-.center-map-legend-pin.is-category-other { background: #202833; }
 .center-map-canvas { width: 100%; min-height: 26.25rem; overflow: hidden; border: 0.0625rem solid #e2eaf1; border-radius: 0.875rem; background: #eef3f8; }
 .center-map-list { margin-top: 1.125rem; }
 .center-list-message { margin: 0 0 0.5rem; color: #718198; font-size: .82rem; }
