@@ -47,17 +47,6 @@
 		#{stepId}
 		)
 	</insert>
-	<!-- 최근 이력 진행 조회 -->
-	<select id="selectLatestProgressId" resultType="Integer">
-		select
-		progress_id
-		from simulation_progress
-		where member_id = #{memberId}
-		and
-		scenario_id = #{scenarioId}
-		order by last_saved_at DESC, progress_id DESC
-		limit 1
-	</select>
 	<!-- 진행 단계 변경 -->
 	<update id="updateProgressStep">
 		update simulation_progress

@@ -325,7 +325,7 @@ export function getData({ root }) {
 }
 
 
-export async function restore({ root, data = {}}) {
+export async function restore({ root, data = {} }) {
 	// 휴대전화번호
 	const phone = String(data.phone ?? "").split("-");
 
@@ -370,12 +370,42 @@ export async function restore({ root, data = {}}) {
 	}
 
 	// 수령기관 복원
+	// 수령기관 복원
 	const office = $(root, "#identityPickupOffice");
+	const officeCode = $(root, "#identityPickupOfficeCode");
 
-	if (office) {
-		office.value = data.pickupOffice ?? "";
+	const savedCode = String(data.pickupOffice ?? "").trim();
+
+	// 저장된 SGIS 코드 복원
+	if (officeCode) {
+		officeCode.value = savedCode;
 	}
 
+	if (office) {
+		office.value = "";
+
+		if (savedCode) {
+			try {
+				const response = await fetch(
+					`/api/address/sgis/regions/${encodeURIComponent(savedCode)}`,
+					{ credentials: "same-origin" }
+				);
+
+				if (!response.ok) {
+					throw new Error(`수령기관 조회 실패 (${response.status})`);
+				}
+
+				const region = await response.json();
+
+				// 코드 대신 전체 행정구역명 표시
+				office.value = region.fullAddr || "";
+
+			} catch (error) {
+				console.error("수령기관 복원 실패:", error);
+				office.value = "수령기관 정보를 불러오지 못했습니다.";
+			}
+		}
+	}
 
 	// 구비서류 체크 상태 복원
 	const consentFields = {

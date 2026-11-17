@@ -21,5 +21,4 @@
 
 <!-- 공통 스크립트 라이브러리 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/app.js"></script>
 <script src="${pageContext.request.contextPath}/js/common.js"></script>

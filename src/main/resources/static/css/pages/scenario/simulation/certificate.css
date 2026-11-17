@@ -288,16 +288,17 @@
 	line-height: 1.5;
 }
 
-/* 초본·등본 드롭다운: 전입신고 주소 선택과 같은 230×46px */
+/* 초본·등본 용도 드롭다운: 글씨 크기 확대 시 높이·너비 자동 대응 */
 .certificate-step1 .certificate-purpose>select.form-select {
 	grid-column: 2;
 	display: block;
-	width: 230px;
+	width: min(100%, 22em);
 	max-width: 100%;
-	height: 46px;
+	min-width: 0;
+	height: auto;
 	min-height: 46px;
 	margin: 0;
-	padding: 10px 36px 10px 13px;
+	padding: .6em 2.5em .6em .75em;
 	border: 1px solid #aeb8c5;
 	border-radius: 5px;
 	background-color: #fff;
@@ -315,12 +316,13 @@
 
 .certificate-step1 .certificate-purpose input[type="text"] {
 	display: block;
-	width: 230px;
+	width: min(100%, 22em);
 	max-width: 100%;
-	height: 46px;
+	min-width: 0;
+	height: auto;
 	min-height: 46px;
 	margin: 0;
-	padding: 10px 13px;
+	padding: .6em .75em;
 	border: 1px solid #aeb8c5;
 	border-radius: 5px;
 	background: #fff;
@@ -476,7 +478,7 @@
 	}
 	.certificate-step1 .certificate-purpose>select.form-select,
 		.certificate-step1 .certificate-purpose input[type="text"] {
-		width: min(100%, 300px);
+		width: min(100%, 22em);
 	}
 }
 
