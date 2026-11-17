@@ -83,7 +83,7 @@
         <div class="container home-panel-inner">
             <div class="center-map-heading">
                 <div>
-                    <h2 id="center-map-title">행정복지센터를 찾으시나요?</h2>
+                    <h2 id="center-map-title">행정기관을 찾으시나요?</h2>
                 </div>
             </div>
 
@@ -104,7 +104,7 @@
             </div>
 
             <p id="center-map-message" class="center-map-message" role="status" aria-live="polite">
-                  지역을 선택하고 조회하면 해당 지역의 행정기관 검색 결과를 지도와 목록으로 보여줍니다.
+                지역을 선택해 행정기관을 찾아보세요.
             </p>
             <div class="center-map-content-layout">
                 <div class="center-map-visual">
@@ -113,7 +113,7 @@
                 <div id="center-list" class="center-map-list" role="region" aria-label="선택 지역 행정복지센터 목록">
                     <div id="center-list-empty-state" class="center-list-empty-state">
                         <span class="material-symbols-outlined" aria-hidden="true">location_searching</span>
-                        <strong>지역 센터를 찾아보세요</strong>
+                        <strong id="center-list-empty-title">지역 센터를 찾아보세요</strong>
                         <p id="center-list-message" class="center-list-message" role="status" aria-live="polite">
                             시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.
                         </p>

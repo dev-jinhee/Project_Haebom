@@ -144,6 +144,8 @@
     const sidoSelect = document.getElementById('center-sido');
     const sigunguSelect = document.getElementById('center-sigungu');
     const searchButton = document.getElementById('center-map-search');
+    const listEmptyState = document.getElementById('center-list-empty-state');
+    const listEmptyTitle = document.getElementById('center-list-empty-title');
     const listMessage = document.getElementById('center-list-message');
     const listResults = document.getElementById('center-list-results');
     const listPagination = document.getElementById('center-list-pagination');
@@ -151,7 +153,7 @@
     const regionsApiUrl = section.dataset.sgisRegionApiUrl;
     const kakaoKey = (section.dataset.kakaoMapKey || '').trim();
     if (!mapElement || !message || !sidoSelect || !sigunguSelect || !searchButton
-        || !listMessage || !listResults || !listPagination) return;
+        || !listEmptyState || !listEmptyTitle || !listMessage || !listResults || !listPagination) return;
 
     const pageSize = 5;
     let map = null;
@@ -169,7 +171,9 @@
     sigunguSelect.disabled = true;
     searchButton.disabled = true;
 
-    function setListMessage(text) {
+    function setListMessage(text, title) {
+      listEmptyState.hidden = !text;
+      if (title) listEmptyTitle.textContent = title;
       listMessage.textContent = text;
       listMessage.hidden = !text;
     }
@@ -178,7 +182,7 @@
       places = [];
       listResults.replaceChildren();
       listPagination.replaceChildren();
-      setListMessage('시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.');
+      setListMessage('시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.', '지역 센터를 찾아보세요');
     }
 
     function clearMarkers() {
@@ -222,7 +226,7 @@
         resetOptions(sidoSelect, '시·도를 선택하세요');
         sidos.forEach(region => sidoSelect.add(new Option(region.addr_name, region.cd)));
         sidoSelect.disabled = !map;
-        if (map) message.textContent = '시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.';
+        if (map) message.textContent = '지역을 선택해 행정기관을 찾아보세요.';
       } catch (error) {
         console.error('SGIS 시·도 조회 오류:', error);
         message.textContent = error.message || '시·도 목록을 불러오지 못했습니다.';
@@ -356,8 +360,11 @@
       clearMarkers();
       resetList();
       searchButton.disabled = true;
-      message.textContent = '선택한 지역의 행정기관을 검색하고 있습니다.';
-      setListMessage('카카오 장소 정보를 확인하고 있습니다.');
+      // 결과 안내 문구가 사라져도 한 줄 높이를 유지해 지도와 목록이 움직이지 않도록 합니다.
+      message.textContent = '\u00a0';
+      setListMessage('');
+      const loading = window.HaebomLoading;
+      if (loading) loading.show('지역 정보를 조회하고 있어요', '잠시만 기다려 주세요.');
       try {
         const url = new URL(searchApiUrl, window.location.origin);
         url.searchParams.set('sidoCode', sidoSelect.value);
@@ -387,7 +394,7 @@
         });
         clusterer.clear();
         clusterer.addMarkers(markers);
-        if (places.length === 0) setListMessage('검색 결과가 없습니다.');
+        if (places.length === 0) setListMessage('다른 지역을 선택해 다시 조회해 주세요.', '검색 결과가 없습니다');
         else {
           setListMessage('');
           renderListPage(1);
@@ -407,9 +414,10 @@
       } catch (error) {
         if (error.name === 'AbortError' || searchId !== latestSearchId) return;
         console.error('Kakao 행정기관 검색 오류:', error);
-        setListMessage(error.message || '검색 중 오류가 발생했습니다.');
+        setListMessage(error.message || '검색 중 오류가 발생했습니다.', '검색을 완료하지 못했습니다');
         message.textContent = error.message || '검색 중 오류가 발생했습니다.';
       } finally {
+        if (loading) loading.hide();
         if (searchId === latestSearchId) updateControls();
       }
     }
@@ -418,7 +426,7 @@
       invalidatePendingSearch();
       clearMarkers();
       resetList();
-      message.textContent = '';
+      message.textContent = '지역을 선택해 행정기관을 찾아보세요.';
       await loadSigunguOptions(sidoSelect.value);
       updateControls();
     });
@@ -426,6 +434,7 @@
       invalidatePendingSearch();
       clearMarkers();
       resetList();
+      message.textContent = '지역을 선택해 행정기관을 찾아보세요.';
       updateControls();
     });
     searchButton.addEventListener('click', searchSelectedRegion);

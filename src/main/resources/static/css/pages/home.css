@@ -252,7 +252,7 @@
 .center-map-panel .home-panel-inner { gap: 0.5rem; }
 .center-map-panel .center-map-heading { margin-bottom: 0; }
 .center-map-panel .center-map-filters { grid-template-columns: minmax(11.25rem,18.75rem) minmax(11.25rem,18.75rem) auto; }
-.center-map-panel .center-map-message { margin: 0.125rem 0 0.1875rem; font-size: .74rem; }
+.center-map-panel .center-map-message { margin: 0.125rem 0 0.1875rem; color: #52657a; font-size: .74rem; }
 .center-map-content-layout { display: grid; min-height: 0; flex: 1; grid-template-columns: minmax(0, 1.8fr) minmax(18.75rem, .9fr); gap: 0.875rem; }
 .center-map-panel .center-map-canvas { height: 100%; min-height: 0; flex: 1; }
 .center-map-list { display: flex; min-width: 0; min-height: 0; flex-direction: column; margin-top: 0; padding: 0.75rem 0.875rem; overflow: hidden; border: 0.0625rem solid #dce5ef; border-radius: 0.875rem; background: #fff; box-shadow: 0 0.3125rem 1rem rgba(31, 58, 84, .045); }
