@@ -163,6 +163,7 @@
     let otherMarkerImage = null;
     let places = [];
     let markers = [];
+    let highlightedPlaceId = '';
     let isSejong = false;
     let latestSearchId = 0;
     let searchController = null;
@@ -180,7 +181,9 @@
 
     function resetList() {
       places = [];
+      highlightedPlaceId = '';
       listResults.replaceChildren();
+      listResults.scrollTop = 0;
       listPagination.replaceChildren();
       setListMessage('시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.', '지역 센터를 찾아보세요');
     }
@@ -291,6 +294,12 @@
       map.panTo(marker.getPosition());
       infoWindow.setContent(createInfoContent(place));
       infoWindow.open(map, marker);
+
+      highlightedPlaceId = String(place.id);
+      const placeIndex = places.findIndex(item => String(item.id) === highlightedPlaceId);
+      if (placeIndex >= 0) {
+        renderListPage(Math.floor(placeIndex / pageSize) + 1);
+      }
     }
 
     function createMarkerImage(color, scale = 1) {
@@ -328,6 +337,8 @@
       places.slice(start, start + pageSize).forEach(place => {
         const card = document.createElement('article');
         card.className = 'center-list-card';
+        card.dataset.placeId = String(place.id);
+        if (String(place.id) === highlightedPlaceId) card.classList.add('is-map-selected');
         const title = document.createElement('h4');
         title.textContent = place.placeName || '행정기관';
         const address = document.createElement('p');
@@ -355,6 +366,16 @@
         card.append(title, address, actions);
         listResults.append(card);
       });
+      listResults.scrollTop = 0;
+      const highlightedCard = Array.from(listResults.children)
+        .find(card => card.dataset.placeId === highlightedPlaceId);
+      if (highlightedCard) {
+        const resultsTop = listResults.getBoundingClientRect().top;
+        const cardRect = highlightedCard.getBoundingClientRect();
+        if (cardRect.top < resultsTop || cardRect.bottom > listResults.getBoundingClientRect().bottom) {
+          listResults.scrollTop += cardRect.top - resultsTop;
+        }
+      }
       window.renderHaebomPagination({
         container: listPagination,
         currentPage,
