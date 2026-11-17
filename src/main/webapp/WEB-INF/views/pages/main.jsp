@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <spring:eval expression="@environment.getProperty('app.google.maps.browser-key', '')" var="googleMapsBrowserKey" />
+<spring:eval expression="@environment.getProperty('app.kakao.maps.javascript-key', '')"
+             var="kakaoMapsJavascriptKey" />
 <main id="main-content" class="home-main" data-api-url="${pageContext.request.contextPath}/api/main">
     <section id="practice-section" class="home-panel practice-panel" aria-label="행정절차 연습">
         <div class="container home-panel-inner">
@@ -79,7 +81,9 @@
                  data-api-url="${pageContext.request.contextPath}/api/main/institutions"
                  data-sido-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sido"
                  data-sigungu-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sigungu"
-                 data-map-key="${googleMapsBrowserKey}">
+                 data-map-key="${googleMapsBrowserKey}"
+				 data-search-api-url="${pageContext.request.contextPath}/api/main/institutions/search"
+				 data-kakao-map-key="${kakaoMapsJavascriptKey}">
         <div class="container home-panel-inner">
             <div class="center-map-heading">
                 <div>
