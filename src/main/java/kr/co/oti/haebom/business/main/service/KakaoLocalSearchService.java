@@ -114,6 +114,7 @@ public class KakaoLocalSearchService {
                 .map(byId -> {
                     List<KakaoLocalPlaceDto> filtered = byId.values().stream()
                             .filter(this::matchesTargetPlaceName)
+                            .filter(KakaoLocalPlaceDto::administrativeCategoryMatched)
                             .filter(place -> !containsAny(place.placeName(), EXCLUDED_KEYWORDS))
                             .filter(this::hasValidCoordinates)
                             .toList();
