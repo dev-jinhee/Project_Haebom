@@ -138,16 +138,23 @@
   // 3. 전역 글자 크기 조절 (보통 / 크게 / 더 크게 / 가장 크게)
   // ----------------------------------------------------
   const initTextSize = () => {
-    const mobileMediaQuery = window.matchMedia('(max-width: 767.98px)');
+    // [진희] 스마트폰(992px 미만) 및 태블릿 세로 모드에서는 글자 크기를 항상 '보통'으로 고정
+    const hideTextSizeMediaQuery = window.matchMedia('(max-width: 991.98px), (max-width: 1399.98px) and (orientation: portrait)');
 
     const savedTextSize = localStorage.getItem('ongyeol-text-size');
-    let textSize = (mobileMediaQuery.matches)
+    let textSize = (hideTextSizeMediaQuery.matches)
       ? 'normal'
       : ['normal', 'large', 'larger', 'largest'].includes(savedTextSize)
         ? savedTextSize
         : (localStorage.getItem('ongyeol-access-mode') === 'on' || localStorage.getItem('ongyeol-mode') === 'easy' || savedTextSize === 'large')
           ? 'large'
           : 'normal';
+
+    if (hideTextSizeMediaQuery.matches && savedTextSize && savedTextSize !== 'normal') {
+      localStorage.setItem('ongyeol-text-size', 'normal');
+      localStorage.removeItem('ongyeol-access-mode');
+      localStorage.removeItem('ongyeol-mode');
+    }
 
     const renderTextSize = () => {
       document.documentElement.dataset.textSize = textSize;
@@ -172,9 +179,9 @@
 
     renderTextSize();
 
-    // 화면 너비를 모바일 폰 크기(768px 미만)로 줄였을 때 UI 깨짐 방지를 위해 자동으로 '보통(normal)'으로 복구
-    const handleMobileBreakpoint = (e) => {
-      if (e.matches) {
+    // [진희] 화면 너비 축소(992px 미만) 또는 태블릿 세로 모드 전환 시 UI 깨짐 방지를 위해 자동으로 '보통(normal)'으로 복구
+    const handleResponsiveTextSize = () => {
+      if (hideTextSizeMediaQuery.matches) {
         if (textSize !== 'normal') {
           textSize = 'normal';
           localStorage.setItem('ongyeol-text-size', 'normal');
@@ -185,11 +192,12 @@
       }
     };
 
-    if (mobileMediaQuery.addEventListener) {
-      mobileMediaQuery.addEventListener('change', handleMobileBreakpoint);
-    } else if (mobileMediaQuery.addListener) {
-      mobileMediaQuery.addListener(handleMobileBreakpoint);
+    if (hideTextSizeMediaQuery.addEventListener) {
+      hideTextSizeMediaQuery.addEventListener('change', handleResponsiveTextSize);
+    } else if (hideTextSizeMediaQuery.addListener) {
+      hideTextSizeMediaQuery.addListener(handleResponsiveTextSize);
     }
+    window.addEventListener('orientationchange', handleResponsiveTextSize);
 
     document.querySelectorAll('[data-text-size]').forEach((button) => {
       button.addEventListener('click', () => {
