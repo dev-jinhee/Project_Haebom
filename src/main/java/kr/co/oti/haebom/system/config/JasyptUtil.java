@@ -51,7 +51,7 @@ public class JasyptUtil {
         newEncryptor.setConfig(newConfig);
 
         // ========================================================
-        // 4. application.properties에 등록된 기존 암호문 9개 목록
+        // 4. application.properties에 남아 있는 기존 암호문 목록
         // ========================================================
         Map<String, String> oldEncryptedMap = new LinkedHashMap<>();
         oldEncryptedMap.put("spring.datasource.password", "MIwsOYK6wXORQeMezLr2PPhZuAGe4Zvl");
@@ -60,8 +60,6 @@ public class JasyptUtil {
         oldEncryptedMap.put("juso.confirm-key", "AU/XOOnjHnua2UUQlZTvpIZaHyNmK0KaOesO7lPDHvXS4uFLxYaUCehrhiMoEqo8J3n4yzqZLKU=");
         oldEncryptedMap.put("spring.mail.username", "zpglHgG/8tcUxMMBdaeCmzpx41J3k4OUVLVui+dlAsg=");
         oldEncryptedMap.put("spring.mail.password", "iL4bXRWpTHD2RrTsEgQyLnAgX32eyBRX+aj5Mjqw4TY=");
-        oldEncryptedMap.put("app.google.maps.browser-key", "p5yUEqODeWu9GYVy21rgb9Di2zUtzDlrYuIFd2tfr+u1q3Zjoya3pU/VEdB9yUXH");
-        oldEncryptedMap.put("app.google.maps.server-key", "JxVdxGapUHMHGxyQM4LpzgLAJU7P3n9xP0MAkUqWpOkvKUx31YsE7aG48TLCEk0w");
         oldEncryptedMap.put("gov24.api.service-key", "BBPKbBKcuBSiulWayTu5N1WMYlcjh3MRmadHQ4yqM5HbDvCvwlTSNE3CCrxDy5CocCFK7A8H9h/1NViYEoXMJAJhzgAvL1bDWivY0btqxzU=");
 
         System.out.println("================================================================================");

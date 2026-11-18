@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<spring:eval expression="@environment.getProperty('app.google.maps.browser-key', '')" var="googleMapsBrowserKey" />
+<spring:eval expression="@environment.getProperty('app.kakao.maps.javascript-key', '')"
+             var="kakaoMapsJavascriptKey" />
 <main id="main-content" class="home-main" data-api-url="${pageContext.request.contextPath}/api/main">
     <section id="practice-section" class="home-panel practice-panel" aria-label="행정절차 연습">
         <div class="container home-panel-inner">
@@ -76,42 +77,62 @@
 
     <section id="center-map-section" class="home-panel center-map-section center-map-panel"
                  aria-labelledby="center-map-title"
-                 data-api-url="${pageContext.request.contextPath}/api/main/institutions"
-                 data-sido-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sido"
-                 data-sigungu-api-url="${pageContext.request.contextPath}/api/main/institutions/regions/sigungu"
-                 data-map-key="${googleMapsBrowserKey}">
+				 data-search-api-url="${pageContext.request.contextPath}/api/main/institutions/search"
+				 data-kakao-map-key="${kakaoMapsJavascriptKey}"
+                 data-sgis-region-api-url="${pageContext.request.contextPath}/api/address/sgis/regions">
         <div class="container home-panel-inner">
             <div class="center-map-heading">
                 <div>
-                    <h2 id="center-map-title">행정복지센터를 찾으시나요?</h2>
+                    <h2 id="center-map-title">행정기관을 찾으시나요?</h2>
                 </div>
             </div>
 
             <div class="center-map-filters">
                 <div>
-                    <select id="center-sido" class="form-select" aria-label="시·도 선택" aria-describedby="center-map-message">
+                    <select id="center-sido" class="form-select hb-select" aria-label="시·도 선택" aria-describedby="center-map-message">
                         <option value="">시·도를 선택하세요</option>
                     </select>
                 </div>
                 <div>
-                    <select id="center-sigungu" class="form-select" aria-label="시·군·구 선택" disabled aria-describedby="center-map-message">
+                    <select id="center-sigungu" class="form-select hb-select" aria-label="시·군·구 선택" disabled aria-describedby="center-map-message">
                         <option value="">먼저 시·도를 선택하세요</option>
                     </select>
                 </div>
-                <button id="center-map-search" type="button" class="btn btn-primary center-map-search" disabled>
-                    지역 조회
-                </button>
+                <div class="center-map-search-group">
+                    <button id="center-map-search" type="button" class="btn btn-primary center-map-search" disabled>
+                        지역 조회
+                    </button>
+                    <div class="center-map-help">
+                        <button type="button" class="center-map-help-trigger" aria-label="지도 검색 안내"
+                                aria-controls="center-map-help-tooltip" aria-haspopup="dialog" aria-expanded="false">
+                            <span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
+                        </button>
+                        <div id="center-map-help-tooltip" class="center-map-help-tooltip" role="dialog" aria-label="지도 검색 안내">
+                            <button type="button" class="center-map-help-close" aria-label="지도 검색 안내 닫기">
+                                <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                            </button>
+                            <strong>핀 색상</strong>
+                            <p class="center-map-help-pin-row"><span class="center-map-help-blue">파란 핀</span><span>PO3 또는 사회·공공기관 &gt; 지방행정기관·행정기관·행정기관부속시설 분류</span></p>
+                            <p class="center-map-help-pin-row"><span class="center-map-help-dark">검은 핀</span><span>검색어에는 맞지만 위 카카오 분류와 일치하지 않거나 분류 정보가 없는 장소</span></p>
+                            <strong>조회 대상 기관명 (11종)</strong>
+                            <p>행정복지센터 · 주민센터 · 주민자치센터 · 동사무소 · 면사무소 · 읍사무소 · 시청 · 군청 · 구청 · 출장소 · 분소</p>
+                            <small>‘무인민원발급’ 또는 ‘무인발급’이 포함된 장소는 제외합니다.</small>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <p id="center-map-message" class="center-map-message" role="status" aria-live="polite">
-                주소 자료는 행정안전부 읍면동 하부행정기관 현황(2025년 12월 31일 기준)이며, 이후 변경 사항은 반영되지 않았을 수 있습니다.
+                지역을 선택해 행정기관을 찾아보세요.
             </p>
             <div class="center-map-content-layout">
-                <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
+                <div class="center-map-visual">
+                    <div id="center-map" class="center-map-canvas" role="region" aria-label="행정복지센터 위치 지도"></div>
+                </div>
                 <div id="center-list" class="center-map-list" role="region" aria-label="선택 지역 행정복지센터 목록">
                     <div id="center-list-empty-state" class="center-list-empty-state">
                         <span class="material-symbols-outlined" aria-hidden="true">location_searching</span>
-                        <strong>지역 센터를 찾아보세요</strong>
+                        <strong id="center-list-empty-title">지역 센터를 찾아보세요</strong>
                         <p id="center-list-message" class="center-list-message" role="status" aria-live="polite">
                             시·도와 시·군·구를 선택한 뒤 지역 조회를 눌러주세요.
                         </p>
