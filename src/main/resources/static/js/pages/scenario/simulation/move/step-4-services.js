@@ -49,7 +49,20 @@ function renderFamilyTable(root, tbodyId, name, families) {
 		input.setAttribute("aria-label", `${family.familyName} 선택`);
 		cell.appendChild(input);
 		row.appendChild(cell);
-		addPersonCell(row, family.originalRelationship === "CHILD" || family.relationship === "CHILD" ? "자녀" : family.originalRelationship === "SELF" ? "본인" : "가족");
+
+		const relation = family.originalRelationship ?? family.relationship;
+
+		const relationshipLabels = {
+			SELF: "본인",
+			SPOUSE: "배우자",
+			CHILD: "자녀",
+			FATHER: "부",
+			MOTHER: "모",
+			OTHER: "기타"
+		};
+
+		addPersonCell(row, relationshipLabels[relation] ?? "가족");
+
 		addPersonCell(row, family.familyName);
 		addPersonCell(row, birthLabel(family.birthDate));
 		addPersonCell(row, family.gender === "M" ? "남" : family.gender === "F" ? "여" : "-");
