@@ -3,7 +3,7 @@
  * 주민등록증 재발급 UI
  * 저장 / 복원 / 검증은 step-1.js에서 처리
  */
-
+import { scrollToField } from "../utils/focus-scroll.js";
 import { inspectPhotoFile } from "./photo-validator.js";
 
 export function initIdentityStepUi(root, { readOnly = false } = {}) {
@@ -125,7 +125,10 @@ export function initIdentityStepUi(root, { readOnly = false } = {}) {
 				requestId++;
 
 				dialog?.close();
-				openBtn?.focus();
+				if (openBtn) {
+					openBtn.focus({ preventScroll: true })
+					scrollToField(openBtn);
+				}
 			});
 
 			actionCell.appendChild(choose);
@@ -213,7 +216,9 @@ export function initIdentityStepUi(root, { readOnly = false } = {}) {
 			setStatus("지역명을 입력하고 검색해 주세요.");
 
 			if (!dialog.open) dialog.showModal();
-			searchInput?.focus();
+			if (searchInput) {
+				searchInput.focus();
+			}
 		});
 
 		closeBtn?.addEventListener("click", () => {

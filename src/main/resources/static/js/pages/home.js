@@ -73,7 +73,6 @@
     };
 
     trigger.addEventListener('focus', () => help.classList.remove('is-dismissed'));
-
     trigger.addEventListener('click', () => {
       if (!touchViewport.matches) return;
       const willOpen = !help.classList.contains('is-open');

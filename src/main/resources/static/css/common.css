@@ -2028,8 +2028,8 @@ body.large-text-mode .content-panel {
 	font-size: 1.20rem;
 }
 
-/* 모바일 폰 너비(768px 미만)에서는 UI 깨짐 방지를 위해 숨기고, 태블릿(아이패드, 갤탭 등 768px 이상) 및 데스크톱에서 표시합니다. */
-@media (max-width: 767.98px) {
+/* [진희] 스마트폰(992px 미만) 및 태블릿 세로 모드에서는 UI 깨짐 방지를 위해 숨기고, 태블릿 가로 모드 및 데스크톱에서만 표시합니다. */
+@media (max-width: 991.98px), (max-width: 1399.98px) and (orientation: portrait) {
 	.text-size-control {
 		display: none !important;
 	}

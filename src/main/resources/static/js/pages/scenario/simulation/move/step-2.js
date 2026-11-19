@@ -1,6 +1,8 @@
 // ==============================
 // 전입신고 2단계 초기화
 // ==============================
+import { scrollToField } from "../utils/focus-scroll.js";
+
 export async function init({ root, progressId, readOnly, stepId }) {
 	const phoneInputs = [
 		root.querySelector("#phoneFirst"),
@@ -130,11 +132,14 @@ export function validate({ root }) {
 		alert("휴대전화번호를 올바르게 입력해주세요.");
 
 		if (phoneInputs[0].value !== "010") {
-			phoneInputs[0].focus();
+			phoneInputs[0].focus({ preventScroll: true });
+			scrollToField(phoneInputs[0]);
 		} else if (!/^\d{4}$/.test(phoneInputs[1].value)) {
-			phoneInputs[1].focus();
+			phoneInputs[1].focus({ preventScroll: true });
+			scrollToField(phoneInputs[1]);
 		} else {
-			phoneInputs[2].focus();
+			phoneInputs[2].focus({ preventScroll: true });
+			scrollToField(phoneInputs[2]);
 		}
 
 		return false;
@@ -143,10 +148,14 @@ export function validate({ root }) {
 	if (!selectedReason) {
 		alert("전입 사유를 선택해 주세요.");
 
-		// 첫 번째 활성화된 라디오 버튼으로 포커스 이동
-		Array.from(reasonRadios)
-			.find(radio => !radio.disabled)
-			?.focus();
+		// 첫 번째 활성화된 라디오 버튼 찾기
+		const firstRadio = Array.from(reasonRadios)
+			.find(radio => !radio.disabled);
+
+		if (firstRadio) {
+			firstRadio.focus({ preventScroll: true });
+			scrollToField(firstRadio);
+		}
 
 		return false;
 	}
@@ -154,7 +163,8 @@ export function validate({ root }) {
 	// 기타 사유 입력 검증
 	if (otherRadio.checked && !otherInput.value.trim()) {
 		alert("기타 전입 사유를 입력해주세요.");
-		otherInput.focus();
+		otherInput.focus({ preventScroll: true });
+		scrollToField(otherInput);
 		return false;
 	}
 	// 모든 검증 통과

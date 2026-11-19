@@ -469,7 +469,8 @@ async function loadPolicyRecommendations(root, scenarioCode, progressId, refresh
 
 		policies.forEach(policy => {
 			const col = document.createElement("div");
-			col.className = "col-12 col-md-4";
+			// [진희] 중간 화면(768px~991px)에서 3열 카드가 과도하게 좁아지는 현상 방지 (lg 이상에서만 3열 배치)
+			col.className = "col-12 col-lg-4";
 
 			const dept = escapeHtml(policy.deptName || "정부부처");
 			const type = escapeHtml(policy.supportType || "지원");
@@ -492,9 +493,10 @@ async function loadPolicyRecommendations(root, scenarioCode, progressId, refresh
 							${summary}
 						</p>
 					</div>
-					<div class="pt-2 border-top d-flex align-items-center justify-content-between small text-secondary mt-auto">
-						<span class="text-muted" style="font-size: .75rem;" title="${period}">${period}</span>
-						<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none fw-semibold d-inline-flex align-items-center gap-1">
+					<!-- [진희] 신청기간이 길어도 '정부24 바로가기' 링크가 줄바꿈·찌그러지지 않도록 말줄임 및 nowrap 적용 -->
+					<div class="pt-2 border-top d-flex align-items-center justify-content-between gap-2 small text-secondary mt-auto">
+						<span class="text-muted text-truncate" style="font-size: .75rem; min-width: 0;" title="${period}">${period}</span>
+						<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-none fw-semibold d-inline-flex align-items-center gap-1 flex-shrink-0 text-nowrap">
 							정부24 바로가기 <span class="material-symbols-outlined" style="font-size: .9rem;">open_in_new</span>
 						</a>
 					</div>
