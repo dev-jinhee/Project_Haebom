@@ -23,7 +23,7 @@ public class AdminAccountDTO {
 	private String memberName; // 관리자 이름 (예: 박해봄 (총괄))
 	@NotBlank(message = "이메일을 입력해 주세요.")
 	@Email(message = "올바른 이메일 주소를 입력해 주세요.")
-	@Pattern(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "올바른 이메일 주소를 입력해 주세요.")
+	@Pattern(regexp = "^[A-Za-z0-9_%+-]+(?:\\.[A-Za-z0-9_%+-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$", message = "올바른 이메일 주소를 입력해 주세요.")
 	private String email; // 관리자 이메일
 	private String role; // 권한 (ADMIN)
 	private String memberStatus; // 계정 상태 (ACTIVE: 정상, SUSPENDED: 정지)
