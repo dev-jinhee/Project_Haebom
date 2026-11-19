@@ -17,6 +17,7 @@ export function initEmailVerification(page) {
     let resendHelpMessage = '';
     let sendInProgress = false;
     const defaultEmailHelp = '아이디·비밀번호 찾기에 사용할 이메일을 입력해 주세요.';
+    const emailFormatPattern = /^[A-Za-z0-9_%+-]+(?:\.[A-Za-z0-9_%+-]+)*@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/;
 
     function showMessage(element, message, success) {
         if (element === null) return;
@@ -160,6 +161,11 @@ export function initEmailVerification(page) {
             const email = emailField.value.trim();
             if (!emailField.checkValidity()) {
                 emailField.reportValidity();
+                emailField.focus();
+                return;
+            }
+            if (!emailFormatPattern.test(email)) {
+                showMessage(emailSendStatus, '올바른 이메일 주소를 입력해 주세요.', false);
                 emailField.focus();
                 return;
             }
