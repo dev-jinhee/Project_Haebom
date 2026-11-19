@@ -56,6 +56,55 @@
   initializeHomeSectionNavigation();
   initializePolicySearch();
   initializeAdministrativeCenterMap();
+  initializeMapHelpTooltip();
+
+  function initializeMapHelpTooltip() {
+    const help = document.querySelector('.center-map-help');
+    const trigger = help?.querySelector('.center-map-help-trigger');
+    const closeButton = help?.querySelector('.center-map-help-close');
+    if (!help || !trigger || !closeButton) return;
+
+    const touchViewport = window.matchMedia('(hover: none), (pointer: coarse)');
+    const closeHelp = () => {
+      const suppressHoverUntilLeave = help.matches(':hover') || help.contains(document.activeElement);
+      help.classList.remove('is-open');
+      help.classList.toggle('is-dismissed', suppressHoverUntilLeave);
+      trigger.setAttribute('aria-expanded', 'false');
+    };
+
+    trigger.addEventListener('focus', () => help.classList.remove('is-dismissed'));
+    trigger.addEventListener('click', () => {
+      if (!touchViewport.matches) return;
+      const willOpen = !help.classList.contains('is-open');
+      help.classList.remove('is-dismissed');
+      help.classList.toggle('is-open', willOpen);
+      trigger.setAttribute('aria-expanded', String(willOpen));
+    });
+
+    closeButton.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      closeHelp();
+      closeButton.blur();
+      trigger.blur();
+    });
+
+    document.addEventListener('click', event => {
+      if (!help.contains(event.target)) closeHelp();
+    });
+
+    help.addEventListener('mouseleave', () => {
+      if (!help.classList.contains('is-open') && !help.contains(document.activeElement)) {
+        help.classList.remove('is-dismissed');
+      }
+    });
+
+    help.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      closeHelp();
+      trigger.blur();
+    });
+  }
 
   function initializeHomeSectionNavigation() {
     const panels = Array.from(document.querySelectorAll('.home-panel[id]'));
