@@ -47,7 +47,7 @@ public class AdminAccountDTO {
 	}
 	@NotBlank
 	@Size(max = 20)
-	@Pattern(regexp = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z ]+$")
+	@Pattern(regexp = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z() ]+$")
 	private String memberName; // 관리자 이름 (예: 박해봄 (총괄))
 	@NotBlank
 	@Email
