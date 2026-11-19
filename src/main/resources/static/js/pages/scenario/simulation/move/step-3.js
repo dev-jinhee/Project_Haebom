@@ -4,6 +4,7 @@
 // ============================================================
 import { isMinor } from "../utils/age.js";
 import { fetchRegions } from "../utils/sgis-api.js";
+import { scrollToField } from "../utils/focus-scroll.js";
 
 const VIRTUAL_DONG = "해봄동";
 const VIRTUAL_DETAIL = "해봄동 101-1";
@@ -70,8 +71,11 @@ function validateConsents(root) {
 			: "행정정보 공동이용 동의";
 		alert(`${title}의 동의 여부를 선택해 주세요.`);
 		const radio = root.querySelector(`input[name="${key}"]:not(:disabled)`);
-		radio?.closest("details")?.setAttribute("open", "");
-		radio?.focus();
+		if (radio) {
+			radio.closest("details")?.setAttribute("open", "");
+			radio.focus({ preventScroll: true });
+			scrollToField(radio);
+		}
 		return false;
 	}
 	return true;
@@ -137,7 +141,8 @@ export async function init({ root, progressId, stepId, readOnly = false }) {
 			alert("시·도와 시·군·구를 선택해 주세요.");
 			const target = !sidoSelect.value || sigunguSelect.disabled
 				? sidoSelect : sigunguSelect;
-			target.focus();
+			target.focus({ preventScroll: true });
+			scrollToField(target);
 			return;
 		}
 		const selectedSido = sidoSelect.value;
@@ -236,7 +241,6 @@ function renderPreviousAddress(root) {
 
 // ==============================
 // DB 가족 조회
-
 // ==============================
 async function fetchFamily(progressId) {
 	const response = await fetch(`/api/simulation/move/${progressId}/family`);
@@ -277,7 +281,6 @@ function selectedMovingIds(root) {
 
 // ==============================
 // 이사 가는 사람 표: 0단계와 동일한 5열 구조
-
 // ==============================
 function renderFamily(root, readOnly) {
 	const tbody = root.querySelector("#familyTableBody");
@@ -337,10 +340,6 @@ function updateSelectAll(root) {
 }
 
 // ==============================
-// 세대주가 이사하고, 남는 가족이 있을 때만 후보·연락처 표시
-// ==============================
-
-// ==============================
 // 새 세대주 미성년자 안내 (학습 진행은 허용)
 // ==============================
 
@@ -352,7 +351,9 @@ function updateMinorHeadNotice(root) {
 	const show = Boolean(selectedFamily && isMinor(selectedFamily.birthDate));
 	notice.classList.toggle("d-none", !show);
 }
-
+// ==============================
+// 세대주가 이사하고, 남는 가족이 있을 때만 후보·연락처 표시
+// ==============================
 function renderRemainingHead(root, readOnly, restoreSaved = false) {
 	const section = root.querySelector("#remainingHeadSection");
 	const tbody = root.querySelector("#remainingHeadOptions");
@@ -544,7 +545,6 @@ function getHeadPhone(root) {
 
 // ==============================
 // 다음 단계로 넘어가기 전 검증
-
 // ==============================
 export function validate({ root }) {
 	const sido = root.querySelector("#sidoSelect");
@@ -553,7 +553,10 @@ export function validate({ root }) {
 		alert("이전 주소를 선택하고 주소조회를 완료해 주세요.");
 		const target = !sido.value || sigungu.disabled ? sido
 			: !sigungu.value ? sigungu : root.querySelector("#searchFamilyBtn");
-		if (target && !target.disabled) target.focus();
+		if (target && !target.disabled) {
+			target.focus({ preventScroll: true });
+			scrollToField(target);
+		}
 		return false;
 	}
 	const moving = selectedMovingIds(root);
@@ -567,7 +570,10 @@ export function validate({ root }) {
 		alert("신청인은 반드시 이사 대상에 포함되어야 합니다.");
 		const applicantCheckbox = [...root.querySelectorAll('input[name="movingFamily"]')]
 			.find(input => input.value === String(applicant.familyId));
-		applicantCheckbox?.focus();
+		if (applicantCheckbox) {
+			applicantCheckbox.focus({ preventScroll: true });
+			scrollToField(applicantCheckbox);
+		}
 		return false;
 	}
 	if (needsRemainingHead(root)) {
@@ -575,7 +581,11 @@ export function validate({ root }) {
 		const remaining = families.filter(family => !moving.has(String(family.familyId)));
 		if (!chosen || !remaining.some(family => String(family.familyId) === chosen.value)) {
 			alert("남는 가족 중 새로운 세대주를 선택해 주세요.");
-			root.querySelector('input[name="remainingHead"]:not(:disabled)')?.focus();
+			const target = root.querySelector('input[name="remainingHead"]:not(:disabled)');
+			if (target) {
+				target.focus({ preventScroll: true });
+				scrollToField(target);
+			}
 			return false;
 		}
 
@@ -587,7 +597,11 @@ export function validate({ root }) {
 				alert(`${family.familyName}님의 새 세대주와의 관계를 선택해 주세요.`);
 				const row = [...root.querySelectorAll('#remainingHeadOptions tr[data-family-id]')]
 					.find(row => row.dataset.familyId === String(family.familyId));
-				row?.querySelector("select")?.focus();
+				const target = row?.querySelector("select");
+				if (target) {
+					target.focus({ preventScroll: true });
+					scrollToField(target);
+				}
 				return false;
 			}
 		}
@@ -598,7 +612,11 @@ export function validate({ root }) {
 			const invalid = phoneInputs.find((input, index) =>
 				!(index === 0 ? /^010$/ : /^\d{4}$/).test(input?.value.trim() ?? "")
 			);
-			(invalid ?? phoneInputs[0])?.focus();
+			const target = invalid ?? phoneInputs[0];
+			if (target) {
+				target.focus({ preventScroll: true });
+				scrollToField(target);
+			}
 			return false;
 		}
 	}
@@ -608,8 +626,6 @@ export function validate({ root }) {
 
 // ==============================
 // 가족 이사 여부 및 남는 세대주 저장
-// [주의] 백엔드 PATCH 구현/확장이 필요함
-
 // ==============================
 export async function save({ root, progressId }) {
 	if (!validate({ root })) throw new Error("3단계 입력값 검증 실패");

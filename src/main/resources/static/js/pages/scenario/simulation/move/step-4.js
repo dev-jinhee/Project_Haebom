@@ -6,6 +6,7 @@
 // ============================================================
 import { isMinor } from "../utils/age.js";
 import { initServices, restoreServices, getServiceDetails, validateServices, uploadPendingLeaseFiles } from "./step-4-services.js";
+import { scrollToField } from "../utils/focus-scroll.js";
 
 const PHONE_PATTERN = /^010-\d{4}-\d{4}$/;
 const RELATIONS = [
@@ -393,7 +394,9 @@ function mockConfirmExistingHead(root) {
 	const name = $(root, "existingHeadName").value.trim();
 	if (!name) {
 		alert("기존 세대주 가상 이름을 먼저 입력해 주세요.");
-		$(root, "existingHeadName").focus();
+		const target = $(root, "existingHeadName")
+		target.focus({ preventScroll: true });
+		scrollToField(target);
 		return;
 	}
 	existingHeadMockConfirmed = true;
@@ -533,9 +536,6 @@ export async function save({ root, progressId }) {
 export function getData({ root }) {
 	const mode = getMode(root);
 	const strategy = mode === "NEW_HOUSEHOLD" ? getStrategy(root) : null;
-	const headId = mode === "NEW_HOUSEHOLD"
-		? getCurrentHeadId(root)
-		: null;
 	const currentAddress = {};
 	for (const [id, key] of Object.entries(ADDRESS_FIELDS)) {
 		currentAddress[key] = $(root, id).value.trim() || null;
@@ -1005,7 +1005,11 @@ function validatePhoneGroup(group, label) {
 	const invalid = inputs.find((input, index) =>
 		!(index === 0 ? /^010$/ : /^\d{4}$/).test(input.value.trim())
 	);
-	(invalid ?? inputs[0])?.focus();
+	const target = invalid ?? inputs[0];
+	if (target) {
+		target.focus({ preventScroll: true });
+		scrollToField(target);
+	}
 	return false;
 }
 function validateFamilyPhones(root, bodyId) {
@@ -1018,7 +1022,9 @@ function validateFamilyPhones(root, bodyId) {
 export function validate({ root }) {
 	if (!addressSelected || !$(root, "newRoadAddress").value.trim()) {
 		alert("이사 온 곳의 주소를 검색하여 선택해 주세요.");
-		$(root, "addressKeyword").focus();
+		const target = $(root, "addressKeyword");
+		target.focus({ preventScroll: true });
+		scrollToField(target);
 		return false;
 	}
 	if (!movingFamilies.length || !applicant) {
@@ -1028,14 +1034,20 @@ export function validate({ root }) {
 	const mode = getMode(root);
 	if (!mode) {
 		alert("세대 구성 방법을 선택해 주세요.");
-		$(root, "householdTypeEmpty").focus();
+		const target = $(root, "householdTypeEmpty");
+		target.focus({ preventScroll: true });
+		scrollToField(target);
 		return false;
 	}
 	if (mode === "NEW_HOUSEHOLD") {
 		const strategy = getStrategy(root);
 		if (!strategy) {
 			alert("기존 세대주 유지 또는 새 세대주 변경을 선택해 주세요.");
-			root.querySelector('input[name="emptyHeadType"]:not(:disabled)')?.focus();
+			const target = root.querySelector('input[name="emptyHeadType"]:not(:disabled)');
+			if (target) {
+				target.focus({ preventScroll: true });
+				scrollToField(target);
+			}
 			return false;
 		}
 		if (strategy === "KEEP_ORIGINAL") {
@@ -1055,15 +1067,20 @@ export function validate({ root }) {
 		if (strategy === "CHANGE_HEAD") {
 			if (!selectedNewHeadId || !movingFamilies.some(f => sameId(f.familyId, selectedNewHeadId))) {
 				alert("이사하는 가족 중 새로운 세대주를 선택해 주세요.");
-				root.querySelector('input[name="newHeadFamilyId"]:not(:disabled)')?.focus();
+				const target = root.querySelector('input[name="newHeadFamilyId"]:not(:disabled)');
+				if (target) {
+					target.focus({ preventScroll: true });
+					scrollToField(target);
+				}
 				return false;
 			}
 			for (const row of $(root, "changeNewHeadTableBody").querySelectorAll("tr[data-family-id]")) {
 				if (!sameId(row.dataset.familyId, selectedNewHeadId)) {
 					const select = row.querySelector("select[data-family-id]");
-					if (!select?.value) {
+					if (select && !select?.value) {
 						alert("새 세대주와의 관계를 모두 선택해 주세요.");
-						select?.focus();
+						select.focus({ preventScroll: true });
+						scrollToField(select);
 						return false;
 					}
 				}
@@ -1073,28 +1090,38 @@ export function validate({ root }) {
 	} else if (mode === "JOIN_EXISTING") {
 		if (!$(root, "existingHeadName").value.trim()) {
 			alert("기존 거주 세대주의 가상 이름을 입력해 주세요.");
-			$(root, "existingHeadName").focus();
+			const target = $(root, "existingHeadName");
+			target.focus({ preventScroll: true });
+			scrollToField(target);
 			return false;
 		}
 		if (!existingHeadMockConfirmed) {
 			const button = $(root, "mockExistingHeadConfirmBtn");
 			alert("기존 세대주 확인 체험을 완료해 주세요.");
-			button?.classList.add("validation-focus");
-			button?.focus();
+			if (button) {
+				button.classList.add("validation-focus");
+				button.focus({ preventScroll: true });
+				scrollToField(button);
+			}
 			return false;
 		}
 		if (!validatePhoneGroup($(root, "existingHeadPhoneGroup"), "기존 세대주의 휴대전화번호")) return false;
 		for (const row of $(root, "existingHouseholdTableBody").querySelectorAll("tr[data-family-id]")) {
 			const select = row.querySelector("select[data-family-id]");
-			if (!select?.value) {
+			if (select && !select?.value) {
 				alert("이사 가족 모두 기존 세대주와의 관계를 선택해 주세요.");
-				select?.focus();
+				select.focus({ preventScroll: true });
+				scrollToField(select);
 				return false;
 			}
 		}
 		return validateFamilyPhones(root, "existingHouseholdTableBody") && validateServices(root);
 	}
 	alert("올바른 세대 구성 방법을 선택해 주세요.");
-	root.querySelector('input[name="householdType"]:not(:disabled)')?.focus();
+	const target = root.querySelector('input[name="householdType"]:not(:disabled)');
+	if (target) {
+		target.focus({ preventScroll: true });
+		scrollToField(target);
+	}
 	return false;
 }

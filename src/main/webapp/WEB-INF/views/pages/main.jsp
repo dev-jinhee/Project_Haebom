@@ -103,17 +103,14 @@
                         지역 조회
                     </button>
                     <div class="center-map-help">
-                        <button type="button" class="center-map-help-trigger" aria-label="지도 검색 안내"
+                        <button type="button" class="center-map-help-trigger" aria-label="조회 대상 기관 안내"
                                 aria-controls="center-map-help-tooltip" aria-haspopup="dialog" aria-expanded="false">
                             <span class="material-symbols-outlined" aria-hidden="true">help_outline</span>
                         </button>
-                        <div id="center-map-help-tooltip" class="center-map-help-tooltip" role="dialog" aria-label="지도 검색 안내">
-                            <button type="button" class="center-map-help-close" aria-label="지도 검색 안내 닫기">
+                        <div id="center-map-help-tooltip" class="center-map-help-tooltip" role="dialog" aria-label="조회 대상 기관 안내">
+                            <button type="button" class="center-map-help-close" aria-label="조회 대상 기관 안내 닫기">
                                 <span class="material-symbols-outlined" aria-hidden="true">close</span>
                             </button>
-                            <strong>핀 색상</strong>
-                            <p class="center-map-help-pin-row"><span class="center-map-help-blue">파란 핀</span><span>PO3 또는 사회·공공기관 &gt; 지방행정기관·행정기관·행정기관부속시설 분류</span></p>
-                            <p class="center-map-help-pin-row"><span class="center-map-help-dark">검은 핀</span><span>검색어에는 맞지만 위 카카오 분류와 일치하지 않거나 분류 정보가 없는 장소</span></p>
                             <strong>조회 대상 기관명 (11종)</strong>
                             <p>행정복지센터 · 주민센터 · 주민자치센터 · 동사무소 · 면사무소 · 읍사무소 · 시청 · 군청 · 구청 · 출장소 · 분소</p>
                             <small>‘무인민원발급’ 또는 ‘무인발급’이 포함된 장소는 제외합니다.</small>

@@ -1,7 +1,9 @@
 // ==============================
 // 전입신고 1단계 초기화
 // ==============================
-export async function init({ root, progressId, readOnly,stepId }) {
+import { scrollToField } from "../utils/focus-scroll.js";
+
+export async function init({ root, progressId,stepId }) {
 	 // 저장된 입력값 조회
     const response = await fetch(
         `/api/simulation/answers/${progressId}/${stepId}`
@@ -46,7 +48,8 @@ export function validate({ root }) {
 
     if (!agreeCheckbox.checked) {
         alert("유의사항을 확인하고 동의해주세요.");
-        agreeCheckbox.focus();
+        agreeCheckbox.focus({ preventScroll: true });
+        scrollToField(agreeCheckbox);
         return false;
     }
 

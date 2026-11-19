@@ -2,13 +2,14 @@
 // 실제 행정기관 신청은 수행하지 않습니다. 파일은 서버 업로드 연동 전까지 브라우저 메모리에만 보관합니다.
 import { calculateAge } from "../utils/age.js";
 import { uploadAttachment, deleteAttachment } from "../utils/attachment-api.js";
+import { scrollToField } from "../utils/focus-scroll.js";
 
 const SERVICE_CODES = ["LEASE_REPORT", "MAIL_FORWARD", "SCHOOL_ADDRESS", "UTILITY_ADDRESS", "WELFARE_BENEFIT"];
 const $ = (root, selector) => root.querySelector(selector);
 const selected = (root, code) => Boolean($(root, `input[name="additionalService"][value="${code}"]`)?.checked);
 const checkedIds = (root, name) => [...root.querySelectorAll(`input[name="${name}"]:checked`)].map(input => Number(input.value));
 const checked = (root, name) => Boolean($(root, `[name="${name}"]`)?.checked);
-const val = (root, id) => $(root, `#${id}`)?.value?.trim() ?? "";
+
 // 실제 파일 업로드 API 연동 전 단계: 선택한 파일은 브라우저 메모리에만 보관
 const LEASE_MAX_FILE_BYTES = 2 * 1024 * 1024;
 const LEASE_MAX_FILES = 2;
@@ -49,7 +50,20 @@ function renderFamilyTable(root, tbodyId, name, families) {
 		input.setAttribute("aria-label", `${family.familyName} 선택`);
 		cell.appendChild(input);
 		row.appendChild(cell);
-		addPersonCell(row, family.originalRelationship === "CHILD" || family.relationship === "CHILD" ? "자녀" : family.originalRelationship === "SELF" ? "본인" : "가족");
+
+		const relation = family.originalRelationship ?? family.relationship;
+
+		const relationshipLabels = {
+			SELF: "본인",
+			SPOUSE: "배우자",
+			CHILD: "자녀",
+			FATHER: "부",
+			MOTHER: "모",
+			OTHER: "기타"
+		};
+
+		addPersonCell(row, relationshipLabels[relation] ?? "가족");
+
 		addPersonCell(row, family.familyName);
 		addPersonCell(row, birthLabel(family.birthDate));
 		addPersonCell(row, family.gender === "M" ? "남" : family.gender === "F" ? "여" : "-");
@@ -505,46 +519,100 @@ export function restoreServices(root, details = {}) {
 	}
 	updateSections(root);
 }
+
 export function validateServices(root) {
 
-	if (selected(root, "MAIL_FORWARD")) {
-		if (!/^010-\d{4}-\d{4}$/.test(
-			getPhoneGroup(root, "mailForwardPhoneGroup")
-		)) {
-			alert("우편물 주소 이전 서비스의 휴대전화번호를 입력해 주세요.");
-			root.querySelector("#mailForwardPhoneGroup input")?.focus();
-			return false;
-		}
-		if (!checkedIds(root, "mailFamilyId").length) {
-			alert("우편물 주소 이전 서비스 신청 대상자를 한 명 이상 선택해 주세요.");
-			(root.querySelector('input[name="mailFamilyId"]:not(:disabled)')
-				?? root.querySelector('input[name="additionalService"][value="MAIL_FORWARD"]'))?.focus();
-			return false;
-		}
-		const landline = getPhoneGroup(root, "mailForwardLandlineGroup")
-			.replace(/^-+$/, "");
+    // 우편물 주소 이전 서비스
+    if (selected(root, "MAIL_FORWARD")) {
 
-		if (landline && !/^\d{2,3}-\d{3,4}-\d{4}$/.test(landline)) {
-			alert("신청인 전화번호를 올바르게 입력해 주세요.");
-			root.querySelector("#mailForwardLandlineGroup input")?.focus();
-			return false;
-		}
-	}
-	if (selected(root, "SCHOOL_ADDRESS") && !checkedIds(root, "schoolFamilyId").length) {
-		alert("초등학교 배정정보 신청 대상 아동을 선택해 주세요. 대상자가 없다면 서비스를 해제해 주세요.");
-		(root.querySelector('input[name="schoolFamilyId"]:not(:disabled)')
-			?? root.querySelector('input[name="additionalService"][value="SCHOOL_ADDRESS"]'))?.focus();
-		return false;
-	}
-	if (selected(root, "UTILITY_ADDRESS") && !checked(root, "electricNoticeConsent")) {
-		alert("전기사용자 명의변경 유의사항을 확인해 주세요.");
-		root.querySelector('[name="electricNoticeConsent"]:not(:disabled)')?.focus();
-		return false;
-	}
-	if (selected(root, "WELFARE_BENEFIT") && !checked(root, "welfareNoticeConsent")) {
-		alert("요금감면 일괄신청 유의사항을 확인해 주세요.");
-		root.querySelector('[name="welfareNoticeConsent"]:not(:disabled)')?.focus();
-		return false;
-	}
-	return true;
+        if (!/^010-\d{4}-\d{4}$/.test(
+            getPhoneGroup(root, "mailForwardPhoneGroup")
+        )) {
+            alert("우편물 주소 이전 서비스의 휴대전화번호를 입력해 주세요.");
+
+            const target = root.querySelector("#mailForwardPhoneGroup input");
+
+            if (target) {
+                target.focus({ preventScroll: true });
+                scrollToField(target);
+            }
+
+            return false;
+        }
+
+        if (!checkedIds(root, "mailFamilyId").length) {
+            alert("우편물 주소 이전 서비스 신청 대상자를 한 명 이상 선택해 주세요.");
+
+            const target = root.querySelector('input[name="mailFamilyId"]:not(:disabled)')
+                ?? root.querySelector('input[name="additionalService"][value="MAIL_FORWARD"]');
+
+            if (target) {
+                target.focus({ preventScroll: true });
+                scrollToField(target);
+            }
+
+            return false;
+        }
+
+        const landline = getPhoneGroup(root, "mailForwardLandlineGroup")
+            .replace(/^-+$/, "");
+
+        if (landline && !/^\d{2,3}-\d{3,4}-\d{4}$/.test(landline)) {
+            alert("신청인 전화번호를 올바르게 입력해 주세요.");
+
+            const target = root.querySelector("#mailForwardLandlineGroup input");
+
+            if (target) {
+                target.focus({ preventScroll: true });
+                scrollToField(target);
+            }
+
+            return false;
+        }
+    }
+
+    // 초등학교 배정정보 서비스
+    if (selected(root, "SCHOOL_ADDRESS") && !checkedIds(root, "schoolFamilyId").length) {
+        alert("초등학교 배정정보 신청 대상 아동을 선택해 주세요. 대상자가 없다면 서비스를 해제해 주세요.");
+
+        const target = root.querySelector('input[name="schoolFamilyId"]:not(:disabled)')
+            ?? root.querySelector('input[name="additionalService"][value="SCHOOL_ADDRESS"]');
+
+        if (target) {
+            target.focus({ preventScroll: true });
+            scrollToField(target);
+        }
+
+        return false;
+    }
+
+    // 전기사용자 명의변경 서비스
+    if (selected(root, "UTILITY_ADDRESS") && !checked(root, "electricNoticeConsent")) {
+        alert("전기사용자 명의변경 유의사항을 확인해 주세요.");
+
+        const target = root.querySelector('[name="electricNoticeConsent"]:not(:disabled)');
+
+        if (target) {
+            target.focus({ preventScroll: true });
+            scrollToField(target);
+        }
+
+        return false;
+    }
+
+    // 요금감면 일괄신청 서비스
+    if (selected(root, "WELFARE_BENEFIT") && !checked(root, "welfareNoticeConsent")) {
+        alert("요금감면 일괄신청 유의사항을 확인해 주세요.");
+
+        const target = root.querySelector('[name="welfareNoticeConsent"]:not(:disabled)');
+
+        if (target) {
+            target.focus({ preventScroll: true });
+            scrollToField(target);
+        }
+
+        return false;
+    }
+
+    return true;
 }

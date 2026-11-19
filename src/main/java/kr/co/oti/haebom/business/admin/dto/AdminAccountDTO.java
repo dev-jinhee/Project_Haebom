@@ -24,7 +24,8 @@ public class AdminAccountDTO {
 	private Integer memberId; // 관리자 고유 번호 (PK)
 	@NotBlank
 	@Size(min = 4, max = 16)
-	@Pattern(regexp = "^[a-zA-Z0-9_]+$")
+
+	@Pattern(regexp = "^[a-zA-Z0-9]+$")
 	private String loginId; // 관리자 로그인 아이디
 	@NotBlank
 	@Size(max = 240)
