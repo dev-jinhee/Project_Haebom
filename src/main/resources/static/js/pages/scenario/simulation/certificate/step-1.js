@@ -4,6 +4,7 @@
  * 기존 주민등록증 재발급 모듈과 같은 ../utils/sgis-api.js 경로 기준.
  */
 import { fetchRegions } from "../utils/sgis-api.js";
+import { scrollToField } from "../utils/focus-scroll.js";
 
 const $ = (root, selector) => root.querySelector(selector);
 const value = (root, selector) => $(root, selector)?.value?.trim() ?? "";
@@ -353,7 +354,7 @@ function focusValidationTarget(root, target) {
 		element.addEventListener("blur", () => element.classList.remove("validation-focus"), { once: true });
 	}
 	element.focus({ preventScroll: true });
-	element.scrollIntoView({ behavior: "smooth", block: "center" });
+	scrollToField(element);
 }
 
 export function validate({ root }) {
