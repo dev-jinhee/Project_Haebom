@@ -225,7 +225,7 @@
 				headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
 				body: new URLSearchParams({
 					loginId,
-					password,
+					password: encodeURIComponent(String(password)),
 					memberName,
 					email
 				})
