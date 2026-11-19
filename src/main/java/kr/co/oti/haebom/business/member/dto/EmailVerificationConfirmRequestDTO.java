@@ -16,6 +16,7 @@ public class EmailVerificationConfirmRequestDTO {
 	
 	@NotBlank
 	@Email
+	@Pattern(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "올바른 이메일 주소를 입력해 주세요.")
 	@Size(max = 50)
 	private String email;
 	

@@ -2,6 +2,8 @@ package kr.co.oti.haebom.business.admin.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,7 +44,7 @@ public class AdminAccountApiController {
     @PostMapping
     public ResponseEntity<String> createAdmin(
             @AuthenticationPrincipal MemberPrincipal principal,
-            @ModelAttribute AdminAccountDTO dto) {
+            @Valid @ModelAttribute AdminAccountDTO dto) {
         int currentAdminId = PrincipalUtils.requireAdminId(principal);
         adminAccountService.createAdmin(dto, currentAdminId);
         return ResponseEntity.ok("새 관리자 계정이 성공적으로 등록되었습니다.");

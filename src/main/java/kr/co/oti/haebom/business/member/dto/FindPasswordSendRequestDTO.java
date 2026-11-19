@@ -2,6 +2,7 @@ package kr.co.oti.haebom.business.member.dto;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class FindPasswordSendRequestDTO {
 	
 	@NotBlank
 	@Email
+	@Pattern(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "올바른 이메일 주소를 입력해 주세요.")
 	@Size(max = 50)
 	private String email;
 }

@@ -2,6 +2,10 @@ package kr.co.oti.haebom.business.admin.dto;
 
 import java.time.LocalDateTime;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +21,9 @@ public class AdminAccountDTO {
 	private String loginId; // 관리자 로그인 아이디
 	private String password; // 관리자 비밀번호 (등록 시 사용)
 	private String memberName; // 관리자 이름 (예: 박해봄 (총괄))
+	@NotBlank(message = "이메일을 입력해 주세요.")
+	@Email(message = "올바른 이메일 주소를 입력해 주세요.")
+	@Pattern(regexp = "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$", message = "올바른 이메일 주소를 입력해 주세요.")
 	private String email; // 관리자 이메일
 	private String role; // 권한 (ADMIN)
 	private String memberStatus; // 계정 상태 (ACTIVE: 정상, SUSPENDED: 정지)
