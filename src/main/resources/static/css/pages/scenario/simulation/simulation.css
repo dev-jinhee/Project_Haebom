@@ -555,4 +555,23 @@
 		margin: 0;
 		padding: 0;
 	}
+	.table-responsive {
+		width: 100% !important;
+		max-width: 100% !important;
+		overflow: visible !important;
+	}
+	.table-responsive table {
+		width: 100% !important;
+		max-width: 100% !important;
+		min-width: 0 !important;
+		table-layout: fixed;
+	}
+	.table-responsive th, .table-responsive td {
+		box-sizing: border-box;
+		overflow-wrap: anywhere;
+	}
+	.table-responsive input, .table-responsive select {
+		max-width: 100%;
+		box-sizing: border-box;
+	}
 }
