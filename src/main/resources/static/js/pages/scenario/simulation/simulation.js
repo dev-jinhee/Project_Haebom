@@ -780,6 +780,9 @@ function filterSpecialCharacters(event) {
 
 	if (!input.matches('input[type="text"], textarea')) return;
 
+	// 한글 조합 중에는 입력값을 변경하지 않음
+	if (event.isComposing) return;
+
 	// 상세주소는 별도 규칙 적용
 	if (input.matches("[data-address-detail]")) {
 		input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s#(),/-]/g, "");
@@ -852,6 +855,10 @@ document.querySelector("#printBtn")
 	});
 document.querySelector("#stepContent").addEventListener(
 	"input",
+	filterSpecialCharacters
+);
+document.querySelector("#stepContent").addEventListener(
+	"compositionend",
 	filterSpecialCharacters
 );
 

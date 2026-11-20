@@ -178,6 +178,8 @@ async function loadMemberProfile(root) {
 
 export async function init({ root, progressId, stepId, readOnly = false, savedData = null }) {
 	if (!root) return;
+	// 읽기 전용 상태 저장
+	root.dataset.identityReadonly = String(readOnly);
 	uploadedPhotoByRoot.set(root, null);
 	root.dataset.identityProgressId = progressId ?? "";
 	const addressSelects = setupAddressSelects(root, readOnly);
