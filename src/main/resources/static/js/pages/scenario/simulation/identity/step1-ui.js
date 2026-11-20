@@ -449,31 +449,38 @@ export async function renderSavedPhotoPreview(root, photo, progressId, { preserv
 
 	/* 완료 후 다시보기에서 저장된 파일명 표시 */
 	const fileInput = root.querySelector("#identityPhotoInput");
-	const isCompleted = document.body.classList.contains("is-completed");
+	const isCompleted =
+		document.body.classList.contains("is-completed") ||
+		root.dataset.identityReadonly === "true";
 
-	if (fileInput && isCompleted && photo?.s3Key) {
-		// 원래 파일 선택창 숨김
+
+	if (fileInput && isCompleted) {
+		// 완료 상태에서는 파일 선택창 숨김
 		fileInput.classList.add("d-none");
 
-		// 중복 생성 방지
+		// 기존 첨부 완료 표시 제거 (중복 방지)
 		fileInput.parentElement
-			.querySelector(".identity-photo-file-readonly")
+			?.querySelector(".identity-photo-file-readonly")
 			?.remove();
 
-		const display = document.createElement("div");
-		display.className = "identity-photo-file-readonly";
+		// 저장된 사진이 있을 때만 첨부 완료 표시
+		if (photo?.s3Key) {
+			const display = document.createElement("div");
+			display.className = "identity-photo-file-readonly";
 
-		const label = document.createElement("span");
-		label.className = "file-label";
-		label.textContent = "첨부 완료";
+			const label = document.createElement("span");
+			label.className = "file-label";
+			label.textContent = "첨부 완료";
 
-		const name = document.createElement("span");
-		name.className = "file-name";
-		name.textContent = photo.fileName || fileId;
+			const name = document.createElement("span");
+			name.className = "file-name";
+			name.textContent = photo.fileName || fileId;
 
-		display.append(label, name);
-		fileInput.insertAdjacentElement("afterend", display);
+			display.append(label, name);
+			fileInput.insertAdjacentElement("afterend", display);
+		}
 	}
+
 
 
 
