@@ -60,6 +60,13 @@ function updateUi(root) {
 	const selection = mode === "SELECT";
 	const selective = $(root, "#certificateSelectiveOptions");
 	selective.hidden = !selection;
+	if (!included(root, "chobonPastAddressIncluded")) {
+		const relation = root.querySelector(
+			'input[name="chobonPastHouseholdRelationIncluded"]'
+		);
+
+		if (relation) relation.checked = false;
+	}
 	$(root, "#certificateIssueHint").textContent = selection
 		? "발급 문서에 표시할 정보를 선택하세요."
 		: "과거주소 변동사항을 제외한 모든 정보가 표시됩니다.";
@@ -73,16 +80,40 @@ function updateUi(root) {
 	["deungbon", "chobon"].forEach(prefix => {
 		const container = $(root, prefix === "deungbon" ? "#certificateDeungbonFields" : "#certificateChobonFields");
 		const active = selection && type === (prefix === "deungbon" ? "DEUNGBON" : "CHOBON");
+
 		container.querySelectorAll(".certificate-option-row").forEach(row => {
-			const parent = row.querySelector('.certificate-option-title input[type="checkbox"]');
-			const expanded = active && !!parent?.checked;
+			const parent = row.querySelector(
+				'.certificate-option-title input[type="checkbox"]'
+			);
+
+			// 초본 과거 주소 세대주 관계는 과거 주소 선택 시에만 표시
+			const isPastRelation =
+				prefix === "chobon" &&
+				parent?.name === "chobonPastHouseholdRelationIncluded";
+
+			const visible = !isPastRelation ||
+				included(root, "chobonPastAddressIncluded");
+
+			row.hidden = !visible;
+			row.style.display = visible ? "" : "none";
+
+			const expanded = active && visible && !!parent?.checked;
+
 			const details = row.querySelector(".certificate-option-content");
-			if (details) details.hidden = !expanded; // 체크해야 오른쪽 라디오/체크 항목 나타남
+			if (details) details.hidden = !expanded;
+
 			const note = row.querySelector(".certificate-option-note");
 			if (note) note.hidden = !expanded;
 
-			if (parent) parent.disabled = readOnly || !active;
-			row.querySelectorAll(".certificate-option-content input, .certificate-option-note input, .certificate-option-note select").forEach(input => {
+			if (parent) {
+				parent.disabled = readOnly || !active || !visible;
+			}
+
+			row.querySelectorAll(
+				".certificate-option-content input, " +
+				".certificate-option-note input, " +
+				".certificate-option-note select"
+			).forEach(input => {
 				input.disabled = readOnly || !expanded;
 			});
 		});
@@ -118,10 +149,15 @@ function updateUi(root) {
 	// 초본: 과거 주소 관계 / 현재 세대주 관계 중 하나라도 '상세'면 용도 입력 표시.
 	const chobonActive = selection && type === "CHOBON";
 	const chobonDetailed = chobonActive && (
-		(included(root, "chobonPastHouseholdRelationIncluded") &&
-			choice(root, "chobonPastHouseholdRelationType") === "DETAIL") ||
-		(included(root, "chobonHouseholdRelationIncluded") &&
-			choice(root, "chobonHouseholdRelationType") === "DETAIL")
+		(
+			included(root, "chobonPastAddressIncluded") &&
+			included(root, "chobonPastHouseholdRelationIncluded") &&
+			choice(root, "chobonPastHouseholdRelationType") === "DETAIL"
+		) ||
+		(
+			included(root, "chobonHouseholdRelationIncluded") &&
+			choice(root, "chobonHouseholdRelationType") === "DETAIL"
+		)
 	);
 	const chobonPurposeArea = $(root, "#certificateChobonPurposeArea");
 	const chobonPurposeOtherArea = $(root, "#certificateChobonPurposeOtherArea");
@@ -287,8 +323,17 @@ export function getData({ root }) {
 			["chobonMilitaryServiceIncluded", "chobonMilitaryServiceScope"],
 			["chobonHouseholdRelationIncluded", "chobonHouseholdRelationType"]
 		]) {
-			data[parent] = yn(root, parent);
-			if (included(root, parent)) data[radioName] = choice(root, radioName);
+
+			const enabled = parent === "chobonPastHouseholdRelationIncluded"
+				? included(root, "chobonPastAddressIncluded") && included(root, parent)
+				: included(root, parent);
+
+			data[parent] = enabled ? "Y" : "N";
+
+			if (enabled) {
+				data[radioName] = choice(root, radioName);
+			}
+
 		}
 		data.chobonIdNumbersIncluded = yn(root, "chobonIdNumbersIncluded");
 		if (included(root, "chobonIdNumbersIncluded")) {
@@ -380,9 +425,22 @@ export function validate({ root }) {
 
 	if (data.issueMode === "SELECT") {
 		const prefix = PREFIXES[data.certificateType];
+
 		const selectedParents = data.certificateType === "DEUNGBON"
-			? ["deungbonPastAddressIncluded", "deungbonHouseholdCompositionIncluded", "deungbonHouseholdMemberIncluded", "deungbonRrnBackIncluded", "deungbonRelationshipIncluded"]
-			: ["chobonPastAddressIncluded", "chobonPastHouseholdRelationIncluded", "chobonPersonalChangeIncluded", "chobonIdNumbersIncluded", "chobonMilitaryServiceIncluded", "chobonHouseholdRelationIncluded"];
+			? [
+				"deungbonPastAddressIncluded",
+				"deungbonHouseholdCompositionIncluded",
+				"deungbonHouseholdMemberIncluded",
+				"deungbonRrnBackIncluded",
+				"deungbonRelationshipIncluded"
+			]
+			: [
+				"chobonPastAddressIncluded",
+				"chobonPersonalChangeIncluded",
+				"chobonIdNumbersIncluded",
+				"chobonMilitaryServiceIncluded",
+				"chobonHouseholdRelationIncluded"
+			];
 		if (!selectedParents.some(name => data[name] === "Y")) {
 			return fail("선택 발급 시 표시할 항목을 하나 이상 선택해 주세요.", option(selectedParents[0]));
 		}
