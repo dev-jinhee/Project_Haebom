@@ -4,7 +4,6 @@
 <%-- simulation.jsp가 삽입하는 STEP 1 fragment: 공통 이전/완료 버튼은 중복 생성하지 않습니다. --%>
 <div class="sim-step-content certificate-step1" data-step="1">
 	<header class="certificate-heading">
-		<h2>주민등록표 등본(초본) 발급</h2>
 		<p>신청할 서비스를 선택하세요.</p>
 	</header>
 
