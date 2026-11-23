@@ -783,6 +783,12 @@ function filterSpecialCharacters(event) {
 	// 한글 조합 중에는 입력값을 변경하지 않음
 	if (event.isComposing) return;
 
+	// 전입신고 도로명 주소 검색: 하이픈과 괄호 허용
+	if (input.id === "addressKeyword") {
+		input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s()-]/g, "");
+		return;
+	}
+
 	// 상세주소는 별도 규칙 적용
 	if (input.matches("[data-address-detail]")) {
 		input.value = input.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9\s#(),/-]/g, "");
